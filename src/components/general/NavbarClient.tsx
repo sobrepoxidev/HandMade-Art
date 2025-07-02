@@ -122,7 +122,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
             <Link href="/" className="flex items-center gap-2">
-              <Image src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg" alt="HandMadeArt Logo" width={40} height={40} className="w-8 md:w-10 object-cover" />
+              <Image src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg" alt="HandMadeArt Logo" width={40} height={40} className="w-8 md:w-10 object-cover" unoptimized />
               <span className="hidden sm:block text-lg md:text-2xl tracking-wider text-gray-800">
                 <span className="mr-1">HANDMADE</span><span className="font-bold text-[#B55327]">ART</span>
               </span>

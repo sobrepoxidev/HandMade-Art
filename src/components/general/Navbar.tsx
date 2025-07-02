@@ -34,6 +34,7 @@ export default async function Navbar({ locale }: { locale: string }) {
                 height={0}
                 className="w-[40px] md:w-[65px] object-cover"
                 priority
+                unoptimized
               />
               </div>
               <div className="hidden lg:block">
@@ -44,6 +45,7 @@ export default async function Navbar({ locale }: { locale: string }) {
                 height={0}
                 className="w-[40px] md:w-[65px] object-cover"
                 priority
+                unoptimized
               />
               </div>
         
