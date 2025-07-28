@@ -76,13 +76,13 @@ export async function sendSummaryMail(
   /* 👉 Plantilla con fecha y “papelitos” */
   const html = `
   <div style="font-family:Arial,Helvetica,sans-serif;line-height:1.4">
-    <h2 style="color:#0f766e;margin:0 0 12px">
+    <h2 style="color:#db2777;margin:0 0 12px">
       ¡Gracias por registrarte, ${name}!
     </h2>
 
     <p>
-      Ya estás participando por el <strong>Marco de Espejo</strong>.
-      El sorteo se realizará el <strong>domingo&nbsp;15&nbsp;de&nbsp;junio&nbsp;de&nbsp;2025</strong>.
+      Ya estás participando para ganar un <strong>Espejo Artesanal</strong> por el Día de la Madre.
+      El sorteo se realizará el <strong>jueves&nbsp;14&nbsp;de&nbsp;agosto&nbsp;de&nbsp;2025</strong>.
     </p>
 
     <p>
@@ -97,8 +97,7 @@ export async function sendSummaryMail(
     }
 
     <p style="margin-top:24px">
-      Pronto grabarás tu video 360° en nuestro Photo&nbsp;Booth.
-      ¡Nos vemos en la feria!<br/>— Equipo HandMadeArt
+      ¡Buena suerte!<br/>— Equipo Handmade Art
     </p>
   </div>`;
 
@@ -110,7 +109,7 @@ export async function sendSummaryMail(
   await transporter.sendMail({
     from: `"HANDMADE ART" <${process.env.EMAIL_USER}>`,
     to,
-    subject: `¡Gracias por registrarte, ${name}!`,
+    subject: `¡Suerte en nuestro sorteo Día de la Madre, ${name}!`,
     html
   });
 }
