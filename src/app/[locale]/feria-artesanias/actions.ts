@@ -93,7 +93,7 @@ export async function sendSummaryMail(
     ${
       followedList
         ? `<p><strong>Redes que seguiste:</strong></p><ul>${followedList}</ul>`
-        : `<p>Aún puedes seguir nuestras redes para sumar más papelitos o enviarnos tus capturas de pantalla por WhatsApp.</p>
+        : `<p>Aún puedes seguir nuestras redes para sumar más papelitos y enviarnos tus capturas de pantalla por WhatsApp.</p>
         <a href="https://wa.me/50684237555?text=Hola%2C%20quiero%20registrar%20m%C3%A1s%20participaciones%20para%20el%20sorteo%20del%20D%C3%ADa%20de%20la%20Madre" style="display:inline-block;padding:10px 16px;background:#db2777;color:#fff;border-radius:4px;text-decoration:none;font-weight:bold" target="_blank" rel="noopener noreferrer">Enviar por WhatsApp</a>`
     }
 
