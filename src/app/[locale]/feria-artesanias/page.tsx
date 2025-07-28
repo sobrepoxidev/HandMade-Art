@@ -61,8 +61,9 @@ export default function FeriaArtesaniasPage() {
     <main className="mx-auto max-w-sm px-4 py-8">
       {step === 0 && (
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* ---------- un titulo h1 para un serteo deldia de la amdre con el estilo hands-made-art ---------- */}
           <h1 className="text-2xl font-bold text-center text-gray-800">
-            ¡Toma tu video 360° <span className="text-teal-600">GRATIS</span>!
+            ¡Sorteo <span className="text-teal-600">GRATIS</span>!
           </h1>
 
           <input name="name" placeholder="Nombre" className="input text-gray-800" required />
