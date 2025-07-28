@@ -58,13 +58,16 @@ export default function FeriaArtesaniasPage() {
   }
 
   return (
-    <main className="mx-auto max-w-sm px-4 py-8">
+    <main className="mx-auto max-w-sm px-4 py-8 bg-gradient-to-b from-pink-100 via-white to-pink-50 rounded-lg shadow-lg">
       {step === 0 && (
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* ---------- un titulo h1 para un serteo deldia de la amdre con el estilo hands-made-art ---------- */}
-          <h1 className="text-2xl font-bold text-center text-gray-800">
-            ¡Sorteo <span className="text-teal-600">GRATIS</span>!
+          <h1 className="text-3xl font-extrabold text-center text-pink-700">
+            ¡Celebra a Mamá con nuestro <span className="text-pink-500">Sorteo GRATIS</span>!
           </h1>
+          <p className="text-center text-gray-700 text-sm">
+            Participa para ganar un hermoso Espejo Artesanal de Handmade Art.
+          </p>
 
           <input name="name" placeholder="Nombre" className="input text-gray-800" required />
           <input name="email" type="email" placeholder="Correo" className="input text-gray-800" required />
@@ -88,9 +91,7 @@ export default function FeriaArtesaniasPage() {
               >
                 Términos y Condiciones
               </Link>
-              . Autorizo a HandMade Art a enviarme mi video 360°, participar en el
-              sorteo del Marco de Espejo (15 de junio de 2025) y recibir novedades
-              o promociones relacionadas con la marca.
+              . Autorizo a Handmade Art a participar en el sorteo del Espejo Artesanal (14 de agosto de 2025) y recibir novedades o promociones relacionadas con la marca.
             </span>
           </label>
 
@@ -101,7 +102,7 @@ export default function FeriaArtesaniasPage() {
       {step === 1 && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-center text-gray-800">
-            ¡Ya tienes <span className="text-teal-600">{entries}</span> {entries === 1 ? 'participación' : 'participaciones'}!
+            ¡Ya tienes <span className="text-pink-600">{entries}</span> {entries === 1 ? 'participación' : 'participaciones'}!
           </h2>
           <p className="text-center text-gray-800">Sigue nuestras redes y gana más:</p>
 
@@ -109,7 +110,7 @@ export default function FeriaArtesaniasPage() {
             <button
               key={key}
               onClick={() => handleFollow(key as keyof typeof socials)}
-              className={`btn-outline w-full ${followed[key] ? 'bg-teal-600 text-white' : ''}`}
+              className={`btn-outline w-full border-pink-600 text-pink-600 ${followed[key] ? 'bg-pink-600 text-white' : ''}`}
             >
               {followed[key] ? '✓ Seguido' : `Seguir en ${new URL(url).hostname.split('.')[1]}`}
             </button>
@@ -141,11 +142,11 @@ export default function FeriaArtesaniasPage() {
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold text-gray-800">¡Gracias!</h2>
           <p className="text-gray-800">
-            Estás participando por el Marco de Espejo y puedes disfrutar del Photo Booth.
+            ¡Ya estás participando para ganar un Espejo Artesanal por el Día de la Madre!
           </p>
-          <p className="text-gray-800">Te enviaremos tu video a tu correo o WhatsApp.</p>
-          <p className="text-sm text-teal-600">Participaciones acumuladas: {entries}</p>
-          <p className="text-sm text-teal-600">El sorteo se realizará el domingo 15 de junio de 2025.</p>
+          <p className="text-gray-800">Te avisaremos por correo o WhatsApp si resultas ganador(a).</p>
+          <p className="text-sm text-pink-600">Participaciones acumuladas: {entries}</p>
+          <p className="text-sm text-pink-600">El sorteo se realizará el jueves 14 de agosto de 2025.</p>
           {/* boton para ir a exploar la tienda / */}
           <Link href="/" className="btn-primary w-full mt-4">Explorar la tienda</Link>
         </div>
