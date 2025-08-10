@@ -58,10 +58,10 @@ export default function FeriaArtesaniasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 px-4 py-6 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 px-4 py-2 flex items-center justify-center">
       <main className="w-full max-w-md mx-auto">
         {/* Header con decoración floral */}
-        <div className="text-center mb-1">
+        <div className="text-center mb-2">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full mb-2 shadow-lg">
             <span className="text-3xl">💐</span>
           </div>
@@ -82,7 +82,7 @@ export default function FeriaArtesaniasPage() {
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 px-6 py-3 sm:p-8">
           {step === 0 && (
             <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="relative">
                   <input 
                     name="name" 
