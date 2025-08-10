@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 const socials = {
   facebook_followed: 'https://www.facebook.com/share/1Au8nNA2ho/',
   instagram_followed:
-    'https://www.instagram.com/handmadeart.store?utm_source=qr&igsh=MThjbTBhdGVxZ2FnNQ==',
+    'https://www.instagram.com/handmadeart.store/',
   tiktok_followed: 'https://www.tiktok.com/@handmadeart.store',
   youtube_followed: 'https://www.youtube.com/@handmadeartcr',
 } as const;
