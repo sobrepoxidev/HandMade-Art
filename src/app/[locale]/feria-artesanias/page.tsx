@@ -57,7 +57,7 @@ export default function FeriaArtesaniasPage() {
     }
   }
 
-a vetr  return (
+  return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 px-4 py-6 flex items-center justify-center">
       <main className="w-full max-w-md mx-auto">
         {/* Header con decoración floral */}
