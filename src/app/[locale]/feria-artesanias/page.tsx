@@ -61,8 +61,8 @@ export default function FeriaArtesaniasPage() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 px-4 py-6 flex items-center justify-center">
       <main className="w-full max-w-md mx-auto">
         {/* Header con decoración floral */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full mb-4 shadow-lg">
+        <div className="text-center mb-1">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full mb-2 shadow-lg">
             <span className="text-3xl">💐</span>
           </div>
           <div className="space-y-1">
@@ -79,10 +79,10 @@ export default function FeriaArtesaniasPage() {
         </div>
 
         {/* Contenedor principal con glassmorphism */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-6 sm:p-8">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 px-6 py-3 sm:p-8">
           {step === 0 && (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="space-y-2">
                 <div className="relative">
                   <input 
                     name="name" 
@@ -151,10 +151,10 @@ export default function FeriaArtesaniasPage() {
           )}
 
           {step === 1 && (
-            <div className="space-y-6 text-center">
+            <div className="space-y-3 text-center">
               {/* Celebración de participaciones */}
-              <div className="bg-gradient-to-r from-pink-100 to-rose-100 rounded-2xl p-6 border border-pink-200">
-                <div className="text-4xl mb-2">🎉</div>
+              <div className="bg-gradient-to-r from-pink-100 to-rose-100 rounded-2xl px-6 p-3 border border-pink-200">
+                <div className="text-4xl mb-1">🎉</div>
                 <h2 className="text-xl font-bold text-gray-800 mb-2">
                   ¡Excelente!
                 </h2>
@@ -163,7 +163,7 @@ export default function FeriaArtesaniasPage() {
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
                   💕 Sigue nuestras redes y gana más participaciones:
                 </h3>
@@ -187,7 +187,7 @@ export default function FeriaArtesaniasPage() {
                     <button
                       key={key}
                       onClick={() => handleFollow(key as keyof typeof socials)}
-                      className={`w-full py-4 px-6 rounded-2xl font-semibold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] ${
+                      className={`w-full py-2 px-6 rounded-2xl font-semibold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] ${
                         followed[key] 
                           ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-lg' 
                           : 'bg-white border-2 border-pink-300 text-pink-600 hover:bg-pink-50 shadow-md hover:shadow-lg'
