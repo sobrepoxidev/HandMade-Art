@@ -158,7 +158,7 @@ export default function FeriaArtesaniasPage() {
                 <h2 className="text-xl font-bold text-gray-800 mb-2">
                   ¡Excelente!
                 </h2>
-                <p className="text-lg">
+                <p className="text-lg text-pink-500">
                   Ya tienes <span className="font-bold text-pink-600 text-xl">{entries}</span> {entries === 1 ? 'participación' : 'participaciones'}
                 </p>
               </div>

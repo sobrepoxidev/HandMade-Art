@@ -82,7 +82,7 @@ export async function sendSummaryMail(
 
     <p>
       Ya estás participando para ganar un <strong>Espejo Artesanal</strong> por el Día de la Madre.
-      El sorteo se realizará el <strong>jueves&nbsp;14&nbsp;de&nbsp;agosto&nbsp;de&nbsp;2025</strong>.
+      El sorteo se realizará el <strong>sábado&nbsp;17&nbsp;de&nbsp;agosto&nbsp;de&nbsp;2025</strong>.
     </p>
 
     <p>
@@ -108,7 +108,7 @@ export async function sendSummaryMail(
   });
 
   await transporter.sendMail({
-    from: `"HANDMADE ART" <${process.env.EMAIL_USER}>`,
+    from: `"Handmade Art" <${process.env.EMAIL_USER}>`,
     to,
     subject: `¡Suerte en nuestro sorteo Día de la Madre, ${name}!`,
     html
