@@ -168,7 +168,7 @@ export default function FeriaArtesaniasPage() {
                   💕 Sigue nuestras redes y gana más participaciones:
                 </h3>
 
-                {Object.entries(socials).map(([key, url]) => {
+                {Object.entries(socials).map(([key]) => {
                   const socialNames = {
                     facebook_followed: 'Facebook',
                     instagram_followed: 'Instagram', 
