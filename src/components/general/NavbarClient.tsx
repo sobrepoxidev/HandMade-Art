@@ -137,6 +137,8 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
               onClick={() => {
                 const targetLocale = locale === 'es' ? 'en' : 'es';
                 router.replace(pathname, { locale: targetLocale });
+                // Forzamos un refresh de la página para asegurar que funcione en móviles
+                window.location.reload();
               }}
               className="flex items-center space-x-1 text-sm text-gray-700 hover:text-teal-700 focus:outline-none"
             >
@@ -184,6 +186,8 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
               onClick={() => {
                 const targetLocale = locale === 'es' ? 'en' : 'es';
                 router.replace(pathname, { locale: targetLocale });
+                // Forzamos un refresh de la página para asegurar que funcione en móviles
+                window.location.reload();
               }}
               className="flex items-center space-x-1 text-sm text-gray-700 hover:text-teal-700 focus:outline-none"
             >
