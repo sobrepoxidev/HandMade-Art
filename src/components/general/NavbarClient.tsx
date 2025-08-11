@@ -104,6 +104,22 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
     }
   };
 
+  // Language change function optimized for mobile
+  const handleLanguageChange = () => {
+    const targetLocale = locale === 'es' ? 'en' : 'es';
+    const currentPath = window.location.pathname;
+    const currentSearch = window.location.search;
+    
+    // Remove current locale from path if it exists
+    const pathWithoutLocale = currentPath.replace(/^\/(es|en)/, '');
+    
+    // Construct new URL with target locale
+    const newUrl = `/${targetLocale}${pathWithoutLocale}${currentSearch}`;
+    
+    // Use window.location.href for immediate navigation (works better on mobile)
+    window.location.href = newUrl;
+  };
+
   return (
     <>
       {/* Desktop Navigation - Amazon Style */}
@@ -134,12 +150,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
             <UserDropdown session={session} onLogout={handleLogout} />
             {/* Language selector */}
             <button
-              onClick={() => {
-                const targetLocale = locale === 'es' ? 'en' : 'es';
-                router.replace(pathname, { locale: targetLocale });
-                // Forzamos un refresh de la página para asegurar que funcione en móviles
-                window.location.reload();
-              }}
+              onClick={handleLanguageChange}
               className="flex items-center space-x-1 text-sm text-gray-700 hover:text-teal-700 focus:outline-none"
             >
               <Globe className="h-4 w-4" />
@@ -183,12 +194,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
           <div className="hidden">
             {/* Language selector */}
             <button
-              onClick={() => {
-                const targetLocale = locale === 'es' ? 'en' : 'es';
-                router.replace(pathname, { locale: targetLocale });
-                // Forzamos un refresh de la página para asegurar que funcione en móviles
-                window.location.reload();
-              }}
+              onClick={handleLanguageChange}
               className="flex items-center space-x-1 text-sm text-gray-700 hover:text-teal-700 focus:outline-none"
             >
               <Globe className="h-4 w-4" />
@@ -260,12 +266,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
 
         {/* Language selector - Implementado con next-intl */}
         <button
-          onClick={() => {
-            // cargamos desde 0 toda la ruta cambiando el locale
-            router.replace(pathname, { locale: locale === 'es' ? 'en' : 'es' });
-            // forzamos un refresh de la pagina
-            window.location.reload();
-          }}
+          onClick={handleLanguageChange}
           className="flex h-10 items-center space-x-1 rounded-md px-2 text-sm text-gray-700 transition hover:bg-gray-100"
           aria-label={locale === 'es' ? 'Cambiar idioma' : 'Change language'}
         >
