@@ -55,7 +55,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                             style={{ objectFit: 'contain', maxHeight: '100%' }}
                             className="group-hover:scale-105 transition-transform"
                             priority // Solo priorizar las primeras imágenes
-                            unoptimized
+                            
                           />
                         </div>
                         <span className="text-[10px] text-center line-clamp-1 font-medium text-gray-800">
@@ -89,7 +89,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                     height={180}
                     style={{ objectFit: 'contain', maxHeight: '100%' }}
                     className="transition-transform hover:scale-105"
-                    unoptimized
+           
                   />
                 </div>
                 <div className="mt-3 text-xs text-teal-600 hover:underline text-center">
@@ -209,7 +209,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                                 height={100}
                                 style={{ objectFit: 'contain', maxHeight: '100%' }}
                                 className="p-0.5"
-                                unoptimized
+                                
                               />
                             
                         
