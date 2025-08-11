@@ -68,6 +68,7 @@ export type Database = {
         id: number;
         product_id: number;
         quantity: number;
+        reserved: number; // Missing field found in DB
         updated_at: string;
     },
     newsletter_subscribers: {
@@ -99,6 +100,15 @@ export type Database = {
         shipping_status: string | null;
         tracking_number: string | null;
         notes: string | null;
+        // Additional shipping fields found in DB
+        shipping_carrier: string | null;
+        shipping_service: string | null;
+        shipping_cost: number | null;
+        shipping_currency: string | null;
+        shipping_est_delivery: string | null;
+        shipping_label_url: string | null;
+        shipping_quote_id: string | null;
+        shipping_last_updated: string | null;
     },
     products: {
         id: number;
@@ -108,6 +118,7 @@ export type Database = {
         name_es: string | null;
         name_en: string | null;
         description: string | null;
+        description_en: string | null;
         media: MediaItem[] | null;
         colon_price: number | null;
         dolar_price: number | null;
@@ -119,6 +130,11 @@ export type Database = {
         specifications: Record<string, string | number | boolean | null> | null;
         discount_percentage: number | null;
         tags: string[] | null;
+        // Additional dimension fields found in DB
+        weight_kg: number | null;
+        length_cm: number | null;
+        width_cm: number | null;
+        height_cm: number | null;
     },
     reviews: {
         id: number;
@@ -142,5 +158,17 @@ export type Database = {
         preferences: Record<string, unknown>;
         created_at: string;
         updated_at: string;
+    },
+    vcards: {
+        id: string; // UUID
+        user_id: string | null;
+        full_name: string | null;
+        email: string | null;
+        phone: string | null;
+        company: string | null;
+        job_title: string | null;
+        website: string | null;
+        notes: string | null;
+        created_at: string;
     }
 }
