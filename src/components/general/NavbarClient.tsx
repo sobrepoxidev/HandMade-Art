@@ -22,7 +22,6 @@ type NavLink = {
 
 export default function NavbarClient({ locale, session: initialSession }: { locale: string; session: Session | null }) {
   //const t = useTranslations('navbar');
-  const pathname = usePathname();
   const router = useRouter();
   const { supabase } = useSupabase();
   const { totalItems } = useCart();
