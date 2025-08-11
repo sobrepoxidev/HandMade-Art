@@ -153,18 +153,43 @@ export default function OptimizedNewHome({
             </div>
           </BannerTemplate>
 
-          {/* Banner 3: Personalizado completamente diferente */}
+          {/* Banner 3: Sorteo Feria del Mueble 2025 */}
           <BannerTemplate
-            linkHref={chorreadorCategoryId ? `/products?category=${chorreadorCategoryId}` : '/products'}
-            bgColor="">
-            <div className="h-full flex flex-col items-center justify-center text-gray-800 text-center px-4">
-              <h2 className="text-md lg:text-2xl font-light">{ locale === 'es' ? 'Descubre nuestra' : 'Discover our'}</h2>
-              <h1 className="text-xl lg:text-2xl font-bold ">{locale === 'es' ? 'NUEVA COLECCIÓN' : 'NEW COLLECTION'}</h1>
-              <p className="text-sm lg:text-xl">{locale === 'es' ? 'Chorreadores únicos hechos a mano' : 'Unique handmade drippers'}</p>
+            linkHref="/feria-artesanias"
+            bgColor="bg-gradient-to-r from-pink-100 via-rose-50 to-purple-100">
+            <div className="h-full flex items-center justify-between px-6 lg:px-12">
+              {/* Sección izquierda - Información principal */}
+              <div className="flex items-center gap-3 lg:gap-4">
+                <div className="text-2xl lg:text-3xl">🎉</div>
+                <div>
+                  <h1 className="text-base lg:text-xl font-bold text-pink-700 leading-tight">
+                    {locale === 'es' ? 'FERIA DEL MUEBLE' : 'FURNITURE FAIR'}
+                  </h1>
+                  <p className="text-sm lg:text-base font-medium text-gray-700 mt-0.5">
+                    {locale === 'es' ? 'Sarchí • 8-17 agosto' : 'Sarchí • Aug 8-17'}
+                  </p>
+                </div>
+              </div>
 
-              <button className="mb-1 lg:mt-3 bg-[#3b3b3b] text-gray-200 text-sm px-2 lg:px-4 py-0.5 rounded-full font-bold hover:bg-opacity-90 transition-all">
-                {locale === 'es' ? 'Ver ahora' : 'View now'}
-              </button>
+              {/* Sección central - Premio */}
+              <div className="hidden sm:flex items-center text-center">
+                <div>
+                  <div className="text-lg lg:text-xl mb-1">🎁</div>
+                  <p className="text-xs lg:text-sm text-gray-600 font-medium">
+                    {locale === 'es' ? 'Gana un espejo' : 'Win a mirror'}
+                  </p>
+                  <p className="text-xs lg:text-sm text-gray-600">
+                    {locale === 'es' ? 'artesanal' : 'handcrafted'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Sección derecha - Botón */}
+              <div>
+                <button className="bg-pink-600 hover:bg-pink-700 text-white text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg">
+                  {locale === 'es' ? 'Participar' : 'Enter'}
+                </button>
+              </div>
             </div>
           </BannerTemplate>
         </Carousel>
