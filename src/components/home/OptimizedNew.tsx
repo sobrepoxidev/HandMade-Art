@@ -156,7 +156,7 @@ export default function OptimizedNewHome({
           <BannerTemplate
             linkHref="/feria-artesanias"
             bgColor="bg-gradient-to-r from-pink-100 via-rose-50 to-purple-100">
-            <div className="h-full flex items-center justify-between px-4 lg:px-8 bg-amber-300">
+            <div className="h-full flex items-center justify-between px-4 lg:px-8 ">
               {/* Sección izquierda - Información principal */}
               <div className="flex items-center gap-1 lg:gap-2 lg:mx-12">
                 <div className="text-xl lg:text-2xl">🎉</div>
