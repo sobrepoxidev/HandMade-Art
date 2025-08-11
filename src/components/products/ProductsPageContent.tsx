@@ -33,7 +33,7 @@ export default function ProductsPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [categoryName] = useState<string>('');
+  const [categoryName, setCategoryName] = useState<string>('');
   
   // Valores de filtros y paginación
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
@@ -51,13 +51,19 @@ export default function ProductsPageContent() {
     async function fetchData() {
       try {
         // Fetch categories
-        const { data: categoriesData, error: categoriesError } = await supabase
+       const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
           .select('*')
           .order(locale === 'es' ? 'name_es' : 'name_en', { ascending: true });
         
-        if (categoriesError) throw categoriesError;
+        setCategoryName(locale === 'es' ? categoriesData?.find(c => c.id == categoryFilter)?.name_es : categoriesData?.find(c => c.id == categoryFilter)?.name_en ?? '');  
+        if (categoriesError) {
+             console.error('Error fetching categories:', categoriesError);
+          throw categoriesError;
+        }
         setCategories(categoriesData as Category[]);
+        console.log('categoriesData', categoriesData);
+
         
         
         // Fetch unique brands
@@ -203,33 +209,34 @@ export default function ProductsPageContent() {
   
   
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-0">
       {/* Breadcrumb */}
-      <div className="mb-6 flex items-center text-sm text-gray-500">
+      <div className="mb-0.5 flex items-center text-sm text-gray-500">
         <Link href="/" className="hover:text-teal-600">{locale === 'es' ? 'Inicio' : 'Home'}</Link>
         <ChevronRight className="h-4 w-4 mx-1" />
-        <span className="font-medium text-gray-900">{locale === 'es' ? 'Productos' : 'Products'}</span>
+        <span className="font-medium text-gray-600">{locale === 'es' ? 'Productos' : 'Products'}</span>
         {categoryFilter && (
           <>
             <ChevronRight className="h-4 w-4 mx-1" />
-            <span className="font-medium text-gray-900">{categoryFilter}</span>
+            <span className="font-medium text-gray-900">{categoryName}</span>
+
           </>
         )}
       </div>
       
       {/* Encabezado */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="mb-2">
+        <h1 className="text-2xl font-bold text-gray-900">
           {categoryFilter ? `${categoryName}` : locale === 'es' ? 'Todos los Productos' : 'All Products'}
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-sm">
           {locale === 'es' ? 'Descubre nuestra colección de productos hechos a mano.' : 'Discover our collection of handmade products.'}
-          {totalCount > 0 && ` ${locale === 'es' ? 'Mostrando' : 'Showing'} ${products.length} de ${totalCount} ${locale === 'es' ? 'productos' : 'products'}.`}
+          {totalCount > 0 && ` ${locale === 'es' ? 'Mostrando' : 'Showing'} ${products.length} ${locale === 'es' ? 'de' : 'of'} ${totalCount} ${locale === 'es' ? 'productos' : 'products'}.`}
         </p>
       </div>
       
       {/* Contenido principal */}
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row gap-2">
         {/* Barra lateral de filtros */}
         <aside className="md:w-64">
           <ProductFilters
@@ -254,7 +261,7 @@ export default function ProductsPageContent() {
         {/* Lista de productos */}
         <div className="flex-1">
           {/* Barra de control */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-6 pb-3 border-b border-gray-200">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2 pb-3 border-b border-gray-200">
             {/* Información de resultados */}
             <div className="text-sm text-gray-500">
               {totalCount > 0 && (

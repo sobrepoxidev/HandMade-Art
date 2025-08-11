@@ -53,9 +53,9 @@ export default function ProductFilters({
 
   // Filter content component
   const filterContent = useMemo(() => (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Categories Section */}
-      <div className="border-b border-gray-200 pb-4">
+      <div className="border-b border-gray-200">
         <button 
           className="flex w-full items-center justify-between text-lg font-medium text-gray-900 mb-2"
           onClick={() => setCategoryOpen(!categoryOpen)}

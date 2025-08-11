@@ -175,17 +175,17 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
   }, [currentSortBy]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-0">
       {/* Breadcrumb */}
-      <div className="mb-6 flex items-center text-sm text-gray-500">
+      <div className="mb-0.5 flex items-center text-sm text-gray-500">
         <Link href="/" className="hover:text-teal-600">{locale === 'es' ? 'Inicio' : 'Home'}</Link>
         <ChevronRight className="h-4 w-4 mx-1" />
         <span className="font-medium text-gray-900">{locale === 'es' ? 'Resultados de búsqueda' : 'Search results'}</span>
       </div>
 
       {/* Search header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="mb-2">
+        <h1 className="text-2xl font-bold text-gray-900">
           {totalCount > 0
             ? `${locale === 'es' ? 'Resultados para' : 'Results for'} "${query === '' ? categoryName : query}"`
             : query.length >= 2
@@ -198,7 +198,7 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
         )}
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-2">
         {/* Filters - Desktop */}
         <div className="hidden lg:block w-64 flex-shrink-0">
           <div className="bg-white rounded-lg border border-gray-200 p-4 sticky top-24">
@@ -256,7 +256,7 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
         </div>
 
         {/* Mobile filters button */}
-        <div className="lg:hidden mb-4">
+        <div className="lg:hidden mb-2">
           <button
             className="flex items-center justify-center w-full py-2 border border-gray-300 rounded-md bg-white text-gray-700"
             onClick={() => setShowFilters(!showFilters)}
