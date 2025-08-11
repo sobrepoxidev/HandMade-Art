@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Menu, X, User, ShoppingBag, ChevronDown, Globe, Package } from 'lucide-react';
 import { Session } from '@supabase/supabase-js';
 import { useSupabase } from '@/app/supabase-provider/provider';
