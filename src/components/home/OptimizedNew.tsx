@@ -33,7 +33,6 @@ export default function OptimizedNewHome({
   initialProducts = [],
   locale 
 }: OptimizedNewHomeProps) {
-  const chorreadorCategoryId = 1;
   return (
     <ProductsProvider initialCategories={initialCategories} initialProducts={initialProducts}>
       <div className="max-w-[1500px] mx-auto relative z-0 h-full bg-gradient-to-b from-teal-300/10 via-teal-500/10 to-white">
@@ -157,36 +156,38 @@ export default function OptimizedNewHome({
           <BannerTemplate
             linkHref="/feria-artesanias"
             bgColor="bg-gradient-to-r from-pink-100 via-rose-50 to-purple-100">
-            <div className="h-full flex items-center justify-between px-6 lg:px-12">
+            <div className="h-full flex items-center justify-between px-4 lg:px-8 bg-amber-300">
               {/* Sección izquierda - Información principal */}
-              <div className="flex items-center gap-3 lg:gap-4">
-                <div className="text-2xl lg:text-3xl">🎉</div>
+              <div className="flex items-center gap-1 lg:gap-2 lg:mx-12">
+                <div className="text-xl lg:text-2xl">🎉</div>
                 <div>
-                  <h1 className="text-base lg:text-xl font-bold text-pink-700 leading-tight">
+                  <h1 className="text-sm lg:text-lg font-bold text-pink-700 leading-tight">
                     {locale === 'es' ? 'FERIA DEL MUEBLE' : 'FURNITURE FAIR'}
                   </h1>
-                  <p className="text-sm lg:text-base font-medium text-gray-700 mt-0.5">
+                  <p className="text-xs lg:text-sm font-medium text-gray-700">
                     {locale === 'es' ? 'Sarchí • 8-17 agosto' : 'Sarchí • Aug 8-17'}
+                  </p>
+                  {/* Información del sorteo - visible en móvil */}
+                  <p className="text-[10px] lg:hidden text-gray-600 mt-0.5 leading-tight">
+                    {locale === 'es' ? '🎁 Sorteo 17 agosto 4:00pm' : '🎁 Raffle Aug 17 4:00pm'}
                   </p>
                 </div>
               </div>
 
-              {/* Sección central - Premio */}
-              <div className="hidden sm:flex items-center text-center">
-                <div>
-                  <div className="text-lg lg:text-xl mb-1">🎁</div>
-                  <p className="text-xs lg:text-sm text-gray-600 font-medium">
-                    {locale === 'es' ? 'Gana un espejo' : 'Win a mirror'}
-                  </p>
-                  <p className="text-xs lg:text-sm text-gray-600">
-                    {locale === 'es' ? 'artesanal' : 'handcrafted'}
-                  </p>
-                </div>
+              {/* Sección central - Premio (solo desktop) */}
+              <div className="hidden lg:flex flex-col items-center text-center">
+                <div className="text-xl mb-1">🎁</div>
+                <p className="text-lg text-gray-600 font-medium leading-tight">
+                  {locale === 'es' ? 'Sorteo espejo artesanal' : 'Handcrafted mirror raffle'}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {locale === 'es' ? '17 agosto • 4:00 p.m.' : 'Aug 17 • 4:00 p.m.'}
+                </p>
               </div>
 
               {/* Sección derecha - Botón */}
               <div>
-                <button className="bg-pink-600 hover:bg-pink-700 text-white text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg">
+                <button className="bg-pink-600 hover:bg-pink-700 text-white text-xs lg:text-sm px-3 lg:px-8 mx-8 lg:mx-16 py-1.5 lg:py-2 rounded-md lg:rounded-lg font-semibold transition-all shadow-sm hover:shadow-md">
                   {locale === 'es' ? 'Participar' : 'Enter'}
                 </button>
               </div>
