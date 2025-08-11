@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import CurrencyConverterRow from '../CurrencyConverterRow';
 import { 
   ChevronRight, 
@@ -48,7 +49,9 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [zoomScale, setZoomScale] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
+  const [lastTouchDistance, setLastTouchDistance] = useState(0);
   const [reviewsRefreshKey, setReviewsRefreshKey] = useState<number>(0);
   
   const { addToCart } = useCart();
@@ -137,6 +140,14 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
     }
   }, [id]); // Use id as dependency
 
+  // Resetear zoom cuando cambia la imagen activa
+  useEffect(() => {
+    setIsZoomed(false);
+    setZoomScale(1);
+    setIsDragging(false);
+    setLastTouchDistance(0);
+  }, [activeImageIndex]);
+
   // Manejar la cantidad
   const handleIncrement = () => {
     if (quantity < 10) {
@@ -150,15 +161,71 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
     }
   };
 
-  // Manejar el zoom de la imagen
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isZoomed) return;
+  // Manejar click en la imagen para activar/desactivar zoom
+  const handleImageClick = (e: React.MouseEvent) => {
+    // Prevenir el click si estamos arrastrando
+    if (isDragging) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    
+    if (isZoomed) {
+      setIsZoomed(false);
+      setZoomScale(1);
+    } else {
+      setIsZoomed(true);
+      setZoomScale(2.5);
+    }
+  };
 
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - left) / width;
-    const y = (e.clientY - top) / height;
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
 
-    setZoomPosition({ x, y });
+  const handleDragEnd = () => {
+    // Delay más largo para asegurar que no se active el click
+    setTimeout(() => setIsDragging(false), 200);
+  };
+
+  // Función helper para calcular distancia entre dos toques
+  const getTouchDistance = (touches: TouchList) => {
+    if (touches.length < 2) return 0;
+    const touch1 = touches[0];
+    const touch2 = touches[1];
+    return Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) + 
+      Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+  };
+
+  // Manejar inicio de toque
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const distance = getTouchDistance(e.touches as unknown as TouchList);
+      setLastTouchDistance(distance);
+    }
+  };
+
+  // Manejar movimiento de toque (pinch-to-zoom)
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && lastTouchDistance > 0) {
+      e.preventDefault();
+      const currentDistance = getTouchDistance(e.touches as unknown as TouchList);
+      const scaleChange = currentDistance / lastTouchDistance;
+      const newScale = Math.max(1, Math.min(4, zoomScale * scaleChange));
+      
+      setZoomScale(newScale);
+      setIsZoomed(newScale > 1);
+      setLastTouchDistance(currentDistance);
+    }
+  };
+
+  // Manejar fin de toque
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) {
+      setLastTouchDistance(0);
+    }
   };
 
   // Añadir o quitar de favoritos
@@ -278,9 +345,9 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
   const mainImageUrl = product.media?.[activeImageIndex]?.url || '/product-placeholder.png';
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-0">
       {/* Breadcrumb */}
-      <div className="mb-6 flex items-center text-sm text-gray-500">
+      <div className="mb-0.5 flex items-center text-sm text-gray-500">
         <Link href="/" className="hover:text-teal-600">Inicio</Link>
         <ChevronRight className="h-4 w-4 mx-1" />
         <Link href="/products" className="hover:text-teal-600"> {locale === 'es' ? 'Productos' : 'Products'}</Link>
@@ -292,32 +359,87 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
       <div className="flex flex-col md:flex-row md:gap-8">
         {/* Columna izquierda: Imágenes */}
         <div className="w-full md:w-7/12">
-          <div className="sticky top-24">
+          <div className="sticky top-12">
             {/* Imagen principal con zoom */}
-            <div 
-              className="relative bg-white h-[400px] md:h-[500px] flex items-center justify-center border border-gray-200 rounded-lg overflow-hidden cursor-zoom-in mb-4"
-              onMouseEnter={() => setIsZoomed(true)}
-              onMouseLeave={() => setIsZoomed(false)}
-              onMouseMove={handleMouseMove}
-              onClick={() => setIsZoomed(!isZoomed)}
-            >
-              <div className="relative w-full h-full">
+            <div className="relative bg-white h-[300px] md:h-[500px] flex items-center justify-center border border-gray-200 rounded-lg overflow-hidden mb-4">
+              {/* Contenedor de la imagen con zoom y arrastre */}
+              <motion.div 
+                className="relative w-full h-full cursor-pointer"
+                onClick={handleImageClick}
+                drag={isZoomed}
+                dragConstraints={{ left: -200, right: 200, top: -200, bottom: 200 }}
+                dragElastic={0.1}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                animate={{ 
+                  scale: zoomScale,
+                }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 300, 
+                  damping: 30,
+                  mass: 0.8
+                }}
+                style={{ 
+                  touchAction: isZoomed ? 'none' : 'auto',
+                  transformOrigin: 'center center'
+                }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
                 <Image
                   src={mainImageUrl}
                   alt={product.name || ''}
                   fill
-                  className={`object-contain transition-transform duration-300 ${isZoomed ? 'scale-150' : 'scale-100'}`}
-                  style={isZoomed ? {
-                    transformOrigin: `${zoomPosition.x * 100}% ${zoomPosition.y * 100}%`
-                  } : undefined}
+                  className="object-contain select-none pointer-events-none"
                   priority
+                  draggable={false}
                 />
-                {isZoomed && (
-                  <div className="absolute top-2 right-2 bg-white bg-opacity-80 rounded-full p-2">
+              </motion.div>
+
+              {/* Indicadores fijos que no se mueven con el arrastre */}
+              {!isZoomed && (
+                <motion.div 
+                  className="absolute bottom-2 right-2 bg-black bg-opacity-40 text-white text-xs px-2 py-1 rounded pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {locale === 'es' ? 'Clic para zoom' : 'Click to zoom'}
+                </motion.div>
+              )}
+              
+              {isZoomed && (
+                <>
+                  <motion.div 
+                    className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded pointer-events-none z-10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    {isDragging ? (locale === 'es' ? 'Arrastrando...' : 'Dragging...') : (locale === 'es' ? 'Arrastra para mover • Clic para salir • Pellizca para zoom' : 'Drag to move • Click to exit • Pinch to zoom')}
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="absolute top-2 right-2 bg-white bg-opacity-80 rounded-full p-2 pointer-events-none z-10"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                  >
                     <Search className="h-4 w-4 text-gray-700" />
-                  </div>
-                )}
-              </div>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded pointer-events-none z-10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    {Math.round(zoomScale * 100)}%
+                  </motion.div>
+                </>
+              )}
             </div>
 
             {/* Galería de miniaturas */}
@@ -329,7 +451,13 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
                     className={`relative h-20 border rounded-md overflow-hidden transition hover:border-teal-500 ${
                       activeImageIndex === index ? 'border-teal-500 ring-2 ring-teal-300' : 'border-gray-200'
                     }`}
-                    onClick={() => setActiveImageIndex(index)}
+                    onClick={() => {
+                        setActiveImageIndex(index);
+                        setIsZoomed(false);
+                        setZoomScale(1);
+                        setIsDragging(false);
+                        setLastTouchDistance(0);
+                      }}
                     aria-label={`Ver imagen ${index + 1}`}
                   >
                     <Image
