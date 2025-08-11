@@ -413,7 +413,7 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
               {isZoomed && (
                 <>
                   <motion.div 
-                    className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded pointer-events-none z-10"
+                    className="absolute top-1 left-1 bg-black/25 bg-opacity-60 text-white text-[0.70rem] px-1 rounded pointer-events-none z-10"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 }}
