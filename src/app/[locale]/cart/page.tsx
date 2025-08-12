@@ -123,10 +123,9 @@ export default function CartPage() {
   }, [cart, syncCartWithDB, userId]);
 
   // En un caso real se calcularía dinámicamente
-  const shipping = cart.length ? 6.99 : 0;
   
   // Calcular el total final teniendo en cuenta posibles descuentos
-  const total = discountInfo ? discountInfo.finalTotal : subtotal + shipping;
+  const subtotal2 = discountInfo ? discountInfo.finalTotal : subtotal;
   
   // Related-products logic has been moved to RelatedProductsClient; legacy code kept for reference but disabled
   // Legacy categories fetch (disabled)
@@ -413,7 +412,7 @@ export default function CartPage() {
                       }
                       
                       // Verificar monto mínimo de compra
-                      const cartTotal = subtotal + shipping;
+                      const cartTotal = subtotal;
                       if (cartTotal < data.min_purchase_amount) {
                         setDiscountError( locale === 'es' ? `El monto mínimo de compra para este código es ${formatUSD(data.min_purchase_amount)}` : `The minimum purchase amount for this code is ${formatUSD(data.min_purchase_amount)}`);
                         setIsApplyingDiscount(false);
@@ -498,7 +497,8 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-sm text-slate-700">
                   <span>{locale === 'es' ? 'Envío' : 'Shipping'}</span>
-                  <span>{formatUSD(shipping)}</span>
+                  <span>{locale === 'es' ? 'Se calculará en el siguiente paso' : 'Will be calculated in the next step'}</span>
+
                 </div>
                 {discountInfo && (
                   <div className="flex justify-between text-sm text-green-600 font-medium">
@@ -509,11 +509,12 @@ export default function CartPage() {
                 <hr className="border-slate-300" />
                 <div className="flex justify-between font-semibold text-base text-slate-800">
                   <span>{locale === 'es' ? 'Total del pedido' : 'Total of the order'}</span>
-                  <span>{formatUSD(total)}</span>
+                  <span>{formatUSD(subtotal2)}</span>
                 </div>
                 {locale === 'es' ? <p>Conoce el valor en tu moneda:</p> : <p>Know the value in your currency:</p>}
-                <CurrencyConverterRow amount={total} />
-                <p className="text-xs text-slate-500">{locale === 'es' ? `Nota: se te cobrará en USD para ${formatUSD(total)}` : `Note: you will be charged in USD for ${formatUSD(total)}`}</p>
+                <CurrencyConverterRow amount={subtotal2} />
+                <p className="text-xs text-slate-500">{locale === 'es' ? `Nota: se te cobrará en USD para ${formatUSD(subtotal2)}` : `Note: you will be charged in USD for ${formatUSD(subtotal2)}`}</p>
+
               </div>
               <button
                 onClick={async () => {
