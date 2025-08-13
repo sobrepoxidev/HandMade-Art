@@ -40,6 +40,7 @@ export type Database = {
         instagram_followed: boolean;
         tiktok_followed: boolean;
         youtube_followed: boolean;
+        kenia_basilis_followed: boolean;
         created_at: string;
       },
     cart_items: {
