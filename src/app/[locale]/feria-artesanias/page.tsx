@@ -12,6 +12,7 @@ const socials = {
     'https://www.instagram.com/handmadeart.store/',
   tiktok_followed: 'https://www.tiktok.com/@handmadeart.store',
   youtube_followed: 'https://www.youtube.com/@handmadeartcr',
+  kenia_basilis_followed: 'https://www.instagram.com/keniabasilistv?igsh=OGQ3bzcwOWd5emY5',
 } as const;
 
 export default function FeriaArtesaniasPage() {
@@ -173,14 +174,16 @@ export default function FeriaArtesaniasPage() {
                     facebook_followed: 'Facebook',
                     instagram_followed: 'Instagram', 
                     tiktok_followed: 'TikTok',
-                    youtube_followed: 'YouTube'
+                    youtube_followed: 'YouTube',
+                    kenia_basilis_followed: 'Kenia Basilis'
                   };
                   
                   const socialIcons = {
                     facebook_followed: '📘',
                     instagram_followed: '📸',
                     tiktok_followed: '🎵',
-                    youtube_followed: '📺'
+                    youtube_followed: '📺',
+                    kenia_basilis_followed: '🌟'
                   };
 
                   return (

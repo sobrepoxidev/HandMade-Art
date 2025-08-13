@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react'
 import StepOne from "@/components/checkout/StepOne";
 import StepTwo from "@/components/checkout/StepTwo";  
 import { Database } from "@/types-db";
-
 import { Session } from '@supabase/supabase-js';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useLocale } from 'next-intl';

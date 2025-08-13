@@ -35,7 +35,8 @@ export type Social =
   | 'facebook_followed'
   | 'instagram_followed'
   | 'tiktok_followed'
-  | 'youtube_followed';
+  | 'youtube_followed'
+  | 'kenia_basilis_followed';
 
 /**
  * Marca la red social como seguida y actualiza el contador `entries`
