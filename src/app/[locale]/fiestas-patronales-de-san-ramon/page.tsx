@@ -1,4 +1,3 @@
-import { getCommonMetadata, buildTitle } from '@/lib/seo';
 import type { Metadata } from "next";
 type tParams = Promise<{ locale: string }>;
 
