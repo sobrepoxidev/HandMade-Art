@@ -37,6 +37,51 @@ export default function OptimizedNewHome({
     <ProductsProvider initialCategories={initialCategories} initialProducts={initialProducts}>
       <div className="max-w-[1500px] mx-auto relative z-0 h-full bg-gradient-to-b from-teal-300/10 via-teal-500/10 to-white">
         <Carousel>
+          {/* Banner 3: Fiestas Patronales San Ramón 2025 */}
+          <BannerTemplate
+            linkHref="/fiestas-patronales-de-san-ramon"
+            bgColor="bg-gradient-to-r from-blue-100 via-indigo-50 to-purple-100">
+
+            <div className="h-full flex items-start justify-between py-8 px-4 lg:px-8  ">
+              {/* Sección izquierda - Información principal */}
+              <div className="flex items-center gap-1 lg:gap-2 lg:mx-12">
+                <div className="text-xl lg:text-2xl">⛪</div>
+                <div>
+                  <h1 className="text-sm lg:text-lg font-bold text-blue-700 leading-tight">
+                    {locale === 'es' ? 'FIESTAS PATRONALES' : 'PATRON SAINT FESTIVAL'}
+                  </h1>
+                  <p className="text-xs lg:text-sm font-medium text-gray-700">
+                    {locale === 'es' ? 'San Ramón • 21-31 agosto' : 'San Ramón • Aug 21-31'}
+                  </p>
+                  {/* Información del evento - visible en móvil */}
+                  <p className="text-[10px] lg:hidden text-gray-600 mt-0.5 leading-tight">
+                    {locale === 'es' ? '🎭 Entrada Santos 30 ago' : '🎭 Saints Entry Aug 30'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Sección central - Evento principal (solo desktop) */}
+              <div className="hidden lg:flex flex-col items-center text-center">
+                <div className="text-xl mb-1">🎭</div>
+                <p className="text-lg text-gray-600 font-medium leading-tight">
+                  {locale === 'es' ? 'Entrada de los Santos' : 'Entry of the Saints'}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {locale === 'es' ? '30 agosto • Tradición centenaria' : 'Aug 30 • Centenary tradition'}
+                </p>
+              </div>
+
+              {/* Sección derecha - Botón */}
+              <div className="text-center">
+                <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs lg:text-sm px-2.5 lg:px-6 mx-6 lg:mx-12 py-1 lg:py-1.5 rounded-md lg:rounded-lg font-semibold transition-all shadow-sm hover:shadow-md">
+                  {locale === 'es' ? 'Conocer más' : 'Learn more'}
+                </button>
+                <p className="text-[8px] lg:text-xs text-gray-600 mt-1 leading-tight font-medium">
+                  {locale === 'es' ? 'Handmade Art te espera' : 'Handmade Art awaits you'}
+                </p>
+              </div>
+            </div>
+          </BannerTemplate>
           {/* Banner 1: Envío a Costa Rica (ahora primero) */}
           <BannerTemplate linkHref="/shipping">
             <div className="relative h-full flex flex-col md:flex-row justify-center items-center md:gap-10 px-4 md:px-24 py-2 md:py-6">
@@ -152,47 +197,7 @@ export default function OptimizedNewHome({
             </div>
           </BannerTemplate>
 
-          {/* Banner 3: Sorteo Feria del Mueble 2025 */}
-          <BannerTemplate
-            linkHref="/feria-artesanias"
-            bgColor="bg-gradient-to-r from-pink-100 via-rose-50 to-purple-100">
-            <div className="h-full flex items-center justify-between px-4 lg:px-8 ">
-              {/* Sección izquierda - Información principal */}
-              <div className="flex items-center gap-1 lg:gap-2 lg:mx-12">
-                <div className="text-xl lg:text-2xl">🎉</div>
-                <div>
-                  <h1 className="text-sm lg:text-lg font-bold text-pink-700 leading-tight">
-                    {locale === 'es' ? 'FERIA DEL MUEBLE' : 'FURNITURE FAIR'}
-                  </h1>
-                  <p className="text-xs lg:text-sm font-medium text-gray-700">
-                    {locale === 'es' ? 'Sarchí • 8-17 agosto' : 'Sarchí • Aug 8-17'}
-                  </p>
-                  {/* Información del sorteo - visible en móvil */}
-                  <p className="text-[10px] lg:hidden text-gray-600 mt-0.5 leading-tight">
-                    {locale === 'es' ? '🎁 Sorteo 17 agosto 4:00pm' : '🎁 Raffle Aug 17 4:00pm'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Sección central - Premio (solo desktop) */}
-              <div className="hidden lg:flex flex-col items-center text-center">
-                <div className="text-xl mb-1">🎁</div>
-                <p className="text-lg text-gray-600 font-medium leading-tight">
-                  {locale === 'es' ? 'Sorteo espejo artesanal' : 'Handcrafted mirror raffle'}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {locale === 'es' ? '17 agosto • 4:00 p.m.' : 'Aug 17 • 4:00 p.m.'}
-                </p>
-              </div>
-
-              {/* Sección derecha - Botón */}
-              <div>
-                <button className="bg-pink-600 hover:bg-pink-700 text-white text-xs lg:text-sm px-3 lg:px-8 mx-8 lg:mx-16 py-1.5 lg:py-2 rounded-md lg:rounded-lg font-semibold transition-all shadow-sm hover:shadow-md">
-                  {locale === 'es' ? 'Participar' : 'Enter'}
-                </button>
-              </div>
-            </div>
-          </BannerTemplate>
+          
         </Carousel>
 
         {/* Secciones de productos optimizadas */}

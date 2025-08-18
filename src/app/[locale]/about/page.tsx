@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { getCommonMetadata, buildTitle } from '@/lib/seo';
 import type { Metadata } from "next";
 type tParams = Promise<{ locale: string }>;
+
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const { locale } = await params;
   return {
