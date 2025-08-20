@@ -22,36 +22,52 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
   // - price: se puede editar en la tarjeta con guardado inmediato
   // - is_active: se puede activar/desactivar en la tarjeta con guardado inmediato
   // - discount_percentage: se puede editar en la tarjeta con guardado inmediato
-  
+
   // En el editor modal, nos enfocamos en campos que no se pueden editar fácilmente en las tarjetas
   // y opciones más avanzadas
   const [price, setPrice] = useState<number | null>(product.colon_price);
   const [usdPrice, setUsdPrice] = useState<number | null>(product.dolar_price);
-  const [name, setName] = useState<string | null>(product.name_es || product.name);
+  const [nameEs, setNameEs] = useState<string | null>(product.name_es || product.name);
+  const [nameEn, setNameEn] = useState<string | null>(product.name || product.name_es);
+  const [weight_kg, setWeightKg] = useState<number | null>(product.weight_kg);
+  const [length_cm, setLengthCm] = useState<number | null>(product.length_cm);
+  const [width_cm, setWidthCm] = useState<number | null>(product.width_cm);
+  const [height_cm, setHeightCm] = useState<number | null>(product.height_cm);
   const [isActive, setIsActive] = useState<boolean | null>(product.is_active);
   const [discountPercentage, setDiscountPercentage] = useState<number | null>(product.discount_percentage);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(product.category_id || 0);
 
   // Manejar el guardado de cambios
   const handleSave = async () => {
     try {
       setSaving(true);
       setError(null);
-      
+
       const updates: Partial<Product> = {};
-      
+
       // Solo incluir campos que han cambiado
       if (price !== product.colon_price) updates.colon_price = price;
       if (usdPrice !== product.dolar_price) updates.dolar_price = usdPrice;
-      if (name !== (product.name_es || product.name)) {
-        updates.name = name;
-        updates.name_es = name;
+      if (nameEs !== (product.name_es || product.name)) {
+        updates.name = nameEs;
+        updates.name_es = nameEs;
+      }
+      if (nameEn !== (product.name || product.name_es)) {
+        updates.name = nameEn;
+        updates.name_en = nameEn;
       }
       if (isActive !== product.is_active) updates.is_active = isActive;
       if (discountPercentage !== product.discount_percentage) updates.discount_percentage = discountPercentage;
-      
+
+      if (weight_kg !== product.weight_kg) updates.weight_kg = weight_kg;
+      if (length_cm !== product.length_cm) updates.length_cm = length_cm;
+      if (width_cm !== product.width_cm) updates.width_cm = width_cm;
+      if (height_cm !== product.height_cm) updates.height_cm = height_cm;
+      if (categoryId !== product.category_id) updates.category_id = categoryId;
+
       // Si no hay cambios, mostrar mensaje y salir
       if (Object.keys(updates).length === 0) {
         toast(locale === 'es' ? 'No se han realizado cambios' : 'No changes made', {
@@ -63,7 +79,7 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
         });
         return;
       }
-      
+
       // Validar datos antes de guardar
       if (updates.colon_price !== undefined && updates.colon_price !== null) {
         const priceNum = Number(updates.colon_price);
@@ -72,7 +88,11 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
         }
         updates.colon_price = priceNum;
       }
-      
+
+      if (categoryId !== 0) {
+        updates.category_id = categoryId;
+      }
+
       if (updates.dolar_price !== undefined && updates.dolar_price !== null) {
         const usdNum = Number(updates.dolar_price);
         if (isNaN(usdNum) || usdNum < 0) {
@@ -80,7 +100,39 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
         }
         updates.dolar_price = usdNum;
       }
-      
+
+      if (updates.weight_kg !== undefined && updates.weight_kg !== null) {
+        const weightNum = Number(updates.weight_kg);
+        if (isNaN(weightNum) || weightNum < 0) {
+          throw new Error(locale === 'es' ? 'El peso debe ser un número válido mayor o igual a 0' : 'The weight must be a valid number greater than or equal to 0');
+        }
+        updates.weight_kg = weightNum;
+      }
+
+      if (updates.length_cm !== undefined && updates.length_cm !== null) {
+        const lengthNum = Number(updates.length_cm);
+        if (isNaN(lengthNum) || lengthNum < 0) {
+          throw new Error(locale === 'es' ? 'La longitud debe ser un número válido mayor o igual a 0' : 'The length must be a valid number greater than or equal to 0');
+        }
+        updates.length_cm = lengthNum;
+      }
+
+      if (updates.width_cm !== undefined && updates.width_cm !== null) {
+        const widthNum = Number(updates.width_cm);
+        if (isNaN(widthNum) || widthNum < 0) {
+          throw new Error(locale === 'es' ? 'El ancho debe ser un número válido mayor o igual a 0' : 'The width must be a valid number greater than or equal to 0');
+        }
+        updates.width_cm = widthNum;
+      }
+
+      if (updates.height_cm !== undefined && updates.height_cm !== null) {
+        const heightNum = Number(updates.height_cm);
+        if (isNaN(heightNum) || heightNum < 0) {
+          throw new Error(locale === 'es' ? 'La altura debe ser un número válido mayor o igual a 0' : 'The height must be a valid number greater than or equal to 0');
+        }
+        updates.height_cm = heightNum;
+      }
+
       if (updates.discount_percentage !== undefined && updates.discount_percentage !== null) {
         const discountNum = Number(updates.discount_percentage);
         if (isNaN(discountNum) || discountNum < 0 || discountNum > 100) {
@@ -88,9 +140,9 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
         }
         updates.discount_percentage = discountNum;
       }
-      
+
       const result = await onSave(updates);
-      
+
       if (result.success) {
         // El toast se mostrará desde el componente AdminDashboard
         // Cerrar el modal después de un breve retraso
@@ -111,33 +163,33 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="px-1">
+      <div className="flex justify-between items-center mb-0.5">
         <h2 className="text-xl font-bold">{locale === 'es' ? 'Editar Producto' : 'Edit Product'}</h2>
         <button
           onClick={onCancel}
           className="p-2 rounded-full hover:bg-gray-100"
           aria-label="Cerrar"
         >
-          <X className="h-6 w-6 text-gray-500" />
+          <X className="h-7 w-7 text-black bg-gray-400 rounded-lg" />
         </button>
       </div>
-      
+
       {/* Mensajes de error o éxito */}
       {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
           <p>{error}</p>
         </div>
       )}
-      
-      <div className="space-y-6">
+
+      <div className="space-y-1">
         {/* Imagen del producto */}
-        <div className="flex justify-center mb-6">
-          <div className="w-full max-w-xs h-64 bg-gray-200 rounded-lg overflow-hidden">
+        <div className="flex justify-center mb-0">
+          <div className="w-full max-w-xs h-36 py-1 bg-gray-200 rounded-lg overflow-hidden">
             {product.media && product.media.length > 0 && product.media[0].url ? (
-              <Image 
-                src={product.media[0].url} 
-                alt={product.name || 'Producto'} 
+              <Image
+                src={product.media[0].url}
+                alt={product.name || 'Producto'}
                 className="w-full h-full object-contain"
                 width={300}
                 height={300}
@@ -150,47 +202,54 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
             )}
           </div>
         </div>
-        
+
         {/* Información principal del producto */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <div className="mb-2 text-sm text-gray-500">
+        <div className="bg-gray-50 p-1 rounded-lg">
+          <div className="mb-1 text-[0.7rem] text-gray-500">
             ID: {product.id} {product.sku && `• SKU: ${product.sku}`}
           </div>
-          
+
           {/* Nombre del producto - No editable en tarjetas */}
-          <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              {locale === 'es' ? 'Nombre del producto' : 'Product name'}
+          <div className="mb-1">
+            <label htmlFor="nameEs" className="block text-sm font-semibold text-gray-700">
+              {locale === 'es' ? 'Nombre ESPAÑOL' : 'SPANISH name'}
             </label>
             <input
               type="text"
-              id="name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              value={name || ''}
-              onChange={(e) => setName(e.target.value || null)}
-              placeholder="Nombre del producto"
+              id="nameEs"
+              className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              value={nameEs || ''}
+              onChange={(e) => setNameEs(e.target.value || null)}
+              placeholder="Nombre en ESPAÑOL"
             />
-            <p className="mt-1 text-xs text-teal-600">
-              {locale === 'es' ? 'El nombre es un campo importante que solo se puede editar aquí' : 'The name is an important field that can only be edited here'}
-            </p>
+
           </div>
-          
+          <div className="mb-1">
+            <label htmlFor="nameEn" className="block text-sm font-semibold text-gray-700">
+              {locale === 'es' ? 'Nombre INGLÉS' : 'ENGLISH name'}
+            </label>
+            <input
+              type="text"
+              id="nameEn"
+              className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              value={nameEn || ''}
+              onChange={(e) => setNameEn(e.target.value || null)}
+              placeholder="Nombre en ENGLISH"
+            />
+
+          </div>
+
           {/* Sección de campos que también se pueden editar en las tarjetas */}
-          <div className="mb-4 p-3 border border-gray-200 rounded-md bg-white">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">{locale === 'es' ? 'Campos de edición rápida' : 'Quick edit fields'}</h3>
-            <p className="text-xs text-gray-500 mb-3">
-              {locale === 'es' ? 'Estos campos también se pueden editar directamente desde las tarjetas de productos' : 'These fields can also be edited directly from the product cards'}
-            </p>
-            
-            {/* Precio CRC */}
-            <div className="mb-4">
+          {/* Precio CRC */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="mb-1">
               <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
                 {locale === 'es' ? 'Precio (₡)' : 'Price (₡)'}
               </label>
               <input
                 type="number"
                 id="price"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 value={price === null ? '' : price}
                 onChange={(e) => setPrice(e.target.value ? parseFloat(e.target.value) : null)}
                 min="0"
@@ -198,16 +257,16 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
                 placeholder="0"
               />
             </div>
-            
+
             {/* Precio USD */}
-            <div className="mb-4">
+            <div className="mb-2">
               <label htmlFor="usdPrice" className="block text-sm font-medium text-gray-700 mb-1">
                 {locale === 'es' ? 'Precio (US$)' : 'Price (US$)'}
               </label>
               <input
                 type="number"
                 id="usdPrice"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 value={usdPrice === null ? '' : usdPrice}
                 onChange={(e) => setUsdPrice(e.target.value ? parseFloat(e.target.value) : null)}
                 min="0"
@@ -215,32 +274,20 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
                 placeholder="0"
               />
             </div>
-            
-            {/* Estado activo */}
-            <div className="mb-4">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-                  checked={isActive === true}
-                  onChange={(e) => setIsActive(e.target.checked)}
-                />
-                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
-                  {locale === 'es' ? 'Producto activo (visible en la tienda)' : 'Product active (visible in the store)'}
-                </label>
-              </div>
-            </div>
-            
-            {/* Descuento */}
-            <div className="mb-4">
+          </div>
+
+
+
+          {/* Descuento */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="mb-2">
               <label htmlFor="discountPercentage" className="block text-sm font-medium text-gray-700 mb-1">
-                {locale === 'es' ? 'Porcentaje de descuento (%)' : 'Discount percentage (%)'}
+                {locale === 'es' ? 'Descuento (%)' : 'Discount (%)'}
               </label>
               <input
                 type="number"
                 id="discountPercentage"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 value={discountPercentage === null ? '' : discountPercentage}
                 onChange={(e) => setDiscountPercentage(e.target.value ? parseFloat(e.target.value) : null)}
                 min="0"
@@ -249,13 +296,94 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
                 placeholder="Sin descuento"
               />
             </div>
+            {/* Estado activo */}
+            <div className="mb-2">
+              <div className="flex items-center justify-center pt-6">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  className="h-4 w-4 py-1 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                  checked={isActive === true}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                />
+                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-800 font-semibold">
+                  {locale === 'es' ? 'Producto activo' : 'Product active'}
+                </label>
+              </div>
+            </div>
           </div>
+          {/* Peso */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="mb-1">
+              <label htmlFor="weight_kg" className="block text-sm font-medium text-gray-700 mb-1">
+                {locale === 'es' ? 'Peso (kg)' : 'Weight (kg)'}
+              </label>
+              <input
+                type="number"
+                id="weight_kg"
+                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                value={weight_kg === null ? '' : weight_kg}
+                onChange={(e) => setWeightKg(e.target.value ? parseFloat(e.target.value) : null)}
+                min="0"
+                step="0.1"
+                placeholder="0"
+              />
+            </div>
+            <div className="mb-1">
+              <label htmlFor="length_cm" className="block text-sm font-medium text-gray-700 mb-1">
+                {locale === 'es' ? 'Longitud (cm)' : 'Length (cm)'}
+              </label>
+              <input
+                type="number"
+                id="length_cm"
+                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                value={length_cm === null ? '' : length_cm}
+                onChange={(e) => setLengthCm(e.target.value ? parseFloat(e.target.value) : null)}
+                min="0"
+                step="0.1"
+                placeholder="0"
+              />
+            </div>
+            <div className="mb-1">
+              <label htmlFor="width_cm" className="block text-sm font-medium text-gray-700 mb-1">
+                {locale === 'es' ? 'Ancho (cm)' : 'Width (cm)'}
+              </label>
+              <input
+                type="number"
+                id="width_cm"
+                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                value={width_cm === null ? '' : width_cm}
+                onChange={(e) => setWidthCm(e.target.value ? parseFloat(e.target.value) : null)}
+                min="0"
+                step="0.1"
+                placeholder="0"
+              />
+            </div>
+            <div className="mb-1">
+              <label htmlFor="height_cm" className="block text-sm font-medium text-gray-700 mb-1">
+                {locale === 'es' ? 'Altura (cm)' : 'Height (cm)'}
+              </label>
+              <input
+                type="number"
+                id="height_cm"
+                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                value={height_cm === null ? '' : height_cm}
+                onChange={(e) => setHeightCm(e.target.value ? parseFloat(e.target.value) : null)}
+                min="0"
+                step="0.1"
+                placeholder="0"
+              />
+            </div>
+
+
+          </div>
+
         </div>
-        
+
         {/* Opciones avanzadas (colapsables) */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">
           <button
-            className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 focus:outline-none"
+            className="w-full flex justify-between items-center px-4 py-2 bg-gray-50 hover:bg-gray-100 focus:outline-none"
             onClick={() => setShowAdvanced(!showAdvanced)}
           >
             <span className="font-medium">{locale === 'es' ? 'Opciones avanzadas' : 'Advanced options'}</span>
@@ -265,23 +393,22 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
               <ChevronDown className="h-5 w-5 text-gray-500" />
             )}
           </button>
-          
+
           {showAdvanced && (
             <div className="p-4 bg-white">
-              <p className="text-gray-500 text-sm mb-4">
-                {locale === 'es' ? 'Estas opciones están disponibles pero no son necesarias para la edición rápida de precios.' : 'These options are available but are not necessary for quick price editing.'}
-              </p>
-              
+
+
               {/* Aquí se pueden agregar más campos como categoría, especificaciones, etc. */}
-              <div className="mb-4">
+              <div className="mb-1">
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
                   {locale === 'es' ? 'Categoría' : 'Category'}
                 </label>
                 <select
                   id="category"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                  value={product.category_id || ''}
-                  disabled
+                  value={categoryId || ''}
+                  onChange={(e) => setCategoryId(e.target.value ? parseInt(e.target.value) : 0)}
+
                 >
                   <option value="">{locale === 'es' ? 'Sin categoría' : 'No category'}</option>
                   {categories.map((category) => (
@@ -290,14 +417,12 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
                     </option>
                   ))}
                 </select>
-                <p className="mt-1 text-xs text-gray-500">
-                  {locale === 'es' ? 'La categoría no se puede cambiar desde esta pantalla.' : 'The category cannot be changed from this screen.'}
-                </p>
+
               </div>
             </div>
           )}
         </div>
-        
+
         {/* Botones de acción */}
         <div className="flex justify-end space-x-4 mt-6">
           <button
