@@ -508,7 +508,7 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
                          {formatUSD((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100))}
                        </p>
                        <p className="text-lg text-gray-500 line-through">
-                         {formatUSD((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100))}
+                         {formatUSD((Number(product.dolar_price) || 0) )}
                        </p>
                        <span className="text-sm font-medium bg-red-100 text-red-700 px-2 py-0.5 rounded">
                          {product.discount_percentage}% OFF
