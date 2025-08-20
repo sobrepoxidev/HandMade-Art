@@ -361,7 +361,7 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
         <div className="w-full md:w-7/12">
           <div className="sticky top-12">
             {/* Imagen principal con zoom */}
-            <div className="relative bg-white h-[300px] md:h-[500px] flex items-center justify-center border border-gray-200 rounded-lg overflow-hidden mb-4">
+            <div className="relative bg-white h-[250px] md:h-[500px] flex items-center justify-center border border-gray-200 rounded-lg overflow-hidden mb-4">
               {/* Contenedor de la imagen con zoom y arrastre */}
               <motion.div 
                 className="relative w-full h-full cursor-pointer"
@@ -448,7 +448,7 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
                 {product.media.map((item, index) => (
                   <button
                     key={index}
-                    className={`relative h-20 border rounded-md overflow-hidden transition hover:border-teal-500 ${
+                    className={`relative h-16 border rounded-md overflow-hidden transition hover:border-teal-500 ${
                       activeImageIndex === index ? 'border-teal-500 ring-2 ring-teal-300' : 'border-gray-200'
                     }`}
                     onClick={() => {
@@ -480,24 +480,24 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
           </h1>
           
           {/* Categoría */}
-          <div className="mb-4">
+          <div className="mb-2">
             {category && (
               <Link 
                 href={`/products?category=${category.id}`}
-                className="inline-block px-3 py-1 bg-teal-50 text-teal-700 text-sm rounded-full border border-teal-100 hover:bg-teal-100 transition"
+                className="inline-block px-1.5 py-1 bg-teal-50 text-teal-700 text-[0.7rem] rounded-full border border-teal-100 hover:bg-teal-100 transition"
               >
                 {locale === 'es' ? category.name_es : category.name_en}
               </Link>
             )}
             {product.brand && (
-              <span className="ml-2 inline-block px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-100">
+              <span className="ml-2 inline-block px-1.5 py-1 bg-blue-50 text-blue-700 text-[0.7rem] rounded-full border border-blue-100">
                 {product.brand}
               </span>
             )}
           </div>
           
           {/* Precio */}
-          <div className="mb-6">
+          <div className="mb-2">
             {product.dolar_price ? (
                product.discount_percentage && product.discount_percentage > 0 ? (
                  <div className="flex flex-col sm:flex-row sm:justify-start items-start sm:items-center gap-1 sm:gap-4">
@@ -554,12 +554,63 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
           </div>
           
           {/* Descripción */}
-          <div className="mb-8 border-b border-gray-200 pb-6">
+          <div className="mb-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold mb-2 text-gray-800">{locale === 'es' ? 'Descripción' : 'Description'}</h2>
             <p className="text-gray-700 whitespace-pre-line">
               {locale === 'es' ? product.description : product.description_en}
             </p>
           </div>
+
+          {/* Especificaciones técnicas */}
+          {(product.weight_kg || product.length_cm || product.width_cm || product.height_cm) && (
+            <div className="mb-8 border-b border-gray-200 pb-2 text-start">
+              <h2 className="text-lg font-semibold mb-4 text-gray-800">
+                {locale === 'es' ? 'Especificaciones técnicas' : 'Technical specifications'}
+              </h2>
+              <div className="grid grid-cols-2 gap-4 text-sm text-start">
+                {product.weight_kg && (
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600">
+                      {locale === 'es' ? 'Peso:' : 'Weight:'}
+                    </span>
+                    <span className="font-medium text-gray-800">
+                      {product.weight_kg} kg
+                    </span>
+                  </div>
+                )}
+                {product.length_cm && (
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600">
+                      {locale === 'es' ? 'Largo:' : 'Length:'}
+                    </span>
+                    <span className="font-medium text-gray-800">
+                      {product.length_cm} cm
+                    </span>
+                  </div>
+                )}
+                {product.width_cm && (
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600">
+                      {locale === 'es' ? 'Ancho:' : 'Width:'}
+                    </span>
+                    <span className="font-medium text-gray-800">
+                      {product.width_cm} cm
+                    </span>
+                  </div>
+                )}
+                {product.height_cm && (
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600">
+                      {locale === 'es' ? 'Alto:' : 'Height:'}
+                    </span>
+                    <span className="font-medium text-gray-800">
+                      {product.height_cm} cm
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           
           {/* Acciones */}
           <div className="space-y-6 border-b border-gray-200 pb-6 mb-6">
