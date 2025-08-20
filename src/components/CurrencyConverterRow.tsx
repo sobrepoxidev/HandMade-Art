@@ -43,7 +43,7 @@ export default function CurrencyConverterRow({
   };
 
   return (
-    <div className="inline-flex flex-nowrap items-center gap-3 text-sm rounded-md border border-amber-300 dark:border-zinc-700  px-1 py-0.5 shadow-xs">
+    <div className="inline-flex flex-nowrap items-center gap-1.5 text-sm rounded-md border border-black px-0.5 py-0.5 shadow-xs">
       {/* Selector de divisas */}
       <select
         className="border-none bg-transparent px-1 py-0.5 focus:outline-none focus:ring-0 text-black font-medium"
@@ -82,7 +82,7 @@ export default function CurrencyConverterRow({
       </button>
 
       {/* Resultado */}
-      <div className="min-w-[8rem] font-semibold text-black">
+      <div className="min-w-[7rem] font-semibold text-black">
         {result ? (
           result.currency && result.converted ? (
             new Intl.NumberFormat('es-CR', {

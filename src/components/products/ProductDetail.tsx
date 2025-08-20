@@ -499,41 +499,41 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
           {/* Precio */}
           <div className="mb-6">
             {product.dolar_price ? (
-               <div className="flex flex-col sm:flex-row sm:justify-start items-start sm:items-center gap-1 sm:gap-4">
-                 {/* Price & discount section */}
-                 <div className="flex items-center gap-0.5">
-                   {product.discount_percentage && product.discount_percentage > 0 ? (
-                     <>
-                       <p className="text-3xl font-bold text-teal-700">
-                         {formatUSD((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100))}
-                       </p>
-                       <p className="text-lg text-gray-500 line-through">
-                         {formatUSD((Number(product.dolar_price) || 0) )}
-                       </p>
-                       <span className="text-sm font-medium bg-red-100 text-red-700 px-2 py-0.5 rounded">
-                         {product.discount_percentage}% OFF
-                       </span>
-                     </>
-                   ) : (
+               product.discount_percentage && product.discount_percentage > 0 ? (
+                 <div className="flex flex-col sm:flex-row sm:justify-start items-start sm:items-center gap-1 sm:gap-4">
+                   {/* Price & discount section */}
+                   <div className="flex items-center gap-0.5">
                      <p className="text-3xl font-bold text-teal-700">
                        {formatUSD((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100))}
                      </p>
-                   )}
-                 </div>
+                     <p className="text-lg text-gray-500 line-through">
+                       {formatUSD((Number(product.dolar_price) || 0) )}
+                     </p>
+                     <span className="text-sm font-medium bg-red-100 text-red-700 px-2 py-0.5 rounded">
+                       {product.discount_percentage}% OFF
+                     </span>
+                   </div>
 
-                 {/* Placeholder column for future parallel content */}
-                 <div className="flex items-center sm:mx-auto">
-                   {/* TODO: add additional content here (e.g., currency conversion or promos) */}
+                   {/* Currency converter in separate row when there's discount */}
+                   <div className="flex items-center sm:mx-auto">
+                     <CurrencyConverterRow amount={Number(product.dolar_price || 0)} />
+                   </div>
+                 </div>
+               ) : (
+                 <div className="flex flex-row items-start sm:items-center gap-2 sm:gap-4">
+                   {/* Price and currency converter in same row when no discount */}
+                   <p className="text-3xl font-bold text-teal-700">
+                     {formatUSD((Number(product.dolar_price) || 0))}
+                   </p>
                    <CurrencyConverterRow amount={Number(product.dolar_price || 0)} />
                  </div>
-               </div>
+               )
             ) : (
               <p className="text-xl font-medium text-teal-700">
                 {locale === 'es' ? 'Precio a consultar' : 'Price to consult'}
               </p>
-            )}
-            
-            {/* Inventario */}
+            ) 
+          }
             <p className="mt-2 text-sm">
               {inventory > 0 ? (
                 <span className="text-green-600 flex items-center">
