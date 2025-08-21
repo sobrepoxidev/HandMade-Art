@@ -75,7 +75,8 @@ export function InterestDrawer({ open, onClose, interestList }: InterestDrawerPr
           snapshot: {
             name: item.name,
             sku: item.sku,
-            image_url: item.main_image_url
+            image_url: item.main_image_url,
+            dolar_price: item.price
           }
         }))
       };

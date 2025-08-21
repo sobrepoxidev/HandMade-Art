@@ -42,6 +42,12 @@ export default function GraciasPage() {
             <p className="text-sm">
               Nos pondremos en contacto contigo en las próximas 24-48 horas con una cotización personalizada.
             </p>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-4">
+              <p className="text-sm text-yellow-800">
+                <strong>📧 Importante:</strong> Revisa tu carpeta de spam o correo no deseado, ya que algunos proveedores de correo pueden filtrar nuestros mensajes.
+              </p>
+            </div>
           </div>
 
           {/* Información de contacto */}

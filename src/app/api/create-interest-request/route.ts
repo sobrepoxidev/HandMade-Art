@@ -11,6 +11,7 @@ interface InterestRequestItem {
     name: string;
     sku?: string;
     image_url?: string;
+    dolar_price?: number;
   };
 }
 
@@ -32,6 +33,7 @@ interface InterestRequestItemDB {
     name: string;
     sku?: string;
     image_url?: string;
+    dolar_price?: number;
   };
   created_at: string;
 }
@@ -178,7 +180,7 @@ export async function POST(request: NextRequest) {
           items: fullRequestData.interest_request_items.map((item: InterestRequestItemDB) => ({
             id: item.product_id.toString(),
             name: item.product_snapshot.name,
-            price: 0, // Precio será determinado por el gestor
+            price: item.product_snapshot.dolar_price || 0, // Precio unitario de referencia
             quantity: item.quantity,
             image_url: item.product_snapshot.image_url
           })),

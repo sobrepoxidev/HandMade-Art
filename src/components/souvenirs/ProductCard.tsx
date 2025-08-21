@@ -67,7 +67,7 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
       name: product.name,
       sku: product.sku || undefined,
       main_image_url: product.main_image_url || undefined,
-      price: finalPrice,
+      price: product.dolar_price || 0,
       discount_percentage: product.discount_percentage || undefined
     };
     
