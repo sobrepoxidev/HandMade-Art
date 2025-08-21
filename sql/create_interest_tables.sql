@@ -39,26 +39,13 @@ create index if not exists idx_interest_items_product on public.interest_request
 alter table public.interest_requests enable row level security;
 alter table public.interest_request_items enable row level security;
 
--- Políticas de seguridad para usuarios anónimos y autenticados
--- Política para insertar solicitudes de interés (permite a todos los usuarios)
-create policy if not exists "allow_insert_interest_requests"
-on public.interest_requests for insert
-with check(true);
+-- Políticas de seguridad para usuarios anónimos
+create policy if not exists "anon_insert_interest_requests"
+on public.interest_requests for insert to anon with check(true);
 
--- Política para insertar items de solicitudes (permite a todos los usuarios)
-create policy if not exists "allow_insert_interest_request_items"
-on public.interest_request_items for insert
+create policy if not exists "anon_insert_interest_request_items"
+on public.interest_request_items for insert to anon
 with check(exists(select 1 from public.interest_requests r where r.id=request_id));
-
--- Política para leer solicitudes (solo el propietario o admin)
-create policy if not exists "allow_select_interest_requests"
-on public.interest_requests for select
-using(true);
-
--- Política para leer items de solicitudes
-create policy if not exists "allow_select_interest_request_items"
-on public.interest_request_items for select
-using(true);
 
 -- Vista optimizada para cards de productos
 create or replace view public.product_card_view as
