@@ -27,6 +27,8 @@ export async function middleware(req: NextRequest) {
 
   // Copy headers (redirect/location) from next-intl
   res.headers.set("x-middleware-next-intl", "processed");
+  // Agregar pathname para que esté disponible en componentes del servidor
+  res.headers.set("x-pathname", pathname);
   for (const [k, v] of intlRes.headers) if (!res.headers.has(k)) res.headers.set(k, v);
 
   const supabase = createMiddlewareClient({ req, res });

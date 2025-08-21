@@ -7,6 +7,7 @@ import SearchBar from '../search/SearchBar';
 import CategoryCarousel from '../search/CategoryCarousel';
 import { cookies } from 'next/headers';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { headers } from 'next/headers';
 
 export default async function Navbar({ locale }: { locale: string }) {
   // Usar la versión correcta y más reciente de la API de cookies
@@ -14,6 +15,11 @@ export default async function Navbar({ locale }: { locale: string }) {
   
   // Get the user session
   const { data: { session } } = await createServerComponentClient({ cookies }).auth.getSession();
+
+  // Obtener la ruta actual para determinar si mostrar componentes de búsqueda
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || '';
+  const shouldShowSearchComponents = !pathname.includes('/admin') && !pathname.includes('/souvenirs');
 
 
   return ( 
@@ -69,15 +75,17 @@ export default async function Navbar({ locale }: { locale: string }) {
       </div>
         
         {/* Mobile Search Bar - Visible by default on mobile */}
-        <div className="lg:hidden bg-white px-0 py-0.5">
-          <SearchBar 
-            variant="mobile" 
-            initialCategory={locale === 'es' ? 'Todo' : 'All'}
-            locale={locale}
-            className="w-full px-2"
-          />
-          <CategoryCarousel locale={locale} className="mt-1" />
-        </div>
+        {shouldShowSearchComponents && (
+          <div className="lg:hidden bg-white px-0 py-0.5">
+            <SearchBar 
+              variant="mobile" 
+              initialCategory={locale === 'es' ? 'Todo' : 'All'}
+              locale={locale}
+              className="w-full px-2"
+            />
+            <CategoryCarousel locale={locale} className="mt-1" />
+          </div>
+        )}
     </header>
   );
 }

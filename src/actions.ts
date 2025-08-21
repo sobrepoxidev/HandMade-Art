@@ -148,7 +148,7 @@ export async function handleVacationForm(_: unknown, formData: FormData) {
     `;
 
     // Send email
-    await sendMail('Nuevo mensaje de contacto - Hand Made Art Web', html, "bryamlopez4@gmail.com");
+    await sendMail('Nuevo mensaje de contacto - Handmade Art', html, "bryamlopez4@gmail.com");
 
     return {
       success: true,

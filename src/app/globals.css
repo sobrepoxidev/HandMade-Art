@@ -54,6 +54,48 @@ body {
 .animate-bounce-in {
   animation: bounce-in 0.7s;
 }
+
+/* Estilos para scroll horizontal de categorías */
+.category-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.category-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Estilos para el drawer */
+.drawer-overlay {
+  backdrop-filter: blur(4px);
+}
+
+/* Animaciones para el drawer */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-in;
+}
 @layer utilities {
   /* Hide scrollbars across browsers */
   .scrollbar-hide {

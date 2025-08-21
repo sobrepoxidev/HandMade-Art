@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
+import { usePathname } from 'next/navigation';
 import { Menu, X, User, ShoppingBag, ChevronDown, Globe, Package } from 'lucide-react';
 import { Session } from '@supabase/supabase-js';
 import { useSupabase } from '@/app/supabase-provider/provider';
@@ -23,8 +24,13 @@ type NavLink = {
 export default function NavbarClient({ locale, session: initialSession }: { locale: string; session: Session | null }) {
   //const t = useTranslations('navbar');
   const router = useRouter();
+  const pathname = usePathname();
   const { supabase } = useSupabase();
   const { totalItems } = useCart();
+
+  // Determinar si mostrar componentes de búsqueda (ocultar en /admin y /souvenirs)
+  // Considerar rutas con locale: /es/admin, /en/admin, /es/souvenirs, /en/souvenirs
+  const shouldShowSearchComponents = !pathname.includes('/admin') && !pathname.includes('/souvenirs');
 
   // Estados para la UI
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,15 +41,17 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
 
 
 
-  // Cargar categorías de la base de datos
+  // Cargar categorías de la base de datos solo si se van a mostrar
   useEffect(() => {
+    if (!shouldShowSearchComponents) return;
+    
     const loadCategories = async () => {
       const categories = await getCategories();
       setCategoryList(categories);
     };
 
     loadCategories();
-  }, []);
+  }, [shouldShowSearchComponents]);
 
 
 
@@ -156,38 +164,44 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
               <span>{locale === 'es' ? 'ES' : 'EN'}</span>
             </button>
             {/* Cart */}
-            <Link href="/cart" className="relative flex items-center text-gray-700 hover:text-teal-700">
-              <ShoppingBag className="h-5 w-5" />
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs font-medium text-white ml-0.5">
-                {totalItems}
-              </span>
-            </Link>
+            {shouldShowSearchComponents && (
+              <Link href="/cart" className="relative flex items-center text-gray-700 hover:text-teal-700">
+                <ShoppingBag className="h-5 w-5" />
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs font-medium text-white ml-0.5">
+                  {totalItems}
+                </span>
+              </Link>
+            )}
           </div>
         </div>
 
         {/* Top Row: Search bar with filter dropdown */}
-        <div className="flex w-full items-center justify-center pt-3 px-4">
-          <div className="flex w-full max-w-6xl items-center">
-            <div
-              className="relative w-full flex items-center rounded-md border border-gray-300 bg-white overflow-visible"
-              style={{
-                zIndex: 40, // Lower z-index to stay below mobile menu
-                position: 'relative',
-              }}
-            >
-              {/* Integrated SearchBar component with higher z-index to ensure dropdowns appear */}
-              <SearchBar
-                variant="navbar"
-                initialCategory={locale === 'es' ? 'Todo' : 'All'}
-                locale={locale}
-              />
+        {shouldShowSearchComponents && (
+          <div className="flex w-full items-center justify-center pt-3 px-4">
+            <div className="flex w-full max-w-6xl items-center">
+              <div
+                className="relative w-full flex items-center rounded-md border border-gray-300 bg-white overflow-visible"
+                style={{
+                  zIndex: 40, // Lower z-index to stay below mobile menu
+                  position: 'relative',
+                }}
+              >
+                {/* Integrated SearchBar component with higher z-index to ensure dropdowns appear */}
+                <SearchBar
+                  variant="navbar"
+                  initialCategory={locale === 'es' ? 'Todo' : 'All'}
+                  locale={locale}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Category carousel - horizontally scrollable */}
         {/* reservar espacio mientras se carga */}
+        {shouldShowSearchComponents && (
           <div className="w-full flex justify-center h-8"><CategoryCarousel locale={locale} categories={categoryList} className="mt-1 max-w-6xl" /></div>
+        )}
 
           {/* Desktop action icons */}
           <div className="hidden">
@@ -201,16 +215,18 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
             </button>
 
             {/* Cart */}
-            <Link
-              href="/cart"
-              className="relative flex items-center space-x-0.5 text-sm text-gray-700 hover:text-teal-700"
-            >
-              <ShoppingBag className="h-5 w-5" />
-              <span className="sr-only">{locale === 'es' ? 'Carrito' : 'Cart'}</span>
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs font-medium text-white">
-                {totalItems}
-              </span>
-            </Link>
+            {shouldShowSearchComponents && (
+              <Link
+                href="/cart"
+                className="relative flex items-center space-x-0.5 text-sm text-gray-700 hover:text-teal-700"
+              >
+                <ShoppingBag className="h-5 w-5" />
+                <span className="sr-only">{locale === 'es' ? 'Carrito' : 'Cart'}</span>
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs font-medium text-white">
+                  {totalItems}
+                </span>
+              </Link>
+            )}
 
             {/* Hamburger */}
             <button
@@ -274,17 +290,19 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
         </button>
 
         {/* Cart */}
-        <Link
-          href="/cart"
-          className="relative flex h-10 items-center space-x-0.5 rounded-md px-0.5 text-sm text-gray-700 transition hover:bg-gray-100"
-          aria-label={locale === 'es' ? 'Carrito' : 'Cart'}
-        >
-          <ShoppingBag className="h-5 w-5" />
-          <span className="hidden md:inline">{locale === 'es' ? 'Carrito' : 'Cart'}</span>
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs font-medium text-white">
-            {totalItems}
-          </span>
-        </Link>
+        {shouldShowSearchComponents && (
+          <Link
+            href="/cart"
+            className="relative flex h-10 items-center space-x-0.5 rounded-md px-0.5 text-sm text-gray-700 transition hover:bg-gray-100"
+            aria-label={locale === 'es' ? 'Carrito' : 'Cart'}
+          >
+            <ShoppingBag className="h-5 w-5" />
+            <span className="hidden md:inline">{locale === 'es' ? 'Carrito' : 'Cart'}</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs font-medium text-white">
+              {totalItems}
+            </span>
+          </Link>
+        )}
         {/* Mobile menu toggle */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -317,16 +335,18 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
 
 
             {/* Cart Link - Movido arriba */}
-            <div className="mb-3">
-              <Link
-                href="/cart"
-                className="flex items-center space-x-2 text-sm font-medium bg-gray-50 p-3 rounded-md text-gray-900 w-full"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <ShoppingBag className="h-5 w-5" />
-                <span>{locale === 'es' ? 'Ver carrito' : 'View cart'} ({totalItems})</span>
-              </Link>
-            </div>
+            {shouldShowSearchComponents && (
+              <div className="mb-3">
+                <Link
+                  href="/cart"
+                  className="flex items-center space-x-2 text-sm font-medium bg-gray-50 p-3 rounded-md text-gray-900 w-full"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  <span>{locale === 'es' ? 'Ver carrito' : 'View cart'} ({totalItems})</span>
+                </Link>
+              </div>
+            )}
 
             {/* Mobile Auth Links */}
             <div className="mb-3">
