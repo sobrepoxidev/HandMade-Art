@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
           )
         `)
         .eq('id', requestId)
-        .single() as { data: InterestRequestDB | null, error: any };
+        .single() as { data: InterestRequestDB | null, error: Error | null };
 
       if (fetchError || !fullRequestData) {
         console.error('Error fetching request data for emails:', fetchError);
