@@ -3,6 +3,7 @@ import { supabaseServer } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { generateCustomerQuoteEmail, generateManagerNotificationEmail } from '@/lib/emailTemplates';
 
+
 interface InterestRequestItem {
   product_id: number;
   quantity: number;
