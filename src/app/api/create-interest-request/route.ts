@@ -23,6 +23,33 @@ interface InterestRequestPayload {
   items: InterestRequestItem[];
 }
 
+interface InterestRequestItemDB {
+  id: number;
+  request_id: number;
+  product_id: number;
+  quantity: number;
+  product_snapshot: {
+    name: string;
+    sku?: string;
+    image_url?: string;
+  };
+  created_at: string;
+}
+
+interface InterestRequestDB {
+  id: number;
+  requester_name: string;
+  organization?: string;
+  email?: string;
+  phone?: string;
+  notes?: string;
+  source: string;
+  locale: string;
+  channel: string;
+  created_at: string;
+  interest_request_items: InterestRequestItemDB[];
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: InterestRequestPayload = await request.json();
@@ -138,9 +165,9 @@ export async function POST(request: NextRequest) {
           )
         `)
         .eq('id', requestId)
-        .single();
+        .single() as { data: InterestRequestDB | null, error: any };
 
-      if (fetchError) {
+      if (fetchError || !fullRequestData) {
         console.error('Error fetching request data for emails:', fetchError);
       } else {
         // Preparar datos para las plantillas de email
@@ -148,7 +175,7 @@ export async function POST(request: NextRequest) {
           customerName: fullRequestData.requester_name,
           customerEmail: fullRequestData.email || '',
           customerPhone: fullRequestData.phone || '',
-          items: fullRequestData.interest_request_items.map((item: any) => ({
+          items: fullRequestData.interest_request_items.map((item: InterestRequestItemDB) => ({
             id: item.product_id.toString(),
             name: item.product_snapshot.name,
             price: 0, // Precio será determinado por el gestor
