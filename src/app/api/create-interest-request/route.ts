@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabaseServer';
+import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { generateCustomerQuoteEmail, generateManagerNotificationEmail } from '@/lib/emailTemplates';
-
 
 interface InterestRequestItem {
   product_id: number;
@@ -22,34 +21,6 @@ interface InterestRequestPayload {
   phone?: string;
   notes?: string;
   items: InterestRequestItem[];
-}
-
-interface InterestRequestItemDB {
-  id: number;
-  request_id: number;
-  product_id: number;
-  quantity: number;
-  product_snapshot: {
-    name: string;
-    sku?: string;
-    image_url?: string;
-    dolar_price?: number;
-  };
-  created_at: string;
-}
-
-interface InterestRequestDB {
-  id: number;
-  requester_name: string;
-  organization?: string;
-  email?: string;
-  phone?: string;
-  notes?: string;
-  source: string;
-  locale: string;
-  channel: string;
-  created_at: string;
-  interest_request_items: InterestRequestItemDB[];
 }
 
 export async function POST(request: NextRequest) {
@@ -103,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insertar solicitud principal
-    const { data: requestData, error: requestError } = await supabaseServer
+    const { data: requestData, error: requestError } = await supabase
       .from('interest_requests')
       .insert({
         requester_name: body.requester_name.trim(),
@@ -136,14 +107,14 @@ export async function POST(request: NextRequest) {
       product_snapshot: item.snapshot
     }));
 
-    const { error: itemsError } = await supabaseServer
+    const { error: itemsError } = await supabase
       .from('interest_request_items')
       .insert(itemsToInsert);
 
     if (itemsError) {
       console.error('Error creating interest request items:', itemsError);
       // Intentar limpiar la solicitud principal si falló la inserción de items
-      await supabaseServer
+      await supabase
         .from('interest_requests')
         .delete()
         .eq('id', requestId);
@@ -154,66 +125,69 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Enviar correos de confirmación
-    try {
-      // Obtener datos completos para los correos
-      const { data: fullRequestData, error: fetchError } = await supabaseServer
-        .from('interest_requests')
-        .select(`
-          *,
-          interest_request_items (
-            *,
-            product_snapshot
-          )
-        `)
-        .eq('id', requestId)
-        .single() as { data: InterestRequestDB | null, error: Error | null };
+    // Calcular el total de la cotización
+    const totalAmount = body.items.reduce((total, item) => {
+      const price = item.snapshot.dolar_price || 0;
+      return total + (price * item.quantity);
+    }, 0);
 
-      if (fetchError || !fullRequestData) {
-        console.error('Error fetching request data for emails:', fetchError);
-      } else {
-        // Preparar datos para las plantillas de email
-        const emailData = {
-          customerName: fullRequestData.requester_name,
-          customerEmail: fullRequestData.email || '',
-          customerPhone: fullRequestData.phone || '',
-          items: fullRequestData.interest_request_items.map((item: InterestRequestItemDB) => ({
-            id: item.product_id.toString(),
-            name: item.product_snapshot.name,
-            price: item.product_snapshot.dolar_price || 0, // Precio unitario de referencia
+    // Enviar correos electrónicos si se proporciona email
+    if (body.email && body.email.trim()) {
+      try {
+        // Correo al cliente
+        const customerEmailHtml = generateCustomerQuoteEmail({
+          customerName: body.requester_name,
+          customerEmail: body.email.trim(),
+          customerPhone: body.phone || 'No proporcionado',
+          items: body.items.map((item, index) => ({
+            id: `${item.product_id}-${index}`,
+            name: item.snapshot.name,
             quantity: item.quantity,
-            image_url: item.product_snapshot.image_url
+            price: item.snapshot.dolar_price || 0,
+            image_url: item.snapshot.image_url || ''
           })),
-          totalAmount: 0, // Total será calculado por el gestor
+          totalAmount,
           requestId: requestId.toString(),
-          createdAt: fullRequestData.created_at
-        };
+          createdAt: new Date().toISOString()
+        });
 
-        // Enviar correo al cliente (solo si tiene email)
-        if (fullRequestData.email) {
-          const customerEmailHtml = generateCustomerQuoteEmail(emailData);
-          await sendMail(
-            'Confirmación de Cotización - Handmade Art',
-            customerEmailHtml,
-            fullRequestData.email
-          );
-        }
-
-        // Enviar correo al gestor
-        const managerEmailHtml = generateManagerNotificationEmail(emailData);
         await sendMail(
-          `Nueva Cotización #${requestId} - ${fullRequestData.requester_name}`,
+          'Cotización de Productos Artesanales - Hands Made Art',
+          customerEmailHtml,
+          body.email.trim()
+        );
+
+        // Correo al gestor
+        const managerEmailHtml = generateManagerNotificationEmail({
+          customerName: body.requester_name,
+          customerEmail: body.email.trim(),
+          customerPhone: body.phone || 'No proporcionado',
+          items: body.items.map((item, index) => ({
+            id: `${item.product_id}-${index}`,
+            name: item.snapshot.name,
+            quantity: item.quantity,
+            price: item.snapshot.dolar_price || 0,
+            image_url: item.snapshot.image_url || ''
+          })),
+          totalAmount,
+          requestId: requestId.toString(),
+          createdAt: new Date().toISOString()
+        });
+
+        await sendMail(
+          `Nueva Solicitud de Cotización #${requestId} - ${body.requester_name}`,
           managerEmailHtml,
           'bryamlopez4@gmail.com'
         );
+
+      } catch (emailError) {
+        console.error('Error sending emails:', emailError);
+        // No fallar la solicitud si hay error en el envío de correos
       }
-    } catch (emailError) {
-      console.error('Error sending emails:', emailError);
-      // No fallar la respuesta por errores de email
     }
 
     return NextResponse.json(
-      { ok: true, request_id: requestId },
+      { ok: true, request_id: requestId, total_amount: totalAmount },
       { status: 201 }
     );
 

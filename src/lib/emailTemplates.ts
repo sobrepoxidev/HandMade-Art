@@ -78,7 +78,7 @@ export function generateCustomerQuoteEmail(data: QuoteData): string {
             <tbody>
               ${itemsHtml}
               <tr style="background-color: #f0f0f0;">
-                <td style="padding: 20px; font-weight: bold; font-size: 18px; color: #8B4513;">Total Estimado:</td>
+                <td style="padding: 20px; font-weight: bold; font-size: 18px; color: #8B4513;">Total sin descuento:</td>
                 <td style="padding: 20px; text-align: right; font-weight: bold; font-size: 20px; color: #8B4513;">$${data.totalAmount.toFixed(2)}</td>
               </tr>
             </tbody>
