@@ -63,7 +63,14 @@ export default function LoginPage() {
     setErrorMsg("");
 
     const redirectTo = new URL('/auth/callback', window.location.origin);
-    redirectTo.searchParams.set('next', url);
+    
+    // Asegurar que la URL incluya el locale correcto
+    let nextUrl = url;
+    if (!nextUrl.startsWith(`/${locale}/`) && nextUrl !== '/') {
+      nextUrl = `/${locale}${nextUrl}`;
+    }
+    
+    redirectTo.searchParams.set('next', nextUrl);
   
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
