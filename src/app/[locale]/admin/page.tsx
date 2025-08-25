@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { Package, Calendar, ArrowRight, Users } from 'lucide-react';
+import { Package, ArrowRight, Users } from 'lucide-react';
 
 // Lista de correos electrónicos de administradores autorizados
 const AUTHORIZED_ADMINS = ['sobrepoxidev@gmail.com', 'bryamlopez4@gmail.com'];
@@ -60,8 +60,8 @@ export default async function AdminPage({
     redirect(`/${locale}`);
   }
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">{locale === 'es' ? 'Panel de Administración' : 'Admin Panel'}</h1>
+    <div className="container mx-auto px-3 py-3">
+      <h1 className="text-3xl font-bold text-gray-800 mb-4">{locale === 'es' ? 'Panel de Administración' : 'Admin Panel'}</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         <AdminCard
           href={`/${locale}/admin/quotes`}
@@ -77,13 +77,13 @@ export default async function AdminPage({
           icon={Package}
           locale={locale}
         />
-        <AdminCard
+        {/* <AdminCard
           href={`/${locale}/admin/events`}
           title={locale === 'es' ? 'Eventos' : 'Events'}
           description={locale === 'es' ? 'Gestiona los eventos y actividades programadas.' : 'Manage the events and activities scheduled.'}
           icon={Calendar}
           locale={locale}
-        />
+        /> */}
       </div>
     </div>
   );
