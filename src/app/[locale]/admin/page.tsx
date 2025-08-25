@@ -50,8 +50,8 @@ export default async function AdminPage({
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
-    const returnUrl = encodeURIComponent(`/${locale}/admin`);
-    redirect(`/${locale}/login?returnUrl=${returnUrl}`);
+    const returnUrl = `/${locale}/admin`;
+    redirect(`/${locale}/login?returnUrl=${encodeURIComponent(returnUrl)}`);
   }
 
   const userEmail = session.user?.email;
