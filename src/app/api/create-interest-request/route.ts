@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
         await sendMail(
           `Nueva Solicitud de Cotización #${requestId} - ${body.requester_name}`,
           managerEmailHtml,
-          'bryamlopez4@gmail.com'
+          'sobrepoxidev@gmail.com'
         );
 
       } catch (emailError) {
