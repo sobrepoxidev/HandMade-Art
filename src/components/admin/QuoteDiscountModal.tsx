@@ -82,12 +82,13 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
         }, 0);
         break;
       case 'total_override':
-        finalTotal = totalOverride;
-        break;
+        // Para total_override, sumar el shipping al total personalizado
+        return Math.max(0, totalOverride + shippingCost);
       default:
         finalTotal = baseTotal;
     }
 
+    // Para todos los otros tipos, agregar shipping al final
     return Math.max(0, finalTotal + shippingCost);
   };
 
@@ -108,6 +109,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
       const discountData: DiscountData = {};
 
       if (discountType === 'total_override') {
+        // Para total_override, discount_value debe ser el monto final sin shipping
         discountValueToSend = totalOverride;
       } else {
         discountValueToSend = discountValue;
@@ -225,7 +227,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
                             max={discountType === 'product_percentage' ? "100" : undefined}
                             step={discountType === 'product_percentage' ? "1" : "0.01"}
                             placeholder={discountType === 'product_percentage' ? "% desc." : "$ desc."}
-                            value={productDiscounts[item.id] || ''}
+                            value={productDiscounts[item.id] ? productDiscounts[item.id].toString() : ''}
                             onChange={(e) => handleProductDiscountChange(item.id, parseFloat(e.target.value) || 0)}
                             className="w-20 px-2 py-1 text-sm border rounded"
                           />
@@ -350,7 +352,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
                   min="0"
                   step="0.01"
                   max={discountType === 'percentage' ? "100" : undefined}
-                  value={discountType === 'total_override' ? totalOverride : discountValue}
+                  value={discountType === 'total_override' ? (totalOverride || '') : (discountValue || '')}
                   onChange={(e) => {
                     const value = parseFloat(e.target.value) || 0;
                     if (discountType === 'total_override') {
@@ -383,7 +385,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
                 type="number"
                 min="0"
                 step="0.01"
-                value={shippingCost}
+                value={shippingCost || ''}
                 onChange={(e) => setShippingCost(parseFloat(e.target.value) || 0)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="0.00"
@@ -428,7 +430,10 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               <div className="flex justify-between">
                 <span>{locale === 'es' ? 'Descuento Aplicado:' : 'Applied Discount:'}</span>
                 <span className="font-medium text-red-600">
-                  -{formatCurrency(calculateOriginalTotal() - (calculateFinalTotal() - shippingCost))}
+                  {discountType === 'total_override' 
+                    ? `-${formatCurrency(calculateOriginalTotal() - totalOverride)}`
+                    : `-${formatCurrency(calculateOriginalTotal() - (calculateFinalTotal() - shippingCost))}`
+                  }
                 </span>
               </div>
               {shippingCost > 0 && (

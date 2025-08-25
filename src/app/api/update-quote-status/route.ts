@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
         await sendMail(
           `💰 Nueva venta confirmada - Orden #${order.id}`,
           managerEmailHtml,
-          'bryamlopez4@gmail.com'
+          'sobrepoxidev@gmail.com'
         );
 
         } catch (emailError) {

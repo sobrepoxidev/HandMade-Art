@@ -8,7 +8,8 @@ export interface InterestItem {
   name: string;
   sku?: string;
   main_image_url?: string;
-  price?: number;
+  price?: number; // Este es el precio en dólares
+  dolar_price?: number;
   discount_percentage?: number;
 }
 

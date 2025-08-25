@@ -29,13 +29,20 @@ export async function POST(request: NextRequest) {
     // Generar slug único para la cotización
     const slug = `quote-${quoteId}-${Date.now()}`;
 
+    // Para total_override, discount_value debe ser el monto sin shipping
+    let adjustedDiscountValue = discountValue;
+    if (discountType === 'total_override') {
+      // discount_value es el total final sin shipping
+      adjustedDiscountValue = finalAmount - (shippingCost || 0);
+    }
+
     // Actualizar la cotización en la base de datos
     const { error } = await supabase
       .from('interest_requests')
       .update({
         status: 'sent_to_client',
         discount_type: discountType,
-        discount_value: discountValue, // Ahora es un número directo
+        discount_value: adjustedDiscountValue,
         final_amount: finalAmount,
         quote_slug: slug,
         responded_at: new Date().toISOString(),
@@ -87,8 +94,19 @@ export async function POST(request: NextRequest) {
       if (!itemsError && quoteItems && updatedQuote) {
         const items: InterestRequestItem[] = quoteItems;
 
-        const originalTotal = updatedQuote.total_amount;
-        const discountAmount = originalTotal - finalAmount;
+        const originalTotal = updatedQuote.total_amount || 0;
+        const shippingCostValue = updatedQuote.shipping_cost || 0;
+        
+        // Calcular el descuento correctamente según el tipo
+        let discountAmount = 0;
+        if (discountType === 'total_override') {
+          // Para total_override, el descuento es la diferencia entre el total original y el precio final sin shipping
+          const finalAmountWithoutShipping = finalAmount - shippingCostValue;
+          discountAmount = originalTotal - finalAmountWithoutShipping;
+        } else {
+          // Para otros tipos, el descuento es la diferencia entre el total original y el final
+          discountAmount = originalTotal + shippingCostValue - finalAmount;
+        }
         
         // Determinar descripción del descuento
         let discountDescription = '';
@@ -144,7 +162,7 @@ export async function POST(request: NextRequest) {
         await sendMail(
           `📧 Cotización enviada a ${updatedQuote.requester_name}`,
           managerEmailHtml,
-          'bryamlopez4@gmail.com'
+          'sobrepoxidev@gmail.com'
         );
       }
     } catch (emailError) {

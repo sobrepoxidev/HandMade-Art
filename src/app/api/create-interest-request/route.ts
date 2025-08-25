@@ -69,6 +69,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Calcular el total de la cotización
+    const totalAmount = body.items.reduce((total, item) => {
+      const price = item.product_snapshot.dolar_price || 0;
+      return total + (price * item.quantity);
+    }, 0);
+
     // Insertar solicitud principal
     const { data: requestData, error: requestError } = await supabase
       .from('interest_requests')
@@ -80,7 +86,8 @@ export async function POST(request: NextRequest) {
         notes: body.notes?.trim() || null,
         source: 'catalog',
         locale: 'es',
-        channel: 'web'
+        channel: 'web',
+        total_amount: totalAmount
       })
       .select('id')
       .single();
@@ -100,7 +107,8 @@ export async function POST(request: NextRequest) {
       request_id: requestId,
       product_id: item.product_id,
       quantity: item.quantity,
-      product_snapshot: item.product_snapshot
+      product_snapshot: item.product_snapshot,
+      unit_price_usd: item.product_snapshot.dolar_price || 0
     }));
 
     const { error: itemsError } = await supabase
@@ -120,12 +128,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    // Calcular el total de la cotización
-    const totalAmount = body.items.reduce((total, item) => {
-      const price = item.product_snapshot.dolar_price || 0;
-      return total + (price * item.quantity);
-    }, 0);
 
     // Enviar correos electrónicos si se proporciona email
     if (body.email && body.email.trim()) {
@@ -153,7 +155,7 @@ export async function POST(request: NextRequest) {
         const customerEmailHtml = generateCustomerQuoteEmail(emailData);
 
         await sendMail(
-          'Cotización de Productos Artesanales - Handmade Art',
+          'Cotización de Productos - Handmade Art',
           customerEmailHtml,
           body.email.trim()
         );

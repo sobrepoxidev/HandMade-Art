@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { sendMail } from '@/lib/email';
-import {  ProductSnapshot } from '@/types-db';
+import { ProductSnapshot } from '@/types-db';
 import { generateQuoteEmailTemplate, generateManagerQuoteNotificationTemplate } from '@/lib/emailTemplates/quoteEmailTemplate';
 
 export async function POST(request: NextRequest) {
   try {
     const { quoteId } = await request.json();
-    
+
     if (!quoteId) {
       return NextResponse.json(
         { error: 'Quote ID is required' },
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient();
-    
+
     // Obtener la cotización con sus items
     const { data: quote, error: quoteError } = await supabase
       .from('interest_requests')
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     //     const discountData = JSON.parse(quote.discount_value as string);
     //     const originalTotal = quote.total_amount;
     //     const discountAmount = originalTotal - finalAmount;
-        
+
     //     if (discountAmount > 0) {
     //       let discountText = '';
     //       switch (quote.discount_type) {
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     //         default:
     //           discountText = 'Descuento aplicado';
     //       }
-          
+
     //       discountInfo = `
     //         <tr>
     //           <td colspan="3" style="padding: 10px; text-align: right; color: #16a34a; font-weight: bold;">${discountText}:</td>
@@ -119,9 +119,13 @@ export async function POST(request: NextRequest) {
     }));
 
     // Calcular descuento
-    const originalTotal = quote.interest_request_items.reduce((acc: number, item: { quantity: number, snapshot: ProductSnapshot | null }) => acc + (item.snapshot?.dolar_price || 0) * item.quantity, 0);
+    const originalTotal = quote.interest_request_items.reduce((total: number, item: { quantity: number, snapshot: ProductSnapshot | null }) => {
+      const price = item.snapshot?.dolar_price ?? 0;
+      return total + (price * item.quantity);
+    }, 0);
+
     const discountAmount = originalTotal - finalAmount;
-    
+
     // Enviar correo al cliente usando la plantilla existente
     const clientEmailHtml = generateQuoteEmailTemplate({
       customerName: quote.requester_name,
@@ -129,7 +133,7 @@ export async function POST(request: NextRequest) {
       items,
       originalTotal,
       discountAmount,
-      finalTotal: totalAmount,
+      finalTotal: finalAmount,
       discountDescription: quote.discount_type ? `Descuento aplicado (${quote.discount_type})` : undefined,
       managerNotes: quote.manager_notes,
       locale: 'es',
@@ -147,18 +151,18 @@ export async function POST(request: NextRequest) {
       customerName: quote.requester_name,
       customerEmail: quote.email,
       quoteSlug: quote.quote_slug,
-      finalTotal: totalAmount,
+      finalTotal: finalAmount,
       locale: 'es'
     });
 
     await sendMail(
       `Nueva cotización enviada - ${quote.requester_name}`,
       managerEmailHtml,
-      'bryamlopez4@gmail.com'
+      'sobrepoxidev@gmail.com'
     );
 
     return NextResponse.json({ success: true });
-    
+
   } catch (error) {
     console.error('Error sending quote email:', error);
     return NextResponse.json(

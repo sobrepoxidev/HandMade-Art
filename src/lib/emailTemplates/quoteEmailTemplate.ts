@@ -214,7 +214,7 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
               <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 12px 0;" />
               <div style="display: flex; justify-content: space-between;">
                 <span style="color: #374151; font-size: 18px; font-weight: 700;">${isSpanish ? 'Total Final:' : 'Final Total:'}</span>
-                <span style="color: #16a34a; font-size: 18px; font-weight: 700;">${formatCurrency(finalTotal + shippingCost)}</span>
+                <span style="color: #16a34a; font-size: 18px; font-weight: 700;">${formatCurrency(finalTotal)}</span>
               </div>
             </div>
             
@@ -388,7 +388,7 @@ export function generateManagerQuoteNotificationTemplate(data: {
               </p>
               <p style="margin: 0; color: #6b7280; font-size: 14px;">
                 <strong style="color: #374151;">${isSpanish ? 'Total de la cotización:' : 'Quote total:'}</strong> 
-                <span style="color: #16a34a; font-weight: 600;">${formatCurrency(finalTotal + 7)}</span>
+                <span style="color: #16a34a; font-weight: 600;">${formatCurrency(finalTotal)}</span>
               </p>
             </div>
           </div>
