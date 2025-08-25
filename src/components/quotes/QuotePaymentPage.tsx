@@ -133,10 +133,10 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
     <div className="min-h-screen bg-gray-50 py-8 text-gray-800">
       <div className="max-w-6xl mx-auto px-2">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-3">
+        <div className="bg-white rounded-lg shadow-sm p-3 mb-2">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+              <h1 className="text-xl font-bold text-gray-900 flex items-center">
                 <ShoppingBag className="w-6 h-6 mr-2 text-green-600" />
                 {locale === 'es' ? 'Tu Cotización Personalizada' : 'Your Custom Quote'}
               </h1>
@@ -158,10 +158,10 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           {/* Información del cliente */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-sm p-3 mb-2">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <User className="w-5 h-5 mr-2 text-gray-800" />
                 {locale === 'es' ? 'Información del Cliente' : 'Customer Information'}
@@ -187,8 +187,8 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
             </div>
 
             {/* Productos */}
-            <div className="bg-white rounded-lg shadow-sm p-3">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white rounded-lg shadow-sm p-2">
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">
                 {locale === 'es' ? 'Productos Incluidos' : 'Included Products'}
               </h2>
               <div className="space-y-4">
@@ -230,13 +230,13 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
 
           {/* Resumen y pago */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
+            <div className="bg-white rounded-lg shadow-sm p-3 sticky top-3">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <Calculator className="w-5 h-5 mr-2 text-gray-600" />
                 {locale === 'es' ? 'Resumen de Cotización' : 'Quote Summary'}
               </h2>
               
-              <div className="space-y-3 mb-6">
+              <div className="space-y-3 mb-3">
                 <div className="flex justify-between text-sm">
                   <span>{locale === 'es' ? 'Subtotal' : 'Subtotal'}</span>
                   <span>{formatCurrency(quote.total_amount || 0)}</span>
