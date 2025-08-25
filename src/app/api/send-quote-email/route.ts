@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { sendMail } from '@/lib/email';
-import { Database } from '@/types-db';
+import {  ProductSnapshot } from '@/types-db';
 import { generateQuoteEmailTemplate, generateManagerQuoteNotificationTemplate } from '@/lib/emailTemplates/quoteEmailTemplate';
 
-type InterestRequestItem = Database['interest_request_items'];
 export async function POST(request: NextRequest) {
   try {
     const { quoteId } = await request.json();
@@ -111,7 +110,7 @@ export async function POST(request: NextRequest) {
     // }
 
     // Preparar datos para las plantillas
-    const items = quote.interest_request_items.map((item: any) => ({
+    const items = quote.interest_request_items.map((item: { quantity: number, snapshot: ProductSnapshot | null }) => ({
       name: item.snapshot?.name || 'Producto',
       quantity: item.quantity,
       unit_price: item.snapshot?.dolar_price || 0,
@@ -120,7 +119,7 @@ export async function POST(request: NextRequest) {
     }));
 
     // Calcular descuento
-    const originalTotal = quote.interest_request_items.reduce((acc: number, item: any) => acc + (item.snapshot?.dolar_price || 0) * item.quantity, 0);
+    const originalTotal = quote.interest_request_items.reduce((acc: number, item: { quantity: number, snapshot: ProductSnapshot | null }) => acc + (item.snapshot?.dolar_price || 0) * item.quantity, 0);
     const discountAmount = originalTotal - finalAmount;
     
     // Enviar correo al cliente usando la plantilla existente
