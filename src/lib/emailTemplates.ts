@@ -196,6 +196,8 @@ export function generateManagerNotificationEmail(data: QuoteData): string {
 
           <!-- Quick Actions -->
           <div style="text-align: center; margin: 25px 0;">
+            <a href="https://artehechoamano.com/es/admin/quotes" 
+               style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px;">⚙️ Gestionar Cotización</a>
             <a href="mailto:${data.customerEmail}?subject=Cotización ${data.requestId} - Handmade Art&body=Estimado/a ${data.customerName},%0A%0AGracias por tu interés en nuestros productos artesanales..." 
                style="display: inline-block; background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px;">📧 Responder Cliente</a>
             <a href="tel:${data.customerPhone}" 

@@ -254,7 +254,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               >
                 <div className="flex items-center mb-1">
                   <Percent className="w-4 h-4 mr-2" />
-                  <span className="font-medium">{locale === 'es' ? '% Total' : '% Total'}</span>
+                  <span className="font-medium">{locale === 'es' ? 'Descuento Total' : 'Total Discount'}</span>
                 </div>
                 <p className="text-sm text-gray-600">
                   {locale === 'es' ? 'Porcentaje sobre el total' : 'Percentage on total'}
@@ -271,7 +271,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               >
                 <div className="flex items-center mb-1">
                   <DollarSign className="w-4 h-4 mr-2" />
-                  <span className="font-medium">{locale === 'es' ? '$ Total' : '$ Total'}</span>
+                  <span className="font-medium">{locale === 'es' ? 'Monto Fijo Total' : 'Fixed Amount Total'}</span>
                 </div>
                 <p className="text-sm text-gray-600">
                   {locale === 'es' ? 'Monto fijo del total' : 'Fixed amount from total'}
@@ -288,7 +288,9 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               >
                 <div className="flex items-center mb-1">
                   <Percent className="w-4 h-4 mr-2" />
-                  <span className="font-medium">{locale === 'es' ? '% Producto' : '% Product'}</span>
+                  <span className="font-medium">
+                    {locale === 'es' ? 'Descuento por Producto' : 'Discount per Product'}
+                  </span>
                 </div>
                 <p className="text-sm text-gray-600">
                   {locale === 'es' ? 'Porcentaje por producto' : 'Percentage per product'}
@@ -305,7 +307,9 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               >
                 <div className="flex items-center mb-1">
                   <DollarSign className="w-4 h-4 mr-2" />
-                  <span className="font-medium">{locale === 'es' ? '$ Producto' : '$ Product'}</span>
+                  <span className="font-medium">
+                    {locale === 'es' ? 'Monto Fijo por Producto' : 'Fixed Amount per Product'}
+                  </span>
                 </div>
                 <p className="text-sm text-gray-600">
                   {locale === 'es' ? 'Monto fijo por producto' : 'Fixed amount per product'}
@@ -322,10 +326,10 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               >
                 <div className="flex items-center mb-1">
                   <Edit className="w-4 h-4 mr-2" />
-                  <span className="font-medium">{locale === 'es' ? 'Total Personalizado' : 'Custom Total'}</span>
+                  <span className="font-medium">{locale === 'es' ? 'Anulación del Total' : 'Total Override'}</span>
                 </div>
                 <p className="text-sm text-gray-600">
-                  {locale === 'es' ? 'Establecer total final' : 'Set final total'}
+                  {locale === 'es' ? 'Establecer un monto final personalizado' : 'Set a custom final amount'}
                 </p>
               </button>
             </div>
