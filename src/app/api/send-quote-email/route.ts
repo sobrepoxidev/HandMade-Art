@@ -30,12 +30,12 @@ export async function POST(request: NextRequest) {
         )
       `)
       .eq('id', quoteId)
-      .eq('status', 'finalizado')
+      .eq('status', 'sent_to_client')
       .single();
 
     if (quoteError || !quote) {
       return NextResponse.json(
-        { error: 'Quote not found or not finalized' },
+        { error: 'Quote not found or not in sent_to_client status' },
         { status: 404 }
       );
     }
@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
     }
 
     // const quoteUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/quote/${quote.quote_slug}`;
-    const finalAmount = quote.final_amount || quote.total_amount;
-    const shippingCost = 7.00;
+    const finalAmount = quote.final_amount || quote.total_amount || 0;
+    const shippingCost = quote.shipping_cost || 0;
     const totalAmount = finalAmount + shippingCost;
 
     // // Generar lista de productos
@@ -111,21 +111,21 @@ export async function POST(request: NextRequest) {
     // }
 
     // Preparar datos para las plantillas
-    const items = quote.interest_request_items.map((item: InterestRequestItem) => ({
-      name: item.product_snapshot?.name || 'Producto',
+    const items = quote.interest_request_items.map((item: any) => ({
+      name: item.snapshot?.name || 'Producto',
       quantity: item.quantity,
-      unit_price: item.product_snapshot?.dolar_price || 0,
-      image_url: item.product_snapshot?.image_url,
-      sku: item.product_snapshot?.sku
+      unit_price: item.snapshot?.dolar_price || 0,
+      image_url: item.snapshot?.image_url,
+      sku: item.snapshot?.sku
     }));
 
     // Calcular descuento
-    const originalTotal = quote.interest_request_items.reduce((acc: number, item: InterestRequestItem) => acc + (item.product_snapshot?.dolar_price || 0) * item.quantity, 0);
+    const originalTotal = quote.interest_request_items.reduce((acc: number, item: any) => acc + (item.snapshot?.dolar_price || 0) * item.quantity, 0);
     const discountAmount = originalTotal - finalAmount;
     
     // Enviar correo al cliente usando la plantilla existente
     const clientEmailHtml = generateQuoteEmailTemplate({
-      customerName: quote.customer_name,
+      customerName: quote.requester_name,
       quoteSlug: quote.quote_slug,
       items,
       originalTotal,
@@ -140,20 +140,20 @@ export async function POST(request: NextRequest) {
     await sendMail(
       '✨ Tu cotización personalizada está lista',
       clientEmailHtml,
-      quote.customer_email
+      quote.email
     );
 
     // Enviar notificación al gestor
     const managerEmailHtml = generateManagerQuoteNotificationTemplate({
-      customerName: quote.customer_name,
-      customerEmail: quote.customer_email,
+      customerName: quote.requester_name,
+      customerEmail: quote.email,
       quoteSlug: quote.quote_slug,
       finalTotal: totalAmount,
       locale: 'es'
     });
 
     await sendMail(
-      `Nueva cotización enviada - ${quote.customer_name}`,
+      `Nueva cotización enviada - ${quote.requester_name}`,
       managerEmailHtml,
       'bryamlopez4@gmail.com'
     );
