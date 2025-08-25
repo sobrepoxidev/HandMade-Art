@@ -33,21 +33,18 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
   const [zoomScale, setZoomScale] = useState(1.495);
   const [isDragging, setIsDragging] = useState(false);
   const [lastTouchDistance, setLastTouchDistance] = useState(0);
-  
+
   const isInList = interestList.isInList(product.id);
   const currentItem = interestList.getItem(product.id);
   const currentQty = currentItem?.qty || 0;
 
   // Calcular precios
   const originalPrice = product.dolar_price || 0;
-  const hasDiscount = product.discount_percentage && product.discount_percentage > 0;
-  const finalPrice = hasDiscount 
-    ? originalPrice * (1 - product.discount_percentage! / 100)
-    : originalPrice;
+
 
   // Formatear descripción corta
-  const shortDescription = product.description 
-    ? product.description.length > 160 
+  const shortDescription = product.description
+    ? product.description.length > 160
       ? product.description.substring(0, 160) + '...'
       : product.description
     : '';
@@ -70,7 +67,7 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
       price: product.dolar_price || 0,
       discount_percentage: product.discount_percentage || undefined
     };
-    
+
     interestList.addItem(itemData);
   };
 
@@ -92,7 +89,7 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
       e.stopPropagation();
       return;
     }
-    
+
     if (isZoomed) {
       setIsZoomed(false);
       setZoomScale(1.495);
@@ -117,7 +114,7 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
     const touch1 = touches[0];
     const touch2 = touches[1];
     return Math.sqrt(
-      Math.pow(touch2.clientX - touch1.clientX, 2) + 
+      Math.pow(touch2.clientX - touch1.clientX, 2) +
       Math.pow(touch2.clientY - touch1.clientY, 2)
     );
   };
@@ -137,7 +134,7 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
       const currentDistance = getTouchDistance(e.touches as unknown as TouchList);
       const scaleChange = currentDistance / lastTouchDistance;
       const newScale = Math.max(1.0, Math.min(4, zoomScale * scaleChange));
-      
+
       setZoomScale(newScale);
       setIsZoomed(newScale > 1.495);
       setLastTouchDistance(currentDistance);
@@ -156,7 +153,7 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
       {/* Imagen con zoom */}
       <div className="aspect-square relative h-[190px] w-full bg-gray-100 overflow-hidden">
         {product.main_image_url && !imageError ? (
-          <motion.div 
+          <motion.div
             className="relative w-full h-full cursor-pointer"
             onClick={handleImageClick}
             drag={isZoomed}
@@ -164,16 +161,16 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
             dragElastic={0.1}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
-            animate={{ 
+            animate={{
               scale: zoomScale,
             }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 300, 
+            transition={{
+              type: "spring",
+              stiffness: 300,
               damping: 30,
               mass: 0.8
             }}
-            style={{ 
+            style={{
               touchAction: isZoomed ? 'none' : 'auto',
               transformOrigin: 'center center'
             }}
@@ -201,12 +198,12 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
             </div>
           </div>
         )}
-        
+
         {/* Indicadores de zoom */}
         {product.main_image_url && !imageError && (
           <>
             {!isZoomed && (
-              <motion.div 
+              <motion.div
                 className="absolute bottom-1 right-1 bg-black bg-opacity-40 text-white text-xs px-1 py-0.5 rounded pointer-events-none"
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
@@ -215,10 +212,10 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
                 Zoom
               </motion.div>
             )}
-            
+
             {isZoomed && (
               <>
-                <motion.div 
+                <motion.div
                   className="absolute top-1 right-1 bg-white bg-opacity-80 rounded-full p-1 pointer-events-none z-10"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -226,8 +223,8 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
                 >
                   <Search className="h-3 w-3 text-gray-700" />
                 </motion.div>
-                
-                <motion.div 
+
+                <motion.div
                   className="absolute bottom-1 left-1 bg-black bg-opacity-60 text-white text-xs px-1 py-0.5 rounded pointer-events-none z-10"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -249,25 +246,9 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
         </h3>
 
         {/* Precio */}
-        <div className="mb-1.5">
-          {hasDiscount ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-teal-600">
-                ${finalPrice.toFixed(2)}
-              </span>
-              <span className="text-sm text-gray-500 line-through">
-                ${originalPrice.toFixed(2)}
-              </span>
-              <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                -{product.discount_percentage}%
-              </span>
-            </div>
-          ) : (
-            <span className="text-xl font-bold text-green-900">
-              ${finalPrice.toFixed(2)}
-            </span>
-          )}
-        </div>
+        <div className="mb-1.5 text-green-600 font-medium">
+           ${originalPrice.toFixed(2)} <span className='text-xs text-gray-600'>(Precio regular)</span>
+         </div>
 
         {/* Especificaciones */}
         <div className="space-y-1 mb-3 text-sm text-gray-600">

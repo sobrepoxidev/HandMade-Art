@@ -13,7 +13,7 @@ interface CategoryChipsProps {
 
 export function CategoryChips({ categories, selectedCategory, onCategoryChange }: CategoryChipsProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex gap-2 overflow-x-auto pb-2 horizontal-scrollbar">
       {/* Chip "Todas" */}
       <button
         onClick={() => onCategoryChange(null)}
@@ -43,15 +43,3 @@ export function CategoryChips({ categories, selectedCategory, onCategoryChange }
     </div>
   );
 }
-
-/* Agregar estos estilos al globals.css si no existen */
-/* 
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-*/

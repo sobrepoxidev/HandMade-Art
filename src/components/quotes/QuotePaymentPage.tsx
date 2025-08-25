@@ -130,7 +130,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 text-gray-800">
+    <div className="min-h-screen bg-gray-50 py-3 text-gray-800">
       <div className="max-w-6xl mx-auto px-2">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-3 mb-2">
