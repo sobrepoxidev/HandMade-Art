@@ -67,6 +67,7 @@ export type Database = {
 
         quote_slug: string | null;              // unique
         responded_at: string | null;            // timestamptz
+        updated_at: string;                    // timestamptz
         manager_notes: string | null;
     },
 

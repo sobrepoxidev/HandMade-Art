@@ -105,7 +105,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
       
       // Preparar valor de descuento según el tipo
       let discountValueToSend: number;
-      let discountData: DiscountData = {};
+      const discountData: DiscountData = {};
 
       if (discountType === 'total_override') {
         discountValueToSend = totalOverride;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
+import { Database } from '@/types-db';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     // Si se proporciona quoteId, actualizar directamente la cotización
     if (quoteId) {
-      const updateData: any = { 
+      const updateData: InterestRequestUpdate = { 
         status: status,
         updated_at: new Date().toISOString()
       };
@@ -199,3 +200,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+type InterestRequestUpdate = Partial<Database['interest_requests']>;

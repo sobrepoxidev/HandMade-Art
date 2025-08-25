@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { getPaypalAccessToken, capturePaypalOrder } from '../paypalHelpers';
+import { Database } from '@/types-db'
 
+type InterestRequestItem = Database['interest_request_items'];
 // For debugging purposes - remove in production
 const DEBUG = process.env.NODE_ENV !== 'production';
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -108,7 +111,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Crear los items de la orden
-    const orderItems = quote.interest_request_items.map((item: any) => ({
+    const orderItems = quote.interest_request_items.map((item: InterestRequestItem) => ({
       order_id: order.id,
       product_id: item.product_id,
       quantity: item.quantity,

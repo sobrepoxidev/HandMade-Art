@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { generateQuoteEmailTemplate, generateManagerQuoteNotificationTemplate } from '@/lib/emailTemplates/quoteEmailTemplate';
+import { Database } from '@/types-db';
+
+type InterestRequestItem = Database['interest_request_items'];
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,13 +85,7 @@ export async function POST(request: NextRequest) {
         .eq('request_id', quoteId);
 
       if (!itemsError && quoteItems && updatedQuote) {
-        const items = quoteItems.map((item: any) => ({
-          name: item.product_snapshot?.name || 'Producto',
-          quantity: item.quantity,
-          unit_price: item.product_snapshot?.dolar_price || 0,
-          image_url: item.product_snapshot?.media?.[0]?.url || '',
-          sku: item.product_snapshot?.sku
-        }));
+        const items: InterestRequestItem[] = quoteItems;
 
         const originalTotal = updatedQuote.total_amount;
         const discountAmount = originalTotal - finalAmount;

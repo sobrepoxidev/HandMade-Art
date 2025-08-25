@@ -1,15 +1,11 @@
-interface QuoteItem {
-  name: string;
-  quantity: number;
-  unit_price: number;
-  image_url?: string;
-  sku?: string;
-}
+import { Database } from '@/types-db'
+
+type InterestRequestItem = Database['interest_request_items'];
 
 interface QuoteEmailData {
   customerName: string;
   quoteSlug: string;
-  items: QuoteItem[];
+  items: InterestRequestItem[];
   originalTotal: number;
   discountAmount: number;
   finalTotal: number;
@@ -47,23 +43,23 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
   const itemsHtml = items.map(item => `
     <tr style="border-bottom: 1px solid #e5e7eb;" class="product-row">
       <td style="padding: 12px 8px; vertical-align: top;" class="product-info">
-        ${item.image_url ? `
-          <img src="${item.image_url}" alt="${item.name}" 
+        ${item.product_snapshot?.url ? `
+          <img src="${item.product_snapshot.url}" alt="${item.product_snapshot.name}" 
                style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; margin-right: 12px; float: left;" class="product-image" />
         ` : ''}
         <div>
-          <h4 style="margin: 0 0 4px 0; color: #374151; font-size: 14px; font-weight: 600;">${item.name}</h4>
-          ${item.sku ? `<p style="margin: 0; color: #6b7280; font-size: 12px;">SKU: ${item.sku}</p>` : ''}
+          <h4 style="margin: 0 0 4px 0; color: #374151; font-size: 14px; font-weight: 600;">${item.product_snapshot.name}</h4>
+          ${item.product_snapshot.sku ? `<p style="margin: 0; color: #6b7280; font-size: 12px;">SKU: ${item.product_snapshot.sku}</p>` : ''}
         </div>
       </td>
       <td style="padding: 12px 8px; text-align: center; color: #6b7280; font-size: 14px;" class="product-quantity">
         ${item.quantity}
       </td>
       <td style="padding: 12px 8px; text-align: right; color: #374151; font-size: 14px;" class="product-price">
-        ${formatCurrency(item.unit_price)}
+        ${formatCurrency(item.unit_price_usd ? item.unit_price_usd : 0)}
       </td>
       <td style="padding: 12px 8px; text-align: right; color: #374151; font-size: 14px; font-weight: 600;" class="product-total">
-        ${formatCurrency(item.unit_price * item.quantity)}
+        ${formatCurrency(item.unit_price_usd ? item.unit_price_usd * item.quantity : 0 * item.quantity)}
       </td>
     </tr>
   `).join('');
@@ -72,13 +68,13 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
   const itemsMobileHtml = items.map(item => `
     <div style="border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 12px; padding: 16px; background-color: #ffffff;" class="mobile-product-card">
       <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-        ${item.image_url ? `
-          <img src="${item.image_url}" alt="${item.name}" 
+        ${item.product_snapshot?.url ? `
+          <img src="${item.product_snapshot.url}" alt="${item.product_snapshot.name}" 
                style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 12px; flex-shrink: 0;" />
         ` : ''}
         <div style="flex: 1;">
-          <h4 style="margin: 0 0 4px 0; color: #374151; font-size: 16px; font-weight: 600;">${item.name}</h4>
-          ${item.sku ? `<p style="margin: 0; color: #6b7280; font-size: 12px;">SKU: ${item.sku}</p>` : ''}
+          <h4 style="margin: 0 0 4px 0; color: #374151; font-size: 16px; font-weight: 600;">${item.product_snapshot.name}</h4>
+          ${item.product_snapshot.sku ? `<p style="margin: 0; color: #6b7280; font-size: 12px;">SKU: ${item.product_snapshot.sku}</p>` : ''}
         </div>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #f3f4f6;">
@@ -88,11 +84,11 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
         </div>
         <div style="text-align: center;">
           <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">${isSpanish ? 'Precio Unit.' : 'Unit Price'}</p>
-          <p style="margin: 4px 0 0 0; color: #374151; font-size: 16px; font-weight: 600;">${formatCurrency(item.unit_price)}</p>
+          <p style="margin: 4px 0 0 0; color: #374151; font-size: 16px; font-weight: 600;">${formatCurrency(item.unit_price_usd ? item.unit_price_usd : 0)}</p>
         </div>
         <div style="text-align: center;">
           <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">${isSpanish ? 'Total' : 'Total'}</p>
-          <p style="margin: 4px 0 0 0; color: #10b981; font-size: 18px; font-weight: 700;">${formatCurrency(item.unit_price * item.quantity)}</p>
+          <p style="margin: 4px 0 0 0; color: #10b981; font-size: 18px; font-weight: 700;">${formatCurrency(item.unit_price_usd ? item.unit_price_usd * item.quantity : 0 * item.quantity)}</p>
         </div>
       </div>
     </div>
