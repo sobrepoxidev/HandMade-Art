@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
     }));
 
     // Calcular descuento
-    const originalTotal = quote.total_amount;
+    const originalTotal = quote.interest_request_items.reduce((acc: number, item: InterestRequestItem) => acc + (item.product_snapshot?.dolar_price || 0) * item.quantity, 0);
     const discountAmount = originalTotal - finalAmount;
     
     // Enviar correo al cliente usando la plantilla existente
