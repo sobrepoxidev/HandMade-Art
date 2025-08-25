@@ -8,7 +8,7 @@ interface QuotePayPalButtonProps {
   orderId: number;
   locale: string;
   onSuccess: () => void;
-  onError: (error: any) => void;
+  onError: (error: unknown) => void;
 }
 
 export default function QuotePayPalButton({ orderId, locale, onSuccess, onError }: QuotePayPalButtonProps) {
@@ -44,7 +44,7 @@ export default function QuotePayPalButton({ orderId, locale, onSuccess, onError 
     }
   };
 
-  const onApprove = async (data: any) => {
+  const onApprove = async (data: unknown) => {
     try {
       setIsProcessing(true);
       const response = await fetch('/api/paypal/capture-order', {
@@ -53,7 +53,7 @@ export default function QuotePayPalButton({ orderId, locale, onSuccess, onError 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          paypalOrderId: data.orderID,
+          paypalOrderId: (data as { orderID: string }).orderID,
           orderId: orderId,
           source: 'quote'
         }),
@@ -90,7 +90,7 @@ export default function QuotePayPalButton({ orderId, locale, onSuccess, onError 
     toast.error(locale === 'es' ? 'Pago cancelado' : 'Payment cancelled');
   };
 
-  const onErrorHandler = (err: any) => {
+  const onErrorHandler = (err: unknown) => {
     console.error('PayPal error:', err);
     onError(err);
   };
