@@ -70,7 +70,7 @@ export default function LoginPage() {
       nextUrl = `/${locale}${nextUrl}`;
     }
     
-    redirectTo.searchParams.set('next', nextUrl);
+    redirectTo.searchParams.set('next', encodeURIComponent(nextUrl));
   
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
