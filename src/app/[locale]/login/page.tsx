@@ -20,13 +20,11 @@ export default function LoginPage() {
   const [confirmationMsg, setConfirmationMsg] = useState('')
   const [returnUrl, setReturnUrl] = useState('/')
 
-  // Usar los hooks de Next.js
   const searchParams = useSearchParams();
   
   useEffect(() => {
     setMounted(true)
     
-    // Extraer returnUrl o redirect del query string usando Next.js searchParams
     const returnUrlParam = searchParams.get('returnUrl') || searchParams.get('redirect');
     if (returnUrlParam) {
       setReturnUrl(returnUrlParam);
@@ -43,7 +41,6 @@ export default function LoginPage() {
         password,
       })
       if (error) {
-        // Manejar específicamente el error de límite de tasa
         if (error.message.includes('rate limit')) {
           setErrorMsg('Has excedido el número de intentos permitidos. Por favor, espera unos minutos antes de intentarlo nuevamente o usa el inicio de sesión con Google.')
         } else {
@@ -52,12 +49,7 @@ export default function LoginPage() {
         setLoading(false)
       } else {
         setConfirmationMsg('Iniciando sesión...')
-        // Use replace instead of push to avoid navigation issues
-        // Delayed redirect to ensure state updates properly
-        //llevar hacia la url que viene en el query string
-        // En lugar de redirect, que causa problemas con componentes cliente,
-        // usamos router.replace que es más adecuado para componentes cliente
-        router.replace(decodeURIComponent(returnUrl))
+        router.replace(returnUrl)
       }
     } catch (err) {
       console.error('Error al iniciar sesión:', err)
@@ -66,33 +58,31 @@ export default function LoginPage() {
     }
   }
 
-  const signInWithGoogle = async (returnUrl: string) => {
+  const signInWithGoogle = async (url: string) => {
     setLoading(true);
     setErrorMsg("");
+
+    const redirectTo = new URL('/auth/callback', window.location.origin);
+    redirectTo.searchParams.set('next', url);
   
-    // 1. Armamos la ruta de callback UNA sola vez
-    const redirectTo =
-      `${window.location.origin}/auth/callback` +
-      (returnUrl && returnUrl !== "/"
-        ? `?next=${encodeURIComponent(returnUrl)}`
-        : "");
-  
-    // 2. Llamamos a Supabase
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo },
+      options: { 
+        redirectTo: redirectTo.toString()
+      },
     });
   
-    // 3. Manejamos posibles errores
     if (error) {
       setErrorMsg(error.message);
       setLoading(false);
       return;
     }
   
-    // 4. Forzamos la redirección (por si el SDK no lo hace)
-    if (data?.url) window.location.href = data.url;
+    if (data?.url) {
+      window.location.href = data.url;
+    }
   };
+
   if (!mounted) return null
 
   return (
