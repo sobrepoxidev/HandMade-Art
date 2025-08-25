@@ -30,7 +30,7 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
   } = data;
 
   const isSpanish = locale === 'es';
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hands-made-art.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://handmadeart.store';
   const quoteUrl = `${baseUrl}/${locale}/quote/${quoteSlug}`;
 
   const formatCurrency = (amount: number) => {
@@ -328,7 +328,7 @@ export function generateManagerQuoteNotificationTemplate(data: {
 }): string {
   const { customerName, customerEmail, quoteSlug, finalTotal, locale } = data;
   const isSpanish = locale === 'es';
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hands-made-art.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://handmadeart.store';
   const quoteUrl = `${baseUrl}/${locale}/quote/${quoteSlug}`;
   const adminUrl = `${baseUrl}/admin/quotes`;
 
