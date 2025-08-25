@@ -251,7 +251,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
               {locale === "es" ? "Si tiene preguntas, inquietudes o solicitudes relacionadas con esta Política de Privacidad o el procesamiento de sus datos personales, puede contactarnos a través de:" : "If you have questions, concerns, or requests related to this Privacy Policy or the processing of your personal data, you can contact us through:"}
             </p>
             <ul className="space-y-3 pl-5 list-disc mt-4">
-              <li>{locale === "es" ? "Correo electrónico: info@handsmadeart.com" : "Email: info@handsmadeart.com"}</li>
+              <li>{locale === "es" ? "Correo electrónico: info@handmadeart.store" : "Email: info@handmadeart.store"}</li>
               <li>{locale === "es" ? "Formulario de contacto en nuestra plataforma" : "Contact form on our platform"}</li>
               <li>{locale === "es" ? "Dirección postal: [Dirección física de la empresa]" : "Postal address: [Physical address of the company]"}</li>
             </ul>

@@ -45,7 +45,7 @@ export function generateCustomerQuoteEmail(data: QuoteData): string {
         <!-- Header -->
         <div style="background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%); padding: 30px 20px; text-align: center;">
           <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">HANDMADE ART</h1>
-          <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;">Artesanías Costarricenses</p>
+          <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;">Apoyando la inserción social</p>
         </div>
 
         <!-- Content -->
@@ -97,15 +97,20 @@ export function generateCustomerQuoteEmail(data: QuoteData): string {
           <!-- Contact Info -->
           <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
             <h3 style="color: #8B4513; margin: 0 0 15px 0;">¿Tienes preguntas?</h3>
-            <p style="color: #666; margin: 5px 0;">📧 bryamlopez4@gmail.com</p>
-            <p style="color: #666; margin: 5px 0;">📱 WhatsApp: +506 XXXX-XXXX</p>
+            <div style="margin: 10px 0;">
+              <a href="mailto:info@handmadeart.store" style="display: inline-block; background-color: #16a34a; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">📧 Enviar Email</a>
+              <a href="https://wa.me/50684237555" style="display: inline-block; background-color: #25d366; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">💬 WhatsApp</a>
+              <a href="tel:+50684237555" style="display: inline-block; background-color: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">📞 Llamar</a>
+            </div>
+            <p style="color: #666; margin: 5px 0; font-size: 14px;">📧 info@handmadeart.store</p>
+            <p style="color: #666; margin: 5px 0; font-size: 14px;">📱 +506 8423 7555</p>
           </div>
         </div>
 
         <!-- Footer -->
         <div style="background-color: #8B4513; padding: 20px; text-align: center;">
           <p style="color: white; margin: 0; font-size: 14px;">© 2024 Handmade Art - Artesanías Costarricenses</p>
-          <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 12px;">Apoyando el talento local y la tradición artesanal</p>
+          <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 12px;">Apoyando la inserción social</p>
         </div>
       </div>
     </body>

@@ -28,9 +28,9 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
   const { supabase } = useSupabase();
   const { totalItems } = useCart();
 
-  // Determinar si mostrar componentes de búsqueda (ocultar en /admin y /souvenirs)
-  // Considerar rutas con locale: /es/admin, /en/admin, /es/souvenirs, /en/souvenirs
-  const shouldShowSearchComponents = !pathname.includes('/admin') && !pathname.includes('/souvenirs');
+  // Determinar si mostrar componentes de búsqueda (ocultar en /admin y /catalog)
+  // Considerar rutas con locale: /es/admin, /en/admin, /es/catalog, /en/catalog
+  const shouldShowSearchComponents = !pathname.includes('/admin') && !pathname.includes('/catalog');
 
   // Estados para la UI
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -254,7 +254,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
             ))}
             <li>
               <Link
-                href="/products"
+                href="/catalog"
                 className="block py-1 text-sm text-gray-700 transition hover:text-teal-700"
               >
                 {locale === 'es' ? 'Tienda' : 'Store'}
@@ -445,7 +445,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
                     <ul className="ml-4 space-y-1 border-l-2 border-gray-100 pl-3">
                       <li>
                         <Link
-                          href="/products"
+                          href="/catalog"
                           className="block text-sm text-gray-700 hover:text-teal-700 py-1"
                           onClick={() => setIsMenuOpen(false)}
                         >
@@ -455,7 +455,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
                       {categoryList.map((category) => (
                         <li key={category.id}>
                           <Link
-                            href={`/products?category=${category.id}`}
+                            href={`/catalog?category=${category.id}`}
                             className="block text-sm text-gray-700 hover:text-teal-700 py-1"
                             onClick={() => setIsMenuOpen(false)}
                           >

@@ -62,7 +62,7 @@ export default function GraciasPage() {
               </div>
               <div className="flex items-center justify-center gap-2">
                 <Phone className="h-4 w-4" />
-                <span>(+506) 8775-7576</span>
+                <span>+506 8423 7555</span>
               </div>
             </div>
           </div>
@@ -70,7 +70,7 @@ export default function GraciasPage() {
           {/* Botones de acción */}
           <div className="space-y-3">
             <Link
-              href="/souvenirs"
+              href="/catalog"
               className="w-full bg-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />

@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useInterestList } from '@/lib/hooks/useInterestList';
-import { ProductCard } from '@/components/souvenirs/ProductCard';
-import { CategoryChips } from '@/components/souvenirs/CategoryChips';
-import { InterestDrawer } from '@/components/souvenirs/InterestDrawer';
+import { ProductCard } from '@/components/catalog/ProductCard';
+import { CategoryChips } from '@/components/catalog/CategoryChips';
+import { InterestDrawer } from '@/components/catalog/InterestDrawer';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -29,7 +29,7 @@ interface Category {
   name: string;
 }
 
-export default function SouvenirsPage() {
+export default function CatalogPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);

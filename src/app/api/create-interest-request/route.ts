@@ -2,16 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { generateCustomerQuoteEmail, generateManagerNotificationEmail } from '@/lib/emailTemplates';
+import { ProductSnapshot } from '@/types-db';
 
 interface InterestRequestItem {
   product_id: number;
   quantity: number;
-  snapshot: {
-    name: string;
-    sku?: string;
-    image_url?: string;
-    dolar_price?: number;
-  };
+  product_snapshot: ProductSnapshot;
 }
 
 interface InterestRequestPayload {
@@ -65,7 +61,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (!item.snapshot || !item.snapshot.name) {
+      if (!item.product_snapshot || !item.product_snapshot.name) {
         return NextResponse.json(
           { ok: false, error: 'Información del producto incompleta' },
           { status: 400 }
@@ -82,7 +78,7 @@ export async function POST(request: NextRequest) {
         email: body.email?.trim() || null,
         phone: body.phone?.trim() || null,
         notes: body.notes?.trim() || null,
-        source: 'souvenirs',
+        source: 'catalog',
         locale: 'es',
         channel: 'web'
       })
@@ -104,7 +100,7 @@ export async function POST(request: NextRequest) {
       request_id: requestId,
       product_id: item.product_id,
       quantity: item.quantity,
-      product_snapshot: item.snapshot
+      product_snapshot: item.product_snapshot
     }));
 
     const { error: itemsError } = await supabase
@@ -127,52 +123,43 @@ export async function POST(request: NextRequest) {
 
     // Calcular el total de la cotización
     const totalAmount = body.items.reduce((total, item) => {
-      const price = item.snapshot.dolar_price || 0;
+      const price = item.product_snapshot.dolar_price || 0;
       return total + (price * item.quantity);
     }, 0);
 
     // Enviar correos electrónicos si se proporciona email
     if (body.email && body.email.trim()) {
       try {
-        // Correo al cliente
-        const customerEmailHtml = generateCustomerQuoteEmail({
+        // Mapear items una sola vez para evitar duplicación
+        const emailItems = body.items.map((item, index) => ({
+          id: `${item.product_id}-${index}`,
+          name: item.product_snapshot.name || 'Producto sin nombre',
+          quantity: item.quantity,
+          price: item.product_snapshot.dolar_price || 0,
+          image_url: item.product_snapshot.image_url || ''
+        }));
+
+        const emailData = {
           customerName: body.requester_name,
           customerEmail: body.email.trim(),
           customerPhone: body.phone || 'No proporcionado',
-          items: body.items.map((item, index) => ({
-            id: `${item.product_id}-${index}`,
-            name: item.snapshot.name,
-            quantity: item.quantity,
-            price: item.snapshot.dolar_price || 0,
-            image_url: item.snapshot.image_url || ''
-          })),
+          items: emailItems,
           totalAmount,
           requestId: requestId.toString(),
           createdAt: new Date().toISOString()
-        });
+        };
+
+        // Correo al cliente
+        const customerEmailHtml = generateCustomerQuoteEmail(emailData);
 
         await sendMail(
-          'Cotización de Productos Artesanales - Hands Made Art',
+          'Cotización de Productos Artesanales - Handmade Art',
           customerEmailHtml,
           body.email.trim()
         );
 
         // Correo al gestor
-        const managerEmailHtml = generateManagerNotificationEmail({
-          customerName: body.requester_name,
-          customerEmail: body.email.trim(),
-          customerPhone: body.phone || 'No proporcionado',
-          items: body.items.map((item, index) => ({
-            id: `${item.product_id}-${index}`,
-            name: item.snapshot.name,
-            quantity: item.quantity,
-            price: item.snapshot.dolar_price || 0,
-            image_url: item.snapshot.image_url || ''
-          })),
-          totalAmount,
-          requestId: requestId.toString(),
-          createdAt: new Date().toISOString()
-        });
+        const managerEmailHtml = generateManagerNotificationEmail(emailData);
 
         await sendMail(
           `Nueva Solicitud de Cotización #${requestId} - ${body.requester_name}`,

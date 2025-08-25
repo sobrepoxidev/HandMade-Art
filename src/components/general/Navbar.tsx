@@ -19,7 +19,7 @@ export default async function Navbar({ locale }: { locale: string }) {
   // Obtener la ruta actual para determinar si mostrar componentes de búsqueda
   const headersList = await headers();
   const pathname = headersList.get('x-pathname') || '';
-  const shouldShowSearchComponents = !pathname.includes('/admin') && !pathname.includes('/souvenirs');
+  const shouldShowSearchComponents = !pathname.includes('/admin') && !pathname.includes('/catalog');
 
 
   return ( 

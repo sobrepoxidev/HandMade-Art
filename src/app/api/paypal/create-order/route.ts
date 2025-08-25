@@ -8,7 +8,7 @@ const DEBUG = process.env.NODE_ENV !== 'production';
 
 export async function POST(request: NextRequest) {
   try {
-    const { orderId } = await request.json(); // orderId de tu BD
+    const { orderId } = await request.json(); // orderId de tu BD y source (opcional)
     if (!orderId) {
       return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
     }

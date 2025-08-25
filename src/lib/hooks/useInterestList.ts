@@ -12,7 +12,7 @@ export interface InterestItem {
   discount_percentage?: number;
 }
 
-const STORAGE_KEY = 'souvenirs_interest_list';
+const STORAGE_KEY = 'catalog_interest_list';
 
 export function useInterestList() {
   const [items, setItems] = useState<InterestItem[]>([]);

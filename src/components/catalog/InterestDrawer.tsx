@@ -72,7 +72,7 @@ export function InterestDrawer({ open, onClose, interestList }: InterestDrawerPr
         items: interestList.items.map(item => ({
           product_id: item.product_id,
           quantity: item.qty,
-          snapshot: {
+          product_snapshot: {
             name: item.name,
             sku: item.sku,
             image_url: item.main_image_url,
@@ -104,7 +104,7 @@ export function InterestDrawer({ open, onClose, interestList }: InterestDrawerPr
         
         // Cerrar drawer y redirigir
         onClose();
-        router.push(`/souvenirs/gracias?solicitud=${result.request_id}`);
+        router.push(`/catalog/gracias?solicitud=${result.request_id}`);
       } else {
         alert(result.error || 'Error al enviar la solicitud');
       }

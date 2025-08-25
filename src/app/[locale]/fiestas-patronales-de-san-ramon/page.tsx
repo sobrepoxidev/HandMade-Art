@@ -444,8 +444,8 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
             {locale === 'es' ? 'Horario: 9:00 AM - 9:00 PM (21-31 de Agosto)' : 'Hours: 9:00 AM - 9:00 PM (August 21-31)'}
             <br />
             {locale === 'es' ? 'Contacto: ' : 'Contact: '}
-            <a href="mailto:info@handmadeart.com" className="text-blue-600 hover:text-blue-800 underline">
-              info@handmadeart.com
+            <a href="mailto:info@handmadeart.store" className="text-blue-600 hover:text-blue-800 underline">
+              info@handmadeart.store
             </a>
             {' | '}
             <a 

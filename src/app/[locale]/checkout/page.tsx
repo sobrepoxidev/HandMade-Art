@@ -156,7 +156,7 @@ export default function CheckoutWizardPage() {
         const { data: orderInsert, error: orderError } = await supabase
           .from("orders")
           .insert({
-            user_id: userId, // Now this will never be null
+            user_id: userId === 'guest-user' ? null : userId, // Convert guest-user to null for UUID field
             payment_method: paymentMethodAux ? paymentMethodAux : paymentMethod,
             payment_status: "pendiente",
             shipping_status: "pendiente",

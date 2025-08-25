@@ -14,7 +14,73 @@ interface ShippingAddress {
     phone?: string;
 }
 
+// Estados válidos del flujo
+export type InterestRequestStatus =
+    | 'received'
+    | 'priced'
+    | 'sent_to_client'
+    | 'closed_won'
+    | 'closed_lost';
+
+// Tipos válidos de descuento a nivel solicitud
+export type InterestRequestDiscountType =
+    | 'percentage'        // % al total
+    | 'fixed_amount'      // monto fijo al total
+    | 'total_override'    // reemplaza total por un monto
+    | 'product_percentage'// % por ítem
+    | 'product_fixed';    // monto fijo por ítem
+
+// Snapshot de producto guardado en cada item (sugerido)
+export interface ProductSnapshot {
+    sku?: string | null;
+    name?: string | null;
+    image_url?: string | null;
+    dolar_price?: number | null;
+
+
+    // Campos libres adicionales
+    [k: string]: unknown;
+}
+
 export type Database = {
+    interest_requests: {
+        id: number;                            // bigint identity
+        created_at: string;                    // timestamptz
+        status: InterestRequestStatus;         // check
+        requester_name: string;                // not null
+        organization: string | null;
+        email: string | null;
+        phone: string | null;
+        notes: string | null;
+
+        source: string;                        // default 'catalog'
+        locale: string;                        // default 'es'
+        channel: string;                       // default 'web'
+
+        admin_notes: string | null;
+
+        discount_type: InterestRequestDiscountType | null; // check, nullable
+        discount_value: number | null;                      // numeric(10,2), default 0
+        final_amount: number | null;                        // numeric(10,2)
+        total_amount: number | null;                        // numeric(10,2)
+        shipping_cost: number | null;                       // numeric(10,2), default 0
+
+        quote_slug: string | null;              // unique
+        responded_at: string | null;            // timestamptz
+        manager_notes: string | null;
+    },
+
+    interest_request_items: {
+        id: number;                              // bigint identity
+        request_id: number;                      // fk -> interest_requests.id
+        product_id: number;                      // fk -> products.id
+        quantity: number;                        // check > 0, default 1
+        unit_price_crc: number | null;           // numeric(12,2)
+        unit_price_usd: number | null;           // numeric(12,2)
+        discount_percentage: number | null;      // real
+        boss_note: string | null;                // text
+        product_snapshot: ProductSnapshot;       // jsonb not null default '{}'
+    },
     discount_codes: {
         id: number;
         code: string;
@@ -42,7 +108,7 @@ export type Database = {
         youtube_followed: boolean;
         kenia_basilis_followed: boolean;
         created_at: string;
-      },
+    },
     cart_items: {
         id: number;
         user_id: string; // UUID
@@ -171,5 +237,6 @@ export type Database = {
         website: string | null;
         notes: string | null;
         created_at: string;
-    }
+    },
+
 }

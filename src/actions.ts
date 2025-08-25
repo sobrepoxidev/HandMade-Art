@@ -107,6 +107,7 @@ export async function handleVacationForm(_: unknown, formData: FormData) {
       <div class="container">
         <div class="header">
           <h1>HANDMADE ART | Contacto MEDIANTE EL SITIO WEB</h1>
+          <p style="color: #666; margin: 5px 0 0 0; font-size: 14px;">Apoyando la inserción social</p>
         </div>
 
         <div class="section">
@@ -148,7 +149,7 @@ export async function handleVacationForm(_: unknown, formData: FormData) {
     `;
 
     // Send email
-    await sendMail('Nuevo mensaje de contacto - Handmade Art', html, "bryamlopez4@gmail.com");
+    await sendMail('Nuevo mensaje de contacto - Handmade Art', html, "info@handmadeart.store");
 
     return {
       success: true,
