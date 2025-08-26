@@ -182,7 +182,20 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               <div>
                 <span className="font-medium">{locale === 'es' ? 'Teléfono:' : 'Phone:'}</span> {quote.phone}
               </div>
+              {quote.organization && (
+                <div>
+                  <span className="font-medium">{locale === 'es' ? 'Organización:' : 'Organization:'}</span> {quote.organization}
+                </div>
+              )}
             </div>
+            {quote.notes && (
+              <div className="mt-3 pt-2 border-t border-gray-200">
+                <div className="text-sm">
+                  <span className="font-medium text-gray-700">{locale === 'es' ? 'Notas del Cliente:' : 'Customer Notes:'}</span>
+                  <p className="mt-1 text-gray-600 bg-white p-2 rounded border">{quote.notes}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Productos en la cotización */}

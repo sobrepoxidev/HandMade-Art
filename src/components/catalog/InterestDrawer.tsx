@@ -293,7 +293,7 @@ export function InterestDrawer({ open, onClose, interestList }: InterestDrawerPr
                               value={formData.phone}
                               onChange={(e) => handleInputChange('phone', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                              placeholder="+506 1234-5678"
+                              placeholder="Sin espacios ni guiones"
                             />
                           </div>
 
