@@ -122,7 +122,10 @@ export async function createPaypalOrder({
         'currency_code': currency,
         'value': amount.toString()
       }
-    }]
+    }],
+    'application_context': {
+      'shipping_preference': 'NO_SHIPPING'
+    }
   });
 
   try {
