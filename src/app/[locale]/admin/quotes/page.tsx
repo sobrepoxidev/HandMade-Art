@@ -14,18 +14,18 @@ export default async function AdminQuotesPage({
   const { locale } = await params;
   const supabase = createServerComponentClient({ cookies });
   
-  // const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   
-  // if (!session) {
-  //   const returnUrl = encodeURIComponent(`/${locale}/admin/quotes`);
-  //   redirect(`/${locale}/login?returnUrl=${returnUrl}`);
-  // }
+  if (!session) {
+    const returnUrl = encodeURIComponent(`/${locale}/admin/quotes`);
+    redirect(`/${locale}/login?returnUrl=${returnUrl}`);
+  }
   
-  // const userEmail = session.user?.email;
+  const userEmail = session.user?.email;
   
-  // if (!userEmail || !AUTHORIZED_ADMINS.includes(userEmail)) {
-  //   redirect(`/${locale}`);
-  // }
+  if (!userEmail || !AUTHORIZED_ADMINS.includes(userEmail)) {
+    redirect(`/${locale}`);
+  }
   
   return <QuotesManagement locale={locale} />;
 }
