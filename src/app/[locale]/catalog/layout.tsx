@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
       description: "Explora nuestro catálogo completo, encuentre productos únicos y solicite cotizaciones personalizadas.",
       image: {
         url: "https://artehechoamano.com/home/catalog.webp",
-        width: 1200,
-        height: 630,
+        width: 1024,
+        height: 1024,
         alt: "Catálogo de artesanías costarricenses - Handmade Art"
       }
     },
@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
       description: "Find our complete catalog, unique products and request personalized quotes.",
       image: {
         url: "https://artehechoamano.com/home/catalog.webp",
-        width: 1200,
-        height: 630,
+        width: 1024,
+        height: 1024,
         alt: "Costa Rican handmade crafts catalog - Handmade Art"
       }
     }
@@ -32,33 +32,13 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 
   const metadata = catalogMetadata[currentLocale];
   
-  return {
-    ...buildMetadata({
-      locale: currentLocale,
-      pathname: `/${locale}/catalog`,
-      title: metadata.title,
-      image: metadata.image
-    }),
-    openGraph: {
-      ...buildMetadata({
-        locale: currentLocale,
-        pathname: `/${locale}/catalog`,
-        title: metadata.title,
-        image: metadata.image
-      }).openGraph,
-      type: "website",
-      url: `https://artehechoamano.com/${locale}/catalog`,
-    },
-    twitter: {
-      ...buildMetadata({
-        locale: currentLocale,
-        pathname: `/${locale}/catalog`,
-        title: metadata.title,
-        image: metadata.image
-      }).twitter,
-      card: "summary_large_image",
-    }
-  };
+  return buildMetadata({
+    locale: currentLocale,
+    pathname: `/${locale}/catalog`,
+    title: metadata.title,
+    description: metadata.description,
+    image: metadata.image
+  });
 }
 
 export default function CatalogLayout({

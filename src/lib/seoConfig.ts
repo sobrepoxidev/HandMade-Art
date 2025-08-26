@@ -41,9 +41,10 @@ export function buildMetadata(opts: {
   locale: "es" | "en";
   pathname: string;
   title?: string;
+  description?: string;
   image?: { url: string; width?: number; height?: number; alt?: string };
 }): Metadata {
-  const { locale, pathname, title, image } = opts;
+  const { locale, pathname, title, description, image } = opts;
   const t = SEO_TEXT[locale];
 
   const baseTitle =
@@ -60,7 +61,7 @@ export function buildMetadata(opts: {
 
   return {
     title: baseTitle,
-    description: t.description,
+    description: description ?? t.description,
     keywords: t.keywords,
     alternates: {
       canonical: pathname,
@@ -71,7 +72,7 @@ export function buildMetadata(opts: {
     },
     openGraph: {
       title: baseTitle.default,
-      description: t.description,
+      description: description ?? t.description,
       url: `https://artehechoamano.com${pathname}`,
       siteName: "HandMade Art",
       images: [ogImage],
@@ -81,7 +82,7 @@ export function buildMetadata(opts: {
     twitter: {
       card: "summary_large_image",
       title: baseTitle.default,
-      description: t.description,
+      description: description ?? t.description,
       images: [ogImage.url]
     }
   };
