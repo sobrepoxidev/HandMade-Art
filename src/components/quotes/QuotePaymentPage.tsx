@@ -55,7 +55,18 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
       const discountValue = quote.discount_value;
       const originalTotal = quote.total_amount || 0;
       const finalTotal = quote.final_amount || originalTotal;
-      const discountAmount = originalTotal - finalTotal;
+      const shippingCost = quote.shipping_cost || 0;
+      
+      // Para total_override, el descuento es la diferencia entre el total original y el final_amount sin shipping
+      let discountAmount;
+      if (quote.discount_type === 'total_override') {
+        // final_amount ya incluye shipping, así que restamos shipping para obtener el precio base
+        const finalAmountWithoutShipping = finalTotal - shippingCost;
+        discountAmount = originalTotal - finalAmountWithoutShipping;
+      } else {
+        // Para otros tipos, el descuento es la diferencia directa
+        discountAmount = originalTotal - finalTotal;
+      }
 
       let discountText = '';
       switch (quote.discount_type) {
@@ -260,7 +271,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                 
                 <div className="flex justify-between font-semibold text-lg">
                   <span>{locale === 'es' ? 'Total' : 'Total'}</span>
-                  <span>{formatCurrency((quote.final_amount || quote.total_amount || 0) + (quote.shipping_cost || 0))}</span>
+                  <span>{formatCurrency(quote.final_amount || quote.total_amount || 0)}</span>
                 </div>
               </div>
 
