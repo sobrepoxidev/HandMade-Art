@@ -5,8 +5,7 @@ import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import {
   buildMetadata,
-  mapLocale
-} from "@/lib/seoConfig";
+} from "@/lib/metadata";
 
 import Navbar from "@/components/general/Navbar";
 import Footer from "@/components/general/Footer";
@@ -50,7 +49,7 @@ export default async function LocaleLayout({
   }
 
   return (
-    <html lang={mapLocale(locale)} className="bg-white">
+    <html lang={locale} className="bg-white">
       <body className="antialiased">
         <NextIntlClientProvider locale={locale}>
           <SessionLayout>

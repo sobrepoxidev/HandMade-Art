@@ -1,15 +1,20 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getCommonMetadata, buildTitle } from '@/lib/seo';
+import { buildMetadata } from '@/lib/metadata';
 import type { Metadata } from "next";
 type tParams = Promise<{ locale: string }>;
 
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const { locale } = await params;
-  return {
-    title: buildTitle(locale === "es" ? "Sobre Hand Made Art" : "About Hand Made Art"),
-    ...getCommonMetadata(locale),
-  };
+  const currentLocale = locale === "es" ? "es" : "en";
+  
+  const pageTitle = currentLocale === 'es' ? 'Sobre Hand Made Art' : 'About Hand Made Art';
+
+  return buildMetadata({
+    locale: currentLocale,
+    pathname: `/${locale}/about`,
+    title: pageTitle,
+  });
 }
 
 export default async function About({ params }: { params: tParams }) {

@@ -1,13 +1,17 @@
 import React from 'react';
-import { getCommonMetadata, buildTitle } from '@/lib/seo';
+import { buildMetadata } from '@/lib/metadata';
 import type { Metadata } from "next";
 type tParams = Promise<{ id: string, locale: string }>;
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const { locale } = await params;
-  return {
-    title: buildTitle(locale === "es" ? "Política de Privacidad" : "Privacy policy"),
-    ...getCommonMetadata(locale),
-  };
+  const currentLocale = locale === "es" ? "es" : "en";
+  const title = currentLocale === "es" ? "Política de Privacidad" : "Privacy policy";
+  
+  return buildMetadata({
+    locale: currentLocale,
+    pathname: `/${locale}/privacy-policies`,
+    title: title,
+  });
 }
 
 export default async function PoliticaPrivacidadPage({ params }: { params: tParams }) {

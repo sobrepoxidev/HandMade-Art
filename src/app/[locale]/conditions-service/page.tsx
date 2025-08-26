@@ -1,13 +1,21 @@
 import React from 'react';
-import { getCommonMetadata, buildTitle } from '@/lib/seo';
 import type { Metadata } from "next";
-type tParams = Promise<{ id: string, locale: string }>;
+import { buildMetadata } from "@/lib/metadata";
+type tParams = {
+  locale: string;
+};
+
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
-  const { locale } = await params;
-  return {
-    title: buildTitle(locale === "es" ? "Términos y Condiciones de Servicio" : "Terms and Conditions"),
-    ...getCommonMetadata(locale),
-  };
+  const { locale } = params;
+  const currentLocale = locale === "es" ? "es" : "en";
+  
+  const pageTitle = currentLocale === 'es' ? 'Términos y Condiciones' : 'Terms and Conditions';
+
+  return buildMetadata({
+    locale: currentLocale,
+    pathname: `/${locale}/conditions-service`,
+    title: pageTitle,
+  });
 }
 
 export default async function TerminosCondicionesPage({ params }: { params: tParams }) {

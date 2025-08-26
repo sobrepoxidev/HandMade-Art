@@ -1,15 +1,19 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
-import { getCommonMetadata, buildTitle } from '@/lib/seo';
+import { buildMetadata } from '@/lib/metadata';
 import type { Metadata } from "next";
 
 type tParams = Promise<{ id: string, locale: string }>;
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const { locale } = await params;
-  return {
-    title: buildTitle(locale === "es" ? "Envíos" : "Shipping"),
-    ...getCommonMetadata(locale),
-  };
+  const currentLocale = locale === "es" ? "es" : "en";
+  const title = currentLocale === "es" ? "Envíos" : "Shipping";
+  
+  return buildMetadata({
+    locale: currentLocale,
+    pathname: `/${locale}/shipping`,
+    title: title,
+  });
 }
 
 export default async function ShippingPage() {
