@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { buildMetadata } from "@/lib/seoConfig";
+import { buildMetadata } from "@/lib/metadata";
 import Loading from "@/components/products/LoadingGallery";
 import ProductsPageContent from "@/components/products/ProductsPageContent";
 import { createClient } from "@/utils/supabase/server";

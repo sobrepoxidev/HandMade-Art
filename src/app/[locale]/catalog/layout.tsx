@@ -1,28 +1,30 @@
 import type { Metadata } from "next";
-import { buildMetadata } from "@/lib/seoConfig";
+import { buildMetadata } from "@/lib/metadata";
 
-type tParams = Promise<{ locale: string }>;
+type tParams = {
+  locale: string;
+};
 
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
-  const { locale } = await params;
+  const { locale } = params;
   const currentLocale = locale === "es" ? "es" : "en";
   
   const catalogMetadata = {
     es: {
-      title: "Catálogo de Productos | Handmade Art",
+      title: "Catálogo de Productos",
       description: "Explora nuestro catálogo completo, encuentre productos únicos y solicite cotizaciones personalizadas.",
       image: {
-        url: "https://artehechoamano.com/home/catalog.webp",
+        url: "/home/catalog.webp",
         width: 1024,
         height: 1024,
         alt: "Catálogo de artesanías costarricenses - Handmade Art"
       }
     },
     en: {
-      title: "Catalog of Products | Handmade Art",
-      description: "Find our complete catalog, unique products and request personalized quotes.",
+      title: "Product Catalog",
+      description: "Explore our full catalog, find unique products, and request personalized quotes.",
       image: {
-        url: "https://artehechoamano.com/home/catalog.webp",
+        url: "/home/catalog.webp",
         width: 1024,
         height: 1024,
         alt: "Costa Rican handmade crafts catalog - Handmade Art"
