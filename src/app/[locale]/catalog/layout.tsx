@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
       title: "Catálogo de Productos | Handmade Art",
       description: "Explora nuestro catálogo completo, encuentre productos únicos y solicite cotizaciones personalizadas.",
       image: {
-        url: "https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/catalog.webp",
+        url: "/public/home/catalog.webp",
         width: 1200,
         height: 630,
         alt: "Catálogo de artesanías costarricenses - Handmade Art"
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
       title: "Catalog of Products | Handmade Art",
       description: "Find our complete catalog, unique products and request personalized quotes.",
       image: {
-        url: "https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/catalog.webp",
+        url: "/public/home/catalog.webp",
         width: 1200,
         height: 630,
         alt: "Costa Rican handmade crafts catalog - Handmade Art"
