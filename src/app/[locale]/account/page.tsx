@@ -4,12 +4,10 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/metadata";
 
-type tParams = {
-  locale: string;
-};
+type tParams = Promise<{ id: string, locale: string }>;
 
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
-  const { locale } = params;
+  const { locale } = await params;
   const currentLocale = locale === "es" ? "es" : "en";
   
   const pageTitle = currentLocale === 'es' ? 'Mi Cuenta' : 'My Account';

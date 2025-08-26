@@ -1,12 +1,9 @@
 import { buildMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 
-type tParams = {
-  locale: string;
-};
-
+type tParams = Promise<{ locale: string }>;
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
-  const { locale } = params;
+  const { locale } = await params;
   const currentLocale = locale === "es" ? "es" : "en";
   
   const pageTitle = currentLocale === 'es' ? 'Impacto Social' : 'Social Impact';
