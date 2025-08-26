@@ -77,13 +77,11 @@ export async function POST(request: NextRequest) {
       console.log(`Quote found with final amount: ${quote.final_amount || quote.total_amount}`);
     }
 
-    // Calcular el total con envío
-    const finalAmount = quote.final_amount || quote.total_amount;
-    const shippingCost = quote.shipping_cost || 0;
-    const totalAmount = finalAmount + shippingCost;
+    // El final_amount ya incluye el costo de envío
+    const totalAmount = quote.final_amount || quote.total_amount;
 
     if (DEBUG) {
-      console.log(`Total amount with shipping: ${totalAmount}`);
+      console.log(`Total amount (already includes shipping): ${totalAmount}`);
     }
 
     // Obtener token de PayPal
