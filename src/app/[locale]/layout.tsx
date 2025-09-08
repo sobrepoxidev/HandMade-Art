@@ -27,9 +27,6 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
   const pathname = headersList.get("x-invoke-pathname")?.trim() || "/";
   const { locale } = await params;
   
-  const path = pathname === "/" ? "" : pathname;
-  const otherLocale = locale === "es" ? "en" : "es";
-  
   return {
     metadataBase: new URL(`https://${host}`),
     
