@@ -6,10 +6,12 @@ import { routing } from "@/i18n/routing";
 import {
   buildMetadata,
 } from "@/lib/metadata";
+import Script from "next/script";
 
 import Navbar from "@/components/general/Navbar";
 import Footer from "@/components/general/Footer";
 import SessionLayout from "@/components/SessionLayout";
+import ClientLayout from "@/components/ClientLayout";
 import { NextIntlClientProvider } from "next-intl";
 import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "react-hot-toast";
@@ -24,12 +26,34 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
   const pathname = headersList.get("x-invoke-pathname")?.trim() || "/";
   const { locale } = await params;
   
+  const path = pathname === "/" ? "" : pathname;
+  const otherLocale = locale === "es" ? "en" : "es";
+  
   return {
     metadataBase: new URL(`https://${host}`),
+    
     ...buildMetadata({ 
       locale: locale === "es" ? "es" : "en", 
-      pathname: pathname 
+      pathname: pathname,
+      title: locale === "es"
+        ? "Handmade Art | Arte Costarricense Hecho a Mano"
+        : "Handmade Art | Costa Rican Handmade Art",
+      description: locale === "es"
+        ? "Descubre arte 100% hecho a mano en Costa Rica: Espejos, chorreadores y piezas únicas. Envíos a todo el país."
+        : "Shop unique handmade art pieces from Costa Rica—mirrors, chorroades and décor—crafted by local artisans and shipped fast to the USA."
     }),
+    
+    // ——— Canonical + hreflangs ——— 
+    alternates: {
+      canonical: `https://${host}/${locale}${path}`,
+      languages: {
+        [locale === "es" ? "es-cr" : "en-us"]: 
+          `https://${host}/${locale}${path}`,
+        [otherLocale === "es" ? "es-cr" : "en-us"]: 
+          `https://${host}/${otherLocale}${path}`,
+        "x-default": `https://${host}/${locale}${path}`,
+      },
+    },
   };
 }
 
@@ -58,8 +82,46 @@ export default async function LocaleLayout({
             <Footer locale={locale} />
             <Toaster position="top-center" />
             <Analytics />
+            {/* ClientLayout para componentes del lado del cliente */}
+            <ClientLayout />
           </SessionLayout>
         </NextIntlClientProvider>
+        <Script
+          id="structured-data"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Handmade Art",
+              "description": locale === "es"
+                ? "Descubre arte 100% hecho a mano en Costa Rica: pinturas, esculturas y piezas únicas. Envíos a todo el país."
+                : "Shop unique handmade art pieces from Costa Rica—paintings, sculptures and décor—crafted by local artisans and shipped fast to the USA.",
+              "url": "https://artehechoamano.com",
+              "logo": "https://artehechoamano.com/og-image-optimized.svg",
+              "image": [
+                "https://artehechoamano.com/og-image.jpg",
+                "https://artehechoamano.com/home/artesano.webp",
+                "https://artehechoamano.com/home/artisan-working.webp"
+              ],
+              "areaServed": "Costa Rica",
+              "telephone": "+506 8585 0000",
+              "email": "info@artehechoamano.com",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "San Ramón, Alajuela",
+                "addressLocality": "San Ramón",
+                "addressRegion": "Alajuela",
+                "postalCode": "20201",
+                "addressCountry": "CR"
+              },
+              "sameAs": [
+                "https://www.facebook.com/handmadeart",
+                "https://www.instagram.com/handmadeart"
+              ]
+            })
+          }}
+        />
       </body>
     </html>
   );
