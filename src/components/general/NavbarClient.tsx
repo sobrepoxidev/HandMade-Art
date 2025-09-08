@@ -111,17 +111,29 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
     }
   };
 
-  // Language change function optimized for mobile
+  // Language change function that changes domain based on locale
   const handleLanguageChange = () => {
     const targetLocale = locale === 'es' ? 'en' : 'es';
     const currentPath = window.location.pathname;
     const currentSearch = window.location.search;
+    const currentHost = window.location.host;
     
     // Remove current locale from path if it exists
     const pathWithoutLocale = currentPath.replace(/^\/(es|en)/, '');
     
-    // Construct new URL with target locale
-    const newUrl = `/${targetLocale}${pathWithoutLocale}${currentSearch}`;
+    // Determine target domain based on target locale
+    let targetDomain;
+    if (targetLocale === 'es') {
+      // Si cambiamos a español, usar dominio de artehechoamano
+      targetDomain = currentHost.includes('localhost') ? currentHost : 'artehechoamano.com';
+    } else {
+      // Si cambiamos a inglés, usar dominio de handmadeart
+      targetDomain = currentHost.includes('localhost') ? currentHost : 'handmadeart.store';
+    }
+    
+    // Construct new URL with target domain and locale
+    const protocol = window.location.protocol;
+    const newUrl = `${protocol}//${targetDomain}/${targetLocale}${pathWithoutLocale}${currentSearch}`;
     
     // Use window.location.href for immediate navigation (works better on mobile)
     window.location.href = newUrl;

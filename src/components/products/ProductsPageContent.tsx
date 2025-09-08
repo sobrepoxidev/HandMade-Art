@@ -55,6 +55,7 @@ export default function ProductsPageContent() {
           .from('categories')
           .select('*')
           .order(locale === 'es' ? 'name_es' : 'name_en', { ascending: true });
+          console.log('category filter', categoryFilter);
         
         setCategoryName(locale === 'es' ? categoriesData?.find(c => c.id == categoryFilter)?.name_es : categoriesData?.find(c => c.id == categoryFilter)?.name_en ?? '');  
         if (categoriesError) {
