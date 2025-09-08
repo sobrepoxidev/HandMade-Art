@@ -39,45 +39,45 @@ export default function OptimizedNewHome({
         <Carousel>
           {/* Banner 3: Fiestas Patronales San Ramón 2025 */}
           <BannerTemplate
-            linkHref="/fiestas-patronales-de-san-ramon"
-            bgColor="bg-gradient-to-r from-blue-100 via-indigo-50 to-purple-100">
+            linkHref="/dmnts"
+            bgColor="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600">
 
-            <div className="h-full flex items-start justify-between py-8 px-4 lg:px-8  ">
+            <div className="h-full flex items-start justify-between py-8 px-4 lg:px-8">
               {/* Sección izquierda - Información principal */}
               <div className="flex items-center gap-1 lg:gap-2 lg:mx-12">
-                <div className="text-xl lg:text-2xl">⛪</div>
+                <div className="text-xl lg:text-2xl text-white">📺</div>
                 <div>
-                  <h1 className="text-sm lg:text-lg font-bold text-blue-700 leading-tight">
-                    {locale === 'es' ? 'FIESTAS PATRONALES' : 'PATRON SAINT FESTIVAL'}
+                  <h1 className="text-sm lg:text-lg font-bold text-white leading-tight">
+                    {locale === 'es' ? 'DMNTS EDICIÓN 8' : 'DMNTS EDITION 8'}
                   </h1>
-                  <p className="text-xs lg:text-sm font-medium text-gray-700">
-                    {locale === 'es' ? 'San Ramón • 21-31 agosto' : 'San Ramón • Aug 21-31'}
+                  <p className="text-xs lg:text-sm font-medium text-blue-100">
+                    {locale === 'es' ? 'Teletica • Jueves 8PM' : 'Teletica • Thursdays 8PM'}
                   </p>
                   {/* Información del evento - visible en móvil */}
-                  <p className="text-[10px] lg:hidden text-gray-600 mt-0.5 leading-tight">
-                    {locale === 'es' ? '🎭 Entrada Santos 30 ago' : '🎭 Saints Entry Aug 30'}
+                  <p className="text-[10px] lg:hidden text-blue-200 mt-0.5 leading-tight">
+                    {locale === 'es' ? '🏆 Apoya nuestro proyecto' : '🏆 Support our project'}
                   </p>
                 </div>
               </div>
 
               {/* Sección central - Evento principal (solo desktop) */}
               <div className="hidden lg:flex flex-col items-center text-center">
-                <div className="text-xl mb-1">🎭</div>
-                <p className="text-lg text-gray-600 font-medium leading-tight">
-                  {locale === 'es' ? 'Entrada de los Santos' : 'Entry of the Saints'}
+                <div className="text-xl mb-1 text-white">🏆</div>
+                <p className="text-lg text-white font-medium leading-tight">
+                  {locale === 'es' ? 'Reinserción Sociolaboral' : 'Social Reintegration'}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {locale === 'es' ? '30 agosto • Tradición centenaria' : 'Aug 30 • Centenary tradition'}
+                <p className="text-xs text-blue-200 mt-0.5">
+                  {locale === 'es' ? 'Proyecto de Ley 24870' : 'Law Project 24870'}
                 </p>
               </div>
 
               {/* Sección derecha - Botón */}
               <div className="text-center">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs lg:text-sm px-2.5 lg:px-6 mx-6 lg:mx-12 py-1 lg:py-1.5 rounded-md lg:rounded-lg font-semibold transition-all shadow-sm hover:shadow-md">
-                  {locale === 'es' ? 'Conocer más' : 'Learn more'}
+                <button className="bg-white hover:bg-blue-50 text-blue-600 text-xs lg:text-sm px-2.5 lg:px-6 mx-6 lg:mx-12 py-1 lg:py-1.5 rounded-md lg:rounded-lg font-semibold transition-all shadow-sm hover:shadow-md">
+                  {locale === 'es' ? 'Apóyanos' : 'Support us'}
                 </button>
-                <p className="text-[8px] lg:text-xs text-gray-600 mt-1 leading-tight font-medium">
-                  {locale === 'es' ? 'Handmade Art te espera' : 'Handmade Art awaits you'}
+                <p className="text-[8px] lg:text-xs text-blue-200 mt-1 leading-tight font-medium">
+                  {locale === 'es' ? 'Juntos hacemos la diferencia' : 'Together we make a difference'}
                 </p>
               </div>
             </div>

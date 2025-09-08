@@ -91,9 +91,9 @@ export default async function ReinsertionPage({ params }: { params: tParams }) {
             ? 'Handmade Art ya colabora activamente con el Ministerio de Justicia y Paz de Costa Rica ofreciendo talleres y programas de capacitación a personas privadas de libertad. A través de estos programas, los participantes aprenden habilidades de artesanía, lo que les brinda una oportunidad de rehabilitación y una fuente de ingresos.'
             : 'Handmade Art already actively collaborates with the Costa Rican Ministry of Justice and Peace by offering workshops and training programs to incarcerated individuals. Through these programs, participants learn craft skills, providing them with an opportunity for rehabilitation and a source of income.'}
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-          <Image src="/reinsercion-sociolaboral/Ministerio-de-Justicia y-Paz.webp" alt={isSpanish ? "Ministerio de Justicia y Paz" : "Ministry of Justice and Peace"} className="rounded-lg shadow-lg" width={500} height={300} />
-          <Image src="/reinsercion-sociolaboral/Taller-de-capacitacion-tecnica.webp" alt={isSpanish ? "Taller de capacitación técnica" : "Technical training workshop"} className="rounded-lg shadow-lg" width={500} height={300} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4 ">
+          <Image src="/reinsercion-sociolaboral/Ministerio-de-Justicia y-Paz.webp" alt={isSpanish ? "Ministerio de Justicia y Paz" : "Ministry of Justice and Peace"} className="rounded-lg shadow-lg" width={300} height={250} />
+          <Image src="/og-image.webp" alt={isSpanish ? "Logo de Handmade Art" : "Handmade Art Logo"} className="rounded-lg shadow-lg" width={270} height={250} />
         </div>
       </section>
 
@@ -126,7 +126,7 @@ export default async function ReinsertionPage({ params }: { params: tParams }) {
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <Image src="/reinsercion-sociolaboral/Taller-de-exhibicion.webp" alt={isSpanish ? "Taller de exhibición" : "Exhibition workshop"} className="w-full h-48 object-cover" width={400} height={300} />
+            <Image src="/reinsercion-sociolaboral/verq.webp" alt={isSpanish ? "Taller de exhibición" : "Exhibition workshop"} className="w-full h-48 object-cover" width={400} height={300} />
             <div className="p-4">
               <h3 className="font-semibold text-lg mb-2">{isSpanish ? 'Exhibición y Comercialización' : 'Exhibition and Marketing'}</h3>
               <p>{isSpanish
