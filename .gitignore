@@ -14,7 +14,7 @@
 /coverage
 
 #examples en src/app
-/src/examples
+/src/examples/*
 
 # next.js
 /.next/
