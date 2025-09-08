@@ -61,7 +61,6 @@ const QRGenerator: React.FC = React.memo(() => {
       await navigator.clipboard.writeText(url);
       setIsCopied(true);
     } catch (err) {
-      /* eslint-disable-next-line no-console */
       console.error('Failed to copy URL:', err);
     }
   }, [url]);
@@ -137,7 +136,7 @@ const QRGenerator: React.FC = React.memo(() => {
         link.remove();
       }, 500);
     }, 'image/png');
-  }, [bgColor]);
+  }, []);
 
   const handleShare = useCallback(async () => {
     if (!url || !qrRef.current) return;

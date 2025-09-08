@@ -161,18 +161,18 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
       toast.success(editingCode ? 'Código actualizado correctamente' : 'Código creado correctamente');
       resetForm();
       loadDiscountCodes();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving discount code:', error);
-      console.error('Error details:', {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint
+      console.error('Error details:', {        
+        message: error && typeof error === 'object' && 'message' in error ? error.message : undefined, 
+        code: error && typeof error === 'object' && 'code' in error ? error.code : undefined, 
+        details: error && typeof error === 'object' && 'details' in error ? error.details : undefined, 
+        hint: error && typeof error === 'object' && 'hint' in error ? error.hint : undefined
       });
       
-      if (error?.code === '23505') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
         toast.error('Ya existe un código con ese nombre');
-      } else if (error?.message) {
+      } else if (error && typeof error === 'object' && 'message' in error) {
         toast.error(`Error: ${error.message}`);
       } else {
         toast.error('Error al guardar el código');
@@ -280,17 +280,12 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
     if (!dateString) return '';
     
     try {
-      let date;
-      
-      // Si la fecha ya incluye hora, usarla directamente
-      date = new Date(dateString ).setHours(
-            24, 0, 0, 0
-          );
+      const date = new Date(dateString);
+      date.setHours(0, 0, 0, 0);
       // Si es solo fecha (YYYY-MM-DD), agregar hora local para evitar problemas de zona horaria
-
       
       // Verificar si la fecha es válida
-      if (isNaN(date)) {
+      if (isNaN(date.getTime())) {
         return 'Fecha inválida';
       }
       
@@ -526,7 +521,7 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
                     {!formData.apply_to_all_categories && selectedCategories.length === 0 && (
                       <p className="text-sm text-amber-600 mt-1 flex items-center gap-1">
                         <AlertCircle className="h-4 w-4" />
-                        Selecciona al menos una categoría o marca "Aplicar a todas las categorías"
+                        Selecciona al menos una categoría o marca &quot;Aplicar a todas las categorías&quot;
                       </p>
                     )}
                   </div>

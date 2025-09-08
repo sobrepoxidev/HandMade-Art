@@ -45,20 +45,20 @@ export default async function AdminPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  // const supabase = createServerComponentClient({ cookies });
+  const supabase = createServerComponentClient({ cookies });
 
-  // const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  // if (!session) {
-  //   const returnUrl = `/${locale}/admin`;
-  //   redirect(`/${locale}/login?returnUrl=${encodeURIComponent(returnUrl)}`);
-  // }
+  if (!session) {
+    const returnUrl = `/${locale}/admin`;
+    redirect(`/${locale}/login?returnUrl=${encodeURIComponent(returnUrl)}`);
+  }
 
-  // const userEmail = session.user?.email;
+  const userEmail = session.user?.email;
 
-  // if (!userEmail || !AUTHORIZED_ADMINS.includes(userEmail)) {
-  //   redirect(`/${locale}`);
-  // }
+  if (!userEmail || !AUTHORIZED_ADMINS.includes(userEmail)) {
+    redirect(`/${locale}`);
+  }
   return (
     <div className="container mx-auto px-3 py-3">
       <h1 className="text-3xl font-bold text-gray-800 mb-4">{locale === 'es' ? 'Panel de Administración' : 'Admin Panel'}</h1>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Database, ProductSnapshot } from '@/types-db';
-import { Search, Filter, RefreshCw, Eye, Edit, DollarSign, Send, Copy, Share2, Tag, Plus } from 'lucide-react';
+import { Search, Filter, RefreshCw, Eye, Edit, DollarSign, Send, Copy, Share2, Tag } from 'lucide-react';
 import { FaPhone, FaWhatsapp } from 'react-icons/fa';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
@@ -31,7 +31,7 @@ export default function QuotesManagement({ locale }: QuotesManagementProps) {
   const [showDiscountCodesModal, setShowDiscountCodesModal] = useState(false);
 
   // Cargar cotizaciones
-  const loadQuotes = async () => {
+  const loadQuotes = useCallback(async () => {
     console.log("Loading quotes...")
     setLoading(true);
     try {
@@ -58,11 +58,11 @@ export default function QuotesManagement({ locale }: QuotesManagementProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, searchTerm, setLoading, setQuotes]);
 
   useEffect(() => {
     loadQuotes();
-  }, [statusFilter, searchTerm]);
+  }, [statusFilter, searchTerm, loadQuotes]);
 
   // Filtrar cotizaciones por término de búsqueda
   const filteredQuotes = quotes.filter(quote => 

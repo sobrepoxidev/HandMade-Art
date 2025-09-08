@@ -84,33 +84,7 @@ export default function AdminDashboard({ locale }: { locale: string }) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showProductMenu, setShowProductMenu] = useState<number | null>(null); // Para controlar el menú de opciones
 
-  // Cargar productos y categorías
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
 
-  // Cerrar el menú al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      // Verificar si el clic fue fuera del menú
-      const menuButton = document.querySelector(`button[aria-controls="product-menu-${showProductMenu}"]`);
-      const menuElement = document.getElementById(`product-menu-${showProductMenu}`);
-
-      if (showProductMenu !== null &&
-        menuButton &&
-        menuElement &&
-        !menuButton.contains(event.target as Node) &&
-        !menuElement.contains(event.target as Node)) {
-        setShowProductMenu(null);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [showProductMenu]);
 
   // Función para cargar productos
   const fetchProducts = useCallback(async () => {
@@ -145,6 +119,34 @@ export default function AdminDashboard({ locale }: { locale: string }) {
       console.error('Error al cargar categorías:', err);
     }
   }, [supabase, setCategories]);
+
+  // Cargar productos y categorías
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, [fetchProducts, fetchCategories]);
+
+  // Cerrar el menú al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Verificar si el clic fue fuera del menú
+      const menuButton = document.querySelector(`button[aria-controls="product-menu-${showProductMenu}"]`);
+      const menuElement = document.getElementById(`product-menu-${showProductMenu}`);
+
+      if (showProductMenu !== null &&
+        menuButton &&
+        menuElement &&
+        !menuButton.contains(event.target as Node) &&
+        !menuElement.contains(event.target as Node)) {
+        setShowProductMenu(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showProductMenu]);
 
   // Filtrar productos según búsqueda y categoría
   const filteredProducts = useMemo(() => {
@@ -258,7 +260,7 @@ export default function AdminDashboard({ locale }: { locale: string }) {
     } finally {
       setLoading(false);
     }
-  }, [supabase, products, selectedProduct, setLoading, setProducts, setSelectedProduct]);
+  }, [supabase, products, selectedProduct, setLoading, setProducts, setSelectedProduct, locale]);
 
   return (
     <div className="container mx-auto px-2 py-0.5 text-gray-800">
