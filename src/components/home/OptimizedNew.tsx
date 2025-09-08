@@ -42,7 +42,7 @@ export default function OptimizedNewHome({
             linkHref="/dmnts"
             bgColor="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600">
 
-            <div className="h-full flex items-start justify-between py-8 px-4 lg:px-8">
+            <div className="h-full flex items-start justify-between py-8 sm:py-20 px-4 lg:px-8">
               {/* Sección izquierda - Información principal */}
               <div className="flex items-center gap-1 lg:gap-2 lg:mx-12">
                 <div className="text-xl lg:text-2xl text-white">📺</div>
