@@ -95,7 +95,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
   const navigationLinks: NavLink[] = [
     { name: locale === 'es' ? 'Inicio' : 'Home', path: '/' },
     { name: locale === 'es' ? 'Acerca de' : 'About', path: '/about' },
-    { name: locale === 'es' ? 'Impacto' : 'Impact', path: '/impact' },
+    { name: locale === 'es' ? 'Reinserción Sociolaboral' : 'Social Reintegration', path: '/reinsercion-sociolaboral' },
     { name: locale === 'es' ? 'Envíos' : 'Shipping', path: '/shipping' },
     // Store se trata de manera especial ahora, con categorías desplegables
   ]
