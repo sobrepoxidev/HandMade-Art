@@ -9,11 +9,11 @@
   <meta property="og:site_name" content="Handmade Art">
   <meta property="og:title" content="Handmade Art | Arte Costarricense Hecho a Mano">
   <meta property="og:description" content="Descubre arte 100% hecho a mano en Costa Rica: pinturas, esculturas y piezas únicas. Envíos a todo el país.">
-  <meta property="og:image" content="https://handmadeart.store/og-image-optimized.svg">
+  <meta property="og:image" content="https://artehechoamano.com/og-image.webp">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:type" content="image/svg+xml">
-  <meta property="og:url" content="https://handmadeart.store">
+  <meta property="og:image:type" content="image/webp">
+  <meta property="og:url" content="https://artehechoamano.com">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_CR">
   
@@ -21,10 +21,35 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Handmade Art | Costa Rican Handmade Art">
   <meta name="twitter:description" content="Shop unique handmade art pieces from Costa Rica—paintings, sculptures and décor—crafted by local artisans.">
-  <meta name="twitter:image" content="https://handmadeart.store/og-image-optimized.svg">
+  <meta name="twitter:image" content="https://artehechoamano.com/og-image.webp">
   
   <!-- Redirección automática a la página principal -->
-  <meta http-equiv="refresh" content="0;url=https://handmadeart.store/en">
+  <script>
+    // Detectar el dominio actual y redirigir al mismo dominio
+    document.addEventListener('DOMContentLoaded', function() {
+      // Obtener el dominio del parámetro de consulta si existe
+      const urlParams = new URLSearchParams(window.location.search);
+      const domainParam = urlParams.get('domain');
+      
+      // Usar el dominio del parámetro o detectar el actual
+      const currentHost = domainParam || window.location.hostname;
+      let redirectUrl;
+      
+      if (currentHost === 'artehechoamano.com' || currentHost.includes('artehechoamano')) {
+        redirectUrl = 'https://artehechoamano.com/es';
+      } else {
+        redirectUrl = 'https://handmadeart.store/en';
+      }
+      
+      // Actualizar la meta etiqueta og:url para reflejar el dominio correcto
+      const ogUrlMeta = document.querySelector('meta[property="og:url"]');
+      if (ogUrlMeta) {
+        ogUrlMeta.setAttribute('content', redirectUrl);
+      }
+      
+      window.location.href = redirectUrl;
+    });
+  </script>
   
   <style>
     body {

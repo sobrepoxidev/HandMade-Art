@@ -16,7 +16,10 @@ export async function middleware(req: NextRequest) {
   
   // Si es WhatsApp y es la página principal o una ruta de idioma, mostrar la página de vista previa
   if (isWhatsAppRequest && (pathname === '/' || pathname === '/en' || pathname === '/es')) {
+    // Preservar el dominio original en la URL de vista previa
     url.pathname = '/whatsapp-preview.html';
+    // Agregar el dominio original como parámetro de consulta para que la página de vista previa pueda usarlo
+    url.searchParams.set('domain', host);
     return NextResponse.rewrite(url);
   }
   

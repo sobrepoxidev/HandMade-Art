@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: '/og-image-optimized.svg',
+        url: '/og-image.webp',
         width: 1200,
         height: 630,
         alt: 'Handmade Art - Arte costarricense hecho a mano',
-        type: 'image/svg+xml',
+        type: 'image/webp',
       },
     ],
     siteName: 'Handmade Art',
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    images: ['/og-image-optimized.svg'],
+    images: ['/og-image.webp'],
     title: 'Handmade Art | Costa Rican Handmade Art',
     description: 'Shop unique handmade art pieces from Costa Rica—paintings, sculptures and décor—crafted by local artisans.',
   },
