@@ -43,10 +43,11 @@ export function buildMetadata(params: BuildMetadataParams): Metadata {
   const pageDescription = description || t.description;
 
   const ogImage = image || {
-    url: "/og-image.jpg", // Default OG image
+    url: "/og-image-optimized.svg", // Default OG image
     width: 1200,
     height: 630,
     alt: "Handmade Art - Arte costarricense hecho a mano",
+    type: "image/svg+xml",
   };
 
   // Ensure image URL is absolute

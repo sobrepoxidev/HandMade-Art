@@ -1,0 +1,40 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo con gradiente suave -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f9ff" />
+      <stop offset="100%" stop-color="#e6f7f5" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fondo -->
+  <rect width="1200" height="630" fill="url(#bg-gradient)" />
+  
+  <!-- Borde decorativo -->
+  <rect x="20" y="20" width="1160" height="590" fill="none" stroke="#0d9488" stroke-width="4" rx="15" />
+  
+  <!-- Título principal -->
+  <text x="600" y="180" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle" fill="#0f766e">
+    Handmade Art
+  </text>
+  
+  <!-- Subtítulo -->
+  <text x="600" y="260" font-family="Arial, sans-serif" font-size="36" text-anchor="middle" fill="#374151">
+    Arte Costarricense Hecho a Mano
+  </text>
+  
+  <!-- Decoración: Patrón artesanal estilizado -->
+  <g transform="translate(600, 400)" fill="#0d9488" opacity="0.2">
+    <path d="M-250,-50 L-200,0 L-250,50 L-300,0 Z" />
+    <path d="M-150,-50 L-100,0 L-150,50 L-200,0 Z" />
+    <path d="M-50,-50 L0,0 L-50,50 L-100,0 Z" />
+    <path d="M50,-50 L100,0 L50,50 L0,0 Z" />
+    <path d="M150,-50 L200,0 L150,50 L100,0 Z" />
+    <path d="M250,-50 L300,0 L250,50 L200,0 Z" />
+  </g>
+  
+  <!-- URL del sitio -->
+  <text x="600" y="550" font-family="Arial, sans-serif" font-size="28" text-anchor="middle" fill="#4b5563">
+    handmadeart.store | artehechoamano.com
+  </text>
+</svg>

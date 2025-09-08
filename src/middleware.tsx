@@ -9,6 +9,16 @@ const intlMiddleware = createIntlMiddleware(routing);
 export async function middleware(req: NextRequest) {
   const { pathname, host } = req.nextUrl;
   const url = req.nextUrl.clone();
+  const userAgent = req.headers.get('user-agent') || '';
+  
+  // Detectar si la solicitud viene de WhatsApp
+  const isWhatsAppRequest = userAgent.toLowerCase().includes('whatsapp');
+  
+  // Si es WhatsApp y es la página principal o una ruta de idioma, mostrar la página de vista previa
+  if (isWhatsAppRequest && (pathname === '/' || pathname === '/en' || pathname === '/es')) {
+    url.pathname = '/whatsapp-preview.html';
+    return NextResponse.rewrite(url);
+  }
   
   // Verificar el dominio y asegurar que el idioma sea el correcto
   const isSpanishDomain = host === 'artehechoamano.com' || host.includes('artehechoamano');
