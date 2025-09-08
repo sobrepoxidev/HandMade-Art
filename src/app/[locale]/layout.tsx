@@ -17,6 +17,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "react-hot-toast";
 
 type tParams = Promise<{ locale: string }>;
+
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const headersList = await headers();
   const host = 
@@ -41,19 +42,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
       description: locale === "es"
         ? "Descubre arte 100% hecho a mano en Costa Rica: Espejos, chorreadores y piezas únicas. Envíos a todo el país."
         : "Shop unique handmade art pieces from Costa Rica—mirrors, chorroades and décor—crafted by local artisans and shipped fast to the USA."
-    }),
-    
-    // ——— Canonical + hreflangs ——— 
-    alternates: {
-      canonical: `https://${host}/${locale}${path}`,
-      languages: {
-        [locale === "es" ? "es-cr" : "en-us"]: 
-          `https://${host}/${locale}${path}`,
-        [otherLocale === "es" ? "es-cr" : "en-us"]: 
-          `https://${host}/${otherLocale}${path}`,
-        "x-default": `https://${host}/${locale}${path}`,
-      },
-    },
+    })
   };
 }
 

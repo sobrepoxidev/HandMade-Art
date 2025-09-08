@@ -3,6 +3,13 @@ import { Metadata } from "next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://handmadeart.store';
 
+const DEFAULT_IMAGE = {
+  url: `${SITE_URL}/og-image.webp`,
+  width: 500,
+  height: 500,
+  type: 'image/webp'
+};
+
 const seoConfig = {
   es: {
     title: {
@@ -32,6 +39,7 @@ interface BuildMetadataParams {
     width?: number;
     height?: number;
     alt?: string;
+    type?: string;
   };
 }
 
@@ -43,17 +51,20 @@ export function buildMetadata(params: BuildMetadataParams): Metadata {
   const pageDescription = description || t.description;
 
   const ogImage = image || {
-    url: "/og-image-optimized.svg", // Default OG image
-    width: 1200,
-    height: 630,
+    url: DEFAULT_IMAGE.url,
+    width: DEFAULT_IMAGE.width,
+    height: DEFAULT_IMAGE.height,
     alt: "Handmade Art - Arte costarricense hecho a mano",
-    type: "image/svg+xml",
+    type: DEFAULT_IMAGE.type,
   };
 
   // Ensure image URL is absolute
   if (ogImage.url.startsWith('/')) {
     ogImage.url = `${SITE_URL}${ogImage.url}`;
   }
+  
+  // Ensure canonical URL is absolute
+  const canonicalUrl = `${SITE_URL}${pathname}`;
 
   const metadata: Metadata = {
     metadataBase: new URL(SITE_URL),
@@ -65,17 +76,18 @@ export function buildMetadata(params: BuildMetadataParams): Metadata {
     keywords: t.keywords,
     
     alternates: {
-      canonical: pathname,
+      canonical: canonicalUrl,
       languages: {
         "es-CR": `${SITE_URL}/es${pathname.startsWith('/es') ? pathname.substring(3) : (pathname.startsWith('/en') ? pathname.substring(3) : pathname)}`,
         "en-US": `${SITE_URL}/en${pathname.startsWith('/en') ? pathname.substring(3) : (pathname.startsWith('/es') ? pathname.substring(3) : pathname)}`,
+        "x-default": canonicalUrl,
       },
     },
 
     openGraph: {
       title: pageTitle,
       description: pageDescription,
-      url: `${SITE_URL}${pathname}`,
+      url: canonicalUrl,
       siteName: "Handmade Art",
       images: [
         {
@@ -83,6 +95,7 @@ export function buildMetadata(params: BuildMetadataParams): Metadata {
           width: ogImage.width,
           height: ogImage.height,
           alt: ogImage.alt,
+          type: ogImage.type,
         },
       ],
       locale: locale === "es" ? "es_CR" : "en_US",
