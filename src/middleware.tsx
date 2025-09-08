@@ -14,12 +14,13 @@ export async function middleware(req: NextRequest) {
   // Detectar si la solicitud viene de WhatsApp
   const isWhatsAppRequest = userAgent.toLowerCase().includes('whatsapp');
   
-  // Si es WhatsApp y es la página principal o una ruta de idioma, mostrar la página de vista previa
-  if (isWhatsAppRequest && (pathname === '/' || pathname === '/en' || pathname === '/es')) {
-    // Preservar el dominio original en la URL de vista previa
+  // Si es WhatsApp, mostrar la página de vista previa
+  if (isWhatsAppRequest) {
+    // Preservar el dominio original y la ruta en la URL de vista previa
     url.pathname = '/whatsapp-preview.html';
-    // Agregar el dominio original como parámetro de consulta para que la página de vista previa pueda usarlo
+    // Agregar el dominio original y la ruta como parámetros de consulta
     url.searchParams.set('domain', host);
+    url.searchParams.set('path', pathname);
     return NextResponse.rewrite(url);
   }
   

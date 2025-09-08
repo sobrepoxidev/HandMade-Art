@@ -25,26 +25,42 @@
   
   <!-- Redirección automática a la página principal -->
   <script>
-    // Detectar el dominio actual y redirigir al mismo dominio
     document.addEventListener('DOMContentLoaded', function() {
-      // Obtener el dominio del parámetro de consulta si existe
       const urlParams = new URLSearchParams(window.location.search);
       const domainParam = urlParams.get('domain');
+      const pathParam = urlParams.get('path') || '';
       
       // Usar el dominio del parámetro o detectar el actual
       const currentHost = domainParam || window.location.hostname;
-      let redirectUrl;
+      let baseUrl, locale;
       
       if (currentHost === 'artehechoamano.com' || currentHost.includes('artehechoamano')) {
-        redirectUrl = 'https://artehechoamano.com/es';
+        baseUrl = 'https://artehechoamano.com';
+        locale = '/es';
       } else {
-        redirectUrl = 'https://handmadeart.store/en';
+        baseUrl = 'https://handmadeart.store';
+        locale = '/en';
       }
       
-      // Actualizar la meta etiqueta og:url para reflejar el dominio correcto
+      // Construir la URL de redirección manteniendo la ruta original
+      const redirectUrl = `${baseUrl}${locale}${pathParam}`;
+      
+      // Actualizar metadatos de Open Graph para reflejar el dominio y la ruta correctos
       const ogUrlMeta = document.querySelector('meta[property="og:url"]');
+      const ogTitleMeta = document.querySelector('meta[property="og:title"]');
+      const ogDescMeta = document.querySelector('meta[property="og:description"]');
+      
       if (ogUrlMeta) {
         ogUrlMeta.setAttribute('content', redirectUrl);
+      }
+      
+      // Actualizar título y descripción según el dominio
+      if (baseUrl.includes('artehechoamano')) {
+        if (ogTitleMeta) ogTitleMeta.setAttribute('content', 'Arte Hecho a Mano | Arte Costarricense');
+        if (ogDescMeta) ogDescMeta.setAttribute('content', 'Descubre arte 100% hecho a mano en Costa Rica: pinturas, esculturas y piezas únicas. Envíos a todo el país.');
+      } else {
+        if (ogTitleMeta) ogTitleMeta.setAttribute('content', 'Handmade Art | Costa Rican Handmade Art');
+        if (ogDescMeta) ogDescMeta.setAttribute('content', 'Shop unique handmade art pieces from Costa Rica—paintings, sculptures and décor—crafted by local artisans.');
       }
       
       window.location.href = redirectUrl;

@@ -11,8 +11,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/og-image.webp',
-        width: 1200,
-        height: 630,
+        width: 500,
+        height: 500,
         alt: 'Handmade Art - Arte costarricense hecho a mano',
         type: 'image/webp',
       },
