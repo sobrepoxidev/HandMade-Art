@@ -74,7 +74,7 @@ const DraggableWhatsAppButton = () => {
   };
 
   // Manejar el fin del arrastre
-  const handleDragEnd = (_event: any, info: { point: { x: number; y: number } }) => {
+  const handleDragEnd = (_event: unknown, info: { point: { x: number; y: number } }) => {
     setIsActive(false);
     snapToEdge(info);
   };
