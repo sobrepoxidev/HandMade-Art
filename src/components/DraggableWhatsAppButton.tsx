@@ -94,7 +94,7 @@ const DraggableWhatsAppButton = () => {
 
   // Calcular la posición inicial solo en el cliente
   const initialX = isClient ? windowSize.width - 48 : 0; // 20% dentro del borde derecho
-  const initialY = isClient ? windowSize.height / 2 - 30 : 0;
+  const initialY = isClient ? windowSize.height -150 : 0;
   
   return (
     <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-50">
