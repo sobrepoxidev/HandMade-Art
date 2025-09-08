@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useMotionValue, useTransform, useAnimation } from "framer-motion";
+import { motion, useMotionValue, useAnimation } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
 import { useLocale } from "next-intl";
 
@@ -14,8 +14,7 @@ const DraggableWhatsAppButton = () => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   
-  // Estado para almacenar la posición final después de soltar
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+
   
   // Estado para controlar si el botón está siendo arrastrado o tocado
   const [isActive, setIsActive] = useState(false);
@@ -66,8 +65,6 @@ const DraggableWhatsAppButton = () => {
     // Limitar la posición vertical para que no se salga de la pantalla
     finalY = Math.max(20, Math.min(windowSize.height - buttonHeight - 20, finalY));
     
-    // Actualizar la posición
-    setPosition({ x: finalX, y: finalY });
     controls.start({ x: finalX, y: finalY, transition: { type: "spring", stiffness: 300, damping: 25 } });
   };
 

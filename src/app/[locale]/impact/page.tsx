@@ -1,5 +1,6 @@
 import { buildMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
+import Image from "next/image";
 
 type tParams = Promise<{ locale: string }>;
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 
 export default function ImpactPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 text-gray-800">
       <h1 className="text-4xl font-bold text-center mb-8">Nuestro Impacto Social</h1>
 
       <section className="mb-12">
@@ -33,8 +34,8 @@ export default function ImpactPage() {
           Nos enorgullece colaborar con el Ministerio de Justicia y Paz de Costa Rica para ofrecer talleres y programas de capacitación a personas privadas de libertad. A través de estos programas, los participantes aprenden habilidades de artesanía, lo que les brinda una oportunidad de rehabilitación y una fuente de ingresos.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-          <img src="/impact/Ministerio-de-Justicia y-Paz.webp" alt="Ministerio de Justicia y Paz" className="rounded-lg shadow-lg" />
-          <img src="/impact/Taller-de-capacitacion-tecnica.webp" alt="Taller de capacitación técnica" className="rounded-lg shadow-lg" />
+          <Image src="/impact/Ministerio-de-Justicia y-Paz.webp" alt="Ministerio de Justicia y Paz" className="rounded-lg shadow-lg" width={192} height={192} />
+          <Image src="/impact/Taller-de-capacitacion-tecnica.webp" alt="Taller de capacitación técnica" className="rounded-lg shadow-lg" width={192} height={192} />
         </div>
       </section>
 
@@ -44,32 +45,13 @@ export default function ImpactPage() {
           Ofrecemos una variedad de talleres que cubren diferentes técnicas de artesanía, desde el tallado en madera hasta la creación de chorreadores de café. Estos talleres no solo enseñan habilidades prácticas, sino que también fomentan la creatividad y la autoexpresión.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
-          <img src="/impact/Taller-de-creacion-de-chorreadores-de-cafe.webp" alt="Taller de creación de chorreadores de café" className="rounded-lg shadow-lg" />
-          <img src="/impact/Taller-de-detalle-de-madera.webp" alt="Taller de detalle de madera" className="rounded-lg shadow-lg" />
-          <img src="/impact/Taller-de-exhibicion.webp" alt="Taller de exhibición" className="rounded-lg shadow-lg" />
+          <Image src="/impact/Taller-de-creacion-de-chorreadores-de-cafe.webp" alt="Taller de creación de chorreadores de café" className="rounded-lg shadow-lg" width={192} height={192} />
+          <Image src="/impact/Taller-de-detalle-de-madera.webp" alt="Taller de detalle de madera" className="rounded-lg shadow-lg" width={192} height={192} />
+          <Image src="/impact/Taller-de-exhibicion.webp" alt="Taller de exhibición" className="rounded-lg shadow-lg" width={192} height={192} />
         </div>
       </section>
 
-      <section>
-        <h2 className="text-3xl font-semibold mb-4">Nuestros Artesanos</h2>
-        <p className="text-lg">
-          Conoce a algunos de los talentosos artesanos que forman parte de la familia Handmade Art. Cada uno de ellos tiene una historia única y una pasión por su oficio.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
-          <div className="text-center">
-            <img src="/impact/artesano-Eduardo.webp" alt="Artesano Eduardo" className="rounded-full mx-auto mb-4 w-48 h-48 object-cover" />
-            <h3 className="text-xl font-semibold">Eduardo</h3>
-          </div>
-          <div className="text-center">
-            <img src="/impact/artesano-Jonathan.webp" alt="Artesano Jonathan" className="rounded-full mx-auto mb-4 w-48 h-48 object-cover" />
-            <h3 className="text-xl font-semibold">Jonathan</h3>
-          </div>
-          <div className="text-center">
-            <img src="/impact/artesano-Jorge.webp" alt="Artesano Jorge" className="rounded-full mx-auto mb-4 w-48 h-48 object-cover" />
-            <h3 className="text-xl font-semibold">Jorge</h3>
-          </div>
-        </div>
-      </section>
+      
     </div>
   );
 }
