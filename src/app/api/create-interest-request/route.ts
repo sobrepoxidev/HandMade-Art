@@ -10,18 +10,28 @@ interface InterestRequestItem {
   product_snapshot: ProductSnapshot;
 }
 
+interface DiscountCodeApplied {
+  code: string;
+  discount_type: 'percentage' | 'fixed_amount';
+  discount_value: number;
+  description?: string | null;
+}
+
 interface InterestRequestPayload {
   requester_name: string;
   organization?: string;
   email?: string;
   phone?: string;
   notes?: string;
+  discount_code_applied?: DiscountCodeApplied;
   items: InterestRequestItem[];
 }
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== CREATE INTEREST REQUEST START ===');
     const body: InterestRequestPayload = await request.json();
+    console.log('Request body:', JSON.stringify(body, null, 2));
 
     // Validaciones
     if (!body.requester_name || body.requester_name.trim().length === 0) {
@@ -71,7 +81,10 @@ export async function POST(request: NextRequest) {
 
     // Calcular el total de la cotización
     const totalAmount = body.items.reduce((total, item) => {
-      const price = item.product_snapshot.dolar_price || 0;
+      // Usar precio con descuento si está disponible, sino usar precio original
+      const price = item.product_snapshot.has_discount && item.product_snapshot.discounted_price 
+        ? item.product_snapshot.discounted_price 
+        : item.product_snapshot.dolar_price || 0;
       return total + (price * item.quantity);
     }, 0);
 
@@ -84,18 +97,26 @@ export async function POST(request: NextRequest) {
         email: body.email?.trim() || null,
         phone: body.phone?.trim() || null,
         notes: body.notes?.trim() || null,
-        source: 'catalog',
+        source: 'souvenirs',
         locale: 'es',
         channel: 'web',
-        total_amount: totalAmount
+        total_amount: totalAmount,
+        discount_code_applied: body.discount_code_applied || null,
+        // updated_at: new Date().toISOString() // Comentado temporalmente hasta verificar esquema
       })
       .select('id')
       .single();
 
     if (requestError) {
       console.error('Error creating interest request:', requestError);
+      console.error('Request error details:', {
+        message: requestError.message,
+        details: requestError.details,
+        hint: requestError.hint,
+        code: requestError.code
+      });
       return NextResponse.json(
-        { ok: false, error: 'Error al crear la solicitud' },
+        { ok: false, error: `Error al crear la solicitud: ${requestError.message}` },
         { status: 500 }
       );
     }
@@ -103,13 +124,20 @@ export async function POST(request: NextRequest) {
     const requestId = requestData.id;
 
     // Insertar items de la solicitud
-    const itemsToInsert = body.items.map(item => ({
-      request_id: requestId,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      product_snapshot: item.product_snapshot,
-      unit_price_usd: item.product_snapshot.dolar_price || 0
-    }));
+    const itemsToInsert = body.items.map(item => {
+      // Usar precio con descuento si está disponible, sino usar precio original
+      const unitPrice = item.product_snapshot.has_discount && item.product_snapshot.discounted_price 
+        ? item.product_snapshot.discounted_price 
+        : item.product_snapshot.dolar_price || 0;
+      
+      return {
+        request_id: requestId,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        product_snapshot: item.product_snapshot,
+        unit_price_usd: unitPrice
+      };
+    });
 
     const { error: itemsError } = await supabase
       .from('interest_request_items')
@@ -117,6 +145,13 @@ export async function POST(request: NextRequest) {
 
     if (itemsError) {
       console.error('Error creating interest request items:', itemsError);
+      console.error('Items error details:', {
+        message: itemsError.message,
+        details: itemsError.details,
+        hint: itemsError.hint,
+        code: itemsError.code
+      });
+      console.log('Items to insert:', JSON.stringify(itemsToInsert, null, 2));
       // Intentar limpiar la solicitud principal si falló la inserción de items
       await supabase
         .from('interest_requests')
@@ -124,7 +159,7 @@ export async function POST(request: NextRequest) {
         .eq('id', requestId);
       
       return NextResponse.json(
-        { ok: false, error: 'Error al procesar los productos de la solicitud' },
+        { ok: false, error: `Error al procesar los productos: ${itemsError.message}` },
         { status: 500 }
       );
     }
@@ -141,6 +176,14 @@ export async function POST(request: NextRequest) {
           image_url: item.product_snapshot.image_url || ''
         }));
 
+        // Calcular monto original sin descuento si hay código aplicado
+        const originalAmount = body.discount_code_applied 
+          ? body.items.reduce((total, item) => {
+              const originalPrice = item.product_snapshot.dolar_price || 0;
+              return total + (originalPrice * item.quantity);
+            }, 0)
+          : undefined;
+
         const emailData = {
           customerName: body.requester_name,
           customerEmail: body.email.trim(),
@@ -148,7 +191,9 @@ export async function POST(request: NextRequest) {
           items: emailItems,
           totalAmount,
           requestId: requestId.toString(),
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          discountCodeApplied: body.discount_code_applied,
+          originalAmount
         };
 
         // Correo al cliente
@@ -181,9 +226,11 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Unexpected error in create-interest-request:', error);
+    console.error('=== UNEXPECTED ERROR IN CREATE-INTEREST-REQUEST ===');
+    console.error('Error details:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
-      { ok: false, error: 'Error interno del servidor' },
+      { ok: false, error: `Error interno del servidor: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }

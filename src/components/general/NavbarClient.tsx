@@ -445,7 +445,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
                     <ul className="ml-4 space-y-1 border-l-2 border-gray-100 pl-3">
                       <li>
                         <Link
-                          href="/catalog"
+                          href="/products"
                           className="block text-sm text-gray-700 hover:text-teal-700 py-1"
                           onClick={() => setIsMenuOpen(false)}
                         >
@@ -455,7 +455,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
                       {categoryList.map((category) => (
                         <li key={category.id}>
                           <Link
-                            href={`/catalog?category=${category.id}`}
+                            href={`/products?category=${category.id}`}
                             className="block text-sm text-gray-700 hover:text-teal-700 py-1"
                             onClick={() => setIsMenuOpen(false)}
                           >

@@ -6,6 +6,13 @@ interface QuoteItem {
   image_url?: string;
 }
 
+interface DiscountCodeApplied {
+  code: string;
+  discount_type: 'percentage' | 'fixed_amount';
+  discount_value: number;
+  description?: string | null;
+}
+
 interface QuoteData {
   customerName: string;
   customerEmail: string;
@@ -14,6 +21,8 @@ interface QuoteData {
   totalAmount: number;
   requestId: string;
   createdAt: string;
+  discountCodeApplied?: DiscountCodeApplied;
+  originalAmount?: number;
 }
 
 export function generateCustomerQuoteEmail(data: QuoteData): string {
@@ -77,8 +86,24 @@ export function generateCustomerQuoteEmail(data: QuoteData): string {
             </thead>
             <tbody>
               ${itemsHtml}
+              ${data.discountCodeApplied && data.originalAmount ? `
+                <tr style="background-color: #f8f9fa;">
+                  <td style="padding: 15px; font-weight: bold; font-size: 16px; color: #6c757d;">Subtotal:</td>
+                  <td style="padding: 15px; text-align: right; font-weight: bold; font-size: 16px; color: #6c757d;">$${data.originalAmount.toFixed(2)}</td>
+                </tr>
+                <tr style="background-color: #d4edda;">
+                  <td style="padding: 15px; font-weight: bold; font-size: 16px; color: #155724;">
+                    🎉 Descuento aplicado (${data.discountCodeApplied.code}):
+                    <br><small style="font-weight: normal; color: #6c757d;">${data.discountCodeApplied.description || 'Descuento especial'}</small>
+                  </td>
+                  <td style="padding: 15px; text-align: right; font-weight: bold; font-size: 16px; color: #155724;">
+                    -$${(data.originalAmount - data.totalAmount).toFixed(2)}
+                    ${data.discountCodeApplied.discount_type === 'percentage' ? `(${data.discountCodeApplied.discount_value}%)` : ''}
+                  </td>
+                </tr>
+              ` : ''}
               <tr style="background-color: #f0f0f0;">
-                <td style="padding: 20px; font-weight: bold; font-size: 18px; color: #8B4513;">Total sin descuento:</td>
+                <td style="padding: 20px; font-weight: bold; font-size: 18px; color: #8B4513;">${data.discountCodeApplied ? 'Total con descuento:' : 'Total:'}</td>
                 <td style="padding: 20px; text-align: right; font-weight: bold; font-size: 20px; color: #8B4513;">$${data.totalAmount.toFixed(2)}</td>
               </tr>
             </tbody>
@@ -159,6 +184,7 @@ export function generateManagerNotificationEmail(data: QuoteData): string {
               <p style="margin: 0; color: #333; font-size: 14px;"><strong>Teléfono:</strong> <a href="tel:${data.customerPhone}" style="color: #007bff;">${data.customerPhone}</a></p>
               <p style="margin: 0; color: #333; font-size: 14px;"><strong>ID Solicitud:</strong> <code style="background: #e9ecef; padding: 2px 6px; border-radius: 4px;">${data.requestId}</code></p>
               <p style="margin: 0; color: #333; font-size: 14px;"><strong>Fecha:</strong> ${new Date(data.createdAt).toLocaleString('es-CR')}</p>
+              ${data.discountCodeApplied ? `<p style="margin: 0; color: #333; font-size: 14px;"><strong>Código de Descuento:</strong> <span style="background: #fff3cd; padding: 2px 6px; border-radius: 4px; color: #856404;">${data.discountCodeApplied.code}</span> (${data.discountCodeApplied.discount_type === 'percentage' ? `${data.discountCodeApplied.discount_value}%` : `$${data.discountCodeApplied.discount_value}`})</p>` : ''}
             </div>
           </div>
 
@@ -175,8 +201,18 @@ export function generateManagerNotificationEmail(data: QuoteData): string {
               </thead>
               <tbody>
                 ${itemsHtml}
+                ${data.discountCodeApplied && data.originalAmount ? `
+                  <tr style="background-color: #f8f9fa;">
+                    <td colspan="2" style="padding: 12px; font-weight: bold; font-size: 14px; color: #6c757d;">Subtotal:</td>
+                    <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 14px; color: #6c757d;">$${data.originalAmount.toFixed(2)}</td>
+                  </tr>
+                  <tr style="background-color: #d1ecf1;">
+                    <td colspan="2" style="padding: 12px; font-weight: bold; font-size: 14px; color: #0c5460;">Descuento (${data.discountCodeApplied.code}):</td>
+                    <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 14px; color: #0c5460;">-$${(data.originalAmount - data.totalAmount).toFixed(2)}</td>
+                  </tr>
+                ` : ''}
                 <tr style="background-color: #e9ecef;">
-                  <td colspan="2" style="padding: 15px; font-weight: bold; font-size: 16px; color: #495057;">Total Estimado:</td>
+                  <td colspan="2" style="padding: 15px; font-weight: bold; font-size: 16px; color: #495057;">${data.discountCodeApplied ? 'Total con Descuento:' : 'Total Estimado:'}</td>
                   <td style="padding: 15px; text-align: right; font-weight: bold; font-size: 18px; color: #dc3545;">$${data.totalAmount.toFixed(2)}</td>
                 </tr>
               </tbody>

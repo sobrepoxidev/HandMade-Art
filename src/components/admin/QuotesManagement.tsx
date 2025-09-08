@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { Database, ProductSnapshot } from '@/types-db';
-import { Search, Filter, RefreshCw, Eye, Edit, DollarSign, Send, Copy, Share2 } from 'lucide-react';
+import { Search, Filter, RefreshCw, Eye, Edit, DollarSign, Send, Copy, Share2, Tag, Plus } from 'lucide-react';
 import { FaPhone, FaWhatsapp } from 'react-icons/fa';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 import QuoteDiscountModal from './QuoteDiscountModal';
+import DiscountCodesModal from './DiscountCodesModal';
 
 type InterestRequest = Database['interest_requests'] & {
   interest_request_items: (Database['interest_request_items'] & {
@@ -27,6 +28,7 @@ export default function QuotesManagement({ locale }: QuotesManagementProps) {
   const [statusFilter, setStatusFilter] = useState<QuoteStatus | 'all'>('all');
   const [selectedQuote, setSelectedQuote] = useState<InterestRequest | null>(null);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [showDiscountCodesModal, setShowDiscountCodesModal] = useState(false);
 
   // Cargar cotizaciones
   const loadQuotes = async () => {
@@ -201,13 +203,22 @@ export default function QuotesManagement({ locale }: QuotesManagementProps) {
             {locale === 'es' ? 'Administra las solicitudes de cotización de los clientes' : 'Manage customer quote requests'}
           </p>
         </div>
-        <button
-          onClick={loadQuotes}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-        >
-          <RefreshCw className="w-4 h-4 mr-2" />
-          {locale === 'es' ? 'Actualizar' : 'Refresh'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowDiscountCodesModal(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors"
+          >
+            <Tag className="w-4 h-4 mr-2" />
+            {locale === 'es' ? 'Códigos de Descuento' : 'Discount Codes'}
+          </button>
+          <button
+            onClick={loadQuotes}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            {locale === 'es' ? 'Actualizar' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       {/* Filtros y búsqueda */}
@@ -446,6 +457,14 @@ export default function QuotesManagement({ locale }: QuotesManagementProps) {
             setSelectedQuote(null);
             loadQuotes();
           }}
+        />
+      )}
+
+      {/* Modal de códigos de descuento */}
+      {showDiscountCodesModal && (
+        <DiscountCodesModal
+          locale={locale}
+          onClose={() => setShowDiscountCodesModal(false)}
         />
       )}
     </div>

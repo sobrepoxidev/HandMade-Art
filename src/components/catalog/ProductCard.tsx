@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ExternalLink, Plus, Minus, Trash2, Search } from 'lucide-react';
 import { useInterestList, InterestItem } from '@/lib/hooks/useInterestList';
+import { DiscountCode } from '@/lib/hooks/useDiscountCode';
 
 interface Product {
   id: number;
@@ -25,9 +26,14 @@ interface Product {
 interface ProductCardProps {
   product: Product;
   interestList: ReturnType<typeof useInterestList>;
+  appliedDiscountCode?: DiscountCode | null;
+  onCalculateDiscount?: (productPrice: number, categoryId: number | null) => {
+    discountedPrice: number;
+    discountAmount: number;
+  } | null;
 }
 
-export function ProductCard({ product, interestList }: ProductCardProps) {
+export function ProductCard({ product, interestList, appliedDiscountCode, onCalculateDiscount }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomScale, setZoomScale] = useState(1.495);
@@ -40,6 +46,24 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
 
   // Calcular precios
   const originalPrice = product.dolar_price || 0;
+  
+  // Calcular descuento del código aplicado
+  const codeDiscountInfo = onCalculateDiscount && appliedDiscountCode 
+    ? onCalculateDiscount(originalPrice, product.category_id)
+    : null;
+  
+  // Determinar el precio final a mostrar
+  const finalPrice = codeDiscountInfo ? codeDiscountInfo.discountedPrice : originalPrice;
+  const hasCodeDiscount = codeDiscountInfo && codeDiscountInfo.discountAmount > 0;
+  const hasCategoryDiscount = product.discount_percentage && product.discount_percentage > 0;
+  
+  // Formatear moneda
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
 
 
   // Formatear descripción corta
@@ -64,8 +88,8 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
       name: product.name,
       sku: product.sku || undefined,
       main_image_url: product.main_image_url || undefined,
-      price: product.dolar_price || 0,
-      dolar_price: product.dolar_price || 0,
+      price: finalPrice, // Usar el precio final (con descuento si aplica)
+      dolar_price: product.dolar_price || 0, // Mantener el precio original para referencia
       discount_percentage: product.discount_percentage || undefined
     };
 
@@ -247,9 +271,47 @@ export function ProductCard({ product, interestList }: ProductCardProps) {
         </h3>
 
         {/* Precio */}
-        <div className="mb-1.5 text-green-600 font-medium">
-           ${originalPrice.toFixed(2)} <span className='text-xs text-gray-600'>(Precio regular)</span>
-         </div>
+        <div className="mb-1.5">
+          {hasCodeDiscount ? (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="line-through text-gray-400 text-sm">
+                  {formatCurrency(originalPrice)}
+                </span>
+                <span className="text-green-600 font-medium">
+                  {formatCurrency(finalPrice)}
+                </span>
+                <span className="bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-xs">
+                  Código aplicado
+                </span>
+              </div>
+              <p className="text-xs text-gray-500">
+                Ahorras {formatCurrency(codeDiscountInfo?.discountAmount || 0)}
+              </p>
+            </div>
+          ) : hasCategoryDiscount ? (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="line-through text-gray-400 text-sm">
+                  {formatCurrency(originalPrice)}
+                </span>
+                <span className="text-green-600 font-medium">
+                  {formatCurrency(originalPrice * (1 - (product.discount_percentage || 0) / 100))}
+                </span>
+                <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs">
+                  Descuento por categoría
+                </span>
+              </div>
+              <p className="text-xs text-gray-500">
+                {product.discount_percentage}% de descuento
+              </p>
+            </div>
+          ) : (
+            <div className="text-green-600 font-medium">
+              {formatCurrency(originalPrice)} <span className='text-xs text-gray-600'>(Precio regular)</span>
+            </div>
+          )}
+        </div>
 
         {/* Especificaciones */}
         <div className="space-y-1 mb-3 text-sm text-gray-600">

@@ -28,20 +28,32 @@ interface DiscountData {
 export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }: QuoteDiscountModalProps) {
   const [discountType, setDiscountType] = useState<DiscountType>('percentage');
   const [discountValue, setDiscountValue] = useState<number>(0);
-  
-  // Calcular el total original basándose en los items si total_amount es null
+
+  // Calcular el total original basándose en los items
   const calculateOriginalTotal = () => {
+    // Si hay un código de descuento aplicado, SIEMPRE calcular desde precios originales
+    // para evitar usar un total que ya incluye descuentos
+    if (quote.discount_code_applied) {
+      return quote.interest_request_items.reduce((total, item) => {
+        const itemPrice = item.product_snapshot.dolar_price || 0; // Siempre precio original
+        return total + (itemPrice * item.quantity);
+      }, 0);
+    }
+
+    // Si no hay código de descuento aplicado, usar total_amount si existe
     if (quote.total_amount && quote.total_amount > 0) {
       return quote.total_amount;
     }
-    
+
     // Calcular desde los items si total_amount no está disponible
     return quote.interest_request_items.reduce((total, item) => {
-      const itemPrice = item.product_snapshot.dolar_price || 0;
+      const itemPrice = item.product_snapshot.has_discount && item.product_snapshot.discounted_price
+        ? item.product_snapshot.discounted_price
+        : (item.product_snapshot.dolar_price || 0);
       return total + (itemPrice * item.quantity);
     }, 0);
   };
-  
+
   const [totalOverride, setTotalOverride] = useState<number>(calculateOriginalTotal());
   const [productDiscounts, setProductDiscounts] = useState<{ [key: number]: number }>({});
   const [managerNotes, setManagerNotes] = useState<string>('');
@@ -55,9 +67,27 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
     }).format(amount);
   };
 
+  // Calcular el descuento del código aplicado
+  const calculateCodeDiscount = () => {
+    if (!quote.discount_code_applied) return 0;
+
+    const originalTotal = calculateOriginalTotal();
+    const codeDiscount = quote.discount_code_applied;
+
+    if (codeDiscount.discount_type === 'percentage') {
+      return originalTotal * (codeDiscount.discount_value / 100);
+    } else {
+      return codeDiscount.discount_value;
+    }
+  };
+
   // Calcular el total final basado en el tipo de descuento
   const calculateFinalTotal = () => {
-    const baseTotal = calculateOriginalTotal();
+    const originalTotal = calculateOriginalTotal();
+    // Si hay código aplicado, el base para el descuento adicional es el total después del código
+    const baseTotal = quote.discount_code_applied
+      ? originalTotal - calculateCodeDiscount()
+      : originalTotal;
     let finalTotal = baseTotal;
 
     switch (discountType) {
@@ -69,14 +99,24 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
         break;
       case 'product_percentage':
         finalTotal = quote.interest_request_items.reduce((total, item) => {
-          const itemTotal = (item.product_snapshot.dolar_price || 0) * item.quantity;
+          const unitPrice = quote.discount_code_applied
+            ? (item.product_snapshot.dolar_price || 0) // Usar precio original si hay código aplicado
+            : (item.product_snapshot.has_discount && item.product_snapshot.discounted_price
+              ? item.product_snapshot.discounted_price
+              : (item.product_snapshot.dolar_price || 0));
+          const itemTotal = unitPrice * item.quantity;
           const discount = productDiscounts[item.id] || 0;
           return total + (itemTotal * (1 - discount / 100));
         }, 0);
         break;
       case 'product_fixed':
         finalTotal = quote.interest_request_items.reduce((total, item) => {
-          const itemTotal = (item.product_snapshot.dolar_price || 0) * item.quantity;
+          const unitPrice = quote.discount_code_applied
+            ? (item.product_snapshot.dolar_price || 0) // Usar precio original si hay código aplicado
+            : (item.product_snapshot.has_discount && item.product_snapshot.discounted_price
+              ? item.product_snapshot.discounted_price
+              : (item.product_snapshot.dolar_price || 0));
+          const itemTotal = unitPrice * item.quantity;
           const discount = productDiscounts[item.id] || 0;
           return total + Math.max(0, itemTotal - discount);
         }, 0);
@@ -103,7 +143,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
     setLoading(true);
     try {
       const finalAmount = calculateFinalTotal();
-      
+
       // Preparar valor de descuento según el tipo
       let discountValueToSend: number;
       const discountData: DiscountData = {};
@@ -140,7 +180,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
         const errorData = await response.json();
         throw new Error(errorData.error || 'Error al aplicar el descuento');
       }
-      
+
       toast.success('Descuento aplicado y correo enviado correctamente');
       onSuccess();
     } catch (error) {
@@ -205,7 +245,17 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
             </h3>
             <div className="space-y-1.5">
               {quote.interest_request_items.map((item) => {
-                const itemTotal = (item.product_snapshot.dolar_price || 0) * item.quantity;
+                // Si hay código de descuento aplicado, usar precios originales para evitar doble descuento
+                const unitPrice = quote.discount_code_applied
+                  ? (item.product_snapshot.dolar_price || 0) // Usar precio original si hay código aplicado
+                  : (item.product_snapshot.has_discount && item.product_snapshot.discounted_price
+                    ? item.product_snapshot.discounted_price
+                    : (item.product_snapshot.dolar_price || 0));
+                const itemTotal = (item.unit_price_usd || 0) * item.quantity;
+                const hasDiscount = !quote.discount_code_applied && item.product_snapshot.has_discount && item.product_snapshot.discounted_price;
+                const hasCategoryDiscount = item.product_snapshot.has_discount && item.product_snapshot.discounted_price;
+                const isCodeAppliedToProduct = quote.discount_code_applied && hasCategoryDiscount;
+
                 return (
                   <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
@@ -224,10 +274,50 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
                         </div>
                       )}
                       <div>
-                        <p className=" text-gray-900 max-sm:text-sm">{item.product_snapshot?.name}</p>
-                        <p className="text-sm text-gray-600">
-                          {formatCurrency(item.product_snapshot?.dolar_price || 0)} x {item.quantity}
-                        </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-gray-900 max-sm:text-sm">{item.product_snapshot?.name}</p>
+                          {hasCategoryDiscount && (
+                            <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-medium">
+                              {locale === 'es' ? 'Descuento por categoría' : 'Category discount'}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {hasDiscount ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="line-through text-gray-400">
+                                  {formatCurrency(item.product_snapshot.dolar_price || 0)}
+                                </span>
+                                <span className="text-green-600 font-medium">
+                                  {formatCurrency(unitPrice)}
+                                </span>
+                                <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs">
+                                  {locale === 'es' ? 'Descuento por categoría' : 'Category discount'}
+                                </span>
+                              </div>
+                              <p>{formatCurrency(unitPrice)} x {item.quantity}</p>
+                            </div>
+                          ) : isCodeAppliedToProduct ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="line-through text-gray-400">
+                                  {formatCurrency(item.product_snapshot.dolar_price || 0)}
+                                </span>
+                                <span className="text-green-600 font-medium">
+                                  {formatCurrency(item.unit_price_usd || 0)}
+                                </span>
+                                <span className="bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-xs">
+                                  {locale === 'es' ? 'Código aplicado' : 'Code applied'}
+                                </span>
+                              </div>
+                             
+                              <p>{formatCurrency(item.unit_price_usd || 0)} x {item.quantity}</p>
+                            </div>
+                          ) : (
+                            <p>{formatCurrency(unitPrice)} x {item.quantity}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">
@@ -261,11 +351,10 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               <button
                 onClick={() => setDiscountType('percentage')}
-                className={`p-3 border rounded-lg text-left transition-colors ${
-                  discountType === 'percentage'
+                className={`p-3 border rounded-lg text-left transition-colors ${discountType === 'percentage'
                     ? 'border-green-500 bg-green-50 text-green-700'
                     : 'border-gray-300 hover:border-gray-400'
-                }`}
+                  }`}
               >
                 <div className="flex items-center mb-1">
                   <Percent className="w-4 h-4 mr-2" />
@@ -278,11 +367,10 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
 
               <button
                 onClick={() => setDiscountType('fixed_amount')}
-                className={`p-3 border rounded-lg text-left transition-colors ${
-                  discountType === 'fixed_amount'
+                className={`p-3 border rounded-lg text-left transition-colors ${discountType === 'fixed_amount'
                     ? 'border-green-500 bg-green-50 text-green-700'
                     : 'border-gray-300 hover:border-gray-400'
-                }`}
+                  }`}
               >
                 <div className="flex items-center mb-1">
                   <DollarSign className="w-4 h-4 mr-2" />
@@ -295,11 +383,10 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
 
               <button
                 onClick={() => setDiscountType('product_percentage')}
-                className={`p-3 border rounded-lg text-left transition-colors ${
-                  discountType === 'product_percentage'
+                className={`p-3 border rounded-lg text-left transition-colors ${discountType === 'product_percentage'
                     ? 'border-green-500 bg-green-50 text-green-700'
                     : 'border-gray-300 hover:border-gray-400'
-                }`}
+                  }`}
               >
                 <div className="flex items-center mb-1">
                   <Percent className="w-4 h-4 mr-2" />
@@ -314,11 +401,10 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
 
               <button
                 onClick={() => setDiscountType('product_fixed')}
-                className={`p-3 border rounded-lg text-left transition-colors ${
-                  discountType === 'product_fixed'
+                className={`p-3 border rounded-lg text-left transition-colors ${discountType === 'product_fixed'
                     ? 'border-green-500 bg-green-50 text-green-700'
                     : 'border-gray-300 hover:border-gray-400'
-                }`}
+                  }`}
               >
                 <div className="flex items-center mb-1">
                   <DollarSign className="w-4 h-4 mr-2" />
@@ -333,11 +419,10 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
 
               <button
                 onClick={() => setDiscountType('total_override')}
-                className={`p-3 border rounded-lg text-left transition-colors ${
-                  discountType === 'total_override'
+                className={`p-3 border rounded-lg text-left transition-colors ${discountType === 'total_override'
                     ? 'border-green-500 bg-green-50 text-green-700'
                     : 'border-gray-300 hover:border-gray-400'
-                }`}
+                  }`}
               >
                 <div className="flex items-center mb-1">
                   <Edit className="w-4 h-4 mr-2" />
@@ -408,8 +493,8 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              {locale === 'es' 
-                ? 'Ingrese 0 para deshabilitar el cobro de envío' 
+              {locale === 'es'
+                ? 'Ingrese 0 para deshabilitar el cobro de envío'
                 : 'Enter 0 to disable shipping charges'
               }
             </p>
@@ -429,6 +514,37 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
             />
           </div>
 
+          {/* Información del código de descuento aplicado */}
+          {quote.discount_code_applied && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <h3 className="font-medium text-green-800 mb-3 flex items-center">
+                <Percent className="w-5 h-5 mr-2" />
+                {locale === 'es' ? 'Código de Descuento Aplicado' : 'Applied Discount Code'}
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-green-700">{locale === 'es' ? 'Código:' : 'Code:'}</span>
+                  <span className="font-medium text-green-800">{quote.discount_code_applied.code}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-green-700">{locale === 'es' ? 'Tipo:' : 'Type:'}</span>
+                  <span className="font-medium text-green-800">
+                    {quote.discount_code_applied.discount_type === 'percentage'
+                      ? `${quote.discount_code_applied.discount_value}%`
+                      : `$${quote.discount_code_applied.discount_value}`
+                    }
+                  </span>
+                </div>
+                {quote.discount_code_applied.description && (
+                  <div className="flex justify-between">
+                    <span className="text-green-700">{locale === 'es' ? 'Descripción:' : 'Description:'}</span>
+                    <span className="font-medium text-green-800">{quote.discount_code_applied.description}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Resumen de cálculo */}
           <div className="mb-6 p-4 bg-blue-50 rounded-lg">
             <h3 className="font-medium text-gray-900 mb-3 flex items-center">
@@ -440,15 +556,59 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
                 <span>{locale === 'es' ? 'Total Original:' : 'Original Total:'}</span>
                 <span className="font-medium">{formatCurrency(calculateOriginalTotal())}</span>
               </div>
-              <div className="flex justify-between">
-                <span>{locale === 'es' ? 'Descuento Aplicado:' : 'Applied Discount:'}</span>
-                <span className="font-medium text-red-600">
-                  {discountType === 'total_override' 
-                    ? `-${formatCurrency(calculateOriginalTotal() - totalOverride)}`
-                    : `-${formatCurrency(calculateOriginalTotal() - (calculateFinalTotal() - shippingCost))}`
-                  }
-                </span>
-              </div>
+              {/* Mostrar descuento del código si existe */}
+              {quote.discount_code_applied && (
+                <div className="flex justify-between">
+                  <span>{locale === 'es' ? 'Descuento del Código:' : 'Code Discount:'}</span>
+                  <span className="font-medium text-red-600">
+                    -{formatCurrency(calculateCodeDiscount())}
+                  </span>
+                </div>
+              )}
+
+              {/* Mostrar descuento adicional del modal si se aplica */}
+              {(discountValue > 0 || (discountType === 'total_override' && totalOverride !== calculateOriginalTotal()) ||
+                (discountType.includes('product') && Object.values(productDiscounts).some(d => d > 0))) && (
+                  <div className="flex justify-between">
+                    <span>{locale === 'es' ? 'Descuento Adicional:' : 'Additional Discount:'}</span>
+                    <span className="font-medium text-red-600">
+                      {discountType === 'total_override'
+                        ? `-${formatCurrency(Math.max(0, calculateOriginalTotal() - totalOverride - (quote.discount_code_applied ? calculateCodeDiscount() : 0)))}`
+                        : `-${formatCurrency(Math.max(0, (quote.discount_code_applied ? calculateOriginalTotal() - calculateCodeDiscount() : calculateOriginalTotal()) - (calculateFinalTotal() - shippingCost)))}`
+                      }
+                    </span>
+                  </div>
+                )}
+
+              {/* Mostrar descuento total si hay múltiples descuentos */}
+              {quote.discount_code_applied &&
+                (discountValue > 0 || (discountType === 'total_override' && totalOverride !== calculateOriginalTotal()) ||
+                  (discountType.includes('product') && Object.values(productDiscounts).some(d => d > 0))) && (
+                  <div className="flex justify-between border-t border-gray-300 pt-2">
+                    <span className="font-medium">{locale === 'es' ? 'Descuento Total:' : 'Total Discount:'}</span>
+                    <span className="font-medium text-red-600">
+                      {discountType === 'total_override'
+                        ? `-${formatCurrency(calculateOriginalTotal() - totalOverride)}`
+                        : `-${formatCurrency(calculateOriginalTotal() - (calculateFinalTotal() - shippingCost))}`
+                      }
+                    </span>
+                  </div>
+                )}
+
+              {/* Mostrar descuento único si no hay código aplicado */}
+              {!quote.discount_code_applied &&
+                (discountValue > 0 || (discountType === 'total_override' && totalOverride !== calculateOriginalTotal()) ||
+                  (discountType.includes('product') && Object.values(productDiscounts).some(d => d > 0))) && (
+                  <div className="flex justify-between">
+                    <span>{locale === 'es' ? 'Descuento Aplicado:' : 'Applied Discount:'}</span>
+                    <span className="font-medium text-red-600">
+                      {discountType === 'total_override'
+                        ? `-${formatCurrency(calculateOriginalTotal() - totalOverride)}`
+                        : `-${formatCurrency(calculateOriginalTotal() - (calculateFinalTotal() - shippingCost))}`
+                      }
+                    </span>
+                  </div>
+                )}
               {shippingCost > 0 && (
                 <div className="flex justify-between">
                   <span>{locale === 'es' ? 'Costo de Envío:' : 'Shipping Cost:'}</span>

@@ -36,7 +36,11 @@ export interface ProductSnapshot {
     name?: string | null;
     image_url?: string | null;
     dolar_price?: number | null;
-
+    
+    // Campos de descuento
+    discounted_price?: number | null;
+    discount_amount?: number | null;
+    has_discount?: boolean | null;
 
     // Campos libres adicionales
     [k: string]: unknown;
@@ -53,7 +57,7 @@ export type Database = {
         phone: string | null;
         notes: string | null;
 
-        source: string;                        // default 'catalog'
+        source: string;                        // default 'souvenirs'
         locale: string;                        // default 'es'
         channel: string;                       // default 'web'
 
@@ -61,6 +65,12 @@ export type Database = {
 
         discount_type: InterestRequestDiscountType | null; // check, nullable
         discount_value: number | null;                      // numeric(10,2), default 0
+        discount_code_applied: {
+            code: string;
+            discount_type: 'percentage' | 'fixed_amount';
+            discount_value: number;
+            description?: string | null;
+        } | null;                                            // jsonb, nullable
         final_amount: number | null;                        // numeric(10,2)
         total_amount: number | null;                        // numeric(10,2)
         shipping_cost: number | null;                       // numeric(10,2), default 0
@@ -96,6 +106,29 @@ export type Database = {
         valid_until: string | null;
         created_at: string;
         updated_at: string;
+    },
+    quotes_codes: {
+        id: number;
+        code: string;
+        description: string | null;
+        discount_type: 'percentage' | 'fixed_amount';
+        discount_value: number;
+        min_order_amount: number;
+        max_discount_amount: number | null;
+        usage_limit: number | null;
+        used_count: number;
+        valid_from: string;
+        valid_until: string | null;
+        is_active: boolean;
+        apply_to_all_categories: boolean;
+        created_at: string;
+        updated_at: string;
+    },
+    quotes_codes_categories: {
+        id: number;
+        code_id: number;
+        category_id: number;
+        created_at: string;
     },
     leads: {
         id: string;

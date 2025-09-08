@@ -11,6 +11,7 @@ export interface InterestItem {
   price?: number; // Este es el precio en dólares
   dolar_price?: number;
   discount_percentage?: number;
+  category_id?: number;
 }
 
 const STORAGE_KEY = 'catalog_interest_list';

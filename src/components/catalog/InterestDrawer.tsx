@@ -2,15 +2,17 @@
 
 import { useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { X, Plus, Minus, Trash2, Send, Loader2 } from 'lucide-react';
+import { X, Plus, Minus, Trash2, Send, Loader2, Tag } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useInterestList } from '@/lib/hooks/useInterestList';
+import { useDiscountCode, DiscountCode } from '@/lib/hooks/useDiscountCode';
 
 interface InterestDrawerProps {
   open: boolean;
   onClose: () => void;
   interestList: ReturnType<typeof useInterestList>;
+  appliedDiscountCode?: DiscountCode | null;
 }
 
 interface FormData {
@@ -21,7 +23,8 @@ interface FormData {
   notes: string;
 }
 
-export function InterestDrawer({ open, onClose, interestList }: InterestDrawerProps) {
+export function InterestDrawer({ open, onClose, interestList, appliedDiscountCode }: InterestDrawerProps) {
+  const discountCode = useDiscountCode();
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     requester_name: '',
@@ -69,16 +72,41 @@ export function InterestDrawer({ open, onClose, interestList }: InterestDrawerPr
         email: formData.email.trim() || undefined,
         phone: formData.phone.trim() || undefined,
         notes: formData.notes.trim() || undefined,
-        items: interestList.items.map(item => ({
-          product_id: item.product_id,
-          quantity: item.qty,
-          product_snapshot: {
-            name: item.name,
-            sku: item.sku,
-            image_url: item.main_image_url,
-            dolar_price: item.price
-          }
-        }))
+        discount_code_applied: appliedDiscountCode ? {
+          code: appliedDiscountCode.code,
+          discount_type: appliedDiscountCode.discount_type,
+          discount_value: appliedDiscountCode.discount_value,
+          description: appliedDiscountCode.description
+        } : undefined,
+        items: interestList.items.map(item => {
+          // Usar el precio original (dolar_price) para calcular descuento, no el precio ya descontado
+          const originalPrice = item.dolar_price || item.price || 0;
+          const discountResult = appliedDiscountCode ? 
+            discountCode.calculateDiscount(
+              originalPrice,
+              appliedDiscountCode,
+              item.category_id,
+              true // Omitir validación de monto mínimo
+            ) : null;
+          
+          const hasDiscount = discountResult?.isValid;
+          const finalPrice = hasDiscount ? discountResult.finalPrice : originalPrice;
+          const discountAmount = hasDiscount ? discountResult.discountAmount : 0;
+          
+          return {
+            product_id: item.product_id,
+            quantity: item.qty,
+            product_snapshot: {
+              name: item.name,
+              sku: item.sku,
+              image_url: item.main_image_url,
+              dolar_price: originalPrice, // Guardar el precio original
+              discounted_price: hasDiscount ? finalPrice : undefined,
+              discount_amount: hasDiscount ? discountAmount : undefined,
+              has_discount: hasDiscount
+            }
+          };
+        })
       };
 
       const response = await fetch('/api/create-interest-request', {
@@ -194,11 +222,56 @@ export function InterestDrawer({ open, onClose, interestList }: InterestDrawerPr
                                 {item.sku && (
                                   <p className="text-sm text-gray-500">SKU: {item.sku}</p>
                                 )}
-                                {item.price && (
-                                  <p className="text-sm font-medium text-teal-600">
-                                    ${item.price.toFixed(2)} c/u
-                                  </p>
-                                )}
+                                {item.price && (() => {
+                                  // Usar el precio original (dolar_price) para calcular descuento, no el precio ya descontado
+                                  const originalPrice = item.dolar_price || item.price;
+                                  const discountResult = appliedDiscountCode ? 
+                                    discountCode.calculateDiscount(
+                                      originalPrice,
+                                      appliedDiscountCode,
+                                      item.category_id,
+                                      true // Omitir validación de monto mínimo
+                                    ) : null;
+                                  
+                                  const hasDiscount = discountResult?.isValid;
+                                  const finalPrice = hasDiscount ? discountResult.finalPrice : item.price;
+                                  const discountAmount = hasDiscount ? discountResult.discountAmount : 0;
+                                  
+                                  return (
+                                    <div className="space-y-1">
+                                      {hasDiscount ? (
+                                        <div className="space-y-1">
+                                          {/* Precio con descuento */}
+                                          <div className="flex items-center gap-1">
+                                            <span className="text-green-600 font-bold text-sm">
+                                              ${finalPrice.toFixed(2)} c/u
+                                            </span>
+                                            <div className="flex items-center gap-0.5 bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full text-[0.6rem] font-medium">
+                                              <Tag className="h-3 w-3" />
+                                              {appliedDiscountCode?.discount_type === 'percentage'
+                                                ? `${appliedDiscountCode.discount_value}% OFF`
+                                                : `$${appliedDiscountCode?.discount_value.toFixed(2)} OFF`
+                                              }
+                                            </div>
+                                          </div>
+                                          {/* Precio original tachado */}
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-gray-500 line-through text-xs">
+                                              ${originalPrice.toFixed(2)}
+                                            </span>
+                                            <span className="text-green-600 text-xs font-medium">
+                                              Ahorras ${discountAmount.toFixed(2)}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <p className="text-sm font-medium text-teal-600">
+                                          ${item.price.toFixed(2)} c/u
+                                        </p>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
                               </div>
 
                               {/* Controles */}
