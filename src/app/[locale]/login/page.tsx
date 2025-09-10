@@ -62,31 +62,41 @@ export default function LoginPage() {
     setLoading(true);
     setErrorMsg("");
 
-    const redirectTo = new URL('/auth/callback', window.location.origin);
+    try {
+      // Construir la URL de redirección base
+      const redirectTo = new URL('/auth/callback', window.location.origin);
+      
+      // Asegurar que la URL incluya el locale correcto y limpiar posibles duplicados
+      let nextUrl = url.replace(/\/[a-z]{2}\/[a-z]{2}\/?/, `/${locale}/`);
+      if (!nextUrl.startsWith(`/${locale}/`) && nextUrl !== '/') {
+        nextUrl = `/${locale}${nextUrl}`;
+      }
+      
+      // Configurar la URL de redirección con el parámetro next
+      redirectTo.searchParams.set('next', encodeURIComponent(nextUrl));
     
-    // Asegurar que la URL incluya el locale correcto
-    let nextUrl = url;
-    if (!nextUrl.startsWith(`/${locale}/`) && nextUrl !== '/') {
-      nextUrl = `/${locale}${nextUrl}`;
-    }
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { 
+          redirectTo: redirectTo.toString(),
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
+        },
+      });
     
-    redirectTo.searchParams.set('next', encodeURIComponent(nextUrl));
-  
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { 
-        redirectTo: redirectTo.toString()
-      },
-    });
-  
-    if (error) {
-      setErrorMsg(error.message);
+      if (error) {
+        throw error;
+      }
+    
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      console.error('Error en inicio de sesión con Google:', error);
+      setErrorMsg(error.message || 'Error al iniciar sesión con Google');
       setLoading(false);
-      return;
-    }
-  
-    if (data?.url) {
-      window.location.href = data.url;
     }
   };
 

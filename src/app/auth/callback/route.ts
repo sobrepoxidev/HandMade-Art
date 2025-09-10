@@ -19,25 +19,30 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=oauth`);
   }
 
+  // Limpiar posibles duplicados en la URL de redirección
+  next = next.replace(/\/[a-z]{2}\/[a-z]{2}\/?/, '');
+
   // Asegurar que la URL de redirección tenga el locale correcto para el dominio
-  if (origin.includes('artehechoamano.com') && !next.startsWith('/es')) {
-    // Si estamos en el dominio español y la URL no tiene /es, agregarlo
+  if (origin.includes('artehechoamano.com')) {
+    // Para el dominio español
     if (next === '/') {
       next = '/es';
-    } else if (next.startsWith('/admin')) {
-      next = `/es${next}`;
     } else if (!next.startsWith('/es/')) {
-      next = `/es${next}`;
+      next = `/es${next.startsWith('/') ? next : `/${next}`}`;
     }
-  } else if (origin.includes('handmadeart.store') && !next.startsWith('/en')) {
-    // Si estamos en el dominio inglés y la URL no tiene /en, agregarlo
+  } else if (origin.includes('handmadeart.store')) {
+    // Para el dominio inglés
     if (next === '/') {
       next = '/en';
-    } else if (next.startsWith('/admin')) {
-      next = `/en${next}`;
     } else if (!next.startsWith('/en/')) {
-      next = `/en${next}`;
+      next = `/en${next.startsWith('/') ? next : `/${next}`}`;
     }
+  }
+
+  // Verificar la sesión antes de redirigir
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    return NextResponse.redirect(`${origin}/login?error=session_missing`);
   }
 
   return NextResponse.redirect(`${origin}${next}`);
