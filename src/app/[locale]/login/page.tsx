@@ -93,9 +93,9 @@ export default function LoginPage() {
       if (data?.url) {
         window.location.href = data.url;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error en inicio de sesión con Google:', error);
-      setErrorMsg(error.message || 'Error al iniciar sesión con Google');
+      setErrorMsg(error instanceof Error ? error.message : 'Error al iniciar sesión con Google');
       setLoading(false);
     }
   };
