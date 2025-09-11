@@ -44,7 +44,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
   // Cargar categorías de la base de datos solo si se van a mostrar
   useEffect(() => {
     if (!shouldShowSearchComponents) return;
-    
+
     const loadCategories = async () => {
       const categories = await getCategories();
       setCategoryList(categories);
@@ -117,10 +117,10 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
     const currentPath = window.location.pathname;
     const currentSearch = window.location.search;
     const currentHost = window.location.host;
-    
+
     // Remove current locale from path if it exists
     const pathWithoutLocale = currentPath.replace(/^\/(es|en)/, '');
-    
+
     // Determine target domain based on target locale
     let targetDomain;
     if (targetLocale === 'es') {
@@ -130,11 +130,11 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
       // Si cambiamos a inglés, usar dominio de handmadeart
       targetDomain = currentHost.includes('localhost') ? currentHost : 'handmadeart.store';
     }
-    
+
     // Construct new URL with target domain and locale
     const protocol = window.location.protocol;
     const newUrl = `${protocol}//${targetDomain}/${targetLocale}${pathWithoutLocale}${currentSearch}`;
-    
+
     // Use window.location.href for immediate navigation (works better on mobile)
     window.location.href = newUrl;
   };
@@ -215,43 +215,43 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
           <div className="w-full flex justify-center h-8"><CategoryCarousel locale={locale} categories={categoryList} className="mt-1 max-w-6xl" /></div>
         )}
 
-          {/* Desktop action icons */}
-          <div className="hidden">
-            {/* Language selector */}
-            <button
-              onClick={handleLanguageChange}
-              className="flex items-center space-x-1 text-sm text-gray-700 hover:text-teal-700 focus:outline-none"
+        {/* Desktop action icons */}
+        <div className="hidden">
+          {/* Language selector */}
+          <button
+            onClick={handleLanguageChange}
+            className="flex items-center space-x-1 text-sm text-gray-700 hover:text-teal-700 focus:outline-none"
+          >
+            <Globe className="h-4 w-4" />
+            <span>{locale === 'es' ? 'ES' : 'EN'}</span>
+          </button>
+
+          {/* Cart */}
+          {shouldShowSearchComponents && (
+            <Link
+              href="/cart"
+              className="relative flex items-center space-x-0.5 text-sm text-gray-700 hover:text-teal-700"
             >
-              <Globe className="h-4 w-4" />
-              <span>{locale === 'es' ? 'ES' : 'EN'}</span>
-            </button>
+              <ShoppingBag className="h-5 w-5" />
+              <span className="sr-only">{locale === 'es' ? 'Carrito' : 'Cart'}</span>
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs font-medium text-white">
+                {totalItems}
+              </span>
+            </Link>
+          )}
 
-            {/* Cart */}
-            {shouldShowSearchComponents && (
-              <Link
-                href="/cart"
-                className="relative flex items-center space-x-0.5 text-sm text-gray-700 hover:text-teal-700"
-              >
-                <ShoppingBag className="h-5 w-5" />
-                <span className="sr-only">{locale === 'es' ? 'Carrito' : 'Cart'}</span>
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs font-medium text-white">
-                  {totalItems}
-                </span>
-              </Link>
-            )}
+          {/* Hamburger */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="flex h-8 w-8 items-center justify-center text-gray-700 hover:bg-gray-100 rounded focus-visible:outline-none"
+            aria-label={isMenuOpen ? (locale === 'es' ? 'Cerrar menú' : 'Close menu') : (locale === 'es' ? 'Abrir menú' : 'Open menu')}
+            aria-expanded={isMenuOpen}
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
 
-            {/* Hamburger */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex h-8 w-8 items-center justify-center text-gray-700 hover:bg-gray-100 rounded focus-visible:outline-none"
-              aria-label={isMenuOpen ? (locale === 'es' ? 'Cerrar menú' : 'Close menu') : (locale === 'es' ? 'Abrir menú' : 'Open menu')}
-              aria-expanded={isMenuOpen}
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-
-          {/* Bottom Row: Navigation links */}
+        {/* Bottom Row: Navigation links */}
         <div className="hidden">
           <ul className="flex items-center gap-x-6">
             {navigationLinks.map((link) => (
@@ -335,14 +335,14 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
         <div className="absolute left-0 right-0 top-full z-50 max-h-[calc(100vh-57px)] overflow-y-auto bg-white shadow-lg w-full lg:fixed lg:top-0 lg:left-0 lg:h-full lg:w-72 lg:max-h-none">
 
           <button
-              onClick={() => setIsMenuOpen(false)}
-              className="absolute top-2 right-2 p-1 text-gray-700 hover:bg-gray-100 rounded lg:block hidden z-50"
-              aria-label="Cerrar menú"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            onClick={() => setIsMenuOpen(false)}
+            className="absolute top-2 right-2 p-1 text-gray-700 hover:bg-gray-100 rounded lg:block hidden z-50"
+            aria-label="Cerrar menú"
+          >
+            <X className="h-5 w-5" />
+          </button>
 
-            <nav className="px-4 py-3">
+          <nav className="px-4 py-3">
             {/* Mobile Search - Amazon Style */}
 
 
@@ -385,7 +385,8 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
                     <button
                       onClick={() => {
                         const fullPath = window.location.pathname + window.location.search;
-                        router.push(`/login?returnUrl=${fullPath}`);
+                        // IMPORTANTE: encierra el returnUrl porque puede traer su propio "?"
+                        router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
                         setIsMenuOpen(false);
                       }}
                       className="text-sm text-gray-700"
@@ -411,7 +412,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
 
             {/* Mobile Navigation Links - Amazon Style */}
             <div>
-              <p className="mb-2 font-semibold text-sm text-gray-800">{locale === 'es' ? 'Navegar por:' : 'Browse by:' }</p>
+              <p className="mb-2 font-semibold text-sm text-gray-800">{locale === 'es' ? 'Navegar por:' : 'Browse by:'}</p>
               <ul className="space-y-2">
                 {navigationLinks.map((link) => (
                   <li key={link.path}>
@@ -471,7 +472,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
                             className="block text-sm text-gray-700 hover:text-teal-700 py-1"
                             onClick={() => setIsMenuOpen(false)}
                           >
-                            {locale === 'es' ? category.name_es : category.name_en  }
+                            {locale === 'es' ? category.name_es : category.name_en}
                           </Link>
                         </li>
                       ))}

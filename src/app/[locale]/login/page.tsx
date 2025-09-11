@@ -59,46 +59,65 @@ export default function LoginPage() {
   }
 
   const signInWithGoogle = async (url: string) => {
-    setLoading(true);
-    setErrorMsg("");
+  setLoading(true);
+  setErrorMsg("");
 
-    try {
-      // Construir la URL de redirección base
-      const redirectTo = new URL('/auth/callback', window.location.origin);
-      
-      // Asegurar que la URL incluya el locale correcto y limpiar posibles duplicados
-      let nextUrl = url.replace(/\/[a-z]{2}\/[a-z]{2}\/?/, `/${locale}/`);
-      if (!nextUrl.startsWith(`/${locale}/`) && nextUrl !== '/') {
-        nextUrl = `/${locale}${nextUrl}`;
+  try {
+    // 1) Construimos callback absoluto UNA sola vez
+    const redirectTo = new URL("/auth/callback", window.location.origin);
+
+    // 2) Normalizamos la ruta de retorno para que tenga EXACTAMENTE un locale delante
+    //    y no permita dominios externos (open redirect guard).
+    const normalizeNext = (raw: string, locale: string) => {
+      try {
+        // Permite path con o sin query; si viene absoluta, la reducimos a path local
+        const u = new URL(raw, window.location.origin);
+        let path = u.pathname;      // e.g. "/es/producto/123" o "/"
+        const qs = u.search || "";  // e.g. "?a=b"
+
+        // Quitar un locale inicial (es|en) si existe, pero SOLO uno
+        path = path.replace(/^\/(es|en)(?=\/|$)/, "");
+
+        // Asegurar exactamente un locale al inicio
+        // Caso especial: path == "" → raíz del idioma "/es" o "/en"
+        path = `/${locale}${path === "" ? "" : path}`;
+
+        // Colapsar dobles slashes por si acaso
+        path = path.replace(/\/{2,}/g, "/");
+
+        return `${path}${qs}`;
+      } catch {
+        // Si 'raw' venía "rara", forzamos un path seguro local con locale
+        const safe = raw.startsWith("/") ? raw : `/${raw}`;
+        return `/${locale}${safe}`.replace(/\/{2,}/g, "/");
       }
-      
-      // Configurar la URL de redirección con el parámetro next
-      redirectTo.searchParams.set('next', encodeURIComponent(nextUrl));
-    
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { 
-          redirectTo: redirectTo.toString(),
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent'
-          }
+    };
+
+    // OJO: 'returnUrl' puede venir como "/es", "/es?x=y", "/producto/1", etc.
+    const nextPath = normalizeNext(url || "/", locale);
+
+    // 3) NUNCA uses encodeURIComponent aquí: searchParams.set YA codifica correctamente.
+    redirectTo.searchParams.set("next", nextPath);
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: redirectTo.toString(),
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
         },
-      });
-    
-      if (error) {
-        throw error;
-      }
-    
-      if (data?.url) {
-        window.location.href = data.url;
-      }
-    } catch (error: unknown) {
-      console.error('Error en inicio de sesión con Google:', error);
-      setErrorMsg(error instanceof Error ? error.message : 'Error al iniciar sesión con Google');
-      setLoading(false);
-    }
-  };
+      },
+    });
+
+    if (error) throw error;
+    if (data?.url) window.location.href = data.url;
+  } catch (error: unknown) {
+    console.error("Error en inicio de sesión con Google:", error);
+    setErrorMsg(error instanceof Error ? error.message : "Error al iniciar sesión con Google");
+    setLoading(false);
+  }
+};
 
   if (!mounted) return null
 
