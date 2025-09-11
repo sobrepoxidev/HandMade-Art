@@ -8,13 +8,14 @@ import AccountClient from "@/components/account/AccountClient";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function AccountPage({
-  params: { locale },
-}: {
-  params: { locale: "es" | "en" };
+type tParams = Promise<{ locale: string }>;
+
+export default async function AccountPage({ params }: {
+  params: tParams;
 }) {
   const supabase = createServerComponentClient<Database>({ cookies });
   const { data: { user } } = await supabase.auth.getUser();
+  const { locale } = await params;
 
   if (!user) {
     // preserva el idioma y vuelve a /account tras iniciar sesión
