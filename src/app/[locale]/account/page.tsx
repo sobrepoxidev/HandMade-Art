@@ -1,34 +1,24 @@
-import AccountClient from "@/components/account/AccountClient";
-import { createClient } from "@/utils/supabase/server";
+// src/app/[locale]/account/page.tsx
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import type { Metadata } from "next";
-import { buildMetadata } from "@/lib/metadata";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import type { Database } from "@/types-db";
+import AccountClient from "@/components/account/AccountClient";
 
-type tParams = Promise<{ id: string, locale: string }>;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
-  const { locale } = await params;
-  const currentLocale = locale === "es" ? "es" : "en";
-  
-  const pageTitle = currentLocale === 'es' ? 'Mi Cuenta' : 'My Account';
-
-  return buildMetadata({
-    locale: currentLocale,
-    pathname: `/${locale}/account`,
-    title: pageTitle,
-  });
-}
-
-
-export default async function Account() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default async function AccountPage({
+  params: { locale },
+}: {
+  params: { locale: "es" | "en" };
+}) {
+  const supabase = createServerComponentClient<Database>({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    // preserva el idioma y vuelve a /account tras iniciar sesión
+    redirect(`/${locale}/login?returnUrl=/${locale}/account`);
   }
 
   const { data: userProfile } = await supabase

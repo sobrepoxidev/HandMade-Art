@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation';
 import { ShoppingBag } from 'lucide-react'
 import { useLocale } from 'next-intl';
 

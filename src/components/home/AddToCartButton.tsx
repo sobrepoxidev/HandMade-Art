@@ -5,7 +5,7 @@ import { useCart } from '@/context/CartContext';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { ShoppingCartIcon } from 'lucide-react';
 import { useLocale } from 'next-intl';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Database } from '@/types-db';
 
 type Product = Database['products'];

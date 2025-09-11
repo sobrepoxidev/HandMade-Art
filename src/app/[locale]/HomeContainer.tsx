@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import HomePageData from './HomePageData';
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 /**

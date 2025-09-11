@@ -2,7 +2,7 @@
 
 import React, { Fragment, useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useSupabase } from "@/app/supabase-provider/provider";

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import Card from "./Card";
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
 import Image from "next/image";
 import { useProductsContext } from "@/context/ProductsContext";
 import CarrucelSectionA from "./CarrucelSectionA";

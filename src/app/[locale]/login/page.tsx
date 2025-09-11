@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSupabase } from '@/app/supabase-provider/provider'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation';
 import { FaEnvelope, FaLock, FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useLocale } from 'next-intl'
 

@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useProductsContext } from '@/context/ProductsContext';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { formatUSD } from '@/lib/formatCurrency';
 
 interface GiftsCarouselSectionProps {

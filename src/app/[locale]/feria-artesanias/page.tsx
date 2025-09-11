@@ -2,7 +2,7 @@
 
 // import { useState } from 'react';
 // import { insertLead, addFollow, sendSummaryMail, Social } from './actions';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 // import toast from 'react-hot-toast';
 
 

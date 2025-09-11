@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Session } from '@supabase/supabase-js';
 import { ChevronDown, User, History, Heart } from 'lucide-react';
 import { useLocale } from "next-intl";

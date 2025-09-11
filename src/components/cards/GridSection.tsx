@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Card from "./Card";
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import { Database } from "@/types-db";

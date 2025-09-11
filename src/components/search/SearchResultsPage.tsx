@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { SearchResult, searchProducts } from '@/lib/search';
 import { ChevronRight, SlidersHorizontal, } from 'lucide-react';
