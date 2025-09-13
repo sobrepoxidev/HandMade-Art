@@ -64,14 +64,14 @@ export default async function AdminPage({
       <h1 className="text-3xl font-bold text-gray-800 mb-4">{locale === 'es' ? 'Panel de Administración' : 'Admin Panel'}</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         <AdminCard
-          href={`/${locale}/admin/quotes`}
+          href={`/admin/quotes`}
           title={locale === 'es' ? 'Cotizaciones' : 'Quotes'}
           description={locale === 'es' ? 'Administra las cotizaciones de los clientes.' : 'Manage the quotes from customers.'}
           icon={Users}
           locale={locale}
         />
         <AdminCard
-          href={`/${locale}/admin/products`}
+          href={`/admin/products`}
           title={locale === 'es' ? 'Productos' : 'Products'}
           description={locale === 'es' ? 'Administra los productos de la tienda, incluyendo su información, precios y disponibilidad.' : 'Manage the products in the store, including their information, prices, and availability.'}
           icon={Package}
