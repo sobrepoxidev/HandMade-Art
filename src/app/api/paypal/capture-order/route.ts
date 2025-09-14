@@ -56,30 +56,7 @@ export async function POST(request: NextRequest) {
         console.log(`Order ${orderId} updated successfully`);
       }
 
-      // Check if user_tickets table exists before trying to update it
-      const { count, error: checkTableError } = await supabase
-        .from('user_tickets')
-        .select('*', { count: 'exact', head: true })
-        .eq('order_id', orderId);
-
-      if (checkTableError) {
-        console.log('user_tickets table may not exist or is empty for this order, skipping update');
-      } else if (count && count > 0) {
-        // 3) Marcar tickets de esa orden como is_locked = true (solo si existen)
-        const { error: updateTicketsError } = await supabase
-          .from("user_tickets")
-          .update({
-            is_locked: true,
-            purchase_date: new Date()
-          })
-          .eq("order_id", orderId);
-
-        if (updateTicketsError) {
-          console.error("Error updating tickets:", updateTicketsError);
-          // Don't fail the whole transaction if this fails
-          console.log('Continuing despite ticket update error');
-        }
-      }
+      // Note: user_tickets functionality removed as table doesn't exist in current schema
 
       return NextResponse.json({ status: "COMPLETED" }, { status: 200 });
     } catch (paypalError: unknown) {
