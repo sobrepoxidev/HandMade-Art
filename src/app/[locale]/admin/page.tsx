@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { Link } from '@/i18n/navigation';
+import  Link  from 'next/link';
 import { Package, ArrowRight, Users, CreditCard } from 'lucide-react';
 
 // Lista de correos electrónicos de administradores autorizados
