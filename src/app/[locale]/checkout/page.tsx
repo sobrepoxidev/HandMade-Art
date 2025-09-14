@@ -7,7 +7,7 @@ import StepOne from "@/components/checkout/StepOne";
 import StepTwo from "@/components/checkout/StepTwo";  
 import { Database, Json } from "@/lib/database.types";
 import { SupabaseClient, Session } from '@supabase/supabase-js';
-import { useSupabase } from '@/app/supabase-provider/provider';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useLocale } from 'next-intl';
 
 
