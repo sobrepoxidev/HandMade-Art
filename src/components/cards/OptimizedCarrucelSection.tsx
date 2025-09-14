@@ -35,8 +35,9 @@ const OptimizedCarrucelSection: React.FC<OptimizedCarrucelSectionProps> = ({
     return products
       .filter(product => 
         product.media && 
+        Array.isArray(product.media) && 
         product.media.length > 0 && 
-        product.media[0].url
+        (product.media[0] as { url: string }).url
       )
       .slice(startIndex, endIndex);
   }, [products, startIndex, endIndex]);
@@ -164,7 +165,7 @@ const OptimizedCarrucelSection: React.FC<OptimizedCarrucelSectionProps> = ({
                       </h3>
                       <div className="bg-white rounded-lg flex-grow flex items-center justify-center p-3">
                         <Image
-                          src={product.media && product.media.length > 0 ? product.media[0].url : '/placeholder-image.png'}
+                          src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
                           alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                           width={180}
                           height={180}

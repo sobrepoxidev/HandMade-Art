@@ -67,7 +67,12 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setDiscountCodes(data || []);
+      const typedData = (data || []).map(item => ({
+        ...item,
+        apply_to_all_categories: item.apply_to_all_categories ?? true,
+        is_active: item.is_active ?? true
+      })) as DiscountCode[];
+      setDiscountCodes(typedData);
     } catch (error) {
       console.error('Error loading discount codes:', error);
       toast.error('Error al cargar códigos de descuento');
@@ -111,12 +116,14 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
     try {
       const codeData = {
         ...formData,
-        code: formData.code?.toUpperCase(),
+        code: formData.code?.toUpperCase() || '',
+        discount_type: formData.discount_type || 'percentage',
+        discount_value: formData.discount_value || 0,
         used_count: editingCode ? editingCode.used_count : 0
       };
 
       let result;
-      if (editingCode) {
+      if (editingCode?.id) {
         const { data, error } = await supabase
           .from('quotes_codes')
           .update(codeData)
@@ -138,7 +145,7 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
       // Manejar categorías específicas
       if (!formData.apply_to_all_categories && selectedCategories.length > 0) {
         // Eliminar categorías existentes si estamos editando
-        if (editingCode) {
+        if (editingCode?.id) {
           await supabase
             .from('quotes_codes_categories')
             .delete()
@@ -147,7 +154,7 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
 
         // Insertar nuevas categorías
         const categoryInserts = selectedCategories.map(categoryId => ({
-          quote_code_id: result.data.id,
+          quote_code_id: result.data?.id!,
           category_id: categoryId
         }));
 
@@ -202,10 +209,10 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
         const { data, error } = await supabase
           .from('quotes_codes_categories')
           .select('category_id')
-          .eq('quote_code_id', code.id);
+          .eq('quote_code_id', code.id!);
 
         if (error) throw error;
-        setSelectedCategories(data.map(item => item.category_id));
+        setSelectedCategories(data?.map(item => item.category_id).filter((id): id is number => id !== null) || []);
       } catch (error) {
         console.error('Error loading code categories:', error);
       }
@@ -247,7 +254,7 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
       const { error } = await supabase
         .from('quotes_codes')
         .update({ is_active: !code.is_active })
-        .eq('id', code.id);
+        .eq('id', code.id!);
 
       if (error) throw error;
 
@@ -655,7 +662,7 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
                             <Edit className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(code.id!)}
+                            onClick={() => code.id && handleDelete(code.id)}
                             className="text-red-600 hover:text-red-900"
                           >
                             <Trash2 className="h-4 w-4" />

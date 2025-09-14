@@ -46,8 +46,8 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                       <div className="flex flex-col items-center bg-white rounded p-2 hover:shadow-sm transition-shadow">
                         <div className="h-44 flex items-center justify-center mb-1">
                           <Image
-                            src={product.media && product.media.length > 0 ?
-                              (typeof product.media[0]["url"] === 'string' ? product.media[0]["url"] : '/https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp') :
+                            src={product.media && Array.isArray(product.media) && product.media.length > 0 ?
+                              (typeof (product.media[0] as { url: string }).url === 'string' ? (product.media[0] as { url: string }).url : '/https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp') :
                               '/https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
                             alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                             width={100}
@@ -144,7 +144,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
       {/* Versión de escritorio - Muestra categorías en grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 px-4 gap-4 mb-4 mt-4 max-lg:hidden">
         {desktopCards.map((card, index) => (
-          <Card key={index} {...card} />
+          <Card key={index} {...{...card, title: card.title || ''}} />
         ))}
       </div>
 
@@ -203,7 +203,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                           <Link key={idx} href={`/product/${product.id}`} className="block text-center">
                             <div className="h-44 flex items-center justify-center bg-white rounded-lg shadow-sm">
                               <Image
-                                src={product.media && product.media.length > 0 ? product.media[0].url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
+                                src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
                                 alt={product.name || ''}
                                 width={100}
                                 height={100}

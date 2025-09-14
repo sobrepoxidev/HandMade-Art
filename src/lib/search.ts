@@ -145,7 +145,11 @@ export async function searchProducts(
     
     // Process results to add highlights
     const results = await Promise.all((data || []).map(async (product) => {
-      const highlight = getHighlight(product, sanitizedQuery);
+      // Convert media from Json to MediaItem[] | null
+      const media: MediaItem[] | null = Array.isArray(product.media) ? product.media as unknown as MediaItem[] : null;
+      
+      const productWithTypedMedia = { ...product, media };
+      const highlight = getHighlight(productWithTypedMedia, sanitizedQuery);
       
       // Fetch category name if product has a category_id
       let categoryName: string | null = null;
@@ -170,7 +174,7 @@ export async function searchProducts(
         description: product.description,
         colon_price: product.colon_price,
         dolar_price: product.dolar_price,
-        media: product.media,
+        media: media,
         category_id: product.category_id,
         category_name: categoryName,
         discount_percentage: product.discount_percentage,
@@ -236,7 +240,7 @@ function getHighlight(product: SearchResult, query: string): string {
  * Get all available product categories with localization support
  * @param locale The current locale ('es' or 'en')
  */
-export async function getProductCategories(locale: string): Promise<{id: number, name: string, name_es: string, name_en: string}[]> {
+export async function getProductCategories(locale: string): Promise<{id: number, name: string, name_es: string | null, name_en: string | null}[]> {
   try {
     // Fetch categories from the categories table with all name fields
     const { data, error } = await supabase

@@ -58,7 +58,7 @@ const FeaturedProductsSection: React.FC<FeaturedProductsSectionProps> = ({
                   {/* Sección superior con imagen - más grande que en otros componentes */}
                   <div className="relative bg-gray-50 aspect-square">
                     <Image 
-                      src={product.media && product.media.length > 0 ? product.media[0].url : '/placeholder.jpg'}
+                      src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder.jpg'}
                       alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                       fill
                       sizes="(max-width: 768px) 50vw, 33vw"

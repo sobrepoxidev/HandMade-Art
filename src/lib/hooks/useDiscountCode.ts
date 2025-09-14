@@ -14,7 +14,7 @@ export interface DiscountCode {
   usage_limit: number | null;
   used_count: number;
   valid_from: string;
-  valid_until: string | null;
+  valid_until: string;
   is_active: boolean;
   apply_to_all_categories: boolean;
   categories?: number[]; // IDs de categorías aplicables
@@ -57,7 +57,7 @@ export function useDiscountCode() {
 
       // Verificar fechas de validez
       const now = new Date();
-      const validFrom = new Date(codeData.valid_from);
+      const validFrom = new Date(codeData.valid_from || new Date());
       const validUntil = codeData.valid_until ? new Date(codeData.valid_until) : null;
 
       if (now < validFrom || (validUntil && now > validUntil)) {
@@ -65,17 +65,31 @@ export function useDiscountCode() {
       }
 
       // Verificar límite de uso
-      if (codeData.usage_limit && codeData.used_count >= codeData.usage_limit) {
+      if (codeData.usage_limit && (codeData.used_count ?? 0) >= codeData.usage_limit) {
         return null;
       }
 
       // Extraer categorías aplicables
-      const categories = codeData.quotes_codes_categories?.map((rel: { category_id: number }) => rel.category_id) || [];
+      const categories = codeData.quotes_codes_categories?.map((rel: { category_id: number | null }) => rel.category_id).filter((id): id is number => id !== null) || [];
 
-      return {
-        ...codeData,
+      const result: DiscountCode = {
+        id: codeData.id,
+        code: codeData.code,
+        description: codeData.description,
+        discount_type: codeData.discount_type as 'percentage' | 'fixed_amount',
+        discount_value: codeData.discount_value,
+        min_order_amount: codeData.min_order_amount ?? 0,
+        max_discount_amount: codeData.max_discount_amount,
+        usage_limit: codeData.usage_limit,
+        used_count: codeData.used_count ?? 0,
+        valid_from: codeData.valid_from || new Date().toISOString(),
+        valid_until: codeData.valid_until || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        is_active: codeData.is_active ?? true,
+        apply_to_all_categories: codeData.apply_to_all_categories ?? true,
         categories
       };
+      
+      return result;
     } catch (error) {
       console.error('Error validating discount code:', error);
       return null;
@@ -173,7 +187,7 @@ export function useDiscountCode() {
       if (currentData) {
         await supabase
           .from('quotes_codes')
-          .update({ used_count: currentData.used_count + 1 })
+          .update({ used_count: (currentData.used_count ?? 0) + 1 })
           .eq('id', codeId);
       }
     } catch (error) {

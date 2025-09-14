@@ -24,11 +24,11 @@ export function distribuirProductos(
     const principales = categories.slice(0, 6);
     principales.forEach(cat => {
       const propios   = products.filter(p => p.category_id === cat.id);
-      gridByCategory[cat.id] = tomar(propios, 4, p => !!p.media?.length);
+      gridByCategory[cat.id] = tomar(propios, 4, p => !!(Array.isArray(p.media) && p.media.length));
     });
   
     /* Rellenar huecos si alguna categoría tiene <4 */
-    const reserva = products.filter(p => !usados.has(p.id) && p.media?.length);
+    const reserva = products.filter(p => !usados.has(p.id) && Array.isArray(p.media) && p.media.length);
     principales.forEach(cat => {
       const faltan = 4 - gridByCategory[cat.id].length;
       if (faltan > 0) gridByCategory[cat.id].push(...tomar(reserva, faltan));
@@ -43,7 +43,7 @@ export function distribuirProductos(
       products,
       12,
       p =>
-        !!p.media?.length &&
+        !!(Array.isArray(p.media) && p.media.length) &&
         !kitchenIds.includes(p.category_id ?? -1)
     );
   

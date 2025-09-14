@@ -209,7 +209,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
                         <Link key={`${product.id}-${idx}`} href={`/product/${product.id}`} className="block text-center">
                           <div className="h-32 flex items-center justify-center bg-white rounded-lg shadow-sm p-1">
                             <Image
-                              src={product.media && product.media.length > 0 ? product.media[0].url : '/placeholder-image.png'}
+                              src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
                               alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                               width={90}
                               height={90}
@@ -244,7 +244,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
                       <div className="relative overflow-hidden rounded-md mb-3">
                         <div className="h-40 flex items-center justify-center p-2 bg-gray-50 rounded-md">
                           <Image
-                            src={product.media && product.media.length > 0 ? product.media[0].url : '/placeholder-image.png'}
+                            src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
                             alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                             width={140}
                             height={140}
