@@ -3,10 +3,9 @@
 import React from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Session, SupabaseClient } from '@supabase/supabase-js'
-import { Database } from '@/lib/database.types'
 
 type SupabaseContextProps = {
-  supabase: SupabaseClient<Database>
+  supabase: SupabaseClient
   session: Session | null
 }
 
@@ -20,7 +19,7 @@ export default function SupabaseProvider({
   session: Session | null
 }) {
   const [supabase] = React.useState(() =>
-    createClientComponentClient<Database>() as SupabaseClient<Database>
+    createClientComponentClient()
   )
 
   return (
