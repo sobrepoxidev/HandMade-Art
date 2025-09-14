@@ -31,7 +31,7 @@ export default function OrderConfirmationPage() {
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('id', orderId)
+        .eq('id', Number(orderId))
         .single()
 
       if (error) {
@@ -39,7 +39,7 @@ export default function OrderConfirmationPage() {
         return
       }
 
-      setOrderDetails(data as OrderDetails)
+      setOrderDetails(data as unknown as OrderDetails)
     }
 
     fetchOrderDetails()
