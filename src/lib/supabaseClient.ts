@@ -1,6 +1,6 @@
 // src/lib/supabaseClient.ts
 import { createClient } from '@supabase/supabase-js'
-import { Database } from '@/types-db'
+
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
