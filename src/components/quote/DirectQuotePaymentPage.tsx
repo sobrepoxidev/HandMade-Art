@@ -88,7 +88,7 @@ export default function DirectQuotePaymentPage({ quote, locale }: DirectQuotePay
     }
   };
 
-  const handlePaymentSuccess = (_details: PaymentDetails) => {
+  const handlePaymentSuccess = () => {
     setPaymentCompleted(true);
     toast.success(locale === 'es' ? 'Pago completado exitosamente' : 'Payment completed successfully');
   };
