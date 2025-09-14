@@ -1,12 +1,12 @@
-'use client'
+"use client"
 
 import React from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Session } from '@supabase/supabase-js'
+import { Session, SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/lib/database.types' // si tienes un type global de tu DB
 
 type SupabaseContextProps = {
-  supabase: ReturnType<typeof createClientComponentClient<Database>>
+  supabase: SupabaseClient<Database>
   session: Session | null
 }
 
