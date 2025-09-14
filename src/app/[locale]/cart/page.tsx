@@ -17,6 +17,8 @@ import { formatUSD } from "@/lib/formatCurrency";
 import CurrencyConverterRow from "@/components/CurrencyConverterRow";
 
 // Tipo para la información de descuento basado en la tabla discount_codes
+type DiscountCode = Database['discount_codes'];
+
 // ──────────────────── Share Cart Button ─────────────────────
 const ShareCartButton: React.FC<{ locale: string }> = ({ locale }) => {
   const handleShare = async () => {
@@ -388,7 +390,7 @@ export default function CartPage() {
                         .select("*")
                         .eq("code", discountCode.toLowerCase())
                         .eq("is_active", true)
-                        .single();
+                        .single() as { data: DiscountCode | null; error: Error | null };
                       
                       if (error || !data) {
                         setDiscountError(locale === 'es' ? 'Código de descuento inválido o expirado' : 'Invalid or expired discount code');
@@ -445,7 +447,7 @@ export default function CartPage() {
                         discountAmount,
                         finalTotal,
                         code: data.code,
-                        description: data.description,
+                        description: data.description || (locale == "es" ? "Sin descripción" : "No description"),
                         discount_type: data.discount_type,
                         discount_value: data.discount_value
                       };
