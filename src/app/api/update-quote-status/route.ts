@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
             
             <div style="background-color: #fff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h3 style="color: #333; margin-top: 0;">Detalles de tu orden:</h3>
-              <p><strong>Total pagado:</strong> $${order.total_amount.toFixed(2)} USD</p>
+              <p><strong>Total pagado:</strong> $${order.total_amount ? order.total_amount.toFixed(2) : '0.00'} USD</p>
               <p><strong>Método de pago:</strong> PayPal</p>
               <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
             </div>
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
               <p><strong>Cliente:</strong> ${order.customer_name}</p>
               <p><strong>Email:</strong> ${order.customer_email}</p>
               <p><strong>Teléfono:</strong> ${order.customer_phone}</p>
-              <p><strong>Total:</strong> $${order.total_amount.toFixed(2)} USD</p>
+              <p><strong>Total:</strong> $${order.total_amount ? order.total_amount.toFixed(2) : '0.00'} USD</p>
               <p><strong>Orden ID:</strong> #${order.id}</p>
               ${order.quote_id ? `<p><strong>Cotización ID:</strong> #${order.quote_id}</p>` : ''}
               <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-ES')}</p>

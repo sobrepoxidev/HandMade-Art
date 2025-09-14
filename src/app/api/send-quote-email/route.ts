@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         interest_request_items (
           id,
           quantity,
-          snapshot
+          product_snapshot
         )
       `)
       .eq('id', quoteId)
@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (quoteError || !quote) {
+      console.error('Error al obtener la cotización:', quoteError);
       return NextResponse.json(
         { error: 'Quote not found or not in sent_to_client status' },
         { status: 404 }

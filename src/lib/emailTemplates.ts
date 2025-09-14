@@ -37,7 +37,7 @@ export function generateCustomerQuoteEmail(data: QuoteData): string {
           </div>
         </div>
       </td>
-      <td style="padding: 15px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold; color: #8B4513;">$${item.price.toFixed(2)}</td>
+      <td style="padding: 15px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold; color: #8B4513;">$${item.price ? item.price.toFixed(2) : '0.00'}</td>
     </tr>
   `).join('');
 
@@ -89,7 +89,7 @@ export function generateCustomerQuoteEmail(data: QuoteData): string {
               ${data.discountCodeApplied && data.originalAmount ? `
                 <tr style="background-color: #f8f9fa;">
                   <td style="padding: 15px; font-weight: bold; font-size: 16px; color: #6c757d;">Subtotal:</td>
-                  <td style="padding: 15px; text-align: right; font-weight: bold; font-size: 16px; color: #6c757d;">$${data.originalAmount.toFixed(2)}</td>
+                  <td style="padding: 15px; text-align: right; font-weight: bold; font-size: 16px; color: #6c757d;">$${data.originalAmount ? data.originalAmount.toFixed(2) : '0.00'}</td>
                 </tr>
                 <tr style="background-color: #d4edda;">
                   <td style="padding: 15px; font-weight: bold; font-size: 16px; color: #155724;">
@@ -97,14 +97,14 @@ export function generateCustomerQuoteEmail(data: QuoteData): string {
                     <br><small style="font-weight: normal; color: #6c757d;">${data.discountCodeApplied.description || 'Descuento especial'}</small>
                   </td>
                   <td style="padding: 15px; text-align: right; font-weight: bold; font-size: 16px; color: #155724;">
-                    -$${(data.originalAmount - data.totalAmount).toFixed(2)}
+                    -$${data.originalAmount && data.totalAmount ? (data.originalAmount - data.totalAmount).toFixed(2) : '0.00'}
                     ${data.discountCodeApplied.discount_type === 'percentage' ? `(${data.discountCodeApplied.discount_value}%)` : ''}
                   </td>
                 </tr>
               ` : ''}
               <tr style="background-color: #f0f0f0;">
                 <td style="padding: 20px; font-weight: bold; font-size: 18px; color: #8B4513;">${data.discountCodeApplied ? 'Total con descuento:' : 'Total:'}</td>
-                <td style="padding: 20px; text-align: right; font-weight: bold; font-size: 20px; color: #8B4513;">$${data.totalAmount.toFixed(2)}</td>
+                <td style="padding: 20px; text-align: right; font-weight: bold; font-size: 20px; color: #8B4513;">$${data.totalAmount ? data.totalAmount.toFixed(2) : '0.00'}</td>
               </tr>
             </tbody>
           </table>
@@ -148,7 +148,7 @@ export function generateManagerNotificationEmail(data: QuoteData): string {
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #eee; font-size: 14px;">${item.name}</td>
       <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px;">${item.quantity}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-size: 14px; font-weight: bold;">$${item.price.toFixed(2)}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-size: 14px; font-weight: bold;">$${item.price ? item.price.toFixed(2) : '0.00'}</td>
     </tr>
   `).join('');
 
@@ -204,16 +204,16 @@ export function generateManagerNotificationEmail(data: QuoteData): string {
                 ${data.discountCodeApplied && data.originalAmount ? `
                   <tr style="background-color: #f8f9fa;">
                     <td colspan="2" style="padding: 12px; font-weight: bold; font-size: 14px; color: #6c757d;">Subtotal:</td>
-                    <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 14px; color: #6c757d;">$${data.originalAmount.toFixed(2)}</td>
+                    <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 14px; color: #6c757d;">$${data.originalAmount ? data.originalAmount.toFixed(2) : '0.00'}</td>
                   </tr>
                   <tr style="background-color: #d1ecf1;">
                     <td colspan="2" style="padding: 12px; font-weight: bold; font-size: 14px; color: #0c5460;">Descuento (${data.discountCodeApplied.code}):</td>
-                    <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 14px; color: #0c5460;">-$${(data.originalAmount - data.totalAmount).toFixed(2)}</td>
+                    <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 14px; color: #0c5460;">-$${data.originalAmount && data.totalAmount ? (data.originalAmount - data.totalAmount).toFixed(2) : '0.00'}</td>
                   </tr>
                 ` : ''}
                 <tr style="background-color: #e9ecef;">
                   <td colspan="2" style="padding: 15px; font-weight: bold; font-size: 16px; color: #495057;">${data.discountCodeApplied ? 'Total con Descuento:' : 'Total Estimado:'}</td>
-                  <td style="padding: 15px; text-align: right; font-weight: bold; font-size: 18px; color: #dc3545;">$${data.totalAmount.toFixed(2)}</td>
+                  <td style="padding: 15px; text-align: right; font-weight: bold; font-size: 18px; color: #dc3545;">$${data.totalAmount ? data.totalAmount.toFixed(2) : '0.00'}</td>
                 </tr>
               </tbody>
             </table>

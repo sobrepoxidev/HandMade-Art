@@ -421,10 +421,10 @@ export default function ProductsPageContent() {
                             {product.discount_percentage && product.discount_percentage > 0 ? (
                               <div className="flex flex-col">
                                 <div className="flex items-center gap-2">
-                                  <p className="text-lg font-bold text-teal-700">
-                                    ${((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100)).toFixed(2)}
-                                  </p>
-                                  <span className="text-xs font-medium bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                                    <p className="text-lg font-bold text-teal-700">
+                                     ${((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100)).toFixed(2)}
+                                    </p>
+                                    <span className="text-xs font-medium bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
                                     {product.discount_percentage}% OFF
                                   </span>
                                 </div>

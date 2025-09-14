@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
             <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3>Detalles del Pedido:</h3>
               <p><strong>Número de orden:</strong> ${order.id}</p>
-              <p><strong>Total pagado:</strong> $${totalAmount.toFixed(2)} USD</p>
+              <p><strong>Total pagado:</strong> $${totalAmount ? totalAmount.toFixed(2) : '0.00'} USD</p>
               <p><strong>Referencia de pago:</strong> ${paypalOrderId}</p>
             </div>
             
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
               <h3>Detalles de la Venta:</h3>
               <p><strong>Orden ID:</strong> ${order.id}</p>
               <p><strong>Cotización ID:</strong> ${quoteId}</p>
-              <p><strong>Total:</strong> $${totalAmount.toFixed(2)} USD</p>
+              <p><strong>Total:</strong> $${totalAmount ? totalAmount.toFixed(2) : '0.00'} USD</p>
               <p><strong>PayPal ID:</strong> ${paypalOrderId}</p>
             </div>
             

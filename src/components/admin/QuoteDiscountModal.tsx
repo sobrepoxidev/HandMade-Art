@@ -637,8 +637,8 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading
-                ? (locale === 'es' ? 'Aplicando...' : 'Applying...')
-                : (locale === 'es' ? 'Aplicar Descuento' : 'Apply Discount')
+                ? (locale === 'es' ? 'Enviando...' : 'Sending...')
+                : (locale === 'es' ? 'Enviar link de pago' : 'Send payment link')
               }
             </button>
           </div>
