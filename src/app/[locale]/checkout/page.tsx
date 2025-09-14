@@ -158,10 +158,16 @@ export default function CheckoutWizardPage() {
           .insert({
             user_id: userId === 'guest-user' ? null : userId, // Convert guest-user to null for UUID field
             payment_method: paymentMethodAux ? paymentMethodAux : paymentMethod,
-            payment_status: "pendiente",
-            shipping_status: "pendiente",
+            payment_status: "pending",
+            shipping_status: "pending",
             total_amount: total,
             shipping_address: shippingAddress,
+            // Campos requeridos adicionales
+            currency: "CRC",
+            shipping_amount: 0,
+            discount_amount: discountInfo ? discountInfo.discountAmount : 0,
+            shipping_cost: 0,
+            shipping_currency: "CRC",
             // Incluir información de descuento en el campo de notas para no causar errores
             notes: discountInfo ? `Descuento aplicado: ${discountInfo.code} - Monto: ${discountInfo.discountAmount}` : "",
           })
