@@ -38,7 +38,8 @@ export function useProducts(
   const initialProductsByCategory: Record<number, Product[]> = {};
   
   // Inicializar productsByCategory con categorías iniciales
-  initialCategories.forEach(category => {
+  const typedInitialCategories: Category[] = initialCategories || [];
+  typedInitialCategories.forEach(category => {
     initialProductsByCategory[category.id] = [];
   });
 

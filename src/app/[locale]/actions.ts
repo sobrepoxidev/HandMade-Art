@@ -39,7 +39,8 @@ export async function getHomePageData() {
     const productsByCategory: Record<number, unknown[]> = {};
     
     // Inicializar el objeto de productos por categoría
-    categories.forEach(category => {
+    const typedCategories: Database['public']['Tables']['categories']['Row'][] = categories || [];
+    typedCategories.forEach(category => {
       productsByCategory[category.id] = [];
     });
 
