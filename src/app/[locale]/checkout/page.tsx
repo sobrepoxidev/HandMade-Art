@@ -152,7 +152,6 @@ export default function CheckoutWizardPage() {
         const total = discountInfo ? discountInfo.finalTotal : totalAmount;
 
         // Create order with shipping address and pending status
-        // Verificar si la tabla orders tiene las columnas de descuento
         const { data: orderInsert, error: orderError } = await supabase
           .from("orders")
           .insert({
@@ -161,15 +160,14 @@ export default function CheckoutWizardPage() {
             payment_status: "pending",
             shipping_status: "pending",
             total_amount: total,
-            shipping_address: shippingAddress as unknown as Json,
+            shipping_address: JSON.parse(JSON.stringify(shippingAddress)) as Json,
             currency: "CRC",
             shipping_amount: 0,
             discount_amount: discountInfo ? discountInfo.discountAmount : 0,
             shipping_cost: 0,
             shipping_currency: "CRC",
-            // Incluir información de descuento en el campo de notas para no causar errores
             notes: discountInfo ? `Descuento aplicado: ${discountInfo.code} - Monto: ${discountInfo.discountAmount}` : "",
-          })
+          } satisfies Database['public']['Tables']['orders']['Insert'])
           .select()
           .single();
     
