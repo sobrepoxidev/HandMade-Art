@@ -162,7 +162,6 @@ export default function CheckoutWizardPage() {
             shipping_status: "pending",
             total_amount: total,
             shipping_address: shippingAddress as unknown as Json,
-            // Campos requeridos adicionales
             currency: "CRC",
             shipping_amount: 0,
             discount_amount: discountInfo ? discountInfo.discountAmount : 0,
