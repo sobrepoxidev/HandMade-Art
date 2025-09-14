@@ -5,7 +5,7 @@ import { useCart, CartItem } from '@/context/CartContext'
 import { useState, useEffect } from 'react'
 import StepOne from "@/components/checkout/StepOne";
 import StepTwo from "@/components/checkout/StepTwo";  
-import { Database } from "@/types-db";
+import { Database } from "@/lib/database.types";
 import { Session } from '@supabase/supabase-js';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useLocale } from 'next-intl';
@@ -37,7 +37,7 @@ type DiscountInfo = {
   finalTotal: number;
   code: string;
   description?: string;
-  discount_type: Database['discount_codes']['discount_type'];
+  discount_type: Database['public']['Tables']['discount_codes']['Row']['discount_type'];
   discount_value: number;
 };
 
