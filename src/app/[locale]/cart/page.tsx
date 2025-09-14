@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation';
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useSupabase } from "@/app/supabase-provider/provider";
-import { Database } from "@/types-db";
+import { Database } from "@/lib/database.types";
 import { FaCcVisa, FaCcMastercard, FaCcAmex, FaCcDiscover, FaCcPaypal } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { AlertTriangle, Share2 } from "lucide-react";
@@ -17,7 +17,7 @@ import { formatUSD } from "@/lib/formatCurrency";
 import CurrencyConverterRow from "@/components/CurrencyConverterRow";
 
 // Tipo para la información de descuento basado en la tabla discount_codes
-type DiscountCode = Database['discount_codes'];
+type DiscountCode = Database['public']['Tables']['discount_codes']['Row'];
 
 // ──────────────────── Share Cart Button ─────────────────────
 const ShareCartButton: React.FC<{ locale: string }> = ({ locale }) => {
@@ -51,7 +51,7 @@ type DiscountInfo = {
   finalTotal: number;
   code: string;
   description?: string;
-  discount_type: Database['discount_codes']['discount_type'];
+  discount_type: Database['public']['Tables']['discount_codes']['Row']['discount_type'];
   discount_value: number;
 };
 
@@ -259,9 +259,9 @@ export default function CartPage() {
               <div className="grid grid-cols-12 gap-4 p-4 border-b border-teal-500  last:border-0">
                 {/* Imagen */}
                 <div className="col-span-12 sm:col-span-2 flex items-center justify-center">
-                  {product.media?.[0] ? (
+                  {product.media && Array.isArray(product.media) && product.media[0] && typeof product.media[0] === 'object' && product.media[0] !== null && 'url' in product.media[0] ? (
                     <Image
-                      src={product.media[0].url}
+                      src={(product.media[0] as { url: string }).url}
                       alt={product.name ?? "producto"}
                       width={80}
                       height={80}
@@ -399,7 +399,7 @@ export default function CartPage() {
                       }
                       
                       // Verificar si el código ha alcanzado el máximo de usos
-                      if (data.max_uses !== null && data.current_uses >= data.max_uses) {
+                      if (data.max_uses !== null && data.current_uses !== null && data.current_uses >= data.max_uses) {
                         setDiscountError(locale === 'es' ? 'Este código ha alcanzado el máximo de usos permitidos' : 'This code has reached the maximum number of uses allowed');
                         setIsApplyingDiscount(false);
                         return;
@@ -415,7 +415,7 @@ export default function CartPage() {
                       
                       // Verificar monto mínimo de compra
                       const cartTotal = subtotal;
-                      if (cartTotal < data.min_purchase_amount) {
+                      if (data.min_purchase_amount !== null && cartTotal < data.min_purchase_amount) {
                         setDiscountError( locale === 'es' ? `El monto mínimo de compra para este código es ${formatUSD(data.min_purchase_amount)}` : `The minimum purchase amount for this code is ${formatUSD(data.min_purchase_amount)}`);
                         setIsApplyingDiscount(false);
                         return;

@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 import { getPayPalAccessToken } from '@/lib/paypalHelpers';
+import { Database, Json } from '@/lib/database.types';
+
+// Type guard for product snapshot
+function isProductSnapshot(snapshot: Json): snapshot is { name?: string; sku?: string } {
+  return typeof snapshot === 'object' && snapshot !== null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,21 +54,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Preparar los items para la orden de PayPal
-    const items = quoteItems.map((item) => ({
-      name: item.product_snapshot.name,
-      quantity: item.quantity.toString(),
-      unit_amount: {
-        currency_code: 'USD',
-        value: item.unit_price_usd.toString(),
-      },
-      sku: item.product_snapshot.sku || '',
-    }));
+    const items = quoteItems?.map((item) => {
+      const snapshot = isProductSnapshot(item.product_snapshot) ? item.product_snapshot : null;
+      return {
+        name: snapshot?.name || 'Product',
+        quantity: item.quantity.toString(),
+        unit_amount: {
+          currency_code: 'USD',
+          value: (item.unit_price_usd || 0).toString(),
+        },
+        sku: snapshot?.sku || '',
+      };
+    }) || [];
 
     // Calcular el subtotal (suma de todos los items)
-    const itemTotal = quoteItems.reduce(
-      (sum, item) => sum + item.quantity * item.unit_price_usd,
+    const itemTotal = quoteItems?.reduce(
+      (sum, item) => sum + item.quantity * (item.unit_price_usd || 0),
       0
-    );
+    ) || 0;
 
     // Crear la orden en PayPal
     const paypalOrderUrl = process.env.NODE_ENV === 'production'
@@ -83,7 +92,7 @@ export async function POST(request: NextRequest) {
             description: `Payment for quote #${quoteId}`,
             amount: {
               currency_code: 'USD',
-              value: quote.final_amount.toString(),
+              value: (quote.final_amount || 0).toString(),
               breakdown: {
                 item_total: {
                   currency_code: 'USD',
@@ -95,7 +104,7 @@ export async function POST(request: NextRequest) {
                 },
                 discount: {
                   currency_code: 'USD',
-                  value: quote.total_amount && quote.final_amount ? (quote.total_amount - quote.final_amount + (quote.shipping_cost || 0)).toFixed(2) : '0.00',
+                  value: quote.total_amount && quote.final_amount ? ((quote.total_amount - quote.final_amount) + (quote.shipping_cost || 0)).toFixed(2) : '0.00',
                 },
               },
             },
@@ -125,7 +134,9 @@ export async function POST(request: NextRequest) {
     // Actualizar la cotización con el ID de la orden de PayPal
     await supabase
       .from('interest_requests')
-      .update({ paypal_order_id: paypalOrder.id })
+      .update({ 
+        admin_notes: paypalOrder.id ? `PayPal Order ID: ${paypalOrder.id}` : null 
+      })
       .eq('id', quoteId);
 
     return NextResponse.json(paypalOrder);

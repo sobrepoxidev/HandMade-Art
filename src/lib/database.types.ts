@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -1342,6 +1342,17 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+// ProductSnapshot type for storing product information in snapshots
+export interface ProductSnapshot {
+  id: number;
+  name: string;
+  image_url?: string;
+  price?: number;
+  dolar_price?: number;
+  sku?: string;
+  description?: string;
+}
 
 export const Constants = {
   public: {

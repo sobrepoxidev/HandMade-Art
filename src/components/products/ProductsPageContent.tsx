@@ -10,11 +10,12 @@ import ProductCard from './ProductCard';
 import ProductFilters from './ProductFilters';
 import PaginationControls from './PaginationControls';
 import { supabase } from '@/lib/supabaseClient';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 import ViewedProductsHistory from './ViewedProductsHistory';
 
-type Product = Database['products'];
-type Category = Database['categories'];
+type Product = Database['public']['Tables']['products']['Row'];
+type Category = Database['public']['Tables']['categories']['Row'];
+type MediaItem = { url: string; alt?: string; type?: string };
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -57,7 +58,7 @@ export default function ProductsPageContent() {
           .order(locale === 'es' ? 'name_es' : 'name_en', { ascending: true });
           console.log('category filter', categoryFilter);
         
-        setCategoryName(locale === 'es' ? categoriesData?.find(c => c.id == categoryFilter)?.name_es : categoriesData?.find(c => c.id == categoryFilter)?.name_en ?? '');  
+        setCategoryName(locale === 'es' ? (categoriesData?.find(c => c.id === Number(categoryFilter))?.name_es || '') : (categoriesData?.find(c => c.id === Number(categoryFilter))?.name_en || ''));  
         if (categoriesError) {
              console.error('Error fetching categories:', categoriesError);
           throw categoriesError;
@@ -133,7 +134,7 @@ export default function ProductsPageContent() {
         
         // Aplicar filtros
         if (categoryFilter) {
-          query = query.eq('category_id', categoryFilter);
+          query = query.eq('category_id', Number(categoryFilter));
         }
         
         if (brandFilter) {
@@ -376,7 +377,7 @@ export default function ProductsPageContent() {
                   >
                     <div className="absolute inset-0 flex items-center justify-center p-4">
                       <Image 
-                        src={product.media?.[0].url || '/product-placeholder.png'} 
+                        src={(product.media as MediaItem[])?.[0]?.url || '/product-placeholder.png'} 
                         alt={product.name || ''}
                         width={150}
                         height={150}
@@ -399,7 +400,7 @@ export default function ProductsPageContent() {
                       {product.category_id && (
                         <div className="mt-1">
                           <span className="inline-block px-2 py-0.5 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-100">
-                            {locale === 'es' ? categories.find(cat => cat.id === product.category_id)?.name : categories.find(cat => cat.id === product.category_id)?.name || 'Categoría'}
+                            {locale === 'es' ? categories.find(cat => cat.id === product.category_id)?.name_es : categories.find(cat => cat.id === product.category_id)?.name_en || 'Categoría'}
                           </span>
                         </div>
                       )}

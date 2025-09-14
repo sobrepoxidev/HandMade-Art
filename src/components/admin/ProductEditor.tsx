@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 import { X, Save, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
+import { Json } from '@/lib/database.types';
 
-type Product = Database['products'];
-type Category = Database['categories'];
+type Product = Database['public']['Tables']['products']['Row'];
+type Category = Database['public']['Tables']['categories']['Row'];
 
 interface ProductEditorProps {
   locale: string;
@@ -18,6 +19,16 @@ interface ProductEditorProps {
 }
 
 export default function ProductEditor({ locale, product, categories, onSave, onCancel }: ProductEditorProps) {
+  // Type guard to check if media is an array of media items
+  const isMediaArray = (media: Json): media is Array<{url: string; type?: string; alt?: string}> => {
+    return Array.isArray(media) && media.every(item => 
+      typeof item === 'object' && 
+      item !== null && 
+      'url' in item && 
+      typeof (item as {url: unknown}).url === 'string'
+    );
+  };
+
   // Campos que ya se pueden editar directamente en las tarjetas
   // - price: se puede editar en la tarjeta con guardado inmediato
   // - is_active: se puede activar/desactivar en la tarjeta con guardado inmediato
@@ -62,10 +73,10 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
       if (isActive !== product.is_active) updates.is_active = isActive;
       if (discountPercentage !== product.discount_percentage) updates.discount_percentage = discountPercentage;
 
-      if (weight_kg !== product.weight_kg) updates.weight_kg = weight_kg;
-      if (length_cm !== product.length_cm) updates.length_cm = length_cm;
-      if (width_cm !== product.width_cm) updates.width_cm = width_cm;
-      if (height_cm !== product.height_cm) updates.height_cm = height_cm;
+      if (weight_kg !== product.weight_kg) updates.weight_kg = weight_kg ?? undefined;
+      if (length_cm !== product.length_cm) updates.length_cm = length_cm ?? undefined;
+      if (width_cm !== product.width_cm) updates.width_cm = width_cm ?? undefined;
+      if (height_cm !== product.height_cm) updates.height_cm = height_cm ?? undefined;
       if (categoryId !== product.category_id) updates.category_id = categoryId;
 
       // Si no hay cambios, mostrar mensaje y salir
@@ -186,7 +197,7 @@ export default function ProductEditor({ locale, product, categories, onSave, onC
         {/* Imagen del producto */}
         <div className="flex justify-center mb-0">
           <div className="w-full max-w-xs h-36 py-1 bg-gray-200 rounded-lg overflow-hidden">
-            {product.media && product.media.length > 0 && product.media[0].url ? (
+            {product.media && isMediaArray(product.media) && product.media.length > 0 && product.media[0].url ? (
               <Image
                 src={product.media[0].url}
                 alt={product.name || 'Producto'}

@@ -6,12 +6,21 @@ import Image from 'next/image';
 import { Search, ShoppingCart, Plus, Minus, Trash2, User, Filter, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import DirectPaymentDiscountModal from './DirectPaymentDiscountModal';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 
-type Product = Database['products'];
+type Product = Database['public']['Tables']['products']['Row'];
+type MediaItem = { url: string; alt?: string; type?: string };
 
-interface CartItem extends Product {
+interface CartItem {
+  id: number;
+  name: string | null;
+  name_es: string | null;
+  name_en: string | null;
+  dolar_price: number | null;
+  discount_percentage: number | null;
   quantity: number;
+  media: { url: string; type: string; caption?: string }[] | null;
+  sku: string | null;
 }
 
 interface CustomerInfo {
@@ -126,7 +135,18 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       } else {
-        return [...prevCart, { ...product, quantity: 1 }];
+        const cartItem: CartItem = {
+          id: product.id,
+          name: product.name,
+          name_es: product.name_es,
+          name_en: product.name_en,
+          dolar_price: product.dolar_price,
+          discount_percentage: product.discount_percentage,
+          quantity: 1,
+          media: product.media ? (product.media as MediaItem[]).map((m: MediaItem) => ({ url: m.url, type: m.type || 'image', caption: m.alt })) : null,
+          sku: product.sku
+        };
+        return [...prevCart, cartItem];
       }
     });
 
@@ -264,9 +284,9 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
                 {cart.map((item) => (
                   <div key={item.id} className="flex items-center border-b pb-2 last:border-b-0">
                     <div className="relative w-12 h-12 bg-gray-100 rounded-md overflow-hidden mr-2">
-                      {item.media && item.media.length > 0 ? (
+                      {item.media && (item.media as MediaItem[]).length > 0 ? (
                         <Image
-                          src={item.media[0].url}
+                          src={(item.media as MediaItem[])[0].url}
                           alt={locale == 'es' ? (item.name_es || item.name || "Nombre no disponible") : (item.name_en || item.name || "No name available")}
                           fill
                           className="object-cover"
@@ -395,9 +415,9 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
                 {filteredProducts.map((product) => (
                   <div key={product.id} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                     <div className="relative h-40 bg-gray-100">
-                      {product.media && product.media.length > 0 ? (
+                      {product.media && (product.media as MediaItem[]).length > 0 ? (
                         <Image
-                          src={product.media[0].url || '/product-placeholder.png'}
+                          src={(product.media as MediaItem[])[0].url || '/product-placeholder.png'}
                           alt={locale == 'es' ? (product.name_es || product.name || "Nombre no disponible") : (product.name_en || product.name || "No name available")}
                           fill
                           className="object-contain"
@@ -465,9 +485,9 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
                   {cart.map((item) => (
                     <div key={item.id} className="flex items-center border-b pb-3">
                       <div className="relative w-16 h-16 bg-gray-100 rounded-md overflow-hidden mr-3">
-                        {item.media && item.media.length > 0 ? (
+                        {item.media && (item.media as MediaItem[]).length > 0 ? (
                           <Image
-                            src={item.media[0].url}
+                            src={(item.media as MediaItem[])[0].url}
                             alt={locale == 'es' ? (item.name_es || item.name || "Nombre no disponible") : (item.name_en || item.name || "No name available")}
                             fill
                             className="object-cover"

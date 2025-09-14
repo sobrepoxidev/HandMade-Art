@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Database, ProductSnapshot } from '@/types-db';
+import { Database, ProductSnapshot } from '@/lib/database.types';
 import Image from 'next/image';
 import { ShoppingBag, Calendar, User, Mail, Phone, Calculator } from 'lucide-react';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
@@ -22,8 +22,8 @@ import { formatUSD } from '@/lib/formatCurrency';
 //   };
 // }
 
-type InterestRequest = Database['interest_requests'] & {
-  interest_request_items: (Database['interest_request_items'] & {
+type InterestRequest = Database['public']['Tables']['interest_requests']['Row'] & {
+  interest_request_items: (Database['public']['Tables']['interest_request_items']['Row'] & {
     product_snapshot: ProductSnapshot;
   })[];
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Database, ProductSnapshot } from '@/types-db';
+import { Database, ProductSnapshot } from '@/lib/database.types';
 import { Search, Filter, RefreshCw, Eye, Edit, DollarSign, Send, Copy, Share2, Tag } from 'lucide-react';
 import { FaPhone, FaWhatsapp } from 'react-icons/fa';
 import Image from 'next/image';
@@ -9,8 +9,8 @@ import { toast } from 'react-hot-toast';
 import QuoteDiscountModal from './QuoteDiscountModal';
 import DiscountCodesModal from './DiscountCodesModal';
 
-type InterestRequest = Database['interest_requests'] & {
-  interest_request_items: (Database['interest_request_items'] & {
+type InterestRequest = Database['public']['Tables']['interest_requests']['Row'] & {
+  interest_request_items: (Database['public']['Tables']['interest_request_items']['Row'] & {
     product_snapshot: ProductSnapshot;
   })[];
 };

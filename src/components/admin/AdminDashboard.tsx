@@ -2,13 +2,23 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSupabase } from '@/app/supabase-provider/provider';
-import { Database } from '@/types-db';
+import { Database, Json } from '@/lib/database.types';
 import ProductEditor from './ProductEditor';
 import { Search, Filter, RefreshCw, Menu, Check, X, Edit } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 
-type Product = Database['products'];
+type Product = Database['public']['Tables']['products']['Row'];
+
+// Type guard para verificar si media es un array válido con objetos que tienen url
+const isMediaArray = (media: Json): media is Array<{ url: string; type?: string; alt?: string }> => {
+  return Array.isArray(media) && media.every(item => 
+    typeof item === 'object' && 
+    item !== null && 
+    'url' in item && 
+    typeof item.url === 'string'
+  );
+};
 
 // Función para formatear la fecha de modificación en formato costarricense
 const formatModifiedDate = (dateString: string): string => {
@@ -79,7 +89,7 @@ export default function AdminDashboard({ locale }: { locale: string }) {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
-  const [categories, setCategories] = useState<Database['categories'][]>([]);
+  const [categories, setCategories] = useState<Database['public']['Tables']['categories']['Row'][]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showProductMenu, setShowProductMenu] = useState<number | null>(null); // Para controlar el menú de opciones
@@ -404,7 +414,7 @@ export default function AdminDashboard({ locale }: { locale: string }) {
                     <div className="h-full w-full flex items-center justify-center bg-teal-50 p-4"
 
                     >
-                      {product.media && product.media.length > 0 && product.media[0].url ? (
+                      {product.media && isMediaArray(product.media) && product.media.length > 0 && product.media[0].url ? (
                         <Image
                           src={product.media[0].url}
                           alt={product.name || 'Producto'}
@@ -606,7 +616,7 @@ export default function AdminDashboard({ locale }: { locale: string }) {
                 <div className="flex items-start p-3 gap-3 w-full cursor-pointer hover:bg-gray-50" onClick={() => setSelectedProduct(product)}>
                   {/* Imagen del producto */}
                   <div className="relative w-16 h-16 flex-shrink-0">
-                    {product.media && product.media.length > 0 && product.media[0].url ? (
+                    {product.media && isMediaArray(product.media) && product.media.length > 0 && product.media[0].url ? (
                       <Image
                         src={product.media[0].url}
                         alt={product.name || 'Producto'}

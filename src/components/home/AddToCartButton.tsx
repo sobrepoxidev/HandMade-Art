@@ -6,9 +6,9 @@ import { useSupabase } from '@/app/supabase-provider/provider';
 import { ShoppingCartIcon } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 
-type Product = Database['products'];
+type Product = Database['public']['Tables']['products']['Row'];
 
 export default function AddToCartButton({ 
   product, 

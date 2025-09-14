@@ -3,7 +3,7 @@
 import React from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Session, SupabaseClient } from '@supabase/supabase-js'
-import { Database } from '@/types-db' // si tienes un type global de tu DB
+import { Database } from '@/lib/database.types' // si tienes un type global de tu DB
 
 type SupabaseContextProps = {
   supabase: SupabaseClient<Database>

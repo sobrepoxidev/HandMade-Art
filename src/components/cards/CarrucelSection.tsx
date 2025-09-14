@@ -5,12 +5,12 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
-import { Database } from '@/types-db';
+import { Database, Json } from '@/lib/database.types';
 import { useLocale } from 'next-intl';
 import './carousel.css'; // Importamos los estilos para el scrollbar fino
 
-type Product = Database['products'];
-type Category = Database['categories'];
+type Product = Database['public']['Tables']['products']['Row'];
+type Category = Database['public']['Tables']['categories']['Row'];
 
 type CarrucelSectionProps = {
   title?: string;
@@ -167,12 +167,19 @@ const CarrucelSection: React.FC<CarrucelSectionProps> = ({
     fetchData();
   }, []);
 
-
+const isMediaArray = (media: Json): media is Array<{ url: string; type?: string; alt?: string }> => {
+  return Array.isArray(media) && media.every(item => 
+    typeof item === 'object' && 
+    item !== null && 
+    'url' in item && 
+    typeof item.url === 'string'
+  );
+};
 
   // Función para generar un grupo de tarjetas de productos para desktop al estilo Amazon
   const generateProductGroup = (products: Product[], startIndex: number, endIndex: number) => {
     return products.slice(startIndex, endIndex).map((product) => {
-      const imageUrl = product.media && product.media.length > 0 
+      const imageUrl = product.media && isMediaArray(product.media) && product.media.length > 0 
         ? product.media[0].url 
         : '/placeholder-image.png';
       
@@ -222,7 +229,7 @@ const CarrucelSection: React.FC<CarrucelSectionProps> = ({
       <div key="first-section" className="  max-w-[90vw] pl-4 flex-none mx-1 snap-start">
         <div className="grid grid-cols-2 gap-1">
           {orderedItems[0].map((product) => {
-            const imageUrl = product.media && product.media.length > 0 
+            const imageUrl = product.media && isMediaArray(product.media) && product.media.length > 0 
               ? product.media[0].url 
               : '/placeholder-image.png';
             
@@ -251,7 +258,7 @@ const CarrucelSection: React.FC<CarrucelSectionProps> = ({
       <div key="second-section" className="max-w-[90vw] pr-4 flex-none mx-1 snap-start">
         <div className="grid grid-cols-2 gap-2">
           {orderedItems[1].map((product) => {
-            const imageUrl = product.media && product.media.length > 0 
+            const imageUrl = product.media && isMediaArray(product.media) && product.media.length > 0 
               ? product.media[0].url 
               : '/placeholder-image.png';
             

@@ -1,13 +1,38 @@
 'use client';
 
 import { useState } from 'react';
-import { Database, ProductSnapshot } from '@/types-db';
+import { Database, ProductSnapshot, Json } from '@/lib/database.types';
 import { X, Calculator, Percent, DollarSign, Edit } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
 
-type InterestRequest = Database['interest_requests'] & {
-  interest_request_items: (Database['interest_request_items'] & {
+// Type guard para verificar si product_snapshot es un objeto válido
+function isProductSnapshot(snapshot: Json): snapshot is {
+  name: string;
+  sku?: string;
+  dolar_price: number;
+  has_discount?: boolean;
+  discounted_price?: number;
+  image_url?: string;
+  url?: string;
+} {
+  return typeof snapshot === 'object' && snapshot !== null && 
+         'name' in snapshot && 'dolar_price' in snapshot;
+}
+
+// Type guard para verificar si discount_code_applied es un objeto válido
+function isDiscountCode(code: Json): code is {
+  code: string;
+  discount_type: string;
+  discount_value: number;
+  description?: string;
+} {
+  return typeof code === 'object' && code !== null && 
+         'code' in code && 'discount_type' in code && 'discount_value' in code;
+}
+
+type InterestRequest = Database['public']['Tables']['interest_requests']['Row'] & {
+  interest_request_items: (Database['public']['Tables']['interest_request_items']['Row'] & {
     product_snapshot: ProductSnapshot;
   })[];
 };
@@ -47,6 +72,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
 
     // Calcular desde los items si total_amount no está disponible
     return quote.interest_request_items.reduce((total, item) => {
+      if (!isProductSnapshot(item.product_snapshot)) return total;
       const itemPrice = item.product_snapshot.has_discount && item.product_snapshot.discounted_price
         ? item.product_snapshot.discounted_price
         : (item.product_snapshot.dolar_price || 0);
@@ -69,7 +95,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
 
   // Calcular el descuento del código aplicado
   const calculateCodeDiscount = () => {
-    if (!quote.discount_code_applied) return 0;
+    if (!quote.discount_code_applied || !isDiscountCode(quote.discount_code_applied)) return 0;
 
     const originalTotal = calculateOriginalTotal();
     const codeDiscount = quote.discount_code_applied;
@@ -99,6 +125,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
         break;
       case 'product_percentage':
         finalTotal = quote.interest_request_items.reduce((total, item) => {
+          if (!isProductSnapshot(item.product_snapshot)) return total;
           const unitPrice = quote.discount_code_applied
             ? (item.product_snapshot.dolar_price || 0) // Usar precio original si hay código aplicado
             : (item.product_snapshot.has_discount && item.product_snapshot.discounted_price
@@ -111,6 +138,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
         break;
       case 'product_fixed':
         finalTotal = quote.interest_request_items.reduce((total, item) => {
+          if (!isProductSnapshot(item.product_snapshot)) return total;
           const unitPrice = quote.discount_code_applied
             ? (item.product_snapshot.dolar_price || 0) // Usar precio original si hay código aplicado
             : (item.product_snapshot.has_discount && item.product_snapshot.discounted_price
@@ -245,6 +273,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
             </h3>
             <div className="space-y-1.5">
               {quote.interest_request_items.map((item) => {
+                if (!isProductSnapshot(item.product_snapshot)) return null;
                 // Si hay código de descuento aplicado, usar precios originales para evitar doble descuento
                 const unitPrice = quote.discount_code_applied
                   ? (item.product_snapshot.dolar_price || 0) // Usar precio original si hay código aplicado
@@ -515,7 +544,7 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
           </div>
 
           {/* Información del código de descuento aplicado */}
-          {quote.discount_code_applied && (
+          {quote.discount_code_applied && isDiscountCode(quote.discount_code_applied) && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <h3 className="font-medium text-green-800 mb-3 flex items-center">
                 <Percent className="w-5 h-5 mr-2" />

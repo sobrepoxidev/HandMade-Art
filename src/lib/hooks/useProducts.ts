@@ -2,11 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/lib/supabaseClient";
-import type { Database } from "@/types-db";
+import type { Database, Json } from "@/lib/database.types";
 import { distribuirProductos } from "@/lib/productsDistributor";
 
-export type Product = Database['products'];
-export type Category = Database['categories'];
+export type Product = Database['public']['Tables']['products']['Row'];
+export type Category = Database['public']['Tables']['categories']['Row'];
+
+// Type guard para verificar si media es un array válido
+function isMediaArray(media: Json): media is Array<{ url: string }> {
+  return Array.isArray(media) && media.length > 0 && 
+         typeof media[0] === 'object' && media[0] !== null && 
+         'url' in media[0] && typeof media[0].url === 'string';
+}
 
 // Interfaz para los datos que compartiremos
 export interface ProductsData {
@@ -41,8 +48,7 @@ export function useProducts(
       product.category_id &&
       initialProductsByCategory[product.category_id] &&
       product.media &&
-      product.media.length > 0 &&
-      product.media[0]["url"]
+      isMediaArray(product.media)
     ) {
       // Solo añadir hasta 4 productos por categoría
       if (initialProductsByCategory[product.category_id].length < 4) {
@@ -143,8 +149,7 @@ export function useProducts(
             product.category_id &&
             productsByCategory[product.category_id] &&
             product.media &&
-            product.media.length > 0 &&
-            product.media[0]["url"]
+            isMediaArray(product.media)
           ) {
             // Solo añadir hasta 4 productos por categoría
             if (productsByCategory[product.category_id].length < 4) {

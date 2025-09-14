@@ -3,9 +3,9 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Check, ChevronDown, ChevronUp, Sliders } from 'lucide-react';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 
-type Category = Database['categories'];
+type Category = Database['public']['Tables']['categories']['Row'];
 
 interface FilterProps {
   categories: Category[];

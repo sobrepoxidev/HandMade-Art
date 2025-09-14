@@ -5,13 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Star, ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/supabaseClient';
 import { useLocale } from 'next-intl';
 import { formatUSD } from '@/lib/formatCurrency';
 
-type Product = Database['products'];
-type Category = Database['categories'];
+type Product = Database['public']['Tables']['products']['Row'];
+type Category = Database['public']['Tables']['categories']['Row'];
+type MediaItem = { url: string; alt?: string; type?: string };
 
 export default function ProductCard({ product }: { product: Product }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -21,7 +22,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const locale = useLocale();
   
-  const mainImageUrl = product?.media?.[0]?.url || '/product-placeholder.png';
+  const mainImageUrl = (product?.media as MediaItem[])?.[0]?.url || '/product-placeholder.png';
   
   // Fetch category and inventory data
   useEffect(() => {

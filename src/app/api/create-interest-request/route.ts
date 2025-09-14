@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { generateCustomerQuoteEmail, generateManagerNotificationEmail } from '@/lib/emailTemplates';
-import { ProductSnapshot } from '@/types-db';
+import { ProductSnapshot } from '@/lib/database.types';
 
 interface InterestRequestItem {
   product_id: number;
@@ -82,9 +82,7 @@ export async function POST(request: NextRequest) {
     // Calcular el total de la cotización
     const totalAmount = body.items.reduce((total, item) => {
       // Usar precio con descuento si está disponible, sino usar precio original
-      const price = item.product_snapshot.has_discount && item.product_snapshot.discounted_price 
-        ? item.product_snapshot.discounted_price 
-        : item.product_snapshot.dolar_price || 0;
+      const price = item.product_snapshot.price || item.product_snapshot.dolar_price || 0;
       return total + (price * item.quantity);
     }, 0);
 
@@ -126,9 +124,7 @@ export async function POST(request: NextRequest) {
     // Insertar items de la solicitud
     const itemsToInsert = body.items.map(item => {
       // Usar precio con descuento si está disponible, sino usar precio original
-      const unitPrice = item.product_snapshot.has_discount && item.product_snapshot.discounted_price 
-        ? item.product_snapshot.discounted_price 
-        : item.product_snapshot.dolar_price || 0;
+      const unitPrice = item.product_snapshot.price || item.product_snapshot.dolar_price || 0;
       
       return {
         request_id: requestId,

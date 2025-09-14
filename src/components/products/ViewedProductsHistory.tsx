@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Database } from '@/types-db';
+import { Database, Json } from '@/lib/database.types';
+
+// Type guard para verificar si media es un array válido
+function isMediaArray(media: Json): media is Array<{ url: string }> {
+  return Array.isArray(media) && media.length > 0 && 
+         typeof media[0] === 'object' && media[0] !== null && 
+         'url' in media[0] && typeof media[0].url === 'string';
+}
 import { getLocalViewedHistory, syncViewedHistoryWithServer } from '@/lib/viewedHistory';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,7 +17,7 @@ import { Clock, AlertCircle } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { formatUSD } from '@/lib/formatCurrency';
 
-type Product = Database['products'];
+type Product = Database['public']['Tables']['products']['Row'];
 
 export default function ViewedProductsHistory() {
     const locale = useLocale();
@@ -160,7 +167,7 @@ export default function ViewedProductsHistory() {
             <div className="bg-white border border-gray-200 rounded-md overflow-hidden transition-shadow hover:shadow-md">
               <div className="h-40 relative">
                 <Image
-                  src={product.media?.[0]?.url || '/product-placeholder.png'}
+                  src={(product.media && isMediaArray(product.media) && product.media[0]?.url) || '/product-placeholder.png'}
                   alt={product.name || 'Producto'}
                   fill
                   className="object-contain p-2"

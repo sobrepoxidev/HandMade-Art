@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
-import { Database } from "@/types-db";
+import { Database } from "@/lib/database.types";
 import { supabase } from "@/lib/supabaseClient";
 
 import { useInView } from "react-intersection-observer";
 
-type Product = Database["products"];
+type Product = Database["public"]["Tables"]["products"]["Row"];
 
 interface Props {
   title: string;

@@ -1,7 +1,7 @@
 'use server';
 
 import { supabase } from '@/lib/supabaseClient';
-import type { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 
 /* Paso 1 : registrar lead */
 export async function insertLead(
@@ -46,7 +46,7 @@ export async function addFollow(
   social: Social,
   nextEntries: number
 ) {
-  const updates: Partial<Database['leads']> = {
+  const updates: Partial<Database['public']['Tables']['leads']['Row']> = {
     [social]: true,
     entries: nextEntries
   } as never;

@@ -13,14 +13,21 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { Database } from "@/types-db";
+import { Database, Json } from "@/lib/database.types";
+
+// Type guard para verificar si media es un array válido
+function isMediaArray(media: Json): media is Array<{ type: string; url: string; caption?: string }> {
+  return Array.isArray(media) && media.length > 0 && 
+         typeof media[0] === 'object' && media[0] !== null && 
+         'url' in media[0] && typeof media[0].url === 'string';
+}
 // ProductCardModal import removed as it's not used in this file
 import { ProductCardModalWithTracking } from "./ProductModalWithTracking";
 import { useLocale } from "next-intl";
 
 
 
-type Product = Database['products'] & { category?: string | null };
+type Product = Database['public']['Tables']['products']['Row'] & { category?: string | null };
 
 // ---------------------------------------------------------
 // 1) Tipos e iconos
@@ -153,7 +160,7 @@ function MediaItemCard({ product, activeExpandButton, index}: MediaItemCardProps
         <ExpandButton product={product} />
       )}
 
-      {product.media && product.media[index]?.type === "image" ? (
+      {product.media && isMediaArray(product.media) && product.media[index]?.type === "image" ? (
         <div className="relative w-full h-full ">
           <Image
             src={product.media[index].url}
@@ -172,7 +179,7 @@ function MediaItemCard({ product, activeExpandButton, index}: MediaItemCardProps
           controls
           poster="/video-thumbnail.jpg"
         >
-          <source src={(product.media?.[0]?.url ?? '/default-video.mp4')} type="video/mp4" />
+          <source src={(product.media && isMediaArray(product.media) && product.media[0]?.url) || '/default-video.mp4'} type="video/mp4" />
           {locale === 'es' ? 'Tu navegador no soporta video HTML5.' : 'Your browser does not support HTML5 video.'}
         </video>
       )}
@@ -201,18 +208,18 @@ export function MediaCarousel({ product, activeExpandButton }: MediaCarouselProp
     navigation
     pagination={{ clickable: true }}
     className="h-full w-full "
-    loop={product.media ? product.media.length > 1 : false}
+    loop={product.media && isMediaArray(product.media) ? product.media.length > 1 : false}
   >
     
-    {product.media?.map((_, index) => (
-      <SwiperSlide key={index} className="flex items-center justify-center h-full ">
-        <MediaItemCard
-          product={product}
-          activeExpandButton={activeExpandButton}
-          index={index}
-        />
-      </SwiperSlide>
-    ))}
+    {product.media && isMediaArray(product.media) ? product.media.map((_, index) => (
+       <SwiperSlide key={index} className="flex items-center justify-center h-full ">
+         <MediaItemCard
+           product={product}
+           activeExpandButton={activeExpandButton}
+           index={index}
+         />
+       </SwiperSlide>
+     )) : null}
   </Swiper>
 </div>
   );

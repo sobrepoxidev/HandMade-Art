@@ -22,14 +22,21 @@ import {
 import { supabase } from '@/lib/supabaseClient';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useCart } from '@/context/CartContext';
-import { Database } from '@/types-db';
+import { Database, Json } from '@/lib/database.types';
 import ReviewsList from '@/components/products/ReviewsList';
 import RelatedProductsClient from '@/components/products/RelatedProductsClient';
 import ReviewForm from '@/components/products/ReviewForm';
 import { formatUSD } from '@/lib/formatCurrency';
 
-type Product = Database['products'];
-type Category = Database['categories'];
+type Product = Database['public']['Tables']['products']['Row'];
+type Category = Database['public']['Tables']['categories']['Row'];
+
+// Type guard para verificar si media es un array válido
+function isMediaArray(media: Json): media is Array<{ url: string }> {
+  return Array.isArray(media) && media.length > 0 && 
+         typeof media[0] === 'object' && media[0] !== null && 
+         'url' in media[0] && typeof media[0].url === 'string';
+}
 
 // The client component that handles UI and state
 export default function ProductDetail({ id, locale }: { id: string, locale: string }) {
@@ -69,7 +76,7 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
-          .eq('id', id)
+          .eq('id', parseInt(id))
           .single();
 
         if (productError) {
@@ -342,7 +349,9 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
     );
   }
 
-  const mainImageUrl = product.media?.[activeImageIndex]?.url || '/product-placeholder.png';
+  const mainImageUrl = (product.media && isMediaArray(product.media) && product.media[activeImageIndex]) 
+    ? product.media[activeImageIndex].url 
+    : '/product-placeholder.png';
 
   return (
     <div className="container mx-auto px-4 py-0">
@@ -443,7 +452,7 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
             </div>
 
             {/* Galería de miniaturas */}
-            {product.media && product.media.length > 1 && (
+            {product.media && isMediaArray(product.media) && product.media.length > 1 && (
               <div className="grid grid-cols-5 gap-2">
                 {product.media.map((item, index) => (
                   <button

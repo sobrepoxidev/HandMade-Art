@@ -1,4 +1,4 @@
-import { Database } from "@/types-db";
+import { Database } from "@/lib/database.types";
 import Image from "next/image";
 import PaymentForm from "./PaymentForm";
 import { useState, useEffect } from "react";
@@ -10,12 +10,12 @@ type DiscountInfo = {
   finalTotal: number;
   code: string;
   description?: string;
-  discount_type: Database['discount_codes']['discount_type'];
+  discount_type: Database['public']['Tables']['discount_codes']['Row']['discount_type'];
   discount_value: number;
 };
 
 type PaymentMethod = "sinpe" | "paypal" | "transfer" | "card";
-type ProductType = Database['products'];
+type ProductType = Database['public']['Tables']['products']['Row'];
 type CartItem = {
     product: ProductType;
     quantity: number;
@@ -52,7 +52,7 @@ export default function StepTwo({
     total: number;
     onFinalize: () => void;
     createdOrderId: number | null;
-    createOrder: (paymentMethod?: string) => Promise<void>;
+    createOrder: (paymentMethod?: string) => Promise<number | undefined>;
     locale: string;
   }) {
     // Estado para la información de descuento

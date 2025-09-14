@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Database, ProductSnapshot } from '@/types-db';
+import { Database, ProductSnapshot } from '@/lib/database.types';
 import Image from 'next/image';
 import { ShoppingBag, Calendar, User, Mail, Phone, Calculator, CreditCard } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
@@ -9,8 +9,8 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
  
 
-type InterestRequest = Database['interest_requests'] & {
-  interest_request_items: (Database['interest_request_items'] & {
+type InterestRequest = Database['public']['Tables']['interest_requests']['Row'] & {
+  interest_request_items: (Database['public']['Tables']['interest_request_items']['Row'] & {
     product_snapshot: ProductSnapshot;
   })[];
 };

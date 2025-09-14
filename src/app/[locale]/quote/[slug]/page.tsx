@@ -1,10 +1,11 @@
 import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { notFound } from 'next/navigation';
 import QuotePaymentPage from '@/components/quotes/QuotePaymentPage';
-import { Database } from '@/types-db';
+import { Database, ProductSnapshot } from '@/lib/database.types';
 
-type InterestRequestItem = Database['interest_request_items'];
+type InterestRequestItem = Database['public']['Tables']['interest_request_items']['Row'];
 type tParams = Promise<{ locale: string, slug: string }>;
+
 
 export default async function QuotePage({ params }: { params: tParams }) {
   const { slug, locale } = await params;
@@ -26,7 +27,8 @@ export default async function QuotePage({ params }: { params: tParams }) {
   // Calcular total_amount si no está disponible
   if (quote && (!quote.total_amount || quote.total_amount === 0)) {
     const calculatedTotal = quote.interest_request_items.reduce((total: number, item: InterestRequestItem) => {
-      const itemPrice = item.product_snapshot?.dolar_price || 0;
+      const snapshot = item.product_snapshot as unknown as ProductSnapshot;
+      const itemPrice = snapshot?.price || 0;
       return total + (itemPrice * item.quantity);
     }, 0);
     quote.total_amount = calculatedTotal;

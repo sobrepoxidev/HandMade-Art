@@ -8,11 +8,11 @@ import { ProductsProvider } from '@/components/providers/ProductsProvider';
 import OptimizedGridSection from '@/components/cards/OptimizedGridSection';
 import FeaturedProductsSection from '../cards/FeaturedProductsSection';
 import GiftsCarouselSection from '@/components/cards/GiftsCarouselSection';
-import type { Database } from '@/types-db';
+import type { Database } from '@/lib/database.types';
 
 // Tipos para los datos pre-cargados desde el servidor
-type Product = Database['products'];
-type Category = Database['categories'];
+type Product = Database['public']['Tables']['products']['Row'];
+type Category = Database['public']['Tables']['categories']['Row'];
 
 /**
  * Componente principal de la página de inicio optimizado

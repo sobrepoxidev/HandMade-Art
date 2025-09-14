@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { generateQuoteEmailTemplate, generateManagerQuoteNotificationTemplate } from '@/lib/emailTemplates/quoteEmailTemplate';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 
-type InterestRequestItem = Database['interest_request_items'];
+type InterestRequestItem = Database['public']['Tables']['interest_request_items']['Row'];
 
 export async function POST(request: NextRequest) {
   try {

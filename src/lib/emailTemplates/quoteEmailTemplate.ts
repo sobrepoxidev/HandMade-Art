@@ -1,6 +1,17 @@
-import { Database } from '@/types-db'
+import { Database, Json } from '@/lib/database.types'
 
-type InterestRequestItem = Database['interest_request_items'];
+type InterestRequestItem = Database['public']['Tables']['interest_request_items']['Row'];
+
+// Type guard para verificar si product_snapshot es un objeto válido
+function isProductSnapshot(snapshot: Json | null): snapshot is {
+  name: string;
+  sku?: string;
+  dolar_price: number;
+  url?: string;
+} {
+  return snapshot !== null && typeof snapshot === 'object' && 
+         'name' in snapshot && 'dolar_price' in snapshot;
+}
 
 interface QuoteEmailData {
   customerName: string;
@@ -40,10 +51,12 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
     }).format(amount);
   };
 
-  const itemsHtml = items.map(item => `
+  const itemsHtml = items.map(item => {
+    if (!isProductSnapshot(item.product_snapshot)) return '';
+    return `
     <tr style="border-bottom: 1px solid #e5e7eb;" class="product-row">
       <td style="padding: 12px 8px; vertical-align: top;" class="product-info">
-        ${item.product_snapshot?.url ? `
+        ${item.product_snapshot.url ? `
           <img src="${item.product_snapshot.url}" alt="${item.product_snapshot.name}" 
                style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; margin-right: 12px; float: left;" class="product-image" />
         ` : ''}
@@ -62,13 +75,16 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
         ${formatCurrency(item.unit_price_usd ? item.unit_price_usd * item.quantity : 0 * item.quantity)}
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 
   // Versión móvil de los items como tarjetas
-  const itemsMobileHtml = items.map(item => `
+  const itemsMobileHtml = items.map(item => {
+    if (!isProductSnapshot(item.product_snapshot)) return '';
+    return `
     <div style="border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 12px; padding: 16px; background-color: #ffffff;" class="mobile-product-card">
       <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-        ${item.product_snapshot?.url ? `
+        ${item.product_snapshot.url ? `
           <img src="${item.product_snapshot.url}" alt="${item.product_snapshot.name}" 
                style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 12px; flex-shrink: 0;" />
         ` : ''}
@@ -92,7 +108,8 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
         </div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   return `
     <!DOCTYPE html>

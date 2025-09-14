@@ -3,11 +3,11 @@
 import { MediaCarousel } from "./ClientComponents";
 import { ShoppingCartIcon, Share2 } from 'lucide-react';
 import { useState } from 'react';
-import { Database } from "@/types-db";
+import { Database } from "@/lib/database.types";
 import { useCart } from "@/context/CartContext";
 import { useLocale } from 'next-intl';
 
-type Product = Database['products'] & { category?: string | null };
+type Product = Database['public']['Tables']['products']['Row'] & { category?: string | null };
 
 export function ProductCardModal({
     product,

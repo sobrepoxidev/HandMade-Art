@@ -2,19 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 import { Star } from 'lucide-react';
 import { useLocale } from 'next-intl';
 
 // Define a type for profile data
-interface ProfileType {
-  id: string;
-  full_name?: string;
-  avatar_url?: string;
-  email?: string;
-}
+type ProfileType = Database['public']['Tables']['user_profiles']['Row'];
 
-type Review = Database['reviews'];
+type Review = Database['public']['Tables']['reviews']['Row'];
 
 // We don't need a User type since we're fetching from profiles directly
 
@@ -93,7 +88,7 @@ export default function ReviewsList({ productId }: ReviewsListProps) {
         
         for (const userId of userIds) {
           const { data: userData } = await supabase
-            .from('profiles')
+            .from('user_profiles')
             .select('*')
             .eq('id', userId)
             .single();

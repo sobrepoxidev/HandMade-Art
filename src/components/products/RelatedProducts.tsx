@@ -1,13 +1,13 @@
 import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import ProductCard from "./ProductCard";
-import { Database } from "@/types-db";
+import { Database } from "@/lib/database.types";
 
 // Server component that fetches a small set of products and renders them with ProductCard.
 // It is intentionally minimal: no pagination, no modal, just links to product pages.
 // This same component can be used in /cart and /product/[id] to encourage navigation.
 
-export type MinimalProduct = Pick<Database["products"],
+export type MinimalProduct = Pick<Database['public']['Tables']['products']['Row'],
   | "id"
   | "name"
   | "name_es"
@@ -77,7 +77,7 @@ export default async function RelatedProducts({
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4">
         {products.map((product) => (
           // ProductCard is a client component; casting here is safe because we selected matching fields.
-          <ProductCard key={product.id} product={product as unknown as Database["products"]} />
+          <ProductCard key={product.id} product={product as unknown as Database['public']['Tables']['products']['Row']} />
         ))}
       </div>
     </div>

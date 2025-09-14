@@ -2,11 +2,11 @@
 
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/supabaseClient';
  
 
-type Product = Database['products'];
+type Product = Database['public']['Tables']['products']['Row'];
 
 export type CartItem = {
   product: Product;

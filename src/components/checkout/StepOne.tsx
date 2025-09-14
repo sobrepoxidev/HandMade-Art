@@ -1,4 +1,18 @@
-import { Database } from "@/types-db";
+import { Database, Json } from "@/lib/database.types";
+
+// Type guard para verificar si shipping_address es un objeto válido
+function isShippingAddress(address: Json): address is {
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code?: string;
+  phone: string;
+} {
+  return typeof address === 'object' && address !== null && 
+         'name' in address && 'address' in address && 'city' in address;
+}
 import { useState, useEffect } from "react";
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { Session } from '@supabase/supabase-js';
@@ -13,11 +27,11 @@ type DiscountInfo = {
   finalTotal: number;
   code: string;
   description?: string;
-  discount_type: Database['discount_codes']['discount_type'];
+  discount_type: Database['public']['Tables']['discount_codes']['Row']['discount_type'];
   discount_value: number;
 };
 
-type ProductType = Database['products'];
+type ProductType = Database['public']['Tables']['products']['Row'];
 
 type CartItem = {
   product: ProductType;
@@ -52,7 +66,7 @@ export default function StepOne({
 
   // Estados para la sesión y el perfil de usuario
   const [session, setSession] = useState<Session | null>(null);
-  const [userProfile, setUserProfile] = useState<Database['user_profiles'] | null>(null);
+  const [userProfile, setUserProfile] = useState<Database['public']['Tables']['user_profiles']['Row'] | null>(null);
 
   // Estado para mostrar diálogo de selección de dirección
   const [showAddressOptions, setShowAddressOptions] = useState(false);
@@ -172,7 +186,7 @@ export default function StepOne({
     // Si no hay datos iniciales pero sí hay perfil con dirección guardada
     else if (userProfile?.shipping_address && !initialData && !showAddressOptions) {
       const address = userProfile.shipping_address;
-      if (address && typeof address === 'object') {
+      if (address && isShippingAddress(address)) {
         const nameParts = address.name?.split(' ') || [''];
         setFormData({
           nombre: nameParts[0] || '',
@@ -251,7 +265,7 @@ export default function StepOne({
     if (useProfileAddress && userProfile?.shipping_address) {
       // Usar la dirección del perfil
       const address = userProfile.shipping_address;
-      if (address && typeof address === 'object') {
+      if (address && isShippingAddress(address)) {
         const nameParts = address.name?.split(' ') || [''];
         setFormData({
           nombre: nameParts[0] || '',

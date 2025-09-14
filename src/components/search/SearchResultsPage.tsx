@@ -9,7 +9,7 @@ import { ChevronRight, SlidersHorizontal, } from 'lucide-react';
 import AddToCartButton from '@/components/home/AddToCartButton';
 import PaginationControls from '@/components/products/PaginationControls';
 import { supabase } from '@/lib/supabaseClient';
-import { Database } from '@/types-db';
+import { Database, Json } from '@/lib/database.types';
 import { Product } from '@/lib/hooks/useProducts';
 import { formatUSD } from '@/lib/formatCurrency';
 
@@ -31,7 +31,7 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState(currentSortBy);
-  const [categories, setCategories] = useState<Database['categories'][]>([]);
+  const [categories, setCategories] = useState<Database['public']['Tables']['categories']['Row'][]>([]);
   const [categoryName, setCategoryName] = useState('');
   
   // Cargar categorías
@@ -47,7 +47,7 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
         setCategories(data || []);
         if (isCategoryFilter) {
           const categoryData = data.find(cat => cat.id === parseInt(categoryParam, 10));
-          setCategoryName(locale === 'es' ? categoryData?.name_es : categoryData?.name_en || '');
+          setCategoryName(locale === 'es' ? (categoryData?.name_es || '') : (categoryData?.name_en || ''));
         }
       } catch (err) {
         console.error('Error al cargar categorías:', err);
@@ -94,7 +94,21 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
 
       try {
         // Helper to format raw product rows into SearchResult
-        const toSearchResult = (product: SearchResult): SearchResult => ({
+        type SupabaseProduct = {
+          id: number;
+          name: string | null;
+          name_es: string | null;
+          name_en: string | null;
+          description: string | null;
+          colon_price: number | null;
+          dolar_price: number | null;
+          media: Json;
+          category_id: number | null;
+          discount_percentage: number | null;
+          created_at: string;
+        };
+        
+        const toSearchResult = (product: SupabaseProduct): SearchResult => ({
           id: product.id,
           name: product.name,
           name_es: product.name_es,
@@ -102,7 +116,7 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
           description: product.description,
           colon_price: product.colon_price,
           dolar_price: product.dolar_price,
-          media: product.media,
+          media: product.media as SearchResult['media'],
           category_id: product.category_id,
           discount_percentage: product.discount_percentage,
           created_at: product.created_at,

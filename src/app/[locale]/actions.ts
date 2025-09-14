@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import type { Database } from '@/types-db';
+import type { Database } from '@/lib/database.types';
 
 /**
  * Función para obtener categorías y productos desde el servidor
@@ -49,8 +49,12 @@ export async function getHomePageData() {
         product.category_id &&
         productsByCategory[product.category_id] &&
         product.media &&
+        Array.isArray(product.media) &&
         product.media.length > 0 &&
-        product.media[0]["url"]
+        product.media[0] &&
+        typeof product.media[0] === 'object' &&
+        product.media[0] !== null &&
+        'url' in product.media[0]
       ) {
         // Solo añadir hasta 4 productos por categoría
         if (productsByCategory[product.category_id].length < 4) {

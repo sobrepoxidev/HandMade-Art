@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { getPaypalAccessToken, capturePaypalOrder } from '../paypalHelpers';
-import { Database } from '@/types-db'
+import { Database, Json } from '@/lib/database.types'
 
-type InterestRequestItem = Database['interest_request_items'];
+type InterestRequestItem = Database['public']['Tables']['interest_request_items']['Row'];
+
+// Type guard para verificar si product_snapshot es un objeto válido
+function isProductSnapshot(snapshot: Json | null): snapshot is {
+  dolar_price: number;
+} {
+  return snapshot !== null && typeof snapshot === 'object' && 
+         'dolar_price' in snapshot;
+}
+
 // For debugging purposes - remove in production
 const DEBUG = process.env.NODE_ENV !== 'production';
 
@@ -115,7 +124,7 @@ export async function POST(request: NextRequest) {
       order_id: order.id,
       product_id: item.product_id,
       quantity: item.quantity,
-      price: item.product_snapshot?.dolar_price || 0
+      price: (item.product_snapshot && isProductSnapshot(item.product_snapshot)) ? item.product_snapshot.dolar_price : 0
     }));
 
     if (DEBUG) {

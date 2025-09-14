@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { sendMail } from '@/lib/email';
-import { ProductSnapshot } from '@/types-db';
+import { ProductSnapshot } from '@/lib/database.types';
 import { generateQuoteEmailTemplate, generateManagerQuoteNotificationTemplate } from '@/lib/emailTemplates/quoteEmailTemplate';
 
 export async function POST(request: NextRequest) {

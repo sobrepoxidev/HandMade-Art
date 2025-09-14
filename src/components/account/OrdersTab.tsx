@@ -3,12 +3,26 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSupabase } from '@/app/supabase-provider/provider';
-import { Database } from '@/types-db';
+import { Database, Json } from '@/lib/database.types';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-type Order = Database['orders'] & {
-  order_items: (Database['order_items'] & {
-    product: Database['products']
+// Type guard para verificar si shipping_address es un objeto válido
+function isShippingAddress(address: Json): address is {
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code?: string;
+  phone: string;
+} {
+  return typeof address === 'object' && address !== null && 
+         'name' in address && 'address' in address && 'city' in address;
+}
+
+type Order = Database['public']['Tables']['orders']['Row'] & {
+  order_items: (Database['public']['Tables']['order_items']['Row'] & {
+    product: Database['public']['Tables']['products']['Row']
   })[]
 };
 
@@ -182,7 +196,7 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
                   </div>
                   
                   {/* Dirección de envío */}
-                  {order.shipping_address && (
+                  {order.shipping_address && isShippingAddress(order.shipping_address) && (
                     <div className="mb-4">
                       <h3 className="text-sm font-medium text-gray-700 mb-2">
                         {t('shippingAddress')}

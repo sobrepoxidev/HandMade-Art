@@ -5,14 +5,24 @@ import Card from "./Card";
 import { Link } from '@/i18n/navigation';
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
-import { Database } from "@/types-db";
+import { Database, Json } from "@/lib/database.types";
 import CarrucelSectionA from "./CarrucelSectionA";
 import { useLocale } from "next-intl";
 import { formatUSD } from "@/lib/formatCurrency";
 
 // Type definitions with fixes for TypeScript errors
-type Category = Database['categories'] & { image_url?: string }; // Add image_url property
-type Product = Database['products'];
+type Category = Database['public']['Tables']['categories']['Row'] & { image_url?: string }; // Add image_url property
+type Product = Database['public']['Tables']['products']['Row'];
+
+// Type guard for media
+function isMediaArray(media: Json): media is { url: string; type: string }[] {
+  return Array.isArray(media) && media.every(item => 
+    typeof item === 'object' && 
+    item !== null && 
+    'url' in item && 
+    typeof item.url === 'string'
+  );
+}
 
 const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart: number, indexEnd: number, mobileActive?: boolean }) => {
   const locale = useLocale();
@@ -64,8 +74,9 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
           } else if (result.data) {
             productsByCategory[categoryId] = result.data.filter(product =>
               product.media &&
+              isMediaArray(product.media) &&
               product.media.length > 0 &&
-              product.media[0]["url"]
+              product.media[0].url
             ).slice(0, 4);
           }
         });
@@ -100,8 +111,9 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
     if (product.category_id && productsByCategory[product.category_id]) {
       // Solo agregar productos que tengan media y si la categoría no tiene 4 productos aún
       if (product.media &&
+        isMediaArray(product.media) &&
         product.media.length > 0 &&
-        product.media[0]["url"] &&
+        product.media[0].url &&
         productsByCategory[product.category_id].length < 4) {
         productsByCategory[product.category_id].push(product);
       }
@@ -114,7 +126,7 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
     const displayProducts = categoryProducts.slice(0, 4); // Mostrar hasta 4 productos por categoría
 
     return {
-      title: locale === 'es' ? category.name_es : category.name_en || category.name,
+      title: (locale === 'es' ? category.name_es : category.name_en) || category.name || 'Categoría',
       link: `/products?category=${category.id}`,
       content: (
         <div className="p-3">
@@ -126,8 +138,8 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
                     <div className="flex flex-col items-center bg-gray-50 rounded p-2 hover:shadow-sm transition-shadow">
                       <div className="h-44 flex items-center justify-center mb-1">
                         <Image
-                          src={product.media && product.media.length > 0 ?
-                            (typeof product.media[0]["url"] === 'string' ? product.media[0]["url"] : '/placeholder.jpg') :
+                          src={product.media && isMediaArray(product.media) && product.media.length > 0 ?
+                            product.media[0].url :
                             '/placeholder.jpg'}
                           alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                           width={100}
@@ -285,7 +297,7 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
                         <Link key={idx} href={`/product/${product.id}`} className="block text-center">
                           <div className="h-44 flex items-center justify-center bg-white rounded-lg shadow-sm">
                             <Image
-                              src={product.media && product.media.length > 0 ? product.media[0].url : '/placeholder-image.png'}
+                              src={product.media && isMediaArray(product.media) && product.media.length > 0 ? product.media[0].url : '/placeholder-image.png'}
                               alt={product.name || ''}
                               width={100}
                               height={0}

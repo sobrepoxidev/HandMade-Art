@@ -5,7 +5,7 @@ import { useCart, CartItem } from '@/context/CartContext'
 import { useState, useEffect } from 'react'
 import StepOne from "@/components/checkout/StepOne";
 import StepTwo from "@/components/checkout/StepTwo";  
-import { Database } from "@/lib/database.types";
+import { Database, Json } from "@/lib/database.types";
 import { Session } from '@supabase/supabase-js';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useLocale } from 'next-intl';
@@ -117,7 +117,7 @@ export default function CheckoutWizardPage() {
 
 
     // -------------- createOrder() y resto --------------
-    const createOrder = async (paymentMethodAux?: string) => {
+    const createOrder = async (paymentMethodAux?: string): Promise<number | undefined> => {
       setIsProcessing(true);
       try {
         // Check if we have shipping address
@@ -156,12 +156,12 @@ export default function CheckoutWizardPage() {
         const { data: orderInsert, error: orderError } = await supabase
           .from("orders")
           .insert({
-            user_id: userId == 'guest-user' ? null : userId, // Convert guest-user to null for UUID field
-            payment_method: paymentMethodAux ? paymentMethodAux : paymentMethod,
+            user_id: userId === 'guest-user' ? null : (userId || null),
+            payment_method: paymentMethodAux || paymentMethod || 'card',
             payment_status: "pending",
             shipping_status: "pending",
             total_amount: total,
-            shipping_address: shippingAddress,
+            shipping_address: shippingAddress as unknown as Json,
             // Campos requeridos adicionales
             currency: "CRC",
             shipping_amount: 0,

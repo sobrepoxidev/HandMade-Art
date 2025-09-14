@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import type { Database } from "@/types-db";
+import type { Database } from "@/lib/database.types";
 import AccountClient from "@/components/account/AccountClient";
 
 export const dynamic = "force-dynamic";

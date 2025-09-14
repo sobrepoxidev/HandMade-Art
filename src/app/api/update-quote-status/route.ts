@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,8 +20,7 @@ export async function POST(request: NextRequest) {
     // Si se proporciona quoteId, actualizar directamente la cotización
     if (quoteId) {
       const updateData: InterestRequestUpdate = { 
-        status: status,
-        updated_at: new Date().toISOString()
+        status: status
       };
       
       if (responded_at) {
@@ -67,8 +66,7 @@ export async function POST(request: NextRequest) {
       const { error: updateOrderError } = await supabase
         .from('orders')
         .update({ 
-          status: status === 'vendido' ? 'completed' : status,
-          updated_at: new Date().toISOString()
+          status: status === 'vendido' ? 'completed' : status
         })
         .eq('id', orderId);
 
@@ -85,8 +83,7 @@ export async function POST(request: NextRequest) {
         const { error: updateQuoteError } = await supabase
           .from('interest_requests')
           .update({ 
-            status: status,
-            updated_at: new Date().toISOString()
+            status: status
           })
           .eq('id', order.quote_id);
 
@@ -200,4 +197,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-type InterestRequestUpdate = Partial<Database['interest_requests']>;
+type InterestRequestUpdate = Partial<Database['public']['Tables']['interest_requests']['Row']>;

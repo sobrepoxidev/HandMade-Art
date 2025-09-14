@@ -88,7 +88,9 @@ export default function CatalogPage() {
         return;
       }
 
-      setProducts(data || []);
+      setProducts((data || []).filter((product): product is Product => 
+        product !== null && typeof product.id === 'number'
+      ));
       setLoading(false);
     }
 

@@ -1,7 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { cookies } from 'next/headers';
-import { Database } from '@/types-db';
+import { Database } from '@/lib/database.types';
 import OptimizedNew from '@/components/home/OptimizedNew';
 
 /**
@@ -34,7 +34,7 @@ export default async function HomePageData({ locale }: {locale: string}) {
   
   // Pre-cargar productos específicamente de las categorías que se muestran primero
   // Esta estrategia garantiza que tengamos los productos que el usuario verá en la primera carga
-  let initialProducts: Database['products'][] = [];
+  let initialProducts: Database['public']['Tables']['products']['Row'][] = [];
   
   if (firstCategoryIds.length > 0) {
     // Obtener productos de las primeras categorías (hasta 16 productos)

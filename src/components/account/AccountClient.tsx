@@ -5,6 +5,7 @@ import { User } from '@supabase/supabase-js';
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Database, Json } from '@/lib/database.types';
 // Tipo para dirección de envío basado en la interfaz de types-db.ts
 interface ShippingAddress {
   name: string;
@@ -20,7 +21,20 @@ import ProfileTab from './ProfileTab';
 import AddressTab from './AddressTab';
 import OrdersTab from './OrdersTab';
 
-type UserProfile = {
+type UserProfile = Database['public']['Tables']['user_profiles']['Row'];
+
+// Tipo compatible para ProfileTab
+type ProfileTabUserProfile = {
+  id: string;
+  full_name?: string | null;
+  shipping_address?: unknown | null;
+  preferences?: Record<string, unknown> | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+// Tipo compatible para AddressTab
+type AddressTabUserProfile = {
   id: string;
   full_name?: string | null;
   shipping_address?: ShippingAddress | null;
@@ -40,6 +54,34 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
   const [activeTab, setActiveTab] = useState('profile');
   const [profile, setProfile] = useState<UserProfile | null>(initialProfile);
   const [loading, setLoading] = useState(false);
+
+  // Función para convertir el perfil para ProfileTab
+  const convertToProfileTabProfile = (dbProfile: UserProfile | null): ProfileTabUserProfile | null => {
+    if (!dbProfile) return null;
+    
+    return {
+      id: dbProfile.id,
+      full_name: dbProfile.full_name,
+      shipping_address: dbProfile.shipping_address,
+      preferences: dbProfile.preferences as Record<string, unknown> | null,
+      created_at: dbProfile.created_at || undefined,
+      updated_at: dbProfile.updated_at || undefined
+    };
+  };
+
+  // Función para convertir el perfil para AddressTab
+  const convertToAddressTabProfile = (dbProfile: UserProfile | null): AddressTabUserProfile | null => {
+    if (!dbProfile) return null;
+    
+    return {
+      id: dbProfile.id,
+      full_name: dbProfile.full_name,
+      shipping_address: dbProfile.shipping_address ? JSON.parse(JSON.stringify(dbProfile.shipping_address)) as ShippingAddress : null,
+      preferences: dbProfile.preferences as Record<string, unknown> | null,
+      created_at: dbProfile.created_at || undefined,
+      updated_at: dbProfile.updated_at || undefined
+    };
+  };
 
   // Efecto para crear un perfil si no existe
   useEffect(() => {
@@ -117,15 +159,18 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
     try {
       setLoading(true);
       
+      // Convertir ShippingAddress a Json
+      const addressAsJson = address as unknown as Json;
+      
       const { error } = await supabase
         .from('user_profiles')
-        .update({ shipping_address: address })
+        .update({ shipping_address: addressAsJson })
         .eq('id', user.id);
 
       if (error) throw error;
 
       // Actualizar el estado
-      setProfile(prev => prev ? { ...prev, shipping_address: address } : null);
+      setProfile(prev => prev ? { ...prev, shipping_address: addressAsJson } : null);
       
       toast.success(t('addressUpdated'));
     } catch (error) {
@@ -175,7 +220,7 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
           <TabsContent value="profile">
             <ProfileTab 
               user={user} 
-              profile={profile} 
+              profile={convertToProfileTabProfile(profile)} 
               updateFullName={updateFullName} 
               loading={loading} 
             />
@@ -183,7 +228,7 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
 
           <TabsContent value="address">
             <AddressTab 
-              profile={profile} 
+              profile={convertToAddressTabProfile(profile)} 
               updateShippingAddress={updateShippingAddress} 
               loading={loading} 
             />
