@@ -5,7 +5,7 @@ import { User } from '@supabase/supabase-js';
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Database, Json } from '@/lib/database.types';
+import { Database, Json, TablesInsert } from '@/lib/database.types';
 // Tipo para dirección de envío basado en la interfaz de types-db.ts
 interface ShippingAddress {
   name: string;
@@ -91,13 +91,20 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
       if (!profile && user) {
         try {
           setLoading(true);
+
+          const fullName: string | null = typeof user.user_metadata?.full_name === 'string'
+            ? user.user_metadata.full_name
+            : null;
+
+          const newProfile: TablesInsert<'user_profiles'> = {
+            id: user.id,
+            full_name: fullName,
+            shipping_address: null,
+          };
+
           const { data, error } = await supabase
             .from('user_profiles')
-            .insert({
-              id: user.id,
-              full_name: user.user_metadata?.full_name || null,
-              shipping_address: null,
-            })
+            .insert(newProfile)
             .select()
             .single();
 
