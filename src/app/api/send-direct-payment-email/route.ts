@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generar el link de pago
-    const paymentLink = `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/direct-quote/${quoteId}`;
+    // Generar el link de pago usando quote_slug
+    const paymentLink = `${process.env.NEXT_PUBLIC_SITE_URL}/quote/${quote.quote_slug}`;
 
     // Preparar datos para la plantilla
     const items = quote.interest_request_items.map((item: QuoteItem) => ({
@@ -91,11 +91,17 @@ export async function POST(request: NextRequest) {
       shippingCost
     });
 
-    await sendMail(
-      emailSubject,
-      clientEmailHtml,
-      quote.email
-    );
+    try {
+      await sendMail(
+        emailSubject,
+        clientEmailHtml,
+        quote.email
+      );
+      console.log(`Email sent successfully to: ${quote.email}`);
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+      throw new Error('Failed to send email');
+    }
 
     // Generar link de WhatsApp si hay número de teléfono
     let whatsappLink = null;
