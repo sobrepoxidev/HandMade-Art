@@ -6,7 +6,7 @@ import { Session, SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/lib/database.types' // si tienes un type global de tu DB
 
 type SupabaseContextProps = {
-  supabase: SupabaseClient<Database>
+  supabase: SupabaseClient<Database, "public">
   session: Session | null
 }
 
