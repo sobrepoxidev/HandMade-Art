@@ -45,7 +45,8 @@ export async function getHomePageData() {
     });
 
     // Organizar productos por categoría
-    products.forEach(product => {
+    const typedProducts: Database['public']['Tables']['products']['Row'][] = products || [];
+    typedProducts.forEach(product => {
       if (
         product.category_id &&
         productsByCategory[product.category_id] &&
