@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { sendMail } from '@/lib/email';
-import { ProductSnapshot } from '@/types-db';
 import { generateDirectPaymentEmailTemplate } from '@/lib/emailTemplates/directPaymentEmailTemplate';
+
+interface QuoteItem {
+  quantity: number;
+  unit_price_usd?: number;
+  product_snapshot?: {
+    name?: string;
+    image_url?: string;
+    sku?: string;
+  };
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,7 +47,7 @@ export async function POST(request: NextRequest) {
     const paymentLink = `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/direct-quote/${quoteId}`;
 
     // Preparar datos para la plantilla
-    const items = quote.interest_request_items.map((item: any) => ({
+    const items = quote.interest_request_items.map((item: QuoteItem) => ({
       name: item.product_snapshot?.name || 'Producto',
       quantity: item.quantity,
       unit_price: item.unit_price_usd || 0,

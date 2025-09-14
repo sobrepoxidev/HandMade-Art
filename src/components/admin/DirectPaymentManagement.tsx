@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Image from 'next/image';
-import { Search, ShoppingCart, Plus, Minus, Trash2, User, Mail, Phone, X, Filter, Loader2 } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, Trash2, User, Filter, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import DirectPaymentDiscountModal from './DirectPaymentDiscountModal';
 import { Database } from '@/types-db';

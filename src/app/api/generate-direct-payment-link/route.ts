@@ -5,6 +5,18 @@ import { v4 as uuidv4 } from 'uuid';
 // For debugging purposes - remove in production
 const DEBUG = process.env.NODE_ENV !== 'production';
 
+interface CartItem {
+  id: number;
+  name?: string;
+  name_es?: string;
+  name_en?: string;
+  dolar_price?: number;
+  quantity: number;
+  description?: string;
+  media?: { url: string }[];
+  sku?: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { cartItems, customerInfo, discountInfo, shippingCost, totalAmount, finalAmount, managerNotes } = await request.json();
@@ -62,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Crear los items de la cotización
-    const quoteItems = cartItems.map((item: any) => ({
+    const quoteItems = cartItems.map((item: CartItem) => ({
       request_id: quote.id,
       product_id: item.id,
       quantity: item.quantity,

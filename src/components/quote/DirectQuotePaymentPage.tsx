@@ -6,10 +6,21 @@ import Image from 'next/image';
 import { ShoppingBag, Calendar, User, Mail, Phone, Calculator } from 'lucide-react';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import toast from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
 import DirectPayPalButton from './DirectPayPalButton';
 import PaymentSuccessMessage from './PaymentSuccessMessage';
 import { formatUSD } from '@/lib/formatCurrency';
+
+interface PaymentDetails {
+  id: string;
+  status: string;
+  payer?: {
+    name?: {
+      given_name?: string;
+      surname?: string;
+    };
+    email_address?: string;
+  };
+}
 
 type InterestRequest = Database['interest_requests'] & {
   interest_request_items: (Database['interest_request_items'] & {
@@ -28,7 +39,6 @@ const PAYPAL_CLIENT_ID: string =
     : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? 'sb';
 
 export default function DirectQuotePaymentPage({ quote, locale }: DirectQuotePaymentPageProps) {
-  const router = useRouter();
   const [paymentCompleted, setPaymentCompleted] = useState(false);
 
 
@@ -78,7 +88,7 @@ export default function DirectQuotePaymentPage({ quote, locale }: DirectQuotePay
     }
   };
 
-  const handlePaymentSuccess = (details: any) => {
+  const handlePaymentSuccess = (_details: PaymentDetails) => {
     setPaymentCompleted(true);
     toast.success(locale === 'es' ? 'Pago completado exitosamente' : 'Payment completed successfully');
   };

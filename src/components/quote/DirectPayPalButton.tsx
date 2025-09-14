@@ -4,10 +4,26 @@ import { useState } from 'react';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import toast from 'react-hot-toast';
 
+interface PaymentDetails {
+  id: string;
+  status: string;
+  payer?: {
+    name?: {
+      given_name?: string;
+      surname?: string;
+    };
+    email_address?: string;
+  };
+}
+
+interface PayPalData {
+  orderID: string;
+}
+
 interface DirectPayPalButtonProps {
   quoteId: string;
   amount: number;
-  onSuccess: (details: any) => void;
+  onSuccess: (details: PaymentDetails) => void;
   disabled?: boolean;
 }
 
@@ -49,7 +65,7 @@ export default function DirectPayPalButton({
     }
   };
 
-  const onApprove = async (data: any) => {
+  const onApprove = async (data: PayPalData) => {
     try {
       const response = await fetch('/api/capture-order', {
         method: 'POST',
