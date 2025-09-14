@@ -100,11 +100,11 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
         </div>
         <div style="text-align: center;">
           <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">${isSpanish ? 'Precio Unit.' : 'Unit Price'}</p>
-          <p style="margin: 4px 0 0 0; color: #374151; font-size: 16px; font-weight: 600;">${formatCurrency(item.product_snapshot.dolar_price ? item.product_snapshot.dolar_price : 0)}</p>
+          <p style="margin: 4px 0 0 0; color: #374151; font-size: 16px; font-weight: 600;">${formatCurrency(item.unit_price_usd || item.product_snapshot.dolar_price || 0)}</p>
         </div>
         <div style="text-align: center;">
           <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">${isSpanish ? 'Total' : 'Total'}</p>
-          <p style="margin: 4px 0 0 0; color: #10b981; font-size: 18px; font-weight: 700;">${formatCurrency(item.product_snapshot.dolar_price ? item.product_snapshot.dolar_price * item.quantity : 0 * item.quantity)}</p>
+          <p style="margin: 4px 0 0 0; color: #10b981; font-size: 18px; font-weight: 700;">${formatCurrency((item.unit_price_usd || item.product_snapshot.dolar_price || 0) * item.quantity)}</p>
         </div>
       </div>
     </div>

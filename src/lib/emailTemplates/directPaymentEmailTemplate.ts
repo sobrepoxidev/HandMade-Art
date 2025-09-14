@@ -49,10 +49,10 @@ export function generateDirectPaymentEmailTemplate({
     notes: locale === 'es' ? 'Notas' : 'Notes',
     thanks: locale === 'es' ? 'Gracias por tu compra' : 'Thank you for your purchase',
     questions: locale === 'es'
-      ? 'Si tienes alguna pregunta, no dudes en contactarnos.'
-      : 'If you have any questions, please don\'t hesitate to contact us.',
+      ? 'Si tienes alguna pregunta, no dudes en contactarnos al +506 8585-0000.'
+      : 'If you have any questions, please don\'t hesitate to contact us at +506 8585-0000.',
     regards: locale === 'es' ? 'Saludos cordiales' : 'Best regards',
-    team: 'Hands Made Art'
+    team: 'Handmade Art'
   };
 
   const itemsHtml = items
@@ -163,7 +163,7 @@ export function generateDirectPaymentEmailTemplate({
         
         <!-- Footer -->
         <div style="background-color: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #718096;">
-          <p style="margin: 0;">© ${new Date().getFullYear()} Hands Made Art. ${locale === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}</p>
+          <p style="margin: 0;">© ${new Date().getFullYear()} Handmade Art. ${locale === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}</p>
         </div>
       </div>
     </body>

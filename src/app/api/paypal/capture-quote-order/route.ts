@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       order_id: order.id,
       product_id: item.product_id,
       quantity: item.quantity,
-      price: (item.product_snapshot && isProductSnapshot(item.product_snapshot)) ? item.product_snapshot.dolar_price : 0
+      price: item.unit_price_usd || ((item.product_snapshot && isProductSnapshot(item.product_snapshot)) ? item.product_snapshot.dolar_price : 0)
     }));
 
     if (DEBUG) {

@@ -204,7 +204,8 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
               </h2>
               <div className="space-y-4">
                 {quote.interest_request_items.map((item) => {
-                  const itemTotal = (item.product_snapshot.dolar_price || 0) * item.quantity;
+                  const unitPrice = item.unit_price_usd || item.product_snapshot.dolar_price || 0;
+                  const itemTotal = unitPrice * item.quantity;
                   return (
                     <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center space-x-4">
@@ -225,7 +226,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                         <div>
                           <h3 className="font-medium text-gray-900">{item.product_snapshot.name}</h3>
                           <p className="text-sm text-gray-500">
-                            {formatCurrency(item.product_snapshot.dolar_price || 0)} x {item.quantity}
+                            {formatCurrency(unitPrice)} x {item.quantity}
                           </p>
                         </div>
                       </div>

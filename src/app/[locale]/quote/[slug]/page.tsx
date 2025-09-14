@@ -28,7 +28,7 @@ export default async function QuotePage({ params }: { params: tParams }) {
   if (quote && (!quote.total_amount || quote.total_amount === 0)) {
     const calculatedTotal = quote.interest_request_items.reduce((total: number, item: InterestRequestItem) => {
       const snapshot = item.product_snapshot as unknown as ProductSnapshot;
-      const itemPrice = snapshot?.price || 0;
+      const itemPrice = item.unit_price_usd || snapshot?.dolar_price || snapshot?.price || 0;
       return total + (itemPrice * item.quantity);
     }, 0);
     quote.total_amount = calculatedTotal;
