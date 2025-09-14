@@ -101,6 +101,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Obtener el quote completo con sus items para evitar problemas de timing
+    const { data: fullQuote, error: fullQuoteError } = await supabase
+      .from('interest_requests')
+      .select(`
+        *,
+        interest_request_items (*, product_snapshot(*))
+      `)
+      .eq('id', quote.id)
+      .single();
+
+    if (fullQuoteError) {
+      console.error('Error fetching full quote:', fullQuoteError);
+      return NextResponse.json(
+        { error: 'Failed to fetch complete quote' },
+        { status: 500 }
+      );
+    }
+
     // Generar el link de pago usando quote_slug
     const paymentLink = `${process.env.NEXT_PUBLIC_SITE_URL}/quote/${quote.quote_slug}`;
 
@@ -112,6 +130,7 @@ export async function POST(request: NextRequest) {
       success: true,
       quoteId: quote.id,
       quoteSlug: quote.quote_slug,
+      quote: fullQuote, // Incluir el objeto quote completo
       paymentLink,
       whatsappLink: generateWhatsAppLink(customerInfo.phone, paymentLink, customerInfo.name)
     });

@@ -15,39 +15,51 @@ interface QuoteItem {
 
 export async function POST(request: NextRequest) {
   try {
-    const { quoteId, locale = 'es' } = await request.json();
-
-    if (!quoteId) {
+    const { quote, quoteId, locale } = await request.json();
+   const supabase = await createClient();
+    if (!quote && !quoteId) {
       return NextResponse.json(
-        { error: 'Quote ID is required' },
+        { error: 'Quote data or Quote ID is required' },
         { status: 400 }
       );
     }
 
-    const supabase = await createClient();
+    let quoteData = quote;
 
-    // Obtener la cotización con sus items
-    const { data: quote, error: quoteError } = await supabase
-      .from('interest_requests')
-      .select(`
-        *,
-        interest_request_items (*, product_snapshot(*))
-      `)
-      .eq('id', quoteId)
-      .single();
+    // Si no se envió el objeto quote, hacer la consulta (fallback)
+    if (!quote && quoteId) {
+      const { data: fetchedQuote, error: quoteError } = await supabase
+        .from('interest_requests')
+        .select(`
+          *,
+          interest_request_items (*, product_snapshot(*))
+        `)
+        .eq('id', quoteId)
+        .single();
 
-    if (quoteError || !quote) {
-      return NextResponse.json(
-        { error: 'Quote not found' },
-        { status: 404 }
-      );
+      console.log('Quote data (fallback):', fetchedQuote);
+      console.log('ID quote (direct link): ', quoteId);
+
+      if (quoteError || !fetchedQuote) {
+        return NextResponse.json(
+          { error: 'Quote not found' },
+          { status: 404 }
+        );
+      }
+      
+      quoteData = fetchedQuote;
     }
 
+    console.log('Using quote data:', quoteData);
+    console.log('Quote ID:', quoteData.id);
+
+ 
+
     // Generar el link de pago usando quote_slug
-    const paymentLink = `${process.env.NEXT_PUBLIC_SITE_URL}/quote/${quote.quote_slug}`;
+    const paymentLink = `${process.env.NEXT_PUBLIC_SITE_URL}/quote/${quoteData.quote_slug}`;
 
     // Preparar datos para la plantilla
-    const items = quote.interest_request_items.map((item: QuoteItem) => ({
+    const items = quoteData.interest_request_items.map((item: QuoteItem) => ({
       name: item.product_snapshot?.name || 'Producto',
       quantity: item.quantity,
       unit_price: item.unit_price_usd || 0,
@@ -56,13 +68,13 @@ export async function POST(request: NextRequest) {
     }));
 
     // Calcular totales
-    const originalTotal = quote.total_amount || 0;
-    const finalAmount = quote.final_amount || originalTotal;
-    const shippingCost = quote.shipping_cost || 0;
+    const originalTotal = quoteData.total_amount || 0;
+    const finalAmount = quoteData.final_amount || originalTotal;
+    const shippingCost = quoteData.shipping_cost || 0;
     
     // Para calcular el descuento, necesitamos considerar el shipping
     let discountAmount = 0;
-    if (quote.discount_type) {
+    if (quoteData.discount_type) {
       // Si hay descuento, calculamos la diferencia entre el total original y el final sin shipping
       const finalAmountWithoutShipping = finalAmount - shippingCost;
       discountAmount = originalTotal - finalAmountWithoutShipping;
@@ -75,18 +87,18 @@ export async function POST(request: NextRequest) {
 
     // Enviar correo al cliente
     const clientEmailHtml = generateDirectPaymentEmailTemplate({
-      customerName: quote.requester_name,
+      customerName: quoteData.requester_name,
       paymentLink,
       items,
       originalTotal,
       discountAmount,
       finalTotal: finalAmount,
-      discountDescription: quote.discount_type 
+      discountDescription: quoteData.discount_type 
         ? locale === 'es' 
-          ? `Descuento aplicado (${getDiscountTypeText(quote.discount_type, locale)})` 
-          : `Applied discount (${getDiscountTypeText(quote.discount_type, locale)})` 
+          ? `Descuento aplicado (${getDiscountTypeText(quoteData.discount_type, locale)})` 
+          : `Applied discount (${getDiscountTypeText(quoteData.discount_type, locale)})` 
         : undefined,
-      managerNotes: quote.manager_notes,
+      managerNotes: quoteData.manager_notes,
       locale,
       shippingCost
     });
@@ -95,9 +107,9 @@ export async function POST(request: NextRequest) {
       await sendMail(
         emailSubject,
         clientEmailHtml,
-        quote.email
+        quoteData.email
       );
-      console.log(`Email sent successfully to: ${quote.email}`);
+      console.log(`Email sent successfully to: ${quoteData.email}`);
     } catch (emailError) {
       console.error('Error sending email:', emailError);
       throw new Error('Failed to send email');
@@ -105,12 +117,12 @@ export async function POST(request: NextRequest) {
 
     // Generar link de WhatsApp si hay número de teléfono
     let whatsappLink = null;
-    if (quote.phone) {
-      const formattedPhone = quote.phone.replace(/[\s-\(\)]/g, '');
+    if (quoteData.phone) {
+      const formattedPhone = quoteData.phone.replace(/[\s-\(\)]/g, '');
       const message = encodeURIComponent(
         locale === 'es'
-          ? `Hola ${quote.requester_name}, aquí está el link para realizar tu pago: ${paymentLink}\n\nGracias por tu compra!`
-          : `Hello ${quote.requester_name}, here is the link to make your payment: ${paymentLink}\n\nThank you for your purchase!`
+          ? `Hola ${quoteData.requester_name}, aquí está el link para realizar tu pago: ${paymentLink}\n\nGracias por tu compra!`
+          : `Hello ${quoteData.requester_name}, here is the link to make your payment: ${paymentLink}\n\nThank you for your purchase!`
       );
       whatsappLink = `https://wa.me/${formattedPhone}?text=${message}`;
     }

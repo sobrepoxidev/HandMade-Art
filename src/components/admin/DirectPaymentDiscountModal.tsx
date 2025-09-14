@@ -22,6 +22,27 @@ interface CustomerInfo {
   phone?: string;
 }
 
+interface QuoteData {
+  id: string;
+  requester_name: string;
+  email: string;
+  phone?: string;
+  quote_slug: string;
+  total_amount: number;
+  final_amount: number;
+  discount_type?: string;
+  discount_value?: number;
+  shipping_cost?: number;
+  manager_notes?: string;
+  interest_request_items?: {
+    quantity: number;
+    unit_price_usd: number;
+    product_snapshot?: {
+      name: string;
+    };
+  }[];
+}
+
 interface DirectPaymentDiscountModalProps {
   locale: string;
   onClose: () => void;
@@ -123,7 +144,7 @@ export default function DirectPaymentDiscountModal({
       );
 
       // Send email with payment link
-      await sendPaymentEmail(data.quoteId);
+      await sendPaymentEmail(data.quote, data.quoteId);
     } catch (error) {
       console.error('Error generating payment link:', error);
       toast.error(
@@ -137,7 +158,7 @@ export default function DirectPaymentDiscountModal({
   };
 
   // Send payment email
-  const sendPaymentEmail = async (quoteId: string) => {
+  const sendPaymentEmail = async (quote: QuoteData, quoteId: string) => {
     try {
       const response = await fetch('/api/send-direct-payment-email', {
         method: 'POST',
@@ -145,6 +166,7 @@ export default function DirectPaymentDiscountModal({
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          quote,
           quoteId,
           locale
         })
