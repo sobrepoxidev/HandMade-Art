@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import StepOne from "@/components/checkout/StepOne";
 import StepTwo from "@/components/checkout/StepTwo";  
 import { Database, Json } from "@/lib/database.types";
-import { Session } from '@supabase/supabase-js';
+import { SupabaseClient, Session } from '@supabase/supabase-js';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useLocale } from 'next-intl';
 
@@ -51,6 +51,7 @@ export default function CheckoutWizardPage() {
     } = useCart();
     
     const { supabase } = useSupabase();
+    const typedSupabase: SupabaseClient<Database> = supabase;
     const [session, setSession] = useState<Session | null>(null);
 
     useEffect(() => {
@@ -152,7 +153,7 @@ export default function CheckoutWizardPage() {
         const total = discountInfo ? discountInfo.finalTotal : totalAmount;
 
         // Create order with shipping address and pending status
-        const { data: orderInsert, error: orderError } = await supabase
+        const { data: orderInsert, error: orderError } = await typedSupabase
           .from("orders")
           .insert({
             user_id: userId === 'guest-user' ? null : (userId || null),
@@ -160,14 +161,14 @@ export default function CheckoutWizardPage() {
             payment_status: "pending",
             shipping_status: "pending",
             total_amount: total,
-            shipping_address: JSON.parse(JSON.stringify(shippingAddress)) as Json,
+            shipping_address: shippingAddress as unknown as Json,
             currency: "CRC",
             shipping_amount: 0,
             discount_amount: discountInfo ? discountInfo.discountAmount : 0,
             shipping_cost: 0,
             shipping_currency: "CRC",
             notes: discountInfo ? `Descuento aplicado: ${discountInfo.code} - Monto: ${discountInfo.discountAmount}` : "",
-          } satisfies Database['public']['Tables']['orders']['Insert'])
+          })
           .select()
           .single();
     
