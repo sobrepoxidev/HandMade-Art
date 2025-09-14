@@ -151,23 +151,37 @@ export default function CheckoutWizardPage() {
         // Si hay un descuento, usar el total con descuento, de lo contrario calcular normalmente
         const total = discountInfo ? discountInfo.finalTotal : totalAmount;
 
+        // Preparar valores tipados para la inserción
+        const dbUserId: string | null = userId === 'guest-user' ? null : userId ?? null;
+        const shippingAddressJson: Json = {
+          name: shippingAddress.name,
+          address: shippingAddress.address,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          country: shippingAddress.country,
+          postal_code: shippingAddress.postal_code,
+          phone: shippingAddress.phone,
+        };
+
+        const orderPayload: Database['public']['Tables']['orders']['Insert'] = {
+          user_id: dbUserId,
+          payment_method: (paymentMethodAux || paymentMethod || 'card'),
+          payment_status: 'pending',
+          shipping_status: 'pending',
+          total_amount: total,
+          shipping_address: shippingAddressJson,
+          currency: 'CRC',
+          shipping_amount: 0,
+          discount_amount: discountInfo ? discountInfo.discountAmount : 0,
+          shipping_cost: 0,
+          shipping_currency: 'CRC',
+          notes: discountInfo ? `Descuento aplicado: ${discountInfo.code} - Monto: ${discountInfo.discountAmount}` : '',
+        };
+
         // Create order with shipping address and pending status
         const { data: orderInsert, error: orderError } = await supabase
-          .from("orders")
-          .insert({
-            user_id: userId === 'guest-user' ? null : (userId || null),
-            payment_method: paymentMethodAux || paymentMethod || 'card',
-            payment_status: "pending",
-            shipping_status: "pending",
-            total_amount: total,
-            shipping_address: shippingAddress as unknown as Json,
-            currency: "CRC",
-            shipping_amount: 0,
-            discount_amount: discountInfo ? discountInfo.discountAmount : 0,
-            shipping_cost: 0,
-            shipping_currency: "CRC",
-            notes: discountInfo ? `Descuento aplicado: ${discountInfo.code} - Monto: ${discountInfo.discountAmount}` : "",
-          })
+          .from('orders')
+          .insert(orderPayload)
           .select()
           .single();
     
@@ -183,16 +197,16 @@ export default function CheckoutWizardPage() {
         // Add order items
         for (const item of cart) {
           const { error: itemError } = await supabase
-            .from("order_items")
+            .from('order_items')
             .insert({
               order_id: orderInsert.id,
               product_id: item.product.id,
               quantity: item.quantity,
-              price: item.product.colon_price || 0
+              price: item.product.colon_price || 0,
             });
-            
+
           if (itemError) {
-            console.error("Error al crear elementos de orden:", itemError);
+            console.error('Error al crear elementos de orden:', itemError);
           }
         }
         
@@ -201,8 +215,8 @@ export default function CheckoutWizardPage() {
         
         return orderInsert.id;
       } catch (error) {
-        console.error("Error al procesar la orden:", error);
-        alert("Error al procesar la orden. Inténtalo de nuevo.");
+        console.error('Error al procesar la orden:', error);
+        alert('Error al procesar la orden. Inténtalo de nuevo.');
       } finally {
         setIsProcessing(false);
       }
