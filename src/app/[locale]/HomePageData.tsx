@@ -25,11 +25,11 @@ export default async function HomePageData({ locale }: {locale: string}) {
     .order('name');
   
   // Determinar las primeras categorías a mostrar (las 3 primeras)
-  const firstCategories = categories?.slice(0, 3) || [];
+  const firstCategories: Database['public']['Tables']['categories']['Row'][] = categories?.slice(0, 3) || [];
   const firstCategoryIds = firstCategories.map(category => category.id);
   
   // Extraer las segundas categorías (de la 6 a la 12)
-  const secondCategories = categories?.slice(6, 12) || [];
+  const secondCategories: Database['public']['Tables']['categories']['Row'][] = categories?.slice(6, 12) || [];
   const secondCategoryIds = secondCategories.map(category => category.id);
   
   // Pre-cargar productos específicamente de las categorías que se muestran primero
