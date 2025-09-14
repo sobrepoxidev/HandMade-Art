@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import StepOne from "@/components/checkout/StepOne";
 import StepTwo from "@/components/checkout/StepTwo";  
 import { Database, Json } from "@/lib/database.types";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from "@/lib/supabaseClient";
 import {  Session } from '@supabase/supabase-js';
 import { useLocale } from 'next-intl';
 
@@ -50,7 +50,7 @@ export default function CheckoutWizardPage() {
       // Removed unused cartSubtotal
     } = useCart();
     
-    const supabase = createClientComponentClient<Database>();
+    // const supabase = createClientComponentClient<Database>(); // removed: now using central client
     const [session, setSession] = useState<Session | null>(null);
 
     useEffect(() => {
@@ -61,7 +61,7 @@ export default function CheckoutWizardPage() {
       return () => {
         listener?.subscription.unsubscribe();
       };
-    }, [supabase]);
+    }, []);
 
     const locale = useLocale();
     

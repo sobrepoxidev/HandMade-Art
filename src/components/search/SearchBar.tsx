@@ -15,6 +15,8 @@ interface SearchBarProps {
   locale: string;
 }
 
+type Category = { id: number; name: string; name_es: string | null; name_en: string | null };
+
 export default function SearchBar({
   variant,
   initialQuery = '',
@@ -32,7 +34,7 @@ export default function SearchBar({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [categories, setCategories] = useState<Array<{id: number, name: string, name_es: string, name_en: string}>>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -165,9 +167,9 @@ export default function SearchBar({
   }
   
   // Handle category selection
-  const handleCategorySelect = (category: {id: number, name: string, name_es: string, name_en: string}) => {
+  const handleCategorySelect = (category: Category) => {
     console.log('Selected category:', category);
-    const displayName = locale === 'es' ? category.name_es : category.name_en || category.name;
+    const displayName = locale === 'es' ? (category.name_es ?? category.name) : (category.name_en ?? category.name);
     setSelectedCategory(displayName);
     setSelectedCategoryId(category.id);
     setIsCategoryMenuOpen(false);

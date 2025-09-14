@@ -11,9 +11,9 @@ import { getProductCategories } from "@/lib/search";
 
 interface Category {
   id: number;
-  name?: string; // fallback generic name
-  name_es?: string;
-  name_en?: string;
+  name: string | null; // fallback generic name from DB
+  name_es: string | null;
+  name_en: string | null;
 }
 
 interface Props {
@@ -27,9 +27,6 @@ interface Props {
 
 export default function CategoryCarousel({ locale, categories, className = "" }: Props) {
   const cats: Category[] = categories ?? use(getProductCategories(locale));
-  
-
-
 
   const displayName = (cat: Category) => {
     if (locale === "es") return cat.name_es ?? cat.name ?? "";

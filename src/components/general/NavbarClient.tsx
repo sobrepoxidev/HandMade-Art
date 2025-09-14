@@ -34,7 +34,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
 
   // Estados para la UI
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [categoryList, setCategoryList] = useState<{ id: number, name_es: string, name_en: string }[]>([]);
+  const [categoryList, setCategoryList] = useState<{ id: number, name: string | null, name_es: string | null, name_en: string | null }[]>([]);
   const [showStoreCategories, setShowStoreCategories] = useState(false);
   // Estado local para la sesión que escuchará cambios
   const [session, setSession] = useState<Session | null>(initialSession);

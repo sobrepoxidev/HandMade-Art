@@ -187,6 +187,16 @@ export default function PayPalCardMethod({
                                     .eq('id', createdOrderId)
                                     .single();
 
+                                // Type guard para shipping_address Json
+                                const isAddressObj = (addr: unknown): addr is { name?: string } => {
+                                    return !!addr && typeof addr === 'object' && !Array.isArray(addr);
+                                };
+
+                                const shippingAddress = orderDetails?.shipping_address ?? null;
+                                const customerName = isAddressObj(shippingAddress) && typeof shippingAddress.name === 'string'
+                                  ? shippingAddress.name
+                                  : (session?.user?.email ?? '');
+
                                 if (orderDetails && session?.user?.email) {
                                     // Enviar correo de confirmación a través de la API
                                     await fetch('/api/send-order-email', {
@@ -194,8 +204,8 @@ export default function PayPalCardMethod({
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
                                             orderId: createdOrderId,
-                                            customerName: orderDetails.shipping_address.name,
-                                            shippingAddress: orderDetails.shipping_address,
+                                            customerName,
+                                            shippingAddress,
                                             items: cart,
                                             subtotal: cart.reduce((acc: number, item: CartItem) => acc + (item.product.dolar_price || 0) * item.quantity, 0),
                                             shipping: 7,
