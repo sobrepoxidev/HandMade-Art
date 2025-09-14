@@ -190,7 +190,7 @@ export type Database = {
     },
     orders: {
         id: number;
-        user_id: string; // UUID
+        user_id: string | null; // UUID, nullable for guest users
         payment_method: string;
         payment_status: string;
         payment_reference: string | null;
