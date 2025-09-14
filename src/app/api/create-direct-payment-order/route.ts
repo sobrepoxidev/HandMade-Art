@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 import { getPayPalAccessToken } from '@/lib/paypalHelpers';
-import { Database, Json } from '@/lib/database.types';
+import { Json } from '@/lib/database.types';
 
 // Type guard for product snapshot
 function isProductSnapshot(snapshot: Json): snapshot is { name?: string; sku?: string } {
