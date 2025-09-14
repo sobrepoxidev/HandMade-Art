@@ -7,7 +7,7 @@ import StepOne from "@/components/checkout/StepOne";
 import StepTwo from "@/components/checkout/StepTwo";  
 import { Database, Json } from "@/lib/database.types";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { SupabaseClient, Session } from '@supabase/supabase-js';
+import {  Session } from '@supabase/supabase-js';
 import { useLocale } from 'next-intl';
 
 
@@ -51,7 +51,6 @@ export default function CheckoutWizardPage() {
     } = useCart();
     
     const supabase = createClientComponentClient<Database>();
-    const typedSupabase: SupabaseClient<Database> = supabase;
     const [session, setSession] = useState<Session | null>(null);
 
     useEffect(() => {
@@ -153,7 +152,7 @@ export default function CheckoutWizardPage() {
         const total = discountInfo ? discountInfo.finalTotal : totalAmount;
 
         // Create order with shipping address and pending status
-        const { data: orderInsert, error: orderError } = await typedSupabase
+        const { data: orderInsert, error: orderError } = await supabase
           .from("orders")
           .insert({
             user_id: userId === 'guest-user' ? null : (userId || null),
