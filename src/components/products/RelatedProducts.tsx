@@ -3,10 +3,10 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import ProductCard from "./ProductCard";
 import { Database } from "@/lib/database.types";
 
-// Server component that fetches a small set of products and renders them with ProductCard.
-// It is intentionally minimal: no pagination, no modal, just links to product pages.
-// This same component can be used in /cart and /product/[id] to encourage navigation.
-
+/**
+ * Minimal product type for related products display.
+ * Only includes the fields we need for the ProductCard component.
+ */
 export type MinimalProduct = Pick<Database['public']['Tables']['products']['Row'],
   | "id"
   | "name"
@@ -17,18 +17,13 @@ export type MinimalProduct = Pick<Database['public']['Tables']['products']['Row'
   | "media"
   | "category_id"
   | "discount_percentage"
-  | "is_featured">
+  | "is_featured">;
 
 interface RelatedProductsProps {
-  /** Section title shown above the grid */
   title: string;
-  /** Current locale (e.g. "es" | "en") so ProductCard can show the right language */
   locale: string;
-  /** Category to filter by (optional) */
   categoryId?: number | null;
-  /** IDs to exclude from the result (e.g. items already in cart) */
   excludeIds?: number[];
-  /** Max number of products to fetch (default: 8) */
   limit?: number;
 }
 
@@ -76,8 +71,7 @@ export default async function RelatedProducts({
 
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4">
         {products.map((product) => (
-          // ProductCard is a client component; casting here is safe because we selected matching fields.
-          <ProductCard key={product.id} product={product as unknown as Database['public']['Tables']['products']['Row']} />
+          <ProductCard key={product.id} product={product as Database['public']['Tables']['products']['Row']} />
         ))}
       </div>
     </div>
