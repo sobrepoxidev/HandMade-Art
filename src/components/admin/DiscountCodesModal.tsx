@@ -153,8 +153,12 @@ export default function DiscountCodesModal({ locale, onClose }: DiscountCodesMod
         }
 
         // Insertar nuevas categorías
+        if (!result.data?.id) {
+          throw new Error('No se pudo obtener el ID del código creado');
+        }
+        
         const categoryInserts = selectedCategories.map(categoryId => ({
-          quote_code_id: result.data?.id!,
+          quote_code_id: result.data!.id,
           category_id: categoryId
         }));
 
