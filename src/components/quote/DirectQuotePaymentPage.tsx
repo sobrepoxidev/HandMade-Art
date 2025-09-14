@@ -10,17 +10,17 @@ import DirectPayPalButton from './DirectPayPalButton';
 import PaymentSuccessMessage from './PaymentSuccessMessage';
 import { formatUSD } from '@/lib/formatCurrency';
 
-interface PaymentDetails {
-  id: string;
-  status: string;
-  payer?: {
-    name?: {
-      given_name?: string;
-      surname?: string;
-    };
-    email_address?: string;
-  };
-}
+// interface PaymentDetails {
+//   id: string;
+//   status: string;
+//   payer?: {
+//     name?: {
+//       given_name?: string;
+//       surname?: string;
+//     };
+//     email_address?: string;
+//   };
+// }
 
 type InterestRequest = Database['interest_requests'] & {
   interest_request_items: (Database['interest_request_items'] & {
