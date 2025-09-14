@@ -204,12 +204,18 @@ export type Database = {
         // Additional shipping fields found in DB
         shipping_carrier: string | null;
         shipping_service: string | null;
-        shipping_cost: number | null;
-        shipping_currency: string | null;
+        shipping_cost: number;
+        shipping_currency: string;
         shipping_est_delivery: string | null;
         shipping_label_url: string | null;
         shipping_quote_id: string | null;
         shipping_last_updated: string | null;
+        // Additional fields from DB schema
+        billing_address_id: number | null;
+        shipping_address_id: number | null;
+        currency: string;
+        shipping_amount: number;
+        discount_amount: number;
     },
     products: {
         id: number;
