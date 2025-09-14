@@ -96,6 +96,11 @@ export default function DirectPaymentDiscountModal({
 
   // Generate payment link
   const generatePaymentLink = async () => {
+    // Prevent multiple calls if already loading or link already generated
+    if (isLoading || linkGenerated) {
+      return;
+    }
+
     try {
       setIsLoading(true);
 
@@ -352,8 +357,8 @@ export default function DirectPaymentDiscountModal({
               <div className="flex justify-end">
                 <button
                   onClick={generatePaymentLink}
-                  disabled={isLoading}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center"
+                  disabled={isLoading || linkGenerated}
+                  className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center"
                 >
                   {isLoading ? (
                     <>

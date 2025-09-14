@@ -45,6 +45,27 @@ export async function POST(request: NextRequest) {
       console.log(`Creating quote for customer: ${customerInfo.name}`);
     }
 
+    // Verificar si ya existe una cotización reciente para evitar duplicados
+    const { data: recentQuote } = await supabase
+      .from('interest_requests')
+      .select('id, created_at')
+      .eq('email', customerInfo.email)
+      .eq('source', 'direct_payment')
+      .gte('created_at', new Date(Date.now() - 30000).toISOString()) // Últimos 30 segundos
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (recentQuote) {
+      if (DEBUG) {
+        console.log('Recent quote found, preventing duplicate:', recentQuote.id);
+      }
+      return NextResponse.json(
+        { error: 'A recent quote already exists for this customer. Please wait before creating another.' },
+        { status: 409 }
+      );
+    }
+
     // Crear un nuevo registro en interest_requests (cotización)
     const { data: quote, error: quoteError } = await supabase
       .from('interest_requests')
@@ -106,7 +127,7 @@ export async function POST(request: NextRequest) {
       .from('interest_requests')
       .select(`
         *,
-        interest_request_items (*, product_snapshot(*))
+        interest_request_items (*)
       `)
       .eq('id', quote.id)
       .single();
