@@ -14,13 +14,13 @@ const ADMIN_EMAILS = [
 export default async function AdminDirectPaymentsPage({ params }: {  params: Promise<{ locale: string }>; }) {
   const { locale } = await params;
 
-  // const supabase = createServerComponentClient({ cookies });
-  // const { data: { session } } = await supabase.auth.getSession();
+  const supabase = createServerComponentClient({ cookies });
+  const { data: { session } } = await supabase.auth.getSession();
   
-  // // Si no hay sesión o el correo no está en la lista de administradores, redirigir
-  // if (!session || !ADMIN_EMAILS.includes(session.user.email || '')) {
-  //   redirect(`/${locale}`);
-  // }
+  // Si no hay sesión o el correo no está en la lista de administradores, redirigir
+  if (!session || !ADMIN_EMAILS.includes(session.user.email || '')) {
+    redirect(`/${locale}`);
+  }
   
   return (
     <DirectPaymentManagement locale={locale} />
