@@ -53,6 +53,7 @@ interface DiscountData {
 export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }: QuoteDiscountModalProps) {
   const [discountType, setDiscountType] = useState<DiscountType>('percentage');
   const [discountValue, setDiscountValue] = useState<number>(0);
+  const [requiresShippingAddress, setRequiresShippingAddress] = useState<boolean>(quote.requires_shipping_address || false);
 
   // Calcular el total original basándose en los items
   const calculateOriginalTotal = () => {
@@ -200,7 +201,8 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
           productDiscounts: discountType.includes('product') ? productDiscounts : undefined,
           finalAmount: finalAmount,
           managerNotes: managerNotes,
-          shippingCost: shippingCost
+          shippingCost: shippingCost,
+          requiresShippingAddress: requiresShippingAddress
         })
       });
 
@@ -525,6 +527,28 @@ export default function QuoteDiscountModal({ quote, locale, onClose, onSuccess }
               {locale === 'es'
                 ? 'Ingrese 0 para deshabilitar el cobro de envío'
                 : 'Enter 0 to disable shipping charges'
+              }
+            </p>
+          </div>
+
+          {/* Opción para requerir dirección de envío */}
+          <div className="mb-6">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="requires-shipping-address"
+                checked={requiresShippingAddress}
+                onChange={(e) => setRequiresShippingAddress(e.target.checked)}
+                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              />
+              <label htmlFor="requires-shipping-address" className="ml-2 block text-sm text-gray-700">
+                {locale === 'es' ? 'Requerir dirección de envío para pago' : 'Require shipping address for payment'}
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 mt-1 ml-6">
+              {locale === 'es'
+                ? 'Si está habilitado, el cliente deberá proporcionar una dirección de envío antes de pagar'
+                : 'If enabled, the customer will need to provide a shipping address before payment'
               }
             </p>
           </div>

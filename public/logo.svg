@@ -1,0 +1,19 @@
+<svg width="320" height="100" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo del logo (opcional, transparente) -->
+  <rect width="320" height="100" fill="none"/>
+  
+  <!-- Texto "HANDMADE" -->
+  <text x="10" y="55" font-family="'Segoe UI', Arial, sans-serif" font-size="40" font-weight="bold" fill="#8B4513">HANDMADE</text>
+  
+  <!-- Texto "ART" con estilo diferente -->
+  <text x="210" y="55" font-family="'Segoe UI', Arial, sans-serif" font-size="40" font-weight="bold" fill="#D2B48C">ART</text>
+  
+  <!-- Pincel decorativo -->
+  <path d="M290,30 C300,25 310,35 305,45 C300,55 290,50 285,45" stroke="#8B4513" stroke-width="3" fill="none"/>
+  
+  <!-- Línea decorativa debajo del texto -->
+  <path d="M10,65 L305,65" stroke="#D2B48C" stroke-width="2" stroke-dasharray="1,1"/>
+  
+  <!-- Tagline -->
+  <text x="160" y="85" font-family="'Segoe UI', Arial, sans-serif" font-size="14" text-anchor="middle" fill="#8B4513">Arte Costarricense</text>
+</svg>

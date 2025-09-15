@@ -16,7 +16,8 @@ export async function POST(request: NextRequest) {
       productDiscounts,
       finalAmount,
       managerNotes,
-      shippingCost
+      shippingCost,
+      requiresShippingAddress
     } = body;
 
     if (!quoteId) {
@@ -47,7 +48,8 @@ export async function POST(request: NextRequest) {
         quote_slug: slug,
         responded_at: new Date().toISOString(),
         manager_notes: managerNotes,
-        shipping_cost: shippingCost || 0
+        shipping_cost: shippingCost || 0,
+        requires_shipping_address: requiresShippingAddress
       })
       .eq('id', quoteId);
 

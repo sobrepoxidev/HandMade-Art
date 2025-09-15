@@ -1,0 +1,35 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Patrón de madera para fondo -->
+  <defs>
+    <pattern id="woodgrain" patternUnits="userSpaceOnUse" width="100" height="100">
+      <!-- Fondo base -->
+      <rect width="100" height="100" fill="#8B4513" opacity="0.1"/>
+      
+      <!-- Líneas de grano de madera -->
+      <path d="M0,10 C20,8 40,12 60,10 C80,8 100,12 100,10" stroke="#6B3100" stroke-width="1" fill="none" opacity="0.3"/>
+      <path d="M0,20 C30,18 50,22 70,20 C90,18 100,22 100,20" stroke="#6B3100" stroke-width="1" fill="none" opacity="0.2"/>
+      <path d="M0,30 C20,28 40,32 60,30 C80,28 100,32 100,30" stroke="#6B3100" stroke-width="1" fill="none" opacity="0.3"/>
+      <path d="M0,40 C30,38 50,42 70,40 C90,38 100,42 100,40" stroke="#6B3100" stroke-width="1" fill="none" opacity="0.2"/>
+      <path d="M0,50 C20,48 40,52 60,50 C80,48 100,52 100,50" stroke="#6B3100" stroke-width="1" fill="none" opacity="0.3"/>
+      <path d="M0,60 C30,58 50,62 70,60 C90,58 100,62 100,60" stroke="#6B3100" stroke-width="1" fill="none" opacity="0.2"/>
+      <path d="M0,70 C20,68 40,72 60,70 C80,68 100,72 100,70" stroke="#6B3100" stroke-width="1" fill="none" opacity="0.3"/>
+      <path d="M0,80 C30,78 50,82 70,80 C90,78 100,82 100,80" stroke="#6B3100" stroke-width="1" fill="none" opacity="0.2"/>
+      <path d="M0,90 C20,88 40,92 60,90 C80,88 100,92 100,90" stroke="#6B3100" stroke-width="1" fill="none" opacity="0.3"/>
+      
+      <!-- Nudos de madera -->
+      <circle cx="25" cy="25" r="5" fill="#8B4513" opacity="0.2"/>
+      <circle cx="75" cy="65" r="4" fill="#8B4513" opacity="0.2"/>
+      <circle cx="40" cy="85" r="3" fill="#8B4513" opacity="0.2"/>
+      
+      <!-- Textura adicional -->
+      <path d="M0,15 L100,15" stroke="#6B3100" stroke-width="0.5" stroke-dasharray="2,3" opacity="0.1"/>
+      <path d="M0,35 L100,35" stroke="#6B3100" stroke-width="0.5" stroke-dasharray="3,2" opacity="0.1"/>
+      <path d="M0,55 L100,55" stroke="#6B3100" stroke-width="0.5" stroke-dasharray="2,3" opacity="0.1"/>
+      <path d="M0,75 L100,75" stroke="#6B3100" stroke-width="0.5" stroke-dasharray="3,2" opacity="0.1"/>
+      <path d="M0,95 L100,95" stroke="#6B3100" stroke-width="0.5" stroke-dasharray="2,3" opacity="0.1"/>
+    </pattern>
+  </defs>
+  
+  <!-- Aplicar el patrón al rectángulo principal -->
+  <rect width="100" height="100" fill="url(#woodgrain)"/>
+</svg>

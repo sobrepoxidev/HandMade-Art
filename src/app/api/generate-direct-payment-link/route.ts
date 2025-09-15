@@ -179,7 +179,7 @@ function generateWhatsAppLink(phone: string, paymentLink: string, customerName: 
     `💳 ${paymentLink}\n\n` +
     `✅ Pago 100% seguro con PayPal (tarjeta o cuenta de paypal)\n` +
     `📦 Envíos a todo Costa Rica\n` +
-    `🤝 Apoyando la reinserción social\n\n` +
+    `🤝 Apoyando la inserción social\n\n` +
     `¡Gracias por elegir nuestro arte hecho a mano!\n\n` +
     `¿Dudas? Responde este mensaje 📱`
   );

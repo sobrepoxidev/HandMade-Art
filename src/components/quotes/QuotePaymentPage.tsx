@@ -287,56 +287,70 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                 </div>
               ) : !showShippingForm ? (
                 <button
-                  onClick={() => setShowShippingForm(true)}
+                  onClick={() => {
+                    if (quote.requires_shipping_address) {
+                      setShowShippingForm(true);
+                    } else {
+                      // Si no se requiere dirección, mostrar directamente el botón de PayPal
+                      setShowShippingForm(true);
+                    }
+                  }}
                   className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-medium"
                 >
-                  {locale === 'es' ? 'Proceder al Pago' : 'Proceed to Payment'}
+                  {quote.requires_shipping_address
+                    ? (locale === 'es' ? 'Ingresar Dirección de Envío' : 'Enter Shipping Address')
+                    : (locale === 'es' ? 'Proceder al Pago' : 'Proceed to Payment')
+                  }
                 </button>
               ) : (
                 <div className="space-y-4">
-                  <h3 className="text-gray-900 font-semibold">
-                    {locale === 'es' ? 'Información de Envío' : 'Shipping Information'}
-                  </h3>
-                  
-                  <div className="space-y-2 text-gray-800 ">
-                    <input
-                      type="text"
-                      placeholder={locale === 'es' ? 'Dirección' : 'Address'}
-                      value={shippingInfo.address}
-                      onChange={(e) => setShippingInfo(prev => ({ ...prev, address: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      required
-                    />
-                    
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        type="text"
-                        placeholder={locale === 'es' ? 'Ciudad' : 'City'}
-                        value={shippingInfo.city}
-                        onChange={(e) => setShippingInfo(prev => ({ ...prev, city: e.target.value }))}
-                        className="px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        required
-                      />
-                      <input
-                        type="text"
-                        placeholder={locale === 'es' ? 'Provincia' : 'State'}
-                        value={shippingInfo.state}
-                        onChange={(e) => setShippingInfo(prev => ({ ...prev, state: e.target.value }))}
-                        className="px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    
-                    <input
-                      type="text"
-                      placeholder={locale === 'es' ? 'Código Postal' : 'Zip Code'}
-                      value={shippingInfo.zipCode}
-                      onChange={(e) => setShippingInfo(prev => ({ ...prev, zipCode: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
-                  </div>
+                  {quote.requires_shipping_address && (
+                    <>
+                      <h3 className="text-gray-900 font-semibold">
+                        {locale === 'es' ? 'Información de Envío' : 'Shipping Information'}
+                      </h3>
+                      
+                      <div className="space-y-2 text-gray-800 ">
+                        <input
+                          type="text"
+                          placeholder={locale === 'es' ? 'Dirección' : 'Address'}
+                          value={shippingInfo.address}
+                          onChange={(e) => setShippingInfo(prev => ({ ...prev, address: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          required
+                        />
+                        
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            placeholder={locale === 'es' ? 'Ciudad' : 'City'}
+                            value={shippingInfo.city}
+                            onChange={(e) => setShippingInfo(prev => ({ ...prev, city: e.target.value }))}
+                            className="px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            required
+                          />
+                          <input
+                            type="text"
+                            placeholder={locale === 'es' ? 'Provincia' : 'State'}
+                            value={shippingInfo.state}
+                            onChange={(e) => setShippingInfo(prev => ({ ...prev, state: e.target.value }))}
+                            className="px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            required
+                          />
+                        </div>
+                        
+                        <input
+                          type="text"
+                          placeholder={locale === 'es' ? 'Código Postal' : 'Zip Code'}
+                          value={shippingInfo.zipCode}
+                          onChange={(e) => setShippingInfo(prev => ({ ...prev, zipCode: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        />
+                      </div>
+                    </>
+                  )}
 
-                  {shippingInfo.address && shippingInfo.city && shippingInfo.state && (
+                  {(!quote.requires_shipping_address || (shippingInfo.address && shippingInfo.city && shippingInfo.state)) && (
                     <div className="mt-6">
                       <PayPalScriptProvider
                         options={{

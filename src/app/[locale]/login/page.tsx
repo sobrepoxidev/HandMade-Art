@@ -5,6 +5,7 @@ import { useSupabase } from '@/app/supabase-provider/provider'
 import { Link } from '@/i18n/navigation';
 import { FaEnvelope, FaLock, FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useLocale } from 'next-intl'
+import Image from 'next/image'
 
 
 export default function LoginPage() {
@@ -122,59 +123,82 @@ export default function LoginPage() {
   if (!mounted) return null
 
   return (
-    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-[#b3d5c3] via-gray-100 to-gray-200 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 border border-gray-100">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-white via-[#a58153] to-[#5c3e29] py-6 px-4 sm:px-6 lg:px-8">
+      {/* Patrón decorativo */}
+      <div className="absolute inset-0 z-0 opacity-10">
+        <div className="absolute inset-0 bg-repeat" style={{ backgroundImage: 'url("/pattern-wood.svg")', backgroundSize: '100px' }}></div>
+      </div>
+      
+      <div className="mx-auto max-w-7xl relative z-10">
+        <div className="max-w-md mx-auto bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-amber-100">
+          <div className="text-center mb-6">
+            <div className="flex justify-center mb-4">
+              <div className="relative w-32 h-16">
+                <Image 
+                  src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg"
+                  alt="Handmade Art Logo" 
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#8B4513] mb-2">
               {locale === 'es' ? 'Inicia sesión' : 'Login'}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-amber-800">
               {locale === 'es' ? 'Bienvenido de nuevo a Handmade Art' : 'Welcome back to Handmade Art'}
             </p>
           </div>
 
           {confirmationMsg && (
-            <div className="mb-6 p-4 rounded-lg bg-teal-50 text-teal-700">
+            <div className="mb-6 p-4 rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
               {confirmationMsg}
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-amber-800 mb-1">
                 {locale === 'es' ? 'Correo electrónico' : 'Email'}
               </label>
               <div className="relative">
-                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600" />
                 <input
                   type="email"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md text-gray-700 focus:ring-teal-500 focus:border-teal-500 shadow-sm transition-all duration-200 focus:shadow-md"
+                  className="w-full pl-10 pr-4 py-2.5 border border-amber-300 rounded-md text-amber-900 focus:ring-amber-500 focus:border-amber-500 shadow-sm transition-all duration-200 focus:shadow-md bg-amber-50"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                {locale === 'es' ? 'Contraseña' : 'Password'}
-              </label>
+              <div className="flex justify-between items-center mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-amber-800">
+                  {locale === 'es' ? 'Contraseña' : 'Password'}
+                </label>
+                <Link 
+                  href="/forgot-password" 
+                  className="text-xs text-amber-700 hover:text-amber-900 hover:underline"
+                >
+                  {locale === 'es' ? '¿Olvidaste tu contraseña?' : 'Forgot password?'}
+                </Link>
+              </div>
               <div className="relative">
-                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600" />
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 text-gray-700 rounded-md focus:ring-teal-500 focus:border-teal-500 shadow-sm transition-all duration-200 focus:shadow-md"
+                  className="w-full pl-10 pr-12 py-2.5 border border-amber-300 text-amber-900 rounded-md focus:ring-amber-500 focus:border-amber-500 shadow-sm transition-all duration-200 focus:shadow-md bg-amber-50"
                   required
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-amber-600 hover:text-amber-800 focus:outline-none"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                 >
@@ -184,7 +208,7 @@ export default function LoginPage() {
             </div>
 
             {errorMsg && (
-              <div className="text-red-500 text-sm">
+              <div className="text-red-600 text-sm p-2 bg-red-50 border border-red-200 rounded-md">
                 {errorMsg}
               </div>
             )}
@@ -192,32 +216,50 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200 mt-2"
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#8B4513] hover:bg-[#6B3100] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200 mt-2"
             >
               {loading ? (locale === 'es' ? 'Iniciando sesión...' : 'Logging in...') : (locale === 'es' ? 'Iniciar sesión' : 'Login')}
             </button>
             
           </form>
+          
+          {/* Separador */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-amber-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-amber-700">{locale === 'es' ? 'O continúa con' : 'Or continue with'}</span>
+            </div>
+          </div>
+          
           {/* Google Sign In Button */}
-          <div className="mt-6">
-              <button
-                onClick={() => signInWithGoogle(returnUrl)}
-                className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors duration-200"
-              >
-                <FaGoogle className="mr-2 h-5 w-5" />
-                {locale === 'es' ? 'Iniciar sesión con Google' : 'Login with Google'}
-              </button>
-            </div>
+          <div>
+            <button
+              onClick={() => signInWithGoogle(returnUrl)}
+              className="w-full flex items-center justify-center py-2.5 px-4 border border-amber-300 rounded-md shadow-sm text-sm font-medium text-amber-900 bg-white hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200"
+            >
+              <FaGoogle className="mr-2 h-5 w-5 text-amber-700" />
+              {locale === 'es' ? 'Iniciar sesión con Google' : 'Login with Google'}
+            </button>
+          </div>
 
-            <div className="text-center text-sm text-gray-600 mt-4">
-              {locale === 'es' ? '¿No tienes una cuenta?' : 'Don\'t have an account?'}{' '}
-              <Link
-                href={`/register${returnUrl !== '/' ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`}
-                className="font-medium text-teal-600 hover:text-teal-500 transition-colors duration-200"
-              >
-                {locale === 'es' ? 'Regístrate aquí' : 'Register here'}
-              </Link>
-            </div>
+          <div className="text-center text-sm text-amber-800 mt-6">
+            {locale === 'es' ? '¿No tienes una cuenta?' : 'Don\'t have an account?'}{' '}
+            <Link
+              href={`/register${returnUrl !== '/' ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`}
+              className="font-medium text-[#8B4513] hover:text-[#6B3100] hover:underline transition-colors duration-200"
+            >
+              {locale === 'es' ? 'Regístrate aquí' : 'Register here'}
+            </Link>
+          </div>
+          
+          {/* Decoración */}
+          <div className="mt-8 pt-6 border-t border-amber-100 text-center">
+            <p className="text-xs text-amber-600">
+              {locale === 'es' ? 'Arte costarricense hecho a mano con ♥' : 'Costa Rican handmade art with ♥'}
+            </p>
+          </div>
         </div>
       </div>
     </section>

@@ -356,6 +356,7 @@ export type Database = {
           phone: string | null
           quote_slug: string | null
           requester_name: string
+          requires_shipping_address: boolean | null
           responded_at: string | null
           shipping_cost: number | null
           source: string
@@ -379,6 +380,7 @@ export type Database = {
           phone?: string | null
           quote_slug?: string | null
           requester_name: string
+          requires_shipping_address?: boolean | null
           responded_at?: string | null
           shipping_cost?: number | null
           source?: string
@@ -402,6 +404,7 @@ export type Database = {
           phone?: string | null
           quote_slug?: string | null
           requester_name?: string
+          requires_shipping_address?: boolean | null
           responded_at?: string | null
           shipping_cost?: number | null
           source?: string
