@@ -27,6 +27,7 @@ interface CustomerInfo {
   name: string;
   email: string;
   phone?: string;
+  requiresShippingAddress?: boolean;
 }
 
 interface DirectPaymentManagementProps {
@@ -45,7 +46,8 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    requiresShippingAddress: false
   });
   const [showDiscountModal, setShowDiscountModal] = useState(false);
 
@@ -259,6 +261,30 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
               placeholder={locale === 'es' ? 'Teléfono del cliente' : 'Customer phone'}
             />
           </div>
+        </div>
+        
+        {/* Shipping Address Requirement */}
+        <div className="mt-4">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={customerInfo.requiresShippingAddress || false}
+              onChange={(e) => setCustomerInfo({ ...customerInfo, requiresShippingAddress: e.target.checked })}
+              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            />
+            <span className="ml-2 text-sm text-gray-700">
+              {locale === 'es' 
+                ? 'Requiere dirección de envío' 
+                : 'Requires shipping address'
+              }
+            </span>
+          </label>
+          <p className="mt-1 text-xs text-gray-500">
+            {locale === 'es'
+              ? 'Marcar si el cliente necesita proporcionar una dirección de envío para esta cotización'
+              : 'Check if the customer needs to provide a shipping address for this quote'
+            }
+          </p>
         </div>
       </div>
 

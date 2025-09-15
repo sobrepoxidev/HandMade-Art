@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default async function SessionLayout({ children }: Props) {
-  const supabase = createServerComponentClient({ cookies: () => Promise.resolve(cookies()) });
+  const supabase = createServerComponentClient({ cookies });
 
   const {
     data: { session },

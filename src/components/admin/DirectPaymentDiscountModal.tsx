@@ -20,6 +20,7 @@ interface CustomerInfo {
   name: string;
   email: string;
   phone?: string;
+  requiresShippingAddress?: boolean;
 }
 
 interface QuoteData {
@@ -125,7 +126,8 @@ export default function DirectPaymentDiscountModal({
           shippingCost,
           totalAmount: originalTotal,
           finalAmount: finalTotal,
-          managerNotes
+          managerNotes,
+          requiresShippingAddress: customerInfo.requiresShippingAddress || false
         })
       });
 

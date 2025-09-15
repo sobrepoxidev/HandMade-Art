@@ -19,7 +19,7 @@ interface CartItem {
 
 export async function POST(request: NextRequest) {
   try {
-    const { cartItems, customerInfo, discountInfo, shippingCost, totalAmount, finalAmount, managerNotes } = await request.json();
+    const { cartItems, customerInfo, discountInfo, shippingCost, totalAmount, finalAmount, managerNotes, requiresShippingAddress } = await request.json();
 
     if (DEBUG) {
       console.log('Processing direct payment link generation');
@@ -81,7 +81,8 @@ export async function POST(request: NextRequest) {
         shipping_cost: shippingCost || 0,
         manager_notes: managerNotes || '',
         source: 'direct_payment',
-        quote_slug: uuidv4()
+        quote_slug: uuidv4(),
+        requires_shipping_address: requiresShippingAddress || false
       })
       .select()
       .single();

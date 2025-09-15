@@ -113,7 +113,7 @@ export default function RegisterPage() {
   if (!mounted) return null
 
   return (
-    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-[#8B4513] via-[#D2B48C] to-[#F5F5DC] py-6 px-4 sm:px-6 lg:px-8 text-gray-800">
+    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-[#8B4513] via-[#D2B48C] to-[#F5F5DC] py-2 px-4 sm:px-6 lg:px-8 text-gray-800">
       {/* Patrón decorativo */}
       <div className="absolute inset-0 z-0 opacity-10">
         <div className="absolute inset-0 bg-repeat" style={{ backgroundImage: 'url("/pattern-wood.svg")', backgroundSize: '100px' }}></div>
