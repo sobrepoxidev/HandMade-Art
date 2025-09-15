@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Percent, DollarSign, Tag, Send, Loader2, Mail, Phone } from 'lucide-react';
+import { X, Percent, DollarSign, Tag, Send, Loader2, Mail } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface CartItem {
