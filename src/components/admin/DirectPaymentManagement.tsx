@@ -281,8 +281,8 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
           </label>
           <p className="mt-1 text-xs text-gray-500">
             {locale === 'es'
-              ? 'Marcar si el cliente necesita proporcionar una dirección de envío para esta cotización'
-              : 'Check if the customer needs to provide a shipping address for this quote'
+              ? 'Marcar si el cliente necesita proporcionar una dirección de envío para este pago'
+              : 'Check if the customer needs to provide a shipping address for this payment'
             }
           </p>
         </div>
