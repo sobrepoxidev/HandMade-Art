@@ -127,7 +127,7 @@ export default function LoginPage() {
   if (!mounted) return null
 
   return (
-    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-[#8B4513] via-[#D2B48C] to-[#F5F5DC] py-6 px-4 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-[#8B4513] via-[#D2B48C] to-[#F5F5DC] py-2 px-4 sm:px-6 lg:px-8">
       {/* Patrón decorativo */}
       <div className="absolute inset-0 z-0 opacity-10">
         <div className="absolute inset-0 bg-repeat" style={{ backgroundImage: 'url("/pattern-wood.svg")', backgroundSize: '100px' }}></div>
@@ -139,7 +139,7 @@ export default function LoginPage() {
             <div className="flex justify-center mb-4">
               <div className="relative w-32 h-16">
                 <Image 
-                  src="/logo.svg"
+                  src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg"
                   alt="Handmade Art Logo" 
                   fill
                   className="object-contain"

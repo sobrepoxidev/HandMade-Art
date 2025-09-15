@@ -125,7 +125,7 @@ export default function RegisterPage() {
             <div className="flex justify-center mb-4">
               <div className="relative w-32 h-16">
                 <Image 
-                  src="/logo.svg" 
+                  src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg" 
                   alt="Handmade Art Logo" 
                   fill
                   className="object-contain"
