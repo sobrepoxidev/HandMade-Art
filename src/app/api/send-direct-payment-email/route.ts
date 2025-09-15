@@ -75,9 +75,14 @@ export async function POST(request: NextRequest) {
     // Para calcular el descuento, necesitamos considerar el shipping
     let discountAmount = 0;
     if (quoteData.discount_type) {
-      // Si hay descuento, calculamos la diferencia entre el total original y el final sin shipping
-      const finalAmountWithoutShipping = finalAmount - shippingCost;
-      discountAmount = originalTotal - finalAmountWithoutShipping;
+      if (quoteData.discount_type === 'total_override') {
+        // Para sobreescritura total, el descuento es la diferencia entre el original y el final (sin considerar shipping)
+        discountAmount = originalTotal - (finalAmount - shippingCost);
+      } else {
+        // Para otros tipos de descuento, calculamos la diferencia entre el total original y el final sin shipping
+        const finalAmountWithoutShipping = finalAmount - shippingCost;
+        discountAmount = originalTotal - finalAmountWithoutShipping;
+      }
     }
 
     // Generar el asunto del correo según el idioma
