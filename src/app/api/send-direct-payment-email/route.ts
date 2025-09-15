@@ -121,8 +121,24 @@ export async function POST(request: NextRequest) {
       const formattedPhone = quoteData.phone.replace(/[\s-\(\)]/g, '');
       const message = encodeURIComponent(
         locale === 'es'
-          ? `Hola ${quoteData.requester_name}, aquí está el link para realizar tu pago: ${paymentLink}\n\nGracias por tu compra!`
-          : `Hello ${quoteData.requester_name}, here is the link to make your payment: ${paymentLink}\n\nThank you for your purchase!`
+          ? `🎨 *Handmade Art* - Arte Costarricense\n\n` +
+            `Hola ${quoteData.requester_name},\n\n` +
+            `Tu cotización está lista para pagar. Completa tu compra de forma segura:\n\n` +
+            `💳 ${paymentLink}\n\n` +
+            `✅ Pago 100% seguro con PayPal\n` +
+            `📦 Envíos a todo Costa Rica\n` +
+            `🤝 Apoyando la inserción social\n\n` +
+            `¡Gracias por elegir nuestro arte hecho a mano!\n\n` +
+            `¿Dudas? Responde este mensaje 📱`
+          : `🎨 *Handmade Art* - Costa Rican Handcrafts\n\n` +
+            `Hello ${quoteData.requester_name},\n\n` +
+            `Your quote is ready for payment. Complete your purchase securely:\n\n` +
+            `💳 ${paymentLink}\n\n` +
+            `✅ 100% secure PayPal payment\n` +
+            `📦 Shipping throughout Costa Rica\n` +
+            `🤝 Supporting social inclusion\n\n` +
+            `Thank you for choosing our handmade art!\n\n` +
+            `Questions? Reply to this message 📱`
       );
       whatsappLink = `https://wa.me/${formattedPhone}?text=${message}`;
     }

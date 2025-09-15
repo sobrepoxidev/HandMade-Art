@@ -171,9 +171,17 @@ function generateWhatsAppLink(phone: string, paymentLink: string, customerName: 
   // Formatear el número de teléfono (eliminar espacios, guiones, etc.)
   const formattedPhone = phone.replace(/[\s-\(\)]/g, '');
   
-  // Crear el mensaje
+  // Crear el mensaje mejorado
   const message = encodeURIComponent(
-    `Hola ${customerName}, aquí está el link para realizar tu pago: ${paymentLink}\n\nGracias por tu compra!`
+    `🎨 *Handmade Art* - Arte que reinserta\n\n` +
+    `Hola ${customerName},\n\n` +
+    `Tu pedido está listo para pagar. Haz clic en el enlace para completar tu compra de forma segura:\n\n` +
+    `💳 ${paymentLink}\n\n` +
+    `✅ Pago 100% seguro con PayPal (tarjeta o cuenta de paypal)\n` +
+    `📦 Envíos a todo Costa Rica\n` +
+    `🤝 Apoyando la reinserción social\n\n` +
+    `¡Gracias por elegir nuestro arte hecho a mano!\n\n` +
+    `¿Dudas? Responde este mensaje 📱`
   );
   
   return `https://wa.me/${formattedPhone}?text=${message}`;
