@@ -43,18 +43,22 @@ export default function LoginPage() {
       })
       if (error) {
         if (error.message.includes('rate limit')) {
-          setErrorMsg('Has excedido el número de intentos permitidos. Por favor, espera unos minutos antes de intentarlo nuevamente o usa el inicio de sesión con Google.')
+          setErrorMsg(locale === 'es' 
+            ? 'Has excedido el número de intentos permitidos. Por favor, espera unos minutos antes de intentarlo nuevamente o usa el inicio de sesión con Google.'
+            : 'You have exceeded the allowed number of attempts. Please wait a few minutes before trying again or use Google login.')
         } else {
           setErrorMsg(error.message)
         }
         setLoading(false)
       } else {
-        setConfirmationMsg('Iniciando sesión...')
+        setConfirmationMsg(locale === 'es' ? 'Iniciando sesión...' : 'Logging in...')
         router.replace(returnUrl)
       }
     } catch (err) {
       console.error('Error al iniciar sesión:', err)
-      setErrorMsg('Error inesperado. Intenta de nuevo o usa el inicio de sesión con Google.')
+      setErrorMsg(locale === 'es' 
+        ? 'Error inesperado. Intenta de nuevo o usa el inicio de sesión con Google.'
+        : 'Unexpected error. Please try again or use Google login.')
       setLoading(false)
     }
   }
@@ -123,7 +127,7 @@ export default function LoginPage() {
   if (!mounted) return null
 
   return (
-    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-white via-[#a58153] to-[#5c3e29] py-6 px-4 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-[#8B4513] via-[#D2B48C] to-[#F5F5DC] py-6 px-4 sm:px-6 lg:px-8">
       {/* Patrón decorativo */}
       <div className="absolute inset-0 z-0 opacity-10">
         <div className="absolute inset-0 bg-repeat" style={{ backgroundImage: 'url("/pattern-wood.svg")', backgroundSize: '100px' }}></div>
@@ -135,7 +139,7 @@ export default function LoginPage() {
             <div className="flex justify-center mb-4">
               <div className="relative w-32 h-16">
                 <Image 
-                  src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg"
+                  src="/logo.svg"
                   alt="Handmade Art Logo" 
                   fill
                   className="object-contain"

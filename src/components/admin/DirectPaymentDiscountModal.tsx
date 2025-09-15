@@ -421,10 +421,7 @@ export default function DirectPaymentDiscountModal({
                   {/* WhatsApp Button */}
                   {whatsappLink && (
                     <div>
-                      <h3 className="font-medium mb-2 flex items-center justify-center">
-                        <Phone className="w-4 h-4 mr-2" />
-                        WhatsApp
-                      </h3>
+                     
                       <a
                         href={whatsappLink}
                         target="_blank"
