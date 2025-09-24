@@ -150,7 +150,7 @@ export default function GenericPaymentPage({ locale, predefinedAmount }: Generic
     <div className="max-w-2xl mx-auto p-6">
       <div className="bg-white text-gray-950 rounded-lg shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-[#555555] text-white p-6">
+        <div className="bg-gray-950 text-white p-6">
           <div className="flex items-center space-x-3">
             {paymentCompleted ? (
               <CheckCircle className="h-8 w-8 text-green-400" />
@@ -161,7 +161,7 @@ export default function GenericPaymentPage({ locale, predefinedAmount }: Generic
               <h1 className="text-2xl font-bold">
                 {paymentCompleted ? translations.thankYouTitle : translations.title}
               </h1>
-              <p className="text-blue-100">
+              <p className="text-blue-50">
                 {paymentCompleted ? translations.thankYouMessage : translations.subtitle}
               </p>
             </div>
