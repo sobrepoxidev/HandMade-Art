@@ -231,7 +231,7 @@ export default function GenericPaymentPage({ locale, predefinedAmount }: Generic
               <div className="flex items-center space-x-2">
                 <DollarSign className="h-5 w-5 text-green-600" />
                 <span className="text-lg font-semibold text-green-800">
-                  ${predefinedAmount.toFixed(2)} USD
+                  {predefinedAmount.toFixed(2)} USD
                 </span>
               </div>
             </div>
