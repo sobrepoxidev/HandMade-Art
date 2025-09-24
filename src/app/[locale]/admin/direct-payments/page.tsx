@@ -16,6 +16,11 @@ export default async function AdminDirectPaymentsPage({ params }: {  params: Pro
 
   const supabase = createServerComponentClient({ cookies });
   const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session) {
+    const returnUrl = `/${locale}/admin/direct-payments`;
+    redirect(`/${locale}/login?returnUrl=${returnUrl}`);
+  }
   
   // Si no hay sesión o el correo no está en la lista de administradores, redirigir
   if (!session || !ADMIN_EMAILS.includes(session.user.email || '')) {

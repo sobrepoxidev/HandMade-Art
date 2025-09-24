@@ -17,7 +17,7 @@ export default async function AdminQuotesPage({
   const { data: { session } } = await supabase.auth.getSession();
   
   if (!session) {
-    const returnUrl = encodeURIComponent(`/${locale}/admin/quotes`);
+    const returnUrl = `/${locale}/admin/quotes`;
     redirect(`/${locale}/login?returnUrl=${returnUrl}`);
   }
   
