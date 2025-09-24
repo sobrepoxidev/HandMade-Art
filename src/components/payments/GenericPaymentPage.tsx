@@ -48,22 +48,22 @@ export default function GenericPaymentPage({ locale, predefinedAmount }: Generic
   const router = useRouter();
 
   const translations = {
-    title: locale === 'es' ? 'Realizar Pago' : 'Make Payment',
-    subtitle: locale === 'es' ? 'Completa tu pago de forma segura' : 'Complete your payment securely',
-    amountLabel: locale === 'es' ? 'Monto a pagar (USD)' : 'Amount to pay (USD)',
+    title: locale == 'es' ? 'Realizar Pago' : 'Make Payment',
+    subtitle: locale == 'es' ? 'Completa tu pago de forma segura' : 'Complete your payment securely',
+    amountLabel: locale == 'es' ? 'Monto a pagar (USD)' : 'Amount to pay (USD)',
 
-    paymentTitle: locale === 'es' ? 'Método de Pago' : 'Payment Method',
-    enterAmount: locale === 'es' ? 'Ingresa el monto a pagar' : 'Enter the amount to pay',
-    invalidAmount: locale === 'es' ? 'Monto inválido' : 'Invalid amount',
-    paymentSuccess: locale === 'es' ? '¡Pago completado exitosamente!' : 'Payment completed successfully!',
-    paymentError: locale === 'es' ? 'Error al procesar el pago' : 'Error processing payment',
-    processing: locale === 'es' ? 'Procesando...' : 'Processing...',
+    paymentTitle: locale == 'es' ? 'Método de Pago' : 'Payment Method',
+    enterAmount: locale == 'es' ? 'Ingresa el monto a pagar' : 'Enter the amount to pay',
+    invalidAmount: locale == 'es' ? 'Monto inválido' : 'Invalid amount',
+    paymentSuccess: locale == 'es' ? '¡Pago completado exitosamente!' : 'Payment completed successfully!',
+    paymentError: locale == 'es' ? 'Error al procesar el pago' : 'Error processing payment',
+    processing: locale == 'es' ? 'Procesando...' : 'Processing...',
     
     // Nuevas traducciones para el mensaje de agradecimiento
-    thankYouTitle: locale === 'es' ? '¡Gracias por tu pago!' : 'Thank you for your payment!',
-    thankYouMessage: locale === 'es' ? 'Tu pago ha sido procesado exitosamente. Recibirás un correo de confirmación en breve.' : 'Your payment has been processed successfully. You will receive a confirmation email shortly.',
-    makeAnotherPayment: locale === 'es' ? 'Realizar otro pago' : 'Make another payment',
-    goToHome: locale === 'es' ? 'Ir al inicio' : 'Go to home'
+    thankYouTitle: locale == 'es' ? '¡Gracias por tu pago!' : 'Thank you for your payment!',
+    thankYouMessage: locale == 'es' ? 'Tu pago ha sido procesado exitosamente. Recibirás un correo de confirmación en breve.' : 'Your payment has been processed successfully. You will receive a confirmation email shortly.',
+    makeAnotherPayment: locale == 'es' ? 'Realizar otro pago' : 'Make another payment',
+    goToHome: locale == 'es' ? 'Ir al inicio' : 'Go to home'
   };
 
   const finalAmount = parseFloat(amount);
