@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Image from 'next/image';
-import { Search, ShoppingCart, Plus, Minus, Trash2, User, Filter, Loader2 } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, Trash2, User, Filter, Loader2, Link, DollarSign, Copy } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import DirectPaymentDiscountModal from './DirectPaymentDiscountModal';
 import { Database } from '@/lib/database.types';
@@ -50,6 +50,9 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
     requiresShippingAddress: false
   });
   const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [genericAmount, setGenericAmount] = useState('');
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
   // Fetch products
   useEffect(() => {
@@ -210,11 +213,150 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
     setShowDiscountModal(true);
   };
 
+  // Generate generic payment link
+  const handleGenerateGenericLink = async () => {
+    if (!genericAmount || isNaN(parseFloat(genericAmount)) || parseFloat(genericAmount) <= 0) {
+      toast.error(
+        locale === 'es'
+          ? 'Por favor ingresa un monto válido'
+          : 'Please enter a valid amount'
+      );
+      return;
+    }
+
+    setIsGeneratingLink(true);
+    try {
+      const response = await fetch('/api/generate-generic-payment-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: parseFloat(genericAmount) }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setGeneratedLink(data.paymentLink);
+        toast.success(
+          locale === 'es'
+            ? 'Link de pago generado exitosamente'
+            : 'Payment link generated successfully'
+        );
+      } else {
+        throw new Error(data.error || 'Failed to generate link');
+      }
+    } catch (error) {
+      console.error('Error generating generic payment link:', error);
+      toast.error(
+        locale === 'es'
+          ? 'Error al generar el link de pago'
+          : 'Error generating payment link'
+      );
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  };
+
+  // Copy link to clipboard
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(
+        locale === 'es'
+          ? 'Link copiado al portapapeles'
+          : 'Link copied to clipboard'
+      );
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      toast.error(
+        locale === 'es'
+          ? 'Error al copiar el link'
+          : 'Error copying link'
+      );
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-1.5 text-black">
       <h1 className="text-2xl font-bold mb-2">
         {locale === 'es' ? 'Generación de Pagos Directos' : 'Direct Payment Generation'}
       </h1>
+
+      {/* Generic Payment Link Generator */}
+      <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-sm p-4 mb-4 border border-green-200">
+        <h2 className="text-lg font-semibold mb-4 flex items-center text-green-800">
+          <Link className="w-5 h-5 mr-2" />
+          {locale === 'es' ? 'Generar Link de Pago Genérico' : 'Generate Generic Payment Link'}
+        </h2>
+        <p className="text-sm text-gray-600 mb-4">
+          {locale === 'es' 
+            ? 'Crea un link de pago directo sin necesidad de productos específicos. Solo ingresa el monto y genera el enlace.'
+            : 'Create a direct payment link without specific products. Just enter the amount and generate the link.'
+          }
+        </p>
+        
+        <div className="flex flex-col sm:flex-row gap-4 items-end">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {locale === 'es' ? 'Monto (USD)' : 'Amount (USD)'}
+            </label>
+            <div className="relative">
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={genericAmount}
+                onChange={(e) => setGenericAmount(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+          
+          <button
+            onClick={handleGenerateGenericLink}
+            disabled={isGeneratingLink}
+            className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium py-2 px-6 rounded-md transition-colors flex items-center"
+          >
+            {isGeneratingLink ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {locale === 'es' ? 'Generando...' : 'Generating...'}
+              </>
+            ) : (
+              <>
+                <Link className="w-4 h-4 mr-2" />
+                {locale === 'es' ? 'Generar Link' : 'Generate Link'}
+              </>
+            )}
+          </button>
+        </div>
+
+        {generatedLink && (
+          <div className="mt-4 p-3 bg-white rounded-md border border-green-300">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {locale === 'es' ? 'Link Generado:' : 'Generated Link:'}
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={generatedLink}
+                readOnly
+                className="flex-1 p-2 border border-gray-300 rounded-md bg-gray-50 text-sm"
+              />
+              <button
+                onClick={() => copyToClipboard(generatedLink)}
+                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md transition-colors"
+                title={locale === 'es' ? 'Copiar link' : 'Copy link'}
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Customer Information */}
       <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
