@@ -20,9 +20,11 @@ interface QuotePaymentPageProps {
   locale: string;
 }
 
+// TEMPORAL: Usando sandbox en producción debido a cuenta restringida
+// TODO: Revertir cuando se resuelva el problema con PayPal Live
 const PAYPAL_CLIENT_ID: string =
   process.env.NODE_ENV === 'production'
-    ? process.env.NEXT_PUBLIC_PAYPAL_LIVE_CLIENT_ID ?? 'sb'
+    ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SB ?? 'sb' // Usando sandbox temporalmente
     : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? 'sb';
 
 export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProps) {

@@ -10,11 +10,12 @@ const isProduction = (): boolean => {
 
 /**
  * Gets the appropriate PayPal API URL based on environment
+ * TEMPORAL: Usando sandbox en producción debido a cuenta restringida
  */
 const getPayPalApiUrl = (): string => {
   return isProduction()
-    ? 'https://api-m.paypal.com'
-    : 'https://api-m.sandbox.paypal.com';
+    ? 'https://api-m.sandbox.paypal.com' // Usando sandbox temporalmente
+    : 'https://api-m.paypal.com';
 };
 
 /**
@@ -47,13 +48,14 @@ const createMockPayPalOrder = (amount: number) => {
  * Gets an access token from PayPal API for authentication
  */
 export async function getPaypalAccessToken(): Promise<string> {
-  // Use different credentials based on environment
+  // TEMPORAL: Usando sandbox en producción debido a cuenta restringida
+  // TODO: Revertir cuando se resuelva el problema con PayPal Live
   const CLIENT_ID = isProduction()
-    ? process.env.NEXT_PUBLIC_PAYPAL_LIVE_CLIENT_ID
+    ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SB // Usando sandbox temporalmente
     : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
   const CLIENT_SECRET = isProduction()
-    ? process.env.PAYPAL_LIVE_SECRET
+    ? process.env.PAYPAL_SECRET_SB // Usando sandbox temporalmente
     : process.env.PAYPAL_SECRET;
 
   // For development, if credentials are missing, use a mock token
