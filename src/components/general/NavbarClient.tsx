@@ -381,7 +381,8 @@ export default function NavbarClient({ locale }: { locale: string }) {
                       onClick={() => {
                         const fullPath = window.location.pathname + window.location.search;
                         // IMPORTANTE: encierra el returnUrl porque puede traer su propio "?"
-                        router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
+                        //router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
+                        router.push(`/login?returnUrl=${fullPath}`);
                         setIsMenuOpen(false);
                       }}
                       className="text-sm text-gray-700"
