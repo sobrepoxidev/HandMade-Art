@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 
   const metadata = catalogMetadata[currentLocale];
   
-  return buildMetadata({
+  return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/catalog`,
     title: metadata.title,

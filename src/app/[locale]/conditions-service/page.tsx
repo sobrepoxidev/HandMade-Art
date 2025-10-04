@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
   
   const pageTitle = currentLocale === 'es' ? 'Términos y Condiciones' : 'Terms and Conditions';
 
-  return buildMetadata({
+  return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/conditions-service`,
     title: pageTitle,

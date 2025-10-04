@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
     ? 'Handmade Art participa en DMNTS Edición 8 para impulsar el Proyecto de Ley 24870 sobre reinserción sociolaboral en Costa Rica'
     : 'Handmade Art participates in DMNTS Edition 8 to promote Law Project 24870 on social and labor reintegration in Costa Rica';
 
-  return buildMetadata({
+  return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/dmnts`,
     title: pageTitle,

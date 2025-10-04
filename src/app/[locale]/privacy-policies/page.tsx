@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
   const currentLocale = locale === "es" ? "es" : "en";
   const title = currentLocale === "es" ? "Política de Privacidad" : "Privacy policy";
   
-  return buildMetadata({
+  return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/privacy-policies`,
     title: title,

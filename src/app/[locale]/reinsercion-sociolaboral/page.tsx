@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
     ? 'Handmade Art apoya el Proyecto de Ley 24870 para la reinserción sociolaboral de personas en situación de vulnerabilidad en Costa Rica'
     : 'Handmade Art supports Law Project 24870 for the social and labor reintegration of vulnerable populations in Costa Rica';
 
-  return buildMetadata({
+  return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/reinsercion-sociolaboral`,
     title: pageTitle,

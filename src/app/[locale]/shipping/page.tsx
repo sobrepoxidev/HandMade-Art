@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
   const currentLocale = locale === "es" ? "es" : "en";
   const title = currentLocale === "es" ? "Envíos" : "Shipping";
   
-  return buildMetadata({
+  return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/shipping`,
     title: title,

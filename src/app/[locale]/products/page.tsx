@@ -27,7 +27,7 @@ export async function generateMetadata({
     .single();
 
   if (!product) { 
-    return buildMetadata({
+    return await buildMetadata({
       locale: locale === "es" ? "es" : "en",
       pathname: `/products`,
       title: locale === "es" ? "Productos" : "Products"
@@ -44,7 +44,7 @@ export async function generateMetadata({
     ? product.media[0]
     : null;
 
-  return buildMetadata({
+  return await buildMetadata({
     locale: locale === "es" ? "es" : "en",
     pathname: `/product/${id}`,
     title: productName || (locale === "es" ? "Producto" : "Product"),

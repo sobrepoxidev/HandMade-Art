@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
     ? 'HandMade Art opera en CAI Carlos Luis Fallas brindando segundas oportunidades a personas privadas de libertad a través del arte y artesanías. Patrocinado por SobrePoxi, ofrecemos capacitación, seguimiento post-liberación y un programa completo de reinserción social.'
     : 'HandMade Art operates at CAI Carlos Luis Fallas providing second chances to incarcerated individuals through art and crafts. Sponsored by SobrePoxi, we offer training, post-release follow-up, and a complete social reintegration program.';
  
-  return buildMetadata({
+  return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/about`,
     title: pageTitle,

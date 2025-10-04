@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
   // Try to derive product name via query param or fallback
   const genericTitle = currentLocale === "es" ? "Producto" : "Product";
   
-  return buildMetadata({
+  return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/product/${id}`,
     title: genericTitle,

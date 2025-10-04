@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
   
   const pageTitle = currentLocale === 'es' ? 'Resultados de búsqueda' : 'Search results';
 
-  return buildMetadata({
+  return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/search`,
     title: pageTitle,

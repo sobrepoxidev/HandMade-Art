@@ -1,39 +1,80 @@
 // src/lib/metadata.ts
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { headers } from "next/headers";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://handmadeart.store';
+// Obtiene la URL base del request actual (con fallback)
+async function getSiteUrl(): Promise<string> {
+  try {
+    const headersList = await headers();
+    const host = headersList.get("host");
+    const proto = headersList.get("x-forwarded-proto") || "https";
+    if (host) return `${proto}://${host}`;
+  } catch (err) {
+    console.warn("No se pudo obtener la URL del request. Usando fallback.", err);
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL || "https://handmadeart.store";
+}
 
-const DEFAULT_IMAGE = {
-  url: `${SITE_URL}/og-image.webp`,
-  width: 500,
-  height: 500,
-  type: 'image/webp'
-};
+function getDefaultImage(siteUrl: string) {
+  // Tu imagen 1:1 válida
+  return {
+    url: `${siteUrl}/web-image.jpg`,
+    width: 1024,
+    height: 1024,
+    type: "image/jpeg",
+  };
+}
 
 const seoConfig = {
   es: {
     title: {
-      default: "Handmade Art | Arte Costarricense Hecho a Mano",
+      default:
+        "Handmade Art | Arte costarricense hecho a mano que transforma vidas",
       template: "%s | Handmade Art Costa Rica",
     },
-    description: "Descubre arte 100% hecho a mano en Costa Rica: pinturas, esculturas y piezas únicas. Envíos a todo el país.",
-    keywords: "arte hecho a mano, arte costarricense, arte tico, piezas únicas, esculturas, pinturas originales, handmade art Costa Rica",
+    // Copy con intención de clic (sin exagerar)
+    description:
+      "Compra arte hecho a mano en Costa Rica: espejos, chorreadores y piezas únicas con calidad real. Envíos a todo el país. Cada compra impulsa la reinserción social.",
+    // En Next, keywords puede ser string|string[]. Preferimos string[].
+    keywords: [
+      "arte hecho a mano",
+      "artesanía hecha a mano",
+      "arte costarricense",
+      "artesanía costarricense",
+      "arte tico",
+      "arte tica",
+      "chorreadores artesanales",
+      "espejos artesanales",
+      "hecho en Costa Rica",
+      "regalos únicos",
+      "impacto social",
+    ] as string[],
   },
   en: {
     title: {
-      default: "Handmade Art | Costa Rican Handmade Art",
-      template: "%s | Handmade Art USA",
+      default:
+        "Handmade Art | Costa Rican handmade art that changes lives",
+      template: "%s | Handmade Art",
     },
-    description: "Shop unique handmade art pieces from Costa Rica—paintings, sculptures and décor—crafted by local artisans and shipped fast to the USA.",
-    keywords: "handmade art, handmade art USA, handmade art Costa Rica, Costa Rican crafts, original paintings, sculptures, unique art pieces",
+    description:
+      "Shop handmade art from Costa Rica—mirrors, coffee drippers and one-of-a-kind pieces with real quality. Fast nationwide delivery. Every purchase supports social reintegration.",
+    keywords: [
+      "handmade art",
+      "costa rican crafts",
+      "handmade mirrors",
+      "coffee drippers handmade",
+      "made in Costa Rica",
+      "one of a kind",
+      "social impact",
+    ] as string[],
   },
-};
+} as const;
 
 interface BuildMetadataParams {
   locale: "es" | "en";
   title?: string;
   description?: string;
-  pathname: string;
+  pathname: string; // Debe comenzar con "/"
   image?: {
     url: string;
     width?: number;
@@ -43,43 +84,58 @@ interface BuildMetadataParams {
   };
 }
 
-export function buildMetadata(params: BuildMetadataParams): Metadata {
+export async function buildMetadata(
+  params: BuildMetadataParams
+): Promise<Metadata> {
   const { locale, title, description, pathname, image } = params;
   const t = seoConfig[locale];
 
-  const pageTitle = title ? `${title}` : t.title.default;
-  const pageDescription = description || t.description;
+  const siteUrl = await getSiteUrl();
+  const defaultImage = getDefaultImage(siteUrl);
 
-  const ogImage = image || {
-    url: DEFAULT_IMAGE.url,
-    width: DEFAULT_IMAGE.width,
-    height: DEFAULT_IMAGE.height,
-    alt: "Handmade Art - Arte costarricense hecho a mano",
-    type: DEFAULT_IMAGE.type,
+  const pageTitle = title ?? t.title.default;
+  const pageDescription = description ?? t.description;
+
+  const ogImage = {
+    url: image?.url ?? defaultImage.url,
+    width: image?.width ?? defaultImage.width,
+    height: image?.height ?? defaultImage.height,
+    alt:
+      image?.alt ??
+      (locale === "es"
+        ? "Handmade Art - Arte costarricense hecho a mano"
+        : "Handmade Art - Costa Rican handmade art"),
+    type: image?.type ?? defaultImage.type,
   };
 
-  // Ensure image URL is absolute
-  if (ogImage.url.startsWith('/')) {
-    ogImage.url = `${SITE_URL}${ogImage.url}`;
+  // Asegurar URL absoluta para imagen
+  if (ogImage.url.startsWith("/")) {
+    ogImage.url = `${siteUrl}${ogImage.url}`;
   }
-  
-  // Ensure canonical URL is absolute
-  const canonicalUrl = `${SITE_URL}${pathname}`;
+
+  // Canonical absoluto
+  const canonicalUrl = `${siteUrl}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
+
+  // Cálculo de alternates idiomáticos
+  const basePath =
+    pathname.startsWith("/es") || pathname.startsWith("/en")
+      ? pathname.slice(3) || "/"
+      : pathname;
 
   const metadata: Metadata = {
-    metadataBase: new URL(SITE_URL),
+    metadataBase: new URL(siteUrl),
     title: {
       default: pageTitle,
       template: t.title.template,
     },
     description: pageDescription,
     keywords: t.keywords,
-    
+
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        "es-CR": `${SITE_URL}/es${pathname.startsWith('/es') ? pathname.substring(3) : (pathname.startsWith('/en') ? pathname.substring(3) : pathname)}`,
-        "en-US": `${SITE_URL}/en${pathname.startsWith('/en') ? pathname.substring(3) : (pathname.startsWith('/es') ? pathname.substring(3) : pathname)}`,
+        "es-CR": `${siteUrl}/es${basePath}`,
+        "en-US": `${siteUrl}/en${basePath}`,
         "x-default": canonicalUrl,
       },
     },
@@ -107,7 +163,14 @@ export function buildMetadata(params: BuildMetadataParams): Metadata {
       title: pageTitle,
       description: pageDescription,
       images: [ogImage.url],
-      creator: "@handmadeart", // Optional: Add Twitter handle
+      creator: "@handmadeart",
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+      // Para que Google permita previews grandes
+      "max-image-preview": "large",
     },
   };
 
