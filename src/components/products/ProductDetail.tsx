@@ -65,7 +65,26 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
   const router = useRouter();
   
   // Get Supabase session at the component level
-  const { session } = useSupabase();
+  const { session, supabase: supabaseContext } = useSupabase();
+  
+  // Estado local para el estado de la sesión (igual que en el carrito)
+  const [currentSession, setCurrentSession] = useState(session);
+  
+  // Actualizar el estado local cuando cambia la sesión (igual que en el carrito)
+  useEffect(() => {
+    setCurrentSession(session);
+    
+    // Configurar un listener para cambios en la sesión
+    const { data: { subscription } } = supabaseContext.auth.onAuthStateChange(
+      (_event, newSession) => {
+        setCurrentSession(newSession);
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [session, supabaseContext.auth]);
   
   // Cargar producto por ID y sus datos relacionados
   useEffect(() => {
@@ -92,10 +111,10 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
         setProduct(productData as Product);
 
         // Registrar la visualización en el historial (si hay un usuario autenticado)
-        if (session?.user) {
+        if (currentSession?.user) {
           // Record view in view_history table
           await supabase.from('view_history').insert({
-            user_id: session.user.id,
+            user_id: currentSession.user.id,
             product_id: productData.id,
           }).select();
         }
@@ -123,11 +142,11 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
         }
 
         // Check if product is in favorites (if user is logged in)
-        if (session?.user) {
+        if (currentSession?.user) {
           const { data: favoriteData } = await supabase
             .from('favorites')
             .select('id')
-            .eq('user_id', session.user.id)
+            .eq('user_id', currentSession.user.id)
             .eq('product_id', productData.id)
             .single();
 
@@ -240,8 +259,8 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
     if (!product) return;
     
     // Verificar si hay un usuario autenticado
-    // Usamos el session del nivel de componente
-    if (!session?.user) {
+    // Usamos el currentSession del nivel de componente
+    if (!currentSession?.user) {
       // Redireccionar a login si no hay usuario
       router.push('/login?redirect=' + encodeURIComponent(window.location.pathname));
       return;
@@ -253,7 +272,7 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
         const { error } = await supabase
           .from('favorites')
           .delete()
-          .eq('user_id', session.user.id)
+          .eq('user_id', currentSession.user.id)
           .eq('product_id', product.id);
           
         if (error) throw error;
@@ -263,7 +282,7 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
         const { error } = await supabase
           .from('favorites')
           .insert({
-            user_id: session.user.id,
+            user_id: currentSession.user.id,
             product_id: product.id
           });
           
@@ -283,14 +302,14 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
     addToCart(product, quantity);
     
     // Sincronizar con la base de datos si hay un usuario
-    // Usamos el session del nivel de componente
-    if (session?.user) {
+    // Usamos el currentSession del nivel de componente
+    if (currentSession?.user) {
       try {
         // Verificar si ya existe en el carrito
         const { data: existingItem } = await supabase
           .from('cart_items')
           .select('id, quantity')
-          .eq('user_id', session.user.id)
+          .eq('user_id', currentSession.user.id)
           .eq('product_id', product.id)
           .single();
         
@@ -305,7 +324,7 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
           await supabase
             .from('cart_items')
             .insert({
-              user_id: session.user.id,
+              user_id: currentSession.user.id,
               product_id: product.id,
               quantity: quantity
             });

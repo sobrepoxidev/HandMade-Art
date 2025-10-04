@@ -6,6 +6,8 @@ import { Link } from '@/i18n/navigation';
 import { Session } from '@supabase/supabase-js';
 import { ChevronDown, User, History, Heart } from 'lucide-react';
 import { useLocale } from "next-intl";
+import { useSupabase } from '@/app/supabase-provider/provider';
+
 interface UserDropdownProps {
   session: Session | null;
   onLogout: (currentUrl: string) => Promise<void>;
@@ -16,6 +18,26 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const locale = useLocale();
   const router = useRouter();
+  const { supabase } = useSupabase();
+  
+  // Estado local para el estado de la sesión (igual que en el carrito)
+  const [currentSession, setCurrentSession] = useState(session);
+  
+  // Actualizar el estado local cuando cambia la sesión (igual que en el carrito)
+  useEffect(() => {
+    setCurrentSession(session);
+    
+    // Configurar un listener para cambios en la sesión
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        setCurrentSession(newSession);
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [session, supabase.auth]);
 
   // Build the full current path *with* query string so we can return here after auth
 
@@ -52,7 +74,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
         aria-haspopup="true"
       >
         <span className="hidden md:inline">
-          {session ? `${locale === 'es' ? 'Hola' : 'Hello'}, ${session.user.email?.split('@')[0]}` : locale === 'es' ? 'Cuenta y Listas' : 'Account and Lists'}
+          {currentSession ? `${locale === 'es' ? 'Hola' : 'Hello'}, ${currentSession.user.email?.split('@')[0]}` : locale === 'es' ? 'Cuenta y Listas' : 'Account and Lists'}
         </span>
         <span className="md:hidden">
           <User className="h-5 w-5" />
@@ -65,7 +87,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
           className="absolute right-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50"
           style={{ zIndex: 9999 }}
         >
-          {!session ? (
+          {!currentSession ? (
             <>
               <div className="p-3 border-b border-gray-100">
                 <div className="flex justify-center py-2">
@@ -110,7 +132,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
                 </button>
               </div>
               <div className="text-sm text-gray-600">
-                {session.user.email}
+                {currentSession.user.email}
               </div>
             </div>
           )}

@@ -27,6 +27,25 @@ export default function NavbarClient({ locale }: { locale: string }) {
   const { supabase, session } = useSupabase();
   const { totalItems } = useCart();
 
+  // Estado local para el estado de la sesión (igual que en el carrito)
+  const [currentSession, setCurrentSession] = useState(session);
+  
+  // Actualizar el estado local cuando cambia la sesión (igual que en el carrito)
+  useEffect(() => {
+    setCurrentSession(session);
+    
+    // Configurar un listener para cambios en la sesión
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        setCurrentSession(newSession);
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [session, supabase.auth]);
+
   // Determinar si mostrar componentes de búsqueda (ocultar en /admin y /catalog)
   // Considerar rutas con locale: /es/admin, /en/admin, /es/catalog, /en/catalog
   const shouldShowSearchComponents = !pathname.includes('/admin') && !pathname.includes('/catalog');
@@ -142,7 +161,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
 
           {/* Right */}
           <div className="hidden lg:flex items-center gap-4">
-            <UserDropdown session={session} onLogout={handleLogout} />
+            <UserDropdown session={currentSession} onLogout={handleLogout} />
             {/* Language selector */}
             <button
               onClick={handleLanguageChange}
@@ -264,7 +283,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
       <div className="flex items-center justify-end space-x-0.5 sm:space-x-1 ml-auto lg:hidden" style={{ minWidth: '100px', flexShrink: 0 }}>
         {/* User Dropdown - Desktop */}
         <div className="hidden md:flex items-center">
-          <UserDropdown session={session} onLogout={handleLogout} />
+          <UserDropdown session={currentSession} onLogout={handleLogout} />
         </div>
 
         {/* Language selector - Implementado con next-intl */}
@@ -339,7 +358,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
             {/* Mobile Auth Links */}
             <div className="mb-3">
               <div className="flex items-center justify-between">
-                {session ? (
+                {currentSession ? (
                   <>
                     <Link
                       href="/account"
