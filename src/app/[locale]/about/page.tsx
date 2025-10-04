@@ -2,386 +2,460 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { buildMetadata } from '@/lib/metadata';
 import type { Metadata } from "next";
+
 type tParams = Promise<{ locale: string }>;
 
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const { locale } = await params;
   const currentLocale = locale === "es" ? "es" : "en";
   
-  const pageTitle = currentLocale === 'es' ? 'Sobre Hand Made Art' : 'About Hand Made Art';
+  const pageTitle = currentLocale === 'es' 
+    ? 'Acerca de HandMade Art - Reinserción Social en CAI Carlos Luis Fallas | SobrePoxi'
+    : 'About HandMade Art - Social Reintegration at CAI Carlos Luis Fallas | SobrePoxi';
 
+  const pageDescription = currentLocale === 'es'
+    ? 'HandMade Art opera en CAI Carlos Luis Fallas brindando segundas oportunidades a personas privadas de libertad a través del arte y artesanías. Patrocinado por SobrePoxi, ofrecemos capacitación, seguimiento post-liberación y un programa completo de reinserción social.'
+    : 'HandMade Art operates at CAI Carlos Luis Fallas providing second chances to incarcerated individuals through art and crafts. Sponsored by SobrePoxi, we offer training, post-release follow-up, and a complete social reintegration program.';
+ 
   return buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/about`,
     title: pageTitle,
+    description: pageDescription,
+    image: {
+      url: "/impact/Taller-de-creacion-de-chorreadores-de-cafe.webp",
+      width: 1200,
+      height: 630,
+      alt: currentLocale === 'es' 
+        ? "Taller de creación de chorreadores de café en CAI Carlos Luis Fallas"
+        : "Coffee maker creation workshop at CAI Carlos Luis Fallas"
+    }
   });
+}
+
+function JsonLd({ locale }: { locale: string }) {
+  const isEs = locale === 'es';
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'NGO',
+    name: 'Handmade Art',
+    url: 'https://handmadeart.store',
+    sameAs: ['https://artehechoamano.com/es', 'https://handmadeart.store/en'],
+    areaServed: 'CR',
+    description: isEs
+      ? 'Iniciativa social que impulsa la reinserción a través de la formación artesanal, trabajo digno y acompañamiento postpenitenciario.'
+      : 'Social initiative that promotes reintegration through artisanal training, dignified work and post-release support.',
+    sponsor: {
+      '@type': 'Organization',
+      name: 'SobrePoxi',
+      url: 'https://sobrepoxi.com/es'
+    }
+  };
+  return (
+    <script
+      type="application/ld+json"
+      // eslint-disable-next-line react/no-danger
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
 }
 
 export default async function About({ params }: { params: tParams }) {
   const { locale } = await params;
+  const isEs = locale === 'es';
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-4">
+      <JsonLd locale={locale} />
+
+      {/* HERO — propósito claro y humano */}
+      <section className="relative overflow-hidden py-10 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6 lg:gap-16">
-            {/* Text Content */}
-            <div className="w-full lg:w-1/2 flex flex-col justify-center text-center lg:text-left">
+          <div className="flex flex-col-reverse lg:flex-row items-center gap-8 lg:gap-14">
+            {/* Texto */}
+            <div className="w-full lg:w-7/12">
               <span className="inline-block mb-4 rounded-full bg-teal-100 px-4 py-1 text-sm font-medium text-teal-700">
-                {locale === "es" ? "Nuestra misión" : "Our mission"}
+                {isEs ? 'Misión y propósito' : 'Mission & Purpose'}
               </span>
-              <h1 className="mb-4 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900">
-                {locale === "es" ? "Sobre HandMade Art" : "About HandMade Art"}
+              <h1 className="mb-4 text-4xl sm:text-5xl font-bold tracking-tight text-gray-900">
+                {isEs
+                  ? 'Reinserción social a través del trabajo artesanal'
+                  : 'Social reintegration through craftsmanship'}
               </h1>
-              <p className="mb-2 sm:mb-8 text-lg text-gray-600">
-                {locale === "es" ? "En HandMade Art nos apasiona promover y preservar las tradiciones artesanales. Nuestro objetivo es brindar un espacio en línea donde los artistas y artesanos privados de libertad puedan mostrar y vender sus creaciones únicas." : "At HandMade Art, we are passionate about promoting and preserving traditional crafts. Our goal is to provide an online platform where artists and artisans incarcerated can showcase and sell their unique creations."}
+              <p className="mb-6 text-lg text-gray-700">
+                {isEs
+                  ? 'En Handmade Art, la persona es el centro. Acompañamos a quienes viven en condición de vulnerabilidad —ya sea en situación de calle o privados de libertad— con formación, ocupación productiva e ingresos legales que abren camino a una vida autosostenible.'
+                  : 'At Handmade Art, people come first. We support those living in vulnerable conditions—either experiencing homelessness or incarceration—through training, productive work and lawful income that pave the way to a self-sustaining life.'}
               </p>
-              <div className="flex flex-col items-center justify-center sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/products"
-                  className="rounded-md bg-teal-600 px-6 py-3 text-white shadow transition hover:bg-teal-700 flex items-center justify-center gap-1"
+                  className="rounded-md bg-teal-600 px-6 py-3 text-white shadow transition hover:bg-teal-700 text-center"
                 >
-                  Explorar productos
+                  {isEs ? 'Explorar productos' : 'Explore products'}
+                </Link>
+                <Link
+                  href="/impact"
+                  className="rounded-md border border-teal-600 px-6 py-3 text-teal-700 hover:bg-teal-50 text-center"
+                >
+                  {isEs ? 'Conocer nuestro impacto' : 'See our impact'}
                 </Link>
               </div>
             </div>
 
-            {/* Image placement */}
-            <div className="aspect-[1500/1574] flex flex-col items-center justify-center sm:mt-7 mb-3">
+            {/* Imagen */}
+            <div className="w-full lg:w-5/12 flex justify-center">
+              <div className="relative">
+                <Image
+                  src="/about/smoke.webp"
+                  alt={isEs ? 'Personas aprendiendo oficios artesanales' : 'People learning artisanal crafts'}
+                  width={480}
+                  height={560}
+                  className="rounded-xl shadow-lg object-cover"
+                  priority
+                />
+                <div className="absolute -bottom-4 -right-4 hidden sm:block h-24 w-24 rounded-xl bg-teal-200/60 blur-xl" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* QUÉ HACEMOS — general, no centrado en creadores */}
+      <section className="pb-6 lg:pb-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                titleEs: 'Formación con propósito',
+                titleEn: 'Purposeful training',
+                textEs:
+                  'Talleres técnicos y socioemocionales: madera, cerámica, telas y más; junto con habilidades blandas, finanzas básicas y preparación laboral.',
+                textEn:
+                  'Technical and socio-emotional workshops: wood, ceramics, textiles and more; plus soft skills, basic finance and job readiness.',
+              },
+              {
+                titleEs: 'Trabajo digno e ingresos legales',
+                titleEn: 'Dignified work & lawful income',
+                textEs:
+                  'Ocupación productiva dentro de centros penales y espacios aliados, con estándares de calidad, precios justos y trazabilidad.',
+                textEn:
+                  'Productive work within prisons and partner spaces, with quality standards, fair pricing and traceability.',
+              },
+              {
+                titleEs: 'Acompañamiento post-penal',
+                titleEn: 'Post-release support',
+                textEs:
+                  'Seguimiento después de la liberación hasta alcanzar autonomía: vinculación laboral, mentoría y redes de apoyo.',
+                textEn:
+                  'Follow-up after release until autonomy: job placement, mentoring and support networks.',
+              },
+            ].map((f, i) => (
+              <div key={i} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  {isEs ? f.titleEs : f.titleEn}
+                </h3>
+                <p className="text-gray-600">
+                  {isEs ? f.textEs : f.textEn}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SEDE ACTUAL — CAI Carlos Luis Fallas */}
+      <section className="py-14 bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {isEs ? 'Operamos en el CAI Carlos Luis Fallas' : 'Operating at CAI Carlos Luis Fallas'}
+            </h2>
+            <div className="mt-2 h-1 w-24 bg-teal-600 mx-auto"></div>
+            <p className="mt-4 text-lg text-gray-700">
+              {isEs
+                ? 'Actualmente desarrollamos nuestro programa integral dentro del CAI Carlos Luis Fallas. A través de las artesanías, las personas acceden a una segunda oportunidad real con ocupación productiva e ingresos legales.'
+                : 'We currently run our integrated program within the Carlos Luis Fallas facility. Through craftsmanship, people access a real second chance with productive work and lawful income.'}
+            </p>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div className="grid grid-cols-2 gap-4">
               <Image
-                src="/about/smoke.webp"
-                alt="Artesanos trabajando"
-                width={350}
-                height={0}
-                className="object-cover items-center justify-center lg:transform lg:rotate-12"
+                src="/impact/Taller-de-creacion-de-chorreadores-de-cafe.webp"
+                alt={isEs ? 'Taller de chorreadores' : 'Coffee dripper workshop'}
+                width={280}
+                height={200}
+                className="rounded-lg shadow-md object-cover"
+              />
+              <Image
+                src="/impact/Taller-de-detalle-de-madera.webp"
+                alt={isEs ? 'Detalle en madera' : 'Wood detail workshop'}
+                width={280}
+                height={200}
+                className="rounded-lg shadow-md object-cover"
+              />
+              <Image
+                src="/impact/Taller-de-marcos-y-espejos.webp"
+                alt={isEs ? 'Marcos y espejos' : 'Frames and mirrors'}
+                width={280}
+                height={200}
+                className="rounded-lg shadow-md object-cover"
+              />
+              <Image
+                src="/impact/Taller-de-exhibicion.webp"
+                alt={isEs ? 'Exhibición de productos' : 'Product exhibition'}
+                width={280}
+                height={200}
+                className="rounded-lg shadow-md object-cover"
               />
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="pt-8 pb-4 lg:pt-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                {locale === "es" ? "Tradición y Arte" : "Tradition and Art"}
+            <div>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                {isEs ? 'Un programa integral de reinserción' : 'An integrated reintegration program'}
               </h3>
-              <p className="text-gray-600">
-                {locale === "es" ? "Explora nuestra amplia selección de artesanías hechas a mano en madera, barro, cerámica, tela y muchos otros materiales. Cada pieza es única y refleja la creatividad y habilidad de nuestros talentosos artesanos." : "Explore our wide selection of handmade crafts made of wood, clay, ceramics, fabric and many other materials. Each piece is unique and reflects the creativity and skill of our talented artisans."}
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                {locale === "es" ? "Impacto Social" : "Social Impact"}
-              </h3>
-              <p className="text-gray-600">
-                {locale === "es" ? "Cada compra que realices en nuestro sitio web apoya directamente a estos talentosos individuos y contribuye a mantener viva la artesanía tradicional." : "Every purchase you make on our website directly supports these talented individuals and helps preserve traditional craftsmanship."}
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                {locale === "es" ? "Calidad y Autenticidad" : "Quality and Authenticity"}
-              </h3>
-              <p className="text-gray-600">
-                {locale === "es" ? "Todas nuestras piezas son creadas con el más alto nivel de artesanía y cuidado, garantizando productos únicos y de calidad." : "All our pieces are created with the highest level of craftsmanship and care, ensuring unique and high-quality products."}
+              <ul className="space-y-3">
+                {[
+                  isEs
+                    ? 'Formación técnica y socioemocional'
+                    : 'Technical and socio-emotional training',
+                  isEs
+                    ? 'Ocupación productiva con estándares de calidad'
+                    : 'Productive work with quality standards',
+                  isEs
+                    ? 'Ingresos legales y educación financiera'
+                    : 'Lawful income and financial literacy',
+                  isEs
+                    ? 'Acompañamiento post-liberación hacia autonomía'
+                    : 'Post-release accompaniment towards autonomy',
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-start">
+                    <svg className="w-5 h-5 text-teal-600 mr-3 mt-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-sm text-gray-500">
+                {isEs
+                  ? 'Nota: La sección legal se desarrolla en una página específica. Aquí presentamos la visión general de “Acerca de”.'
+                  : 'Note: Legal topics are detailed on a dedicated page. This “About” section presents the general overview.'}
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Historia de la Iniciativa */}
+      {/* SOBREPOXI — patrocinio e impulso fundador */}
       <section className="py-16 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">{locale === "es" ? "Nuestra Historia" : "Our History"}</h2>
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {isEs ? 'Impulsada y patrocinada por SobrePoxi' : 'Powered and sponsored by SobrePoxi'}
+            </h2>
             <div className="mt-2 h-1 w-24 bg-teal-600 mx-auto"></div>
           </div>
-          
-          <div className="flex flex-col lg:flex-row items-center gap-8">
+
+          <div className="flex flex-col lg:flex-row items-center gap-12">
             <div className="w-full lg:w-1/2">
-              <Image
-                src="/creators.webp"
-                alt="Fundadores de Hand Made Art"
-                width={500}
-                height={0}
-                className="rounded-lg shadow-md"
-              />
+              <p className="text-lg text-gray-700 mb-4">
+                {isEs
+                  ? 'SobrePoxi, marca líder en Costa Rica en pisos epóxicos industriales y mobiliario de lujo en resina, es nuestro patrocinador principal y socio impulsor. Su apoyo financiero, técnico y logístico permite sostener los talleres, asegurar materiales y amplificar el impacto social.'
+                  : 'SobrePoxi, a leading brand in Costa Rica for industrial epoxy flooring and luxury resin furniture, is our main sponsor and driving partner. Their financial, technical and logistical support sustains workshops, secures materials and amplifies social impact.'}
+              </p>
+              <p className="text-lg text-gray-700 mb-6">
+                {isEs
+                  ? 'Esta alianza también abre la puerta a nuevas líneas productivas —incluida la industria textil— siempre en armonía con el marco legal y las autoridades correspondientes.'
+                  : 'This alliance also opens the door to new productive lines—including textiles—always aligned with the legal framework and the relevant authorities.'}
+              </p>
+              <a
+                href="https://sobrepoxi.com/es"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-6 py-3 border border-teal-600 text-teal-600 rounded-md hover:bg-teal-50 transition-colors"
+              >
+                {isEs ? 'Conoce más sobre SobrePoxi' : 'Learn more about SobrePoxi'}
+                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
+
             <div className="w-full lg:w-1/2">
-              <p className="text-gray-700 mb-4">
-                {locale === "es" ? "HandMade Art nació en 2018 como una idea entre amigos con una visión compartida: crear oportunidades para personas privadas de libertad a través del arte y la artesanía." : "HandMade Art was born in 2018 as an idea between friends with a shared vision: creating opportunities for incarcerated individuals through art and craftsmanship."}
-              </p>
-              <p className="text-gray-700 mb-4">
-                {locale === "es" ? "Lo que comenzó como un pequeño proyecto con apenas cinco artesanos, ha crecido hasta convertirse en una plataforma que representa a más de cincuenta creadores talentosos, cada uno con su historia única y habilidades extraordinarias." : "What started as a small project with just five artisans has grown to become a platform representing more than fifty talented creators, each with their own unique story and extraordinary skills."}
-              </p>
-              <p className="text-gray-700">
-                {locale === "es" ? "A lo largo de los años, hemos establecido alianzas estratégicas con instituciones penitenciarias, organizaciones sin fines de lucro y empresas comprometidas con la responsabilidad social, expandiendo nuestro alcance y fortaleciendo nuestro impacto." : "Over the years, we have established strategic alliances with prisons, non-profit organizations, and socially responsible companies, expanding our reach and strengthening our impact."}
-              </p>
+              <div className="bg-gradient-to-br from-teal-50 to-blue-50 p-8 rounded-lg">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  {isEs ? 'Alcance de la alianza' : 'Scope of the alliance'}
+                </h3>
+                <ul className="space-y-3">
+                  {[
+                    isEs ? 'Financiamiento de talleres y materiales' : 'Funding for workshops and materials',
+                    isEs ? 'Apoyo técnico especializado' : 'Specialized technical support',
+                    isEs ? 'Calidad, trazabilidad y estándares de producción' : 'Quality, traceability and production standards',
+                    isEs ? 'Exploración de nuevas industrias (p. ej., textil)' : 'Exploration of new industries (e.g., textiles)',
+                    isEs ? 'Sostenibilidad e impacto medible' : 'Sustainability and measurable impact',
+                  ].map((b, i) => (
+                    <li key={i} className="flex items-center">
+                      <svg className="w-5 h-5 text-teal-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-gray-700">{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Misión, Visión y Valores */}
+      {/* MISIÓN · VISIÓN · VALORES — redacción profesional y SEO */}
       <section className="py-16 bg-gray-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">{locale === "es" ? "Misión, Visión y Valores" : "Mission, Vision and Values"}</h2>
+            <h2 className="text-3xl font-bold text-gray-900">{isEs ? 'Misión, visión y valores' : 'Mission, vision & values'}</h2>
             <div className="mt-2 h-1 w-24 bg-teal-600 mx-auto"></div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Misión */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center mb-4 mx-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-teal-600" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-center text-gray-900 mb-4">Misión</h3>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">{isEs ? 'Misión' : 'Mission'}</h3>
               <p className="text-gray-600 text-center">
-                {locale === "es" ? "Proporcionar una plataforma que conecte el talento artesanal de personas privadas de libertad con un mercado que valore la autenticidad, calidad y la historia detrás de cada creación, contribuyendo a su reinserción social y económica." : "Provide a platform that connects the artisanal talent of incarcerated individuals with a market that values authenticity, quality, and the history behind each creation, contributing to their social and economic reintegration."}
+                {isEs
+                  ? 'Generar segundas oportunidades a través del trabajo artesanal, conectando talento con mercado y acompañando cada proceso hasta la autosuficiencia.'
+                  : 'Create second chances through artisanal work, connecting talent with market demand and accompanying each process until self-sufficiency.'}
               </p>
             </div>
-            
+
             {/* Visión */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center mb-4 mx-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-teal-600" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-center text-gray-900 mb-4">Visión</h3>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">{isEs ? 'Visión' : 'Vision'}</h3>
               <p className="text-gray-600 text-center">
-                {locale === "es" ? "Ser reconocidos como el principal referente en la promoción y comercialización de artesanías creadas por personas en proceso de reinserción, cambiando perspectivas y construyendo puentes entre diferentes realidades sociales." : "To be recognized as the principal reference in the promotion and commercialization of crafts created by individuals in the process of reintegration, changing perspectives and building bridges between different social realities."}
+                {isEs
+                  ? 'Ser referente en reinserción socio-productiva en Costa Rica y la región, integrando oficios, calidad y dignidad para transformar vidas.'
+                  : 'Be a benchmark for socio-productive reintegration in Costa Rica and the region, blending craft, quality and dignity to transform lives.'}
               </p>
             </div>
-            
+
             {/* Valores */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center mb-4 mx-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-teal-600" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-center text-gray-900 mb-4">{locale === "es" ? "Valores" : "Values"}</h3>
-              <ul className="text-gray-600">
-                <li className="mb-2">• <strong>{locale === "es" ? "Dignidad" : "Dignity"}</strong>: {locale === "es" ? "Reconocemos el valor inherente de cada persona." : "We recognize the inherent value of each person."}</li>
-                <li className="mb-2">• <strong>{locale === "es" ? "Transparencia" : "Transparency"}</strong>: {locale === "es" ? "Operamos con honestidad en todos los aspectos." : "We operate with honesty in all aspects."}</li>
-                <li className="mb-2">• <strong>{locale === "es" ? "Calidad" : "Quality"}</strong>: {locale === "es" ? "Exigimos excelencia en cada pieza artesanal." : "We demand excellence in every artisanal piece."}</li>
-                <li className="mb-2">• <strong>{locale === "es" ? "Inclusión" : "Inclusion"}</strong>: {locale === "es" ? "Creemos en segundas oportunidades para todos." : "We believe in second chances for everyone."}</li>
-                <li>• <strong>{locale === "es" ? "Sostenibilidad" : "Sustainability"}</strong>: {locale === "es" ? "Trabajamos por un impacto duradero." : "We work for a lasting impact."}</li>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">{isEs ? 'Valores' : 'Values'}</h3>
+              <ul className="text-gray-600 space-y-2">
+                <li>• <strong>{isEs ? 'Dignidad' : 'Dignity'}</strong> — {isEs ? 'cada persona importa.' : 'every person matters.'}</li>
+                <li>• <strong>{isEs ? 'Transparencia' : 'Transparency'}</strong> — {isEs ? 'procesos claros y medibles.' : 'clear, measurable processes.'}</li>
+                <li>• <strong>{isEs ? 'Excelencia' : 'Excellence'}</strong> — {isEs ? 'estándares altos en cada pieza.' : 'high standards in every piece.'}</li>
+                <li>• <strong>{isEs ? 'Inclusión' : 'Inclusion'}</strong> — {isEs ? 'segundas oportunidades reales.' : 'real second chances.'}</li>
+                <li>• <strong>{isEs ? 'Sostenibilidad' : 'Sustainability'}</strong> — {isEs ? 'impacto duradero.' : 'lasting impact.'}</li>
               </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Nuestro Equipo */}
-      <section className="py-16 bg-white">
+      {/* FUTURO — posibles expansiones permitidas por ley */}
+      <section className="py-16 bg-gradient-to-br from-teal-50 to-blue-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">{locale === "es" ? "Nuestro Equipo" : "Our Team"}</h2>
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {isEs ? 'Miramos hacia adelante' : 'Looking ahead'}
+            </h2>
             <div className="mt-2 h-1 w-24 bg-teal-600 mx-auto"></div>
-            <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-              {locale === "es" ? "Conozca a las personas comprometidas que hacen posible HandMade Art, un equipo multidisciplinario unido por el compromiso social." : "Meet the committed individuals who make HandMade Art possible, a multidisciplinary team united by social commitment."}
+            <p className="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">
+              {isEs
+                ? 'Exploramos expansiones a actividades permitidas por ley —como la industria textil— para diversificar la formación y los ingresos de la población atendida.'
+                : 'We explore expansions to legally permitted activities—such as the textile industry—to diversify training and income for the people we serve.'}
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Team Member 1 */}
-            <div className="text-center">
-              <div className="relative mx-auto w-40 h-40 rounded-full overflow-hidden mb-4">
-                <Image
-                    src="/home/face-m.webp"
-                  alt="Directora Ejecutiva"
-                  width={160}
-                  height={160}
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">{locale === "es" ? "Mauricio Castro" : "Mauricio Castro"}</h3>
-              <p className="text-gray-600">{locale === "es" ? "Director Ejecutivo" : "Executive Director"}</p>
-              <p className="mt-2 text-sm text-gray-500">
-                {locale === "es" ? "Fundador con 20 años de experiencia en emprendimientos sociales y desarrollo comunitario." : "Founder with 20 years of experience in social entrepreneurship and community development."}
-              </p>
-            </div>
-            
-            {/* Team Member 2 */}
-            <div className="text-center">
-              <div className="relative mx-auto w-40 h-40 rounded-full overflow-hidden mb-4">
-                <Image
-                    src="/home/face-m.webp"
-                  alt="Director Creativo"
-                  width={160}
-                  height={160}
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">{locale === "es" ? "Romny Castro" : "Romny Castro"}</h3>
-              <p className="text-gray-600">{locale === "es" ? "Director de Operaciones" : "Operations Director"}</p>
-              <p className="mt-2 text-sm text-gray-500">
-                {locale === "es" ? "Director de Operaciones con 15 años de experiencia en gestión de proyectos y operaciones." : "Operations Director with 15 years of experience in project and operations management."}
-              </p>
-            </div>
-            
-            {/* Team Member 3 */}
-            <div className="text-center">
-              <div className="relative mx-auto w-40 h-40 rounded-full overflow-hidden mb-4">
-                <Image
-                  src="/home/face-m.webp"
-                  alt="Coordinadora de Programas"
-                  width={160}
-                  height={160}
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">{locale === "es" ? "Bryam López" : "Bryam López"}</h3>
-              <p className="text-gray-600">{locale === "es" ? "Encargado área de IT" : "IT Manager"}</p>
-              <p className="mt-2 text-sm text-gray-500">
-                {locale === "es" ? "Encargado del área de IT con 2 años de experiencia en desarrollo web y software." : "IT Manager with 2 years of experience in web and software development."}
-              </p>
-            </div>
-            
-            
-          </div>
-        </div>
-      </section>
 
-      {/* Proceso de Trabajo */}
-      <section className="py-16 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">{locale === "es" ? "Nuestro Proceso de Trabajo" : "Our Working Process"}</h2>
-            <div className="mt-2 h-1 w-24 bg-teal-600 mx-auto"></div>
-            <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-              {locale === "es" ? "Así es como trabajamos con nuestros artesanos para llevar sus creaciones desde los talleres hasta tu hogar." : "This is how we work with our artisans to bring their creations from the workshops to your home."}
-            </p>
-          </div>
-          
-          <div className="relative">
-            {/* Timeline line */}
-            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-teal-200"></div>
-            
-            {/* Step 1 */}
-            <div className="relative mb-16">
-              <div className="flex flex-col md:flex-row items-center">
-                <div className="w-full md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{locale === "es" ? "Capacitación" : "Training"}</h3>
-                  <p className="text-gray-600">
-                    {locale === "es" ? "Proporcionamos talleres de formación en diversas técnicas artesanales, facilitados por maestros artesanos y profesionales." : "We provide training workshops in various artisanal techniques, facilitated by master artisans and professionals."}
-                  </p>
-                </div>
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/4 hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-teal-500 text-white font-bold">1</div>
-                <div className="w-full md:w-1/2 md:pl-12 text-center md:text-left">
-                  <Image
-                    src="/img.webp"
-                    alt="Capacitación de artesanos"
-                    width={300}
-                    height={200}
-                    className="rounded-lg shadow-md mx-auto md:mx-0"
-                  />
-                </div>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+            <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-100">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                {isEs ? 'Posibles líneas de expansión' : 'Potential expansion lines'}
+              </h3>
+              <ul className="space-y-3">
+                {[
+                  isEs
+                    ? 'Textil: confección básica, bordado, serigrafía y reparación.'
+                    : 'Textiles: basic sewing, embroidery, screen printing and repair.',
+                  isEs
+                    ? 'Complementos: empaques, etiquetado, kits y acabados.'
+                    : 'Complements: packaging, labeling, kits and finishing.',
+                  isEs
+                    ? 'Servicios creativos: diseño de patrones y prototipado.'
+                    : 'Creative services: pattern design and prototyping.',
+                ].map((x, i) => (
+                  <li key={i} className="flex items-start">
+                    <svg className="w-5 h-5 text-teal-600 mr-3 mt-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">{x}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-sm text-gray-600">
+                {isEs
+                  ? 'Cada expansión se implementará según viabilidad técnica, demanda del mercado y autorización de las autoridades competentes.'
+                  : 'Each expansion will be implemented based on technical feasibility, market demand and authorization from the relevant authorities.'}
+              </p>
             </div>
-            
-            {/* Step 2 */}
-            <div className="relative mb-16">
-              <div className="flex flex-col md:flex-row-reverse items-center">
-                <div className="w-full md:w-1/2 mb-6 md:mb-0 md:pl-12 text-center md:text-left">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{locale === "es" ? "Producción" : "Production"}</h3>
-                  <p className="text-gray-600">
-                    {locale === "es" ? "Los artesanos crean sus piezas en talleres dentro de los centros penitenciarios, con materiales y herramientas proporcionados por nuestro programa." : "Artisans create their pieces in workshops within prisons, with materials and tools provided by our program."}
-                  </p>
-                </div>
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/4 hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-teal-500 text-white font-bold">2</div>
-                <div className="w-full md:w-1/2 md:pr-12 text-center md:text-right">
-                  <Image
-                    src="/img.webp"
-                    alt="Producción de artesanías"
-                    width={300}
-                    height={200}
-                    className="rounded-lg shadow-md mx-auto md:ml-auto md:mr-0"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            {/* Step 3 */}
-            <div className="relative mb-16">
-              <div className="flex flex-col md:flex-row items-center">
-                <div className="w-full md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{locale === "es" ? "Control de Calidad" : "Quality Control"}</h3>
-                  <p className="text-gray-600">
-                    {locale === "es" ? "Cada pieza es evaluada rigurosamente para garantizar los más altos estándares de calidad y autenticidad." : "Each piece is evaluated rigorously to ensure the highest standards of quality and authenticity."}
-                  </p>
-                </div>
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/4 hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-teal-500 text-white font-bold">3</div>
-                <div className="w-full md:w-1/2 md:pl-12 text-center md:text-left">
-                  <Image
-                    src="/img.webp"
-                    alt="Control de calidad"
-                    width={300}
-                    height={200}
-                    className="rounded-lg shadow-md mx-auto md:mx-0"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            {/* Step 4 */}
-            <div className="relative">
-              <div className="flex flex-col md:flex-row-reverse items-center">
-                <div className="w-full md:w-1/2 mb-6 md:mb-0 md:pl-12 text-center md:text-left">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{locale === "es" ? "Comercialización" : "Commercialization"}</h3>
-                  <p className="text-gray-600">
-                    {locale === "es" ? "Fotografiamos, catalogamos y presentamos cada pieza en nuestra plataforma online, conectando el trabajo de los artesanos con clientes de todo el mundo." : "We photograph, catalog, and present each piece on our online platform, connecting artisans' work with customers worldwide."}
-                  </p>
-                </div>
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/4 hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-teal-500 text-white font-bold">4</div>
-                <div className="w-full md:w-1/2 md:pr-12 text-center md:text-right">
-                  <Image
-                    src="/img.webp"
-                    alt="Comercialización de productos"
-                    width={300}
-                    height={200}
-                    className="rounded-lg shadow-md mx-auto md:ml-auto md:mr-0"
-                  />
-                </div>
+
+            <div className="rounded-lg p-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                {isEs ? 'Calidad y catálogo actual' : 'Quality and current catalog'}
+              </h3>
+              <p className="text-gray-700 mb-4">
+                {isEs
+                  ? 'Nuestro catálogo incluye piezas en madera (chorreadores, marcos, espejos), cerámica y textiles artesanales seleccionados, con control de calidad y trazabilidad de origen.'
+                  : 'Our catalog includes wood pieces (coffee drippers, frames, mirrors), ceramics and curated textiles, with quality control and origin traceability.'}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href="https://artehechoamano.com/es"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-md bg-teal-600 px-6 py-3 text-white shadow hover:bg-teal-700 text-center"
+                >
+                  {isEs ? 'Ver tienda en español' : 'Shop (Spanish)'}
+                </a>
+                <a
+                  href="https://handmadeart.store/en"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-md border border-teal-600 px-6 py-3 text-teal-700 hover:bg-teal-50 text-center"
+                >
+                  {isEs ? 'Ver tienda en inglés' : 'Shop (English)'}
+                </a>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Call to Action */}
+      {/* CTA — participación */}
       <section className="py-12 bg-teal-700 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">{locale === "es" ? "Únete a Nuestra Misión" : "Join Our Mission"}</h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">
-            {locale === "es" ? "Al comprar nuestras artesanías, no solo adquieres una pieza única y hermosa, sino que contribuyes directamente a la transformación de vidas." : "By purchasing our artisanal pieces, you don't just acquire a unique and beautiful piece, but you directly contribute to the transformation of lives."}
+          <h2 className="text-3xl font-bold mb-4">
+            {isEs ? 'Sé parte de la segunda oportunidad' : 'Be part of the second chance'}
+          </h2>
+          <p className="text-lg mb-8 max-w-3xl mx-auto">
+            {isEs
+              ? 'Cada compra, donación o difusión cuenta. Tu apoyo convierte el talento en oportunidades reales de vida.'
+              : 'Every purchase, donation or share counts. Your support turns talent into real life opportunities.'}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               href="/products"
               className="rounded-md bg-white text-teal-700 px-6 py-3 shadow transition hover:bg-gray-100 font-medium"
             >
-              {locale === "es" ? "Explorar Productos" : "Explore Products"}
+              {isEs ? 'Explorar productos' : 'Explore products'}
             </Link>
             <Link
               href="/impact"
               className="rounded-md bg-transparent border-2 border-white px-6 py-3 transition hover:bg-teal-600 font-medium"
             >
-              {locale === "es" ? "Conocer Nuestro Impacto" : "Learn Our Impact"}
+              {isEs ? 'Conocer nuestro impacto' : 'Learn our impact'}
             </Link>
           </div>
         </div>
