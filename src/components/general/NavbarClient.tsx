@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
 import { usePathname } from 'next/navigation';
 import { Menu, X, User, ShoppingBag, ChevronDown, Globe, Package } from 'lucide-react';
-import { Session } from '@supabase/supabase-js';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useCart } from '@/context/CartContext';
 import UserDropdown from '@/components/user/UserDropdown';

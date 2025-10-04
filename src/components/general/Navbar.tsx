@@ -5,17 +5,9 @@ import Image from 'next/image';
 import NavbarClient from './NavbarClient';
 import SearchBar from '../search/SearchBar';
 import CategoryCarousel from '../search/CategoryCarousel';
-import { cookies } from 'next/headers';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { headers } from 'next/headers';
 
 export default async function Navbar({ locale }: { locale: string }) {
-  // Usar la versión correcta y más reciente de la API de cookies
-  // Pasar el método cookies directamente sin llamarlo
-  
-  // Get the user session
-  const { data: { session } } = await createServerComponentClient({ cookies }).auth.getSession();
-
   // Obtener la ruta actual para determinar si mostrar componentes de búsqueda
   const headersList = await headers();
   const pathname = headersList.get('x-pathname') || '';
