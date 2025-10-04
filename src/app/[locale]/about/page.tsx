@@ -94,12 +94,7 @@ export default async function About({ params }: { params: tParams }) {
                 >
                   {isEs ? 'Explorar productos' : 'Explore products'}
                 </Link>
-                <Link
-                  href="/impact"
-                  className="rounded-md border border-teal-600 px-6 py-3 text-teal-700 hover:bg-teal-50 text-center"
-                >
-                  {isEs ? 'Conocer nuestro impacto' : 'See our impact'}
-                </Link>
+               
               </div>
             </div>
 
