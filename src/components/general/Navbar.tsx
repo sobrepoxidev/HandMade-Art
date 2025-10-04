@@ -69,7 +69,6 @@ export default async function Navbar({ locale }: { locale: string }) {
         <div className="flex-grow flex items-center justify-end">
           <NavbarClient
             locale={locale}
-            session={session}
           />
         </div>
       </div>

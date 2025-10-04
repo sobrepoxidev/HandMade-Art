@@ -21,11 +21,11 @@ type NavLink = {
 };
 
 
-export default function NavbarClient({ locale, session: initialSession }: { locale: string; session: Session | null }) {
+export default function NavbarClient({ locale }: { locale: string }) {
   //const t = useTranslations('navbar');
   const router = useRouter();
   const pathname = usePathname();
-  const { supabase } = useSupabase();
+  const { supabase, session } = useSupabase();
   const { totalItems } = useCart();
 
   // Determinar si mostrar componentes de búsqueda (ocultar en /admin y /catalog)
@@ -36,8 +36,6 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categoryList, setCategoryList] = useState<{ id: number, name: string | null, name_es: string | null, name_en: string | null }[]>([]);
   const [showStoreCategories, setShowStoreCategories] = useState(false);
-  // Estado local para la sesión que escuchará cambios
-  const [session, setSession] = useState<Session | null>(initialSession);
 
 
 
@@ -55,54 +53,7 @@ export default function NavbarClient({ locale, session: initialSession }: { loca
 
 
 
-  // Suscripción a cambios en la sesión
-  useEffect(() => {
-    // Configurar suscripción a cambios de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setSession(session);
-      }
-    );
 
-    // Actualizar la sesión inicial
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Initial session:', session?.user?.email);
-      setSession(session);
-    };
-
-    getInitialSession();
-
-    // Verificación adicional después de un pequeño delay para casos de OAuth
-    const delayedSessionCheck = setTimeout(async () => {
-      const { data: { session: delayedSession } } = await supabase.auth.getSession();
-      if (delayedSession && (!session || delayedSession.user?.id !== session?.user?.id)) {
-        console.log('Delayed session check found session:', delayedSession.user?.email);
-        setSession(delayedSession);
-      }
-    }, 1000);
-
-    // Limpiar la suscripción cuando el componente se desmonte
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(delayedSessionCheck);
-    };
-  }, [supabase]); // Removida la dependencia de session para evitar loops
-
-  // Verificar sesión cuando la página se enfoca (útil después de OAuth redirect)
-  useEffect(() => {
-    const handleFocus = async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (currentSession && (!session || currentSession.user?.id !== session.user?.id)) {
-        console.log('Session updated on focus:', currentSession.user?.email);
-        setSession(currentSession);
-      }
-    };
-
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [supabase, session]);
 
   // Cerrar menú móvil al cambiar el tamaño de la ventana
   useEffect(() => {
