@@ -74,28 +74,68 @@ export async function GET(request: Request) {
   // Determina el locale objetivo por dominio
   const targetLocale: Locale = hostname.includes("artehechoamano") ? "es" : "en";
 
+  console.log('OAuth Callback - Starting process:', { code: !!code, rawNext, targetLocale, hostname });
+
   if (!code) {
+    console.error('OAuth Callback - Missing code parameter');
     return NextResponse.redirect(`${origin}/${targetLocale}/login?error=code_missing`);
   }
 
   const supabase = createRouteHandlerClient({ cookies });
 
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
-  if (error) {
-    console.error("OAuth error:", error.message);
-    return NextResponse.redirect(`${origin}/${targetLocale}/login?error=oauth`);
+  try {
+    // Intercambiar código por sesión
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      console.error("OAuth Callback - Exchange error:", error.message);
+      return NextResponse.redirect(`${origin}/${targetLocale}/login?error=oauth`);
+    }
+
+    console.log('OAuth Callback - Session exchanged successfully:', { 
+      userId: data.session?.user?.id,
+      email: data.session?.user?.email 
+    });
+
+    // Verificar la sesión múltiples veces para asegurar persistencia
+    let session = data.session;
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (!session && attempts < maxAttempts) {
+      attempts++;
+      console.log(`OAuth Callback - Attempt ${attempts} to get session`);
+      
+      // Esperar un poco antes de reintentar
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData.session) {
+        session = sessionData.session;
+      }
+    }
+
+    if (!session) {
+      console.error('OAuth Callback - Session not found after multiple attempts');
+      return NextResponse.redirect(`${origin}/${targetLocale}/login?error=session_missing`);
+    }
+
+    // Normaliza "next" para que sea local, sin duplicar locale ni codificar de más
+    const next = sanitizeNext(rawNext, origin, targetLocale);
+
+    console.log('OAuth Callback - Redirecting to:', `${origin}${next}`);
+
+    // Crear respuesta con headers adicionales para forzar actualización de sesión
+    const response = NextResponse.redirect(`${origin}${next}`);
+    
+    // Agregar headers para forzar actualización de sesión en el cliente
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    
+    return response;
+
+  } catch (error) {
+    console.error('OAuth Callback - Unexpected error:', error);
+    return NextResponse.redirect(`${origin}/${targetLocale}/login?error=unexpected`);
   }
-
-  // Normaliza "next" para que sea local, sin duplicar locale ni codificar de más
-  const next = sanitizeNext(rawNext, origin, targetLocale);
-
-  // Verificar la sesión antes de redirigir
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (!session) {
-    return NextResponse.redirect(`${origin}/${targetLocale}/login?error=session_missing`);
-  }
-
-  return NextResponse.redirect(`${origin}${next}`);
 }
