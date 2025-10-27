@@ -46,6 +46,9 @@ import { Database } from '@/lib/database.types';
 // Extender el tipo de product_card_view con campos adicionales
 type ProductCardView = Database['public']['Views']['product_card_view']['Row'];
 
+type ProductsRow = Database['public']['Tables']['products']['Row'];
+type ProductDetails = Pick<ProductsRow, 'id' | 'media' | 'name_es' | 'name_en'>;
+
 type MediaItem = {
   url: string;
   type?: 'image' | 'video' | string | null;
@@ -55,10 +58,35 @@ type MediaItem = {
 interface Product extends ProductCardView {
   id: number; // Asegurar que id no sea null
   name: string; // Asegurar que name no sea null
+  name_es: string; // Asegurar que name_es no sea null
+  name_en: string; // Asegurar que name_en no sea null
   media?: MediaItem[];
   is_featured?: boolean;
   rating?: number;
   review_count?: number;
+}
+
+// Helpers de tipo para parsear media (Json) sin usar any
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function normalizeMedia(value: unknown): MediaItem[] {
+  if (!Array.isArray(value)) return [];
+  const result: MediaItem[] = [];
+  for (const entry of value) {
+    if (typeof entry === 'string') {
+      result.push({ url: entry, type: 'image' });
+      continue;
+    }
+    if (isRecord(entry) && typeof entry['url'] === 'string') {
+      const url = entry['url'] as string;
+      const type = typeof entry['type'] === 'string' ? (entry['type'] as string) : 'image';
+      const caption = typeof entry['caption'] === 'string' ? (entry['caption'] as string) : null;
+      result.push({ url, type, caption });
+    }
+  }
+  return result;
 }
 
 interface Category {
@@ -153,16 +181,19 @@ export default function CatalogPage() {
 
       // Simular datos de rating y reseñas (en producción vendrían de la DB)
       let enhancedProducts: Product[] = (data || [])
-        .filter((product): product is NonNullable<typeof product> & { id: number; name: string } => 
-          product !== null && 
-          typeof product.id === 'number' && 
+        .filter((product): product is NonNullable<typeof product> & { id: number; name: string } =>
+          product !== null &&
+          typeof product.id === 'number' &&
           typeof product.name === 'string'
         )
         .map(product => ({
           ...product,
+          // Completar temporalmente name_es y name_en; se sobreescriben con datos reales más abajo
+          name_es: product.name ?? '',
+          name_en: product.name ?? '',
           rating: Math.random() * 2 + 3, // Rating entre 3-5
           review_count: Math.floor(Math.random() * 50) + 1,
-          media: product.main_image_url ? ([{ url: product.main_image_url, type: 'image' }] as MediaItem[]) : []
+          media: product.main_image_url ? [{ url: product.main_image_url, type: 'image' }] : []
         }));
 
       // Traer media real desde products y fusionar
@@ -171,37 +202,31 @@ export default function CatalogPage() {
         if (ids.length > 0) {
           const { data: mediaRows, error: mediaError } = await supabase
             .from('products')
-            .select('id, media')
+            .select('id, media, name_es, name_en')
             .in('id', ids);
 
           if (mediaError) {
             console.error('Error loading media for products:', mediaError);
           } else if (mediaRows) {
-            const mediaById = new Map<number, MediaItem[]>();
-            for (const row of mediaRows as any[]) {
-              const items: MediaItem[] = [];
-              const raw = (row as any)?.media;
-              if (Array.isArray(raw)) {
-                for (const m of raw) {
-                  if (m && typeof m === 'object' && typeof m.url === 'string') {
-                    items.push({ url: (m as any).url, type: (m as any).type ?? 'image', caption: (m as any).caption ?? null });
-                  } else if (typeof m === 'string') {
-                    items.push({ url: m, type: 'image' });
-                  }
-                }
-              }
-              if (items.length > 0) {
-                mediaById.set((row as any).id as number, items);
-              }
+            const detailsById = new Map<number, { media?: MediaItem[]; name_es: string | null; name_en: string | null }>();
+            for (const row of mediaRows as ProductDetails[]) {
+              const items = normalizeMedia(row.media as unknown);
+              detailsById.set(row.id, {
+                media: items.length > 0 ? items : undefined,
+                name_es: row.name_es,
+                name_en: row.name_en,
+              });
             }
 
             enhancedProducts = enhancedProducts.map(p => {
-              const items = mediaById.get(p.id);
-              if (items && items.length > 0) {
-                return { ...p, media: items };
-              }
-              // Mantener fallback existente si no hay media
-              return p;
+              const details = detailsById.get(p.id);
+              if (!details) return p;
+              return {
+                ...p,
+                media: details.media ?? p.media,
+                name_es: details.name_es ?? p.name_es ?? p.name,
+                name_en: details.name_en ?? p.name_en ?? p.name,
+              };
             });
           }
         }
@@ -249,7 +274,7 @@ export default function CatalogPage() {
 
   // Productos filtrados y ordenados
   const filteredProducts = useMemo(() => {
-    let filtered = products.filter(product => {
+    const filtered = products.filter(product => {
       // Filtro de búsqueda
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -295,7 +320,7 @@ export default function CatalogPage() {
     }
 
     return filtered;
-  }, [products, searchQuery, priceRange, selectedBrands, sortBy]);
+  }, [products, searchQuery, priceRange, selectedBrandsNormalized, sortBy]);
 
   // Obtener marcas únicas (ignorando espacios/caso)
   const availableBrands = useMemo(() => {
@@ -603,7 +628,7 @@ export default function CatalogPage() {
 
           <Link href={`/product/${product.id}`}>
             <h3 className="font-semibold text-gray-900 mb-2 hover:text-teal-600 transition-colors line-clamp-2">
-              {product.name}
+              {locale === 'es' ? product.name_es : product.name_en}
             </h3>
           </Link>
 
@@ -664,13 +689,13 @@ export default function CatalogPage() {
                     interestList.addItem({
                       product_id: product.id,
                       name: product.name,
-                      sku: (product as any).sku ?? undefined,
-                      main_image_url: (product as any).main_image_url ?? product.media?.[0]?.url,
+                      sku: product.sku ?? undefined,
+                      main_image_url: product.main_image_url ?? product.media?.[0]?.url,
                       // Guardamos el precio en dólares original; el descuento se calcula al enviar
                       dolar_price: product.dolar_price ?? undefined,
                       price: product.dolar_price ?? undefined,
-                      discount_percentage: (product as any).discount_percentage ?? undefined,
-                      category_id: (product as any).category_id ?? undefined,
+                      discount_percentage: product.discount_percentage ?? undefined,
+                      category_id: product.category_id ?? undefined,
                     });
                   } else {
                     interestList.updateQuantity(product.id, currentQty + 1);
@@ -711,10 +736,10 @@ export default function CatalogPage() {
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 flex items-center gap-3">
                 <Zap className="text-teal-600" />
-                Catálogo de Productos
+                {locale === 'es' ? 'Catálogo de Productos' : 'Product Catalog'}
               </h1>
               <p className="text-gray-700 mt-2">
-                Descubre una amplia variedad de productos únicos
+                {locale === 'es' ? 'Descubre una amplia variedad de productos únicos' : 'Discover a wide variety of unique products'}
               </p>
             </div>
 
@@ -918,11 +943,11 @@ export default function CatalogPage() {
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
               >
-                <option value="name">Nombre A-Z</option>
-                <option value="price_asc">Precio: Menor a Mayor</option>
-                <option value="price_desc">Precio: Mayor a Menor</option>
-                <option value="rating">Mejor Valorados</option>
-                <option value="newest">Más Recientes</option>
+                <option value="name">{locale === 'es' ? 'Nombre A-Z' : 'Name A-Z'}</option>
+                <option value="price_asc">{locale === 'es' ? 'Precio: Menor a Mayor' : 'Price: Low to High'}</option>
+                <option value="price_desc">{locale === 'es' ? 'Precio: Mayor a Menor' : 'Price: High to Low'}</option>
+                <option value="rating">{locale === 'es' ? 'Mejor Valorados' : 'Best Rated'}</option>
+                <option value="newest">{locale === 'es' ? 'Más Recientes' : 'Newest'}</option>
               </select>
 
               {/* Comparador */}
@@ -934,7 +959,7 @@ export default function CatalogPage() {
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <GitCompare className="w-4 h-4" />
-                  Comparar ({comparisonList.length})
+                  {locale === 'es' ? `Comparar (${comparisonList.length})` : `Compare (${comparisonList.length})`}
                 </motion.button>
               )}
             </div>
@@ -953,7 +978,7 @@ export default function CatalogPage() {
                   {/* Filtro de precio */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Rango de Precio
+                      {locale === 'es' ? 'Rango de Precio' : 'Price Range'}
                     </label>
                     <div className="space-y-2">
                       <input
@@ -974,7 +999,7 @@ export default function CatalogPage() {
                   {/* Filtro de marcas */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Marcas
+                      {locale === 'es' ? 'Marcas' : 'Brands'}
                     </label>
                     <div className="space-y-2 max-h-32 overflow-y-auto">
                       {availableBrands.map(brand => (
@@ -1003,7 +1028,7 @@ export default function CatalogPage() {
                   {/* Acciones rápidas */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Acciones Rápidas
+                      {locale === 'es' ? 'Acciones Rápidas' : 'Quick Actions'}
                     </label>
                     <div className="space-y-2">
                       <button
@@ -1015,13 +1040,13 @@ export default function CatalogPage() {
                         }}
                         className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                       >
-                        Limpiar Filtros
+                        {locale === 'es' ? 'Limpiar Filtros' : 'Clear Filters'}
                       </button>
                       <button
                         onClick={() => setShowFilters(false)}
                         className="w-full px-3 py-2 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
                       >
-                        Aplicar Filtros
+                        {locale === 'es' ? 'Aplicar Filtros' : 'Apply Filters'}
                       </button>
                     </div>
                   </div>
@@ -1052,7 +1077,7 @@ export default function CatalogPage() {
           >
             <div className="text-6xl mb-4">🔍</div>
             <p className="text-gray-700 text-lg mb-4">
-              No se encontraron productos que coincidan con tus criterios
+              {locale === 'es' ? 'No se encontraron productos que coincidan con tus criterios' : 'No products found matching your criteria'}
             </p>
             <button
               onClick={() => {
@@ -1063,7 +1088,7 @@ export default function CatalogPage() {
               }}
               className="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
             >
-              Limpiar Filtros
+              {locale === 'es' ? 'Limpiar Filtros' : 'Clear Filters'}
             </button>
           </motion.div>
         ) : (
@@ -1233,7 +1258,7 @@ export default function CatalogPage() {
                         href={`/product/${quickViewProduct.id}`}
                         className="flex-1 bg-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-teal-700 transition-colors text-center"
                       >
-                        Ver Detalles
+                        {locale === 'es' ? 'Ver Detalles' : 'View Details'}
                       </Link>
                       <button
                         onClick={() => toggleWishlist(quickViewProduct.id)}
@@ -1272,7 +1297,9 @@ export default function CatalogPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Compartir Producto</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  {locale === 'es' ? 'Compartir Producto' : 'Share Product'}
+                </h3>
                 <button
                   onClick={() => setShowShareModal(null)}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -1341,7 +1368,7 @@ export default function CatalogPage() {
                     className="flex items-center justify-center gap-2 p-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                   >
                     <Copy className="w-5 h-5" />
-                    Copiar
+                    {locale === 'es' ? 'Copiar' : 'Copy'}
                   </button>
                 </div>
               </div>
@@ -1388,7 +1415,7 @@ export default function CatalogPage() {
                         <div className="relative aspect-square bg-gray-100 rounded-lg mb-4">
                           <Image
                             src={product.main_image_url || '/placeholder-image.png'}
-                            alt={product.name}
+                            alt={locale === 'es' ? product.name : `${product.name} image`}
                             fill
                             className="object-cover rounded-lg"
                           />
@@ -1441,7 +1468,9 @@ export default function CatalogPage() {
                           )}
                           {product.length_cm && product.width_cm && product.height_cm && (
                             <div className="flex justify-between">
-                              <span className="text-gray-700">Dimensiones:</span>
+                              <span className="text-gray-700">
+                                {locale === 'es' ? 'Dimensiones:' : 'Dimensions:'}
+                              </span>
                               <span>{product.length_cm}×{product.width_cm}×{product.height_cm} cm</span>
                             </div>
                           )}
@@ -1451,7 +1480,7 @@ export default function CatalogPage() {
                           href={`/product/${product.id}`}
                           className="block w-full mt-4 bg-teal-600 text-white py-2 px-4 rounded-lg text-center hover:bg-teal-700 transition-colors"
                         >
-                          Ver Detalles
+                          {locale === 'es' ? 'Ver Detalles' : 'View Details'}
                         </Link>
                       </div>
                     );
@@ -1476,7 +1505,7 @@ export default function CatalogPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="text-sm text-gray-700">
-                    {totalItems} {totalItems === 1 ? 'producto' : 'productos'} seleccionados
+                    {totalItems} {totalItems === 1 ? locale === 'es' ? 'producto' : 'product' : locale === 'es' ? 'productos' : 'products'} selected
                   </div>
                   {wishlist.length > 0 && (
                     <div className="flex items-center gap-1 text-sm text-red-600">
@@ -1493,7 +1522,7 @@ export default function CatalogPage() {
                   className="bg-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-teal-700 transition-colors flex items-center gap-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  Ver Selección
+                  {locale === 'es' ? 'Ver Selección' : 'View Selection'}
                 </motion.button>
               </div>
             </div>
