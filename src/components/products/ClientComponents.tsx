@@ -169,7 +169,6 @@ function MediaItemCard({ product, activeExpandButton, index}: MediaItemCardProps
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-contain scale-125 "
             loading="lazy"
-            unoptimized
           />
         </div>
       ) : (

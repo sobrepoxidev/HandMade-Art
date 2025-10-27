@@ -33,6 +33,20 @@ export function computeSections(
   void _maxFeatured;
   const gridProducts: Record<number, Product[]> = {};
 
+  // Pre-indexar productos por categoría y atributos para evitar filtros repetidos
+  const byCategory: Record<number, Product[]> = {};
+  const featuredList: Product[] = [];
+  const nonFeaturedList: Product[] = [];
+  for (const p of allProducts) {
+    const cid = p.category_id || -1;
+    (byCategory[cid] ||= []).push(p);
+    if (p.is_featured) {
+      featuredList.push(p);
+    } else {
+      nonFeaturedList.push(p);
+    }
+  }
+
   // Build priority order with provided IDs first
   const finalPriorityOrder = [...priorityCategoryIds];
   allCategories.forEach(category => {
@@ -62,9 +76,8 @@ export function computeSections(
   };
 
   // 1) Featured: strictly products marked is_featured, shown EXCLUSIVELY here
-  const featured = allProducts
-    .filter(p => p.is_featured)
-    .filter(p => isMediaArray(p.media));
+  // Permite productos destacados SIN imagen; el componente usa placeholder si falta media
+  const featured = featuredList;
 
   // Deduplicate featured by id and assign them to prevent use elsewhere
   const seenFeatured = new Set<number>();
@@ -78,14 +91,17 @@ export function computeSections(
 
   // 2) Grid: include only categories with enough non-featured products to fill the row
   const eligibleGridOrder = finalPriorityOrder.filter(categoryId => {
-    const countWithImages = allProducts.filter(
-      p => p.category_id === categoryId && !p.is_featured && isMediaArray(p.media)
-    ).length;
+    const list = byCategory[categoryId] || [];
+    let countWithImages = 0;
+    for (const p of list) {
+      if (!p.is_featured && isMediaArray(p.media)) countWithImages++;
+      if (countWithImages >= productsPerCategory) break;
+    }
     return countWithImages >= productsPerCategory;
   });
 
   for (const categoryId of eligibleGridOrder) {
-    const categoryProducts = allProducts.filter(p => p.category_id === categoryId && !p.is_featured);
+    const categoryProducts = (byCategory[categoryId] || []).filter(p => !p.is_featured);
 
     const productsWithImages = takeProducts(
       categoryProducts,
@@ -103,7 +119,7 @@ export function computeSections(
     .filter(c => ((c.name || '') + ' ' + (c.name_en || '') + ' ' + (c.name_es || '')).toLowerCase().includes('kitchen'))
     .map(c => c.id);
 
-  const giftsSource = allProducts.filter(p => !p.is_featured);
+  const giftsSource = nonFeaturedList;
   const gifts = takeProducts(
     giftsSource,
     maxGifts,

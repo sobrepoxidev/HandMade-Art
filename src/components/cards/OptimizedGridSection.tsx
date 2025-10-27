@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo } from "react";
 import Card from "./Card";
 import { Link } from '@/i18n/navigation';
 import Image from "next/image";
@@ -8,7 +8,6 @@ import { useHomeProductsContext } from "@/context/HomeProductsContext";
 import CarrucelSectionA from "./CarrucelSectionA";
 import { useLocale } from "next-intl";
 import { formatUSD } from "@/lib/formatCurrency";
-import { useInView } from "react-intersection-observer";
 
 
 interface GridSectionProps {
@@ -27,28 +26,8 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
     categories, 
     sections, 
     loading, 
-    error, 
-    loadMoreProducts, 
-    hasMoreProducts 
+    error 
   } = useHomeProductsContext();
-  
-  // Referencia para detectar cuando el usuario llega al final de la sección
-  const { ref: loadMoreRef, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: false
-  });
-  
-  // Cargar más productos cuando el usuario llega al final
-  const handleLoadMore = useCallback(() => {
-    if (inView && hasMoreProducts && !loading) {
-      loadMoreProducts();
-    }
-  }, [inView, hasMoreProducts, loading, loadMoreProducts]);
-  
-  // Efecto para cargar más productos
-  React.useEffect(() => {
-    handleLoadMore();
-  }, [handleLoadMore]);
   
   // Usamos useMemo para evitar cálculos repetidos en cada renderizado
   const desktopCards = useMemo(() => {
@@ -176,7 +155,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
           <Card key={index} {...{...card, title: card.title || ''}} />
         ))}
       </div>
-
+      
       {/* Versión móvil - Usa CarrucelSectionA para mostrar tarjetas en carrusel horizontal */}
       {mobileActive && (
         <div className="lg:hidden h-full py-0.5">
@@ -242,27 +221,8 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
           })()}
         </div>
       )}
-
-      {/* Botón de carga infinita */}
-      <div 
-        ref={loadMoreRef} 
-        className={`w-full flex justify-center ${hasMoreProducts ? 'my-8' : 'my-0'}`}
-      >
-        {hasMoreProducts && (
-          <button 
-            onClick={() => loadMoreProducts()} 
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${loading ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
-            disabled={loading}
-          >
-            {loading ? 
-              (locale === 'es' ? 'Cargando...' : 'Loading...') : 
-              (locale === 'es' ? 'Cargar más productos' : 'Load more products')
-            }
-          </button>
-        )}
-      </div>
     </div>
   );
 };
 
-export default OptimizedGridSection;
+export default React.memo(OptimizedGridSection);

@@ -382,8 +382,7 @@ export default function ProductsPageContent() {
                         width={150}
                         height={150}
                         className="object-cover w-full h-full rounded"
-                        priority
-                        unoptimized
+                        loading="lazy"
                       />
                     </div>
                   </Link>

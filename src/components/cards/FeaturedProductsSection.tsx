@@ -6,7 +6,6 @@ import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { formatUSD } from '@/lib/formatCurrency';
-import { useInView } from 'react-intersection-observer';
 
 /**
  * Componente para mostrar productos destacados en un formato más visual y amplio
@@ -16,20 +15,7 @@ import { useInView } from 'react-intersection-observer';
  */
 const FeaturedProductsSection: React.FC = () => {
   const locale = useLocale();
-  const { sections, categories = [], loadMoreProducts, hasMoreProducts, loading } = useHomeProductsContext();
-  
-  // Referencia para detectar cuando el usuario llega al final de la sección
-  const { ref: loadMoreRef, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: false
-  });
-  
-  // Cargar más productos cuando el usuario llega al final
-  React.useEffect(() => {
-    if (inView && hasMoreProducts && !loading) {
-      loadMoreProducts();
-    }
-  }, [inView, hasMoreProducts, loading, loadMoreProducts]);
+  const { sections, categories = [] } = useHomeProductsContext();
   
   // Título según el idioma
   const title = useMemo(() => {
@@ -77,10 +63,9 @@ const FeaturedProductsSection: React.FC = () => {
                       src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
                       alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                       fill
-                      sizes="(max-width: 768px) 50vw, 33vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
-                      unoptimized
                     />
                     {product.is_featured && (
                       <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-medium sm:px-2 px-0.5 sm:py-1 py-0 rounded-md">
@@ -121,27 +106,9 @@ const FeaturedProductsSection: React.FC = () => {
           </div>
         )}
         
-        {/* Referencia para carga infinita */}
-        <div 
-          ref={loadMoreRef} 
-          className="w-full flex justify-center mt-8"
-        >
-          {hasMoreProducts && featuredOnly.length > 0 && (
-            <button 
-              onClick={() => loadMoreProducts()} 
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${loading ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
-              disabled={loading}
-            >
-              {loading ? 
-                (locale === 'es' ? 'Cargando...' : 'Loading...') : 
-                (locale === 'es' ? 'Cargar más productos' : 'Load more products')
-              }
-            </button>
-          )}
-        </div>
       </div>
     </section>
   );
 };
 
-export default FeaturedProductsSection;
+export default React.memo(FeaturedProductsSection);

@@ -55,14 +55,13 @@ export default async function HomePageData({ locale }: {locale: string}) {
       initialProducts = priorityProducts;
     }
     
-    // Obtener algunos productos destacados adicionales
-    const { data: featuredProducts } = await supabase
+  // Obtener TODOS los productos destacados adicionales (sin límite)
+  const { data: featuredProducts } = await supabase
       .from('products')
       .select('*')
       .eq('is_active', true)
       .eq('is_featured', true)
-      .order('created_at', { ascending: false })
-      .limit(9);
+      .order('created_at', { ascending: false });
       
     if (featuredProducts) {
       // Añadir productos destacados que no estén ya en la lista inicial

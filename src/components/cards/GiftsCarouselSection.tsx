@@ -28,6 +28,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
   
   // Referencia al contenedor del carrusel para controlar el scroll
   const carouselRef = useRef<HTMLDivElement>(null);
+  const scrollRafIdRef = useRef<number | null>(null);
   
   // Estado para controlar la posición del scroll
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -78,9 +79,13 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
     carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
   };
   
-  // Manejador para el evento de scroll
+  // Manejador para el evento de scroll (throttled con rAF)
   const handleScroll = () => {
-    updateScrollInfo();
+    if (scrollRafIdRef.current !== null) return;
+    scrollRafIdRef.current = requestAnimationFrame(() => {
+      updateScrollInfo();
+      scrollRafIdRef.current = null;
+    });
   };
   
   // Configuramos el observador de scroll al montar el componente
@@ -93,6 +98,9 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
       
       return () => {
         carousel.removeEventListener('scroll', handleScroll);
+        if (scrollRafIdRef.current) {
+          cancelAnimationFrame(scrollRafIdRef.current);
+        }
       };
     }
   }, []);
@@ -215,7 +223,6 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
                           height={90}
                           style={{ objectFit: 'contain', maxHeight: '100%' }}
                           className="object-contain max-h-full"
-                          unoptimized
                           loading="lazy"
                         />
                       </div>
@@ -244,7 +251,6 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
                       height={140}
                       style={{ objectFit: 'contain', maxHeight: '100%' }}
                       loading="lazy"
-                      unoptimized
                       className="transform group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>

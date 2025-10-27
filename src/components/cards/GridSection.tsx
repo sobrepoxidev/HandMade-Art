@@ -143,9 +143,8 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
                             '/placeholder.jpg'}
                           alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                           width={100}
-                          height={0}
+                          height={100}
                           className="object-contain max-h-full group-hover:scale-105 transition-transform"
-                          unoptimized
                         />
                       </div>
                       <span className="text-[10px] text-center line-clamp-1 font-medium text-gray-800">
@@ -178,7 +177,6 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
                   width={180}
                   height={180}
                   className="max-h-full object-contain transition-transform hover:scale-105"
-                  unoptimized
                 />
               </div>
               <div className="mt-3 text-xs text-teal-600 hover:underline text-center">
@@ -300,9 +298,8 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
                               src={product.media && isMediaArray(product.media) && product.media.length > 0 ? product.media[0].url : '/placeholder-image.png'}
                               alt={product.name || ''}
                               width={100}
-                              height={0}
+                              height={100}
                               className="object-contain max-h-full p-0.5"
-                              unoptimized
                             />
                           </div>
                         </Link>

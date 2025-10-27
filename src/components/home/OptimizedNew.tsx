@@ -8,6 +8,7 @@ import { HomeProductsProvider } from '@/context/HomeProductsContext';
 import OptimizedGridSection from '@/components/cards/OptimizedGridSection';
 import FeaturedProductsSection from '../cards/FeaturedProductsSection';
 import GiftsCarouselSection from '@/components/cards/GiftsCarouselSection';
+import ProgressiveCategorySection from '@/components/cards/ProgressiveCategorySection';
 import type { Database } from '@/lib/database.types';
 import type { HomeSections } from '@/lib/home/computeSections';
 
@@ -179,6 +180,8 @@ export default function OptimizedNewHome({
         <GiftsCarouselSection />
         {/* Nueva sección de productos destacados con mayor visibilidad */}
         <FeaturedProductsSection />
+        {/* Sección progresiva categorizada con scroll infinito y sin duplicados */}
+        <ProgressiveCategorySection />
         
 
         

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import type { Database } from "@/lib/database.types";
 import { computeSections, HomeSections } from '@/lib/home/computeSections';
@@ -17,6 +17,7 @@ export interface HomeProductsData {
   categories: Category[];
   loading: boolean;
   error: string | null;
+  usingSnapshot: boolean;
   
   // Productos organizados por sección
   sections: {
@@ -74,11 +75,12 @@ export function useHomeProducts({
   const [hasMore, setHasMore] = useState(true);
   
   // Usar snapshot SSR para la primera renderización y evitar mismatch de hidratación
-  const [useSnapshot, setUseSnapshot] = useState<boolean>(true);
-  useEffect(() => {
-    // Después de hidratar en el cliente, dejamos de usar el snapshot
-    setUseSnapshot(false);
-  }, []);
+  // Mantener el snapshot HASTA que cambien los datos en cliente
+  const [useSnapshot, setUseSnapshot] = useState<boolean>(Boolean(initialSections));
+  const initialKeysRef = useRef<{ productsKey: string; categoriesKey: string }>({
+    productsKey: JSON.stringify((initialProducts || []).map(p => p.id).sort()),
+    categoriesKey: JSON.stringify((initialCategories || []).map(c => c.id).sort()),
+  });
   
   // Cargar datos iniciales
   useEffect(() => {
@@ -135,6 +137,19 @@ export function useHomeProducts({
     
     fetchInitialData();
   }, [initialCategories, initialProducts, supabase]);
+
+  // Dejar de usar el snapshot sólo cuando cambien los datos respecto al SSR
+  useEffect(() => {
+    if (!initialSections || !useSnapshot) return;
+    const currentProductsKey = JSON.stringify(products.map(p => p.id).sort());
+    const currentCategoriesKey = JSON.stringify(categories.map(c => c.id).sort());
+    if (
+      currentProductsKey !== initialKeysRef.current.productsKey ||
+      currentCategoriesKey !== initialKeysRef.current.categoriesKey
+    ) {
+      setUseSnapshot(false);
+    }
+  }, [products, categories, initialSections, useSnapshot]);
   
   // Función para cargar más productos (paginación)
   const loadMoreProducts = useCallback(async (categoryId?: number) => {
@@ -200,6 +215,7 @@ export function useHomeProducts({
     error,
     sections,
     loadMoreProducts,
-    hasMoreProducts: hasMore
+    hasMoreProducts: hasMore,
+    usingSnapshot: useSnapshot
   };
 }

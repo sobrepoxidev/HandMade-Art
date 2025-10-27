@@ -170,8 +170,8 @@ export default function ViewedProductsHistory() {
                   src={(product.media && isMediaArray(product.media) && product.media[0]?.url) || '/product-placeholder.png'}
                   alt={product.name || 'Producto'}
                   fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
                   className="object-contain p-2"
-                  unoptimized
                 />
               </div>
               <div className="p-2">
