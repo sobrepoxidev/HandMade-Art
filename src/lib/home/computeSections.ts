@@ -29,6 +29,8 @@ export function computeSections(
   maxGifts = 12,
   _maxFeatured = 9 // unused: Featured shows ALL is_featured
 ): HomeSections {
+  // Referenciar _maxFeatured para satisfacer lint sin alterar la lógica actual
+  void _maxFeatured;
   const gridProducts: Record<number, Product[]> = {};
 
   // Build priority order with provided IDs first
@@ -136,7 +138,6 @@ export function computeSections(
     }
     const duplicates = allProducts.filter(p => totalAssigned.has(p.id)).length !== totalAssigned.size;
     if (duplicates) {
-      // eslint-disable-next-line no-console
       console.warn('[computeSections] Duplicates were removed during validation to ensure exclusivity.');
     }
   }

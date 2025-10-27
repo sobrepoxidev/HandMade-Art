@@ -8,12 +8,7 @@ import { computeSections, HomeSections } from '@/lib/home/computeSections';
 export type Product = Database['public']['Tables']['products']['Row'];
 export type Category = Database['public']['Tables']['categories']['Row'];
 
-// Tipo para verificar si media es un array válido
-function isMediaArray(media: unknown): media is Array<{ url: string }> {
-  return Array.isArray(media) && media.length > 0 && 
-         typeof media[0] === 'object' && media[0] !== null && 
-         'url' in media[0] && typeof media[0].url === 'string';
-}
+// isMediaArray se maneja en computeSections; se elimina duplicado no utilizado
 
 // Interfaz para los datos de productos por sección
 export interface HomeProductsData {
