@@ -22,7 +22,7 @@ interface CarrucelSectionProps {
 
 const CarrucelSectionA: React.FC<CarrucelSectionProps> = ({ items }) => {
   return (
-    <div className="lg:hidden relative">
+    <div className="lg:hidden relative ">
       <CarouselClient items={items} />
     </div>
   );

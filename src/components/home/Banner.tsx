@@ -177,7 +177,7 @@ const Carousel: React.FC<CarouselProps> = ({ children }) => {
 
       <button 
         onClick={togglePause}
-        className="absolute bottom-3 left-3 z-50 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-all duration-200"
+        className="absolute bottom-3 left-3 z-50 bg-white/30 hover:bg-white/50 rounded-full p-1.5 transition-all duration-200"
         aria-label={isPaused ? "Reproducir" : "Pausar"}
       >
         <svg 

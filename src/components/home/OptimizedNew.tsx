@@ -4,11 +4,12 @@ import React from 'react';
 import Image from 'next/image';
 import { Carousel, BannerTemplate } from "@/components/home/Banner";
 import { BadgeCheck, Handshake, Sprout } from 'lucide-react';
-import { ProductsProvider } from '@/components/providers/ProductsProvider';
+import { HomeProductsProvider } from '@/context/HomeProductsContext';
 import OptimizedGridSection from '@/components/cards/OptimizedGridSection';
 import FeaturedProductsSection from '../cards/FeaturedProductsSection';
 import GiftsCarouselSection from '@/components/cards/GiftsCarouselSection';
 import type { Database } from '@/lib/database.types';
+import type { HomeSections } from '@/lib/home/computeSections';
 
 // Tipos para los datos pre-cargados desde el servidor
 type Product = Database['public']['Tables']['products']['Row'];
@@ -23,61 +24,69 @@ type Category = Database['public']['Tables']['categories']['Row'];
  */
 interface OptimizedNewHomeProps {
   initialCategories?: Category[];
-  initialProducts?: Product[];  
+  initialProducts?: Product[];
+  initialSections?: HomeSections;
+  priorityCategoryIds?: number[]; // IDs de categorías en orden de prioridad
   locale?: string;
 }
-
 
 export default function OptimizedNewHome({
   initialCategories = [],
   initialProducts = [],
+  initialSections,
+  priorityCategoryIds = [],
   locale 
 }: OptimizedNewHomeProps) {
   return (
-    <ProductsProvider initialCategories={initialCategories} initialProducts={initialProducts}>
-      <div className="max-w-[1500px] mx-auto relative z-0 h-full bg-gradient-to-b from-teal-300/10 via-teal-500/10 to-white">
+    <HomeProductsProvider 
+      initialCategories={initialCategories} 
+      initialProducts={initialProducts}
+      initialSections={initialSections}
+      priorityCategoryIds={priorityCategoryIds}
+    >
+      <div className="max-w-[1500px] mx-auto relative z-0 bg-gradient-to-b from-teal-300/10 via-teal-500/10 to-white">
         <Carousel>
-          {/* Banner 3: Fiestas Patronales San Ramón 2025 */}
+          {/* Banner principal: Reinserción Sociolaboral - Proyecto de Ley 24870 */}
           <BannerTemplate
-            linkHref="/dmnts"
-            bgColor="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600">
+            linkHref="/reinsercion-sociolaboral"
+            bgColor="bg-gradient-to-r from-[#0B0B0B] via-[#121212] to-[#1A1A1A]">
 
             <div className="h-full flex items-start justify-between py-8 sm:py-20 px-4 lg:px-8">
               {/* Sección izquierda - Información principal */}
               <div className="flex items-center gap-1 lg:gap-2 lg:mx-12">
-                <div className="text-xl lg:text-2xl text-white">📺</div>
+                <div className="text-xl lg:text-2xl text-white">⚖️</div>
                 <div>
                   <h1 className="text-sm lg:text-lg font-bold text-white leading-tight">
-                    {locale === 'es' ? 'DMNTS EDICIÓN 8' : 'DMNTS EDITION 8'}
+                    {locale === 'es' ? 'Reinserción sociolaboral' : 'Social and labor reintegration'}
                   </h1>
-                  <p className="text-xs lg:text-sm font-medium text-blue-100">
-                    {locale === 'es' ? 'Teletica • Jueves 8PM' : 'Teletica • Thursdays 8PM'}
+                  <p className="text-xs lg:text-sm font-medium text-gray-300">
+                    {locale === 'es' ? 'Proyecto de Ley 24870' : 'Law Project 24870'}
                   </p>
-                  {/* Información del evento - visible en móvil */}
-                  <p className="text-[10px] lg:hidden text-blue-200 mt-0.5 leading-tight">
-                    {locale === 'es' ? '🏆 Apoya nuestro proyecto' : '🏆 Support our project'}
+                  {/* CTA breve - visible en móvil */}
+                  <p className="text-[10px] lg:hidden text-gray-300 mt-0.5 leading-tight">
+                    {locale === 'es' ? '📜 Conoce el proyecto' : '📜 Learn about the project'}
                   </p>
                 </div>
               </div>
 
-              {/* Sección central - Evento principal (solo desktop) */}
+              {/* Sección central - Título (solo desktop) */}
               <div className="hidden lg:flex flex-col items-center text-center">
-                <div className="text-xl mb-1 text-white">🏆</div>
+                <div className="text-xl mb-1 text-white">🏛️</div>
                 <p className="text-lg text-white font-medium leading-tight">
-                  {locale === 'es' ? 'Reinserción Sociolaboral' : 'Social Reintegration'}
+                  {locale === 'es' ? 'Reinserción sociolaboral' : 'Social and labor reintegration'}
                 </p>
-                <p className="text-xs text-blue-200 mt-0.5">
+                <p className="text-xs text-gray-300 mt-0.5">
                   {locale === 'es' ? 'Proyecto de Ley 24870' : 'Law Project 24870'}
                 </p>
               </div>
 
               {/* Sección derecha - Botón */}
               <div className="text-center">
-                <button className="bg-white hover:bg-blue-50 text-blue-600 text-xs lg:text-sm px-2.5 lg:px-6 mx-6 lg:mx-12 py-1 lg:py-1.5 rounded-md lg:rounded-lg font-semibold transition-all shadow-sm hover:shadow-md">
-                  {locale === 'es' ? 'Apóyanos' : 'Support us'}
+                <button className="bg-white hover:bg-gray-100 text-neutral-900 text-xs lg:text-sm px-2.5 lg:px-6 mx-6 lg:mx-12 py-1 lg:py-1.5 rounded-md lg:rounded-lg font-semibold transition-all shadow-sm hover:shadow-md">
+                  {locale === 'es' ? 'Leer más' : 'Read more'}
                 </button>
-                <p className="text-[8px] lg:text-xs text-blue-200 mt-1 leading-tight font-medium">
-                  {locale === 'es' ? 'Juntos hacemos la diferencia' : 'Together we make a difference'}
+                <p className="text-[8px] lg:text-xs text-gray-300 mt-1 leading-tight font-medium">
+                  {locale === 'es' ? 'Reinserción con oportunidades reales' : 'Reintegration with real opportunities'}
                 </p>
               </div>
             </div>
@@ -113,47 +122,12 @@ export default function OptimizedNewHome({
                     unoptimized
                   />
                 </div>
-                {/* <div className="relative h-[80px] w-[80px] md:h-[180px] md:w-[180px]">
-                  <Image
-                    src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/home/avion-correos-tePadHoKKfnwSsZPNFg0asLyJyTxzy.webp"
-                    alt={locale === 'es' ? 'Avión de correos' : 'Mail plane'}
-                    fill
-                    sizes="(max-width: 768px) 80px, 180px"
-                    style={{ objectFit: 'contain' }}
-                    priority
-                  />
-                </div>
-                <div className="relative h-[80px] w-[80px] md:h-[180px] md:w-[180px]">
-                  <Image
-                    src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/home/paquet-correos-F4l2o6srReQON5HaGqnifBJBzqAhaO.webp"
-                    alt={t('banner1.packageAlt')}
-                    fill
-                    sizes="(max-width: 768px) 80px, 180px"
-                    style={{ objectFit: 'contain' }}
-                    priority
-                  />
-                </div> */}
               </div>
             </div>
           </BannerTemplate>
 
           {/* Banner 2: Artesanías (segundo lugar) */}
           <BannerTemplate linkHref="/impact">
-            {/* <Image
-              src="/home/hombre-haciendo-dispensador-en-forma-de-molinillo.webp"
-              alt={t('banner2.craftsman1Alt')}
-              width={190}
-              height={0}
-              className="absolute top-14 left-0 lg:left-6 2xl:left-60 hidden sm:block rounded-lg max-lg:w-[125px]"
-            /> */}
-            {/* <Image
-              src="/home/hombre-exhibiendo-espejo-tallado-en-madera.webp"
-              alt={t('banner2.craftsman2Alt')}
-              width={184}
-              height={0}
-              className="absolute top-12 right-2 lg:right-16 2xl:right-70 hidden sm:block rounded-lg max-lg:w-[125px]"
-            /> */}
-
             <div className="absolute bg-gradient-to-r  top-0 left-0 right-0 flex flex-col items-center lg:justify-center ">
               <div className="text-center z-20 mt-2 lg:mt-4 px-4">
                 <h1 className="text-lg lg:text-xl text-gray-800 font-bold lg:mb-2 hidden sm:block">
@@ -204,14 +178,14 @@ export default function OptimizedNewHome({
         <OptimizedGridSection  />
         <GiftsCarouselSection />
         {/* Nueva sección de productos destacados con mayor visibilidad */}
-        <FeaturedProductsSection maxProducts={9} />
+        <FeaturedProductsSection />
         
 
         
-        {/* <SecondaryGridSection />
+        {/* <SecondaryGridSection /> */}
         
-        <DetailsCarouselSection /> */}
+        {/* <DetailsCarouselSection /> */}
       </div>
-    </ProductsProvider>
+    </HomeProductsProvider>
   );
 }

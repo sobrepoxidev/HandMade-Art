@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect, useMemo } from 'react';
-import { useProductsContext } from '@/context/ProductsContext';
+import { useHomeProductsContext } from '@/context/HomeProductsContext';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
@@ -10,6 +10,8 @@ import { formatUSD } from '@/lib/formatCurrency';
 interface GiftsCarouselSectionProps {
   /** Identificador único para este componente, usado para la distribución de productos */
   sectionId?: string;
+  /** Límite de productos a mostrar en la sección */
+  maxGifts?: number;
 }
 
 /**
@@ -19,9 +21,10 @@ interface GiftsCarouselSectionProps {
  */
 
 const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({ 
+  maxGifts = 12
 }) => {
   const locale = useLocale();
-  const { sectionProducts } = useProductsContext();
+  const { sections, loadMoreProducts, hasMoreProducts, loading } = useHomeProductsContext();
   
   // Referencia al contenedor del carrusel para controlar el scroll
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -35,15 +38,15 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
     return locale === 'es' ? 'Regalos con significado' : 'Meaningful Gifts';
   }, [locale]);
   
-  /**
-   * Sistema inteligente para seleccionar productos sin duplicación
-   * Estrategia mejorada:
-   * 1. Evitamos productos que ya se muestran en OptimizedGridSection y FeaturedProductsSection
-   * 2. Filtramos por categorías diferentes a las que muestra el grid principal
-   * 3. Limitamos a 12 productos como máximo
-   * 4. Priorizamos productos con imágenes y destacados
-   */
-  const displayProducts = sectionProducts.gifts;
+  // Cargar más productos cuando el usuario llega al final del carrusel
+  useEffect(() => {
+    if (scrollPosition >= maxScrollPosition * 0.8 && hasMoreProducts && !loading) {
+      loadMoreProducts();
+    }
+  }, [scrollPosition, maxScrollPosition, hasMoreProducts, loading, loadMoreProducts]);
+  
+  // Obtener productos de regalo del nuevo contexto
+  const displayProducts = sections.gifts.slice(0, maxGifts);
   
   // Función para obtener el color de la tarjeta basado en el índice
   const getCardColor = (index: number) => {
@@ -121,7 +124,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
   }, [displayProducts]);
 
   return (
-    <section className="py-6 px-4 relative overflow-hidden bg-gradient-to-br from-teal-50/30 via-white to-amber-50/30">
+    <section className=" px-4 relative overflow-hidden bg-gradient-to-br from-teal-50/30 via-white to-amber-50/30 ">
      
       
       {/* Encabezado con título y enlace Ver más */}
@@ -184,109 +187,93 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
       <div 
         ref={carouselRef}
         className="flex overflow-x-auto pb-4 scrollbar-hide snap-x scroll-smooth"
-        onScroll={handleScroll}
       >
-        {displayProducts.length > 0 ? (
-          <>
-            {/* Versión para móvil: Tarjetas con grid 2x2 (4 productos por tarjeta) */}
-            <div className="lg:hidden flex w-full">
-              {productGroups.map((groupProducts, groupIndex) => (
-                <div 
-                  key={`group-${groupIndex}`} 
-                  className="min-w-[260px] flex-shrink-0 snap-start mr-4 last:mr-0 rounded-lg overflow-hidden shadow-sm"
-                >
-                  <div className={`${getCardColor(groupIndex)} p-3 h-full flex flex-col rounded-t-lg`}>
-                    <div className="flex items-center mb-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white mr-1.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clipRule="evenodd" />
-                        <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z" />
-                      </svg>
-                      <div className="h-0.5 w-10 bg-white/40 rounded mr-2"></div>
+        {/* Móvil: tarjetas 2x2 */}
+        <div className="lg:hidden flex w-full space-x-4 px-4">
+          {productGroups.map((groupProducts, groupIndex) => (
+            <div
+              key={`group-${groupIndex}`}
+              className="min-w-[260px] flex-shrink-0 snap-start rounded-lg overflow-hidden shadow-sm"
+            >
+              <div className={`${getCardColor(groupIndex)} p-3 h-full flex flex-col rounded-t-lg`}>
+                <div className="flex items-center mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white mr-1.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clipRule="evenodd" />
+                    <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z" />
+                  </svg>
+                  <div className="h-0.5 w-10 bg-white/40 rounded mr-2"></div>
+                </div>
 
+                <div className="grid grid-cols-2 gap-2 w-full h-full">
+                  {groupProducts.map((product, idx) => (
+                    <Link key={`${product.id}-${idx}`} href={`/product/${product.id}`} className="block text-center">
+                      <div className="h-32 flex items-center justify-center bg-white rounded-lg shadow-sm p-1">
+                        <Image
+                          src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
+                          alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
+                          width={90}
+                          height={90}
+                          style={{ objectFit: 'contain', maxHeight: '100%' }}
+                          className="object-contain max-h-full"
+                          unoptimized
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="mt-1 text-white text-xs font-medium line-clamp-1">
+                        {product.dolar_price && (<>{formatUSD(product.dolar_price)}</>)}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: productos individuales */}
+        <div className="hidden lg:flex w-full space-x-4 px-4">
+          {displayProducts.map((product, idx) => (
+            <Link key={`desktop-product-${product.id}-${idx}`} href={`/product/${product.id}`} className="block h-full min-w-[200px] flex-shrink-0 snap-start group">
+              <div className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-all duration-300 h-full flex flex-col transform group-hover:-translate-y-1">
+                <div className="relative overflow-hidden rounded-md mb-3">
+                  <div className="h-40 flex items-center justify-center p-2 bg-gray-50 rounded-md">
+                    <Image
+                      src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
+                      alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
+                      width={140}
+                      height={140}
+                      style={{ objectFit: 'contain', maxHeight: '100%' }}
+                      loading="lazy"
+                      unoptimized
+                      className="transform group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  {product.is_featured && (
+                    <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-medium px-1.5 py-0.5 rounded-sm">
+                      {locale === 'es' ? 'Destacado' : 'Featured'}
                     </div>
-                    <div className="grid grid-cols-2 gap-2 w-full h-full">
-                      {groupProducts.map((product, idx) => (
-                        <Link key={`${product.id}-${idx}`} href={`/product/${product.id}`} className="block text-center">
-                          <div className="h-32 flex items-center justify-center bg-white rounded-lg shadow-sm p-1">
-                            <Image
-                              src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
-                              alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
-                              width={90}
-                              height={90}
-                              style={{ objectFit: 'contain', maxHeight: '100%' }}
-                              className="object-contain max-h-full"
-                              unoptimized
-                              loading="lazy"
-                            />
-                          </div>
-                          <div className="mt-1 text-white text-xs font-medium line-clamp-1">
-                            {product.dolar_price && (
-                              <>{formatUSD(product.dolar_price)}</>
-                            )}
-                          </div>
-                        </Link>
-                      ))}
+                  )}
+                </div>
+                <h3 className="text-gray-800 text-sm font-medium line-clamp-2 flex-grow">
+                  {locale === 'es' ? product.name_es : product.name_en || product.name}
+                </h3>
+                {product.dolar_price && (
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="text-teal-600 font-bold text-sm">
+                      {formatUSD(product.dolar_price)}
+                    </div>
+                    <div className="text-xs text-teal-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
+                      {locale === 'es' ? 'Ver detalles' : 'View details'}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Versión para desktop: Fila horizontal de productos individuales */}
-            <div className="hidden lg:flex w-full">
-              {displayProducts.map((product) => (
-                <div 
-                  key={product.id} 
-                  className="min-w-[200px] flex-shrink-0 snap-start mr-4 last:mr-0 group"
-                >
-                  <Link href={`/product/${product.id}`} className="block h-full">
-                    <div className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-all duration-300 h-full flex flex-col transform group-hover:-translate-y-1">
-                      <div className="relative overflow-hidden rounded-md mb-3">
-                        <div className="h-40 flex items-center justify-center p-2 bg-gray-50 rounded-md">
-                          <Image
-                            src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
-                            alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
-                            width={140}
-                            height={140}
-                            style={{ objectFit: 'contain', maxHeight: '100%' }}
-                            loading="lazy"
-                            unoptimized
-                            className="transform group-hover:scale-105 transition-transform duration-300"
-                          />
-                        </div>
-                        {product.is_featured && (
-                          <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-medium px-1.5 py-0.5 rounded-sm">
-                            {locale === 'es' ? 'Destacado' : 'Featured'}
-                          </div>
-                        )}
-                      </div>
-                      <h3 className="text-gray-800 text-sm font-medium line-clamp-2 flex-grow">
-                        {locale === 'es' ? product.name_es : product.name_en || product.name}
-                      </h3>
-                      {product.colon_price && (
-                        <div className="mt-2 flex items-center justify-between">
-                          <div className="text-teal-600 font-bold text-sm">
-                            {formatUSD(product.colon_price)}
-                          </div>
-                          <div className="text-xs text-teal-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
-                            {locale === 'es' ? 'Ver detalles' : 'View details'}
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="w-full text-center py-10 text-gray-500">
-            {locale === 'es' ? 'No hay productos disponibles en este momento.' : 'No products available at the moment.'}
-          </div>
-        )}
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );

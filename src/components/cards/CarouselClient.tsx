@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, Link } from '@/i18n/navigation';
 import { CarrucelItem } from './CarrucelSectionA';
 
 const CarouselCard: React.FC<{
@@ -22,12 +22,12 @@ const CarouselCard: React.FC<{
   return (
     <div
       onClick={handleClick}
-      className={`flex h-[27rem] shadow-md flex-col cursor-pointer ${className}`}
+      className={`flex h-full shadow-md flex-col cursor-pointer ${className}`}
     >
-      <div className="flex flex-col h-full">
-        <h2 className="text-2xl font-bold px-0.5 pt-1 truncate whitespace-nowrap text-white" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      <div className="flex flex-col">
+        <Link href={link} className="text-2xl font-bold px-2 truncate whitespace-nowrap text-white hover:underline" aria-label={title}>
           {title}
-        </h2>
+        </Link>
         <div className="flex-grow flex items-center justify-center">{content}</div>
       </div>
     </div>
@@ -52,72 +52,62 @@ const CarouselClient: React.FC<CarouselClientProps> = ({ items }) => {
   };
 
   useEffect(() => {
-    const scrollElement = scrollRef.current;
-    if (scrollElement) {
-      // Verificar estado inicial de las flechas
-      handleScroll();
-      
-      // Agregar event listener para scroll
-      scrollElement.addEventListener('scroll', handleScroll);
-      return () => scrollElement.removeEventListener('scroll', handleScroll);
-    }
+    const ref = scrollRef.current;
+    if (!ref) return;
+
+    const onScroll = () => handleScroll();
+    ref.addEventListener('scroll', onScroll);
+
+    // Ajustar flechas inicialmente
+    handleScroll();
+
+    return () => {
+      ref.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const cardWidth = scrollRef.current.clientWidth * 0.85;
-      const scrollValue = direction === 'left' ? -cardWidth : cardWidth;
-      scrollRef.current.scrollBy({ left: scrollValue, behavior: 'smooth' });
-    }
-  };
-
   return (
-    <>
-      {showLeftArrow && (
-        <button
-          onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 text-gray-700 bg-transparent rounded-full p-2"
-          aria-label="Anterior elemento"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-      )}
-      
+    <div className="relative">
+      {/* Contenedor del carrusel */}
       <div
         ref={scrollRef}
-        className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-x-0 max-lg:mt-2"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="flex overflow-x-auto space-x-3  snap-x snap-mandatory"
         onScroll={handleScroll}
       >
-        {items.map((item, index) => (
-          <div
-            key={index}
-            className="flex-none w-[80%] snap-start pl-3 first:pl-4 last:pr-4 py-1"
-          >
-            <CarouselCard 
-              title={item.title}
-              content={item.content}
-              link={item.link}
-              className={item.className}
-            />
-          </div>
-        ))}
+        {items.map((item, index) => {
+          const isFirst = item.start ?? index === 0;
+          const isLast = item.end ?? index === items.length - 1;
+          const edgeClass = `${isFirst ? 'ml-2 pl-3' : ''} ${isLast ? 'mr-3' : ''}`.trim();
+          return (
+            <div key={index} className={`min-w-[85vw] snap-start ${edgeClass}`}>
+              <CarouselCard {...item} />
+            </div>
+          );
+        })}
       </div>
+
+      {/* Flechas de navegación */}
+      {showLeftArrow && (
+        <button
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 text-black/30 bg-transparent rounded-full p-2"
+          aria-label="Anterior"
+          onClick={() => scrollRef.current?.scrollBy({ left: -window.innerWidth * 0.9, behavior: 'smooth' })}
+        >
+          {/* Icono simple */}
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+      )}
 
       {showRightArrow && (
         <button
-          onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 text-gray-700 bg-transparent rounded-full p-2"
-          aria-label="Siguiente elemento"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 text-black/30 bg-transparent rounded-full p-2"
+          aria-label="Siguiente"
+          onClick={() => scrollRef.current?.scrollBy({ left: window.innerWidth * 0.9, behavior: 'smooth' })}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       )}
-    </>
+    </div>
   );
 };
 

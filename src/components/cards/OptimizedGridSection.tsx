@@ -1,41 +1,70 @@
 'use client';
 
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import Card from "./Card";
 import { Link } from '@/i18n/navigation';
 import Image from "next/image";
-import { useProductsContext } from "@/context/ProductsContext";
+import { useHomeProductsContext } from "@/context/HomeProductsContext";
 import CarrucelSectionA from "./CarrucelSectionA";
 import { useLocale } from "next-intl";
 import { formatUSD } from "@/lib/formatCurrency";
+import { useInView } from "react-intersection-observer";
 
 
 interface GridSectionProps {
   // Props simplificados
   mobileActive?: boolean;
-  /** Identificador único para este componente, usado para la distribución de productos */
-  sectionId?: string;
+  /** Número máximo de categorías a mostrar */
+  maxCategories?: number;
 }
 
 const OptimizedGridSection: React.FC<GridSectionProps> = ({
   mobileActive = true,
+  maxCategories = 6
 }) => {
   const locale = useLocale();
-  const { categories, sectionProducts, loading, error } = useProductsContext();
+  const { 
+    categories, 
+    sections, 
+    loading, 
+    error, 
+    loadMoreProducts, 
+    hasMoreProducts 
+  } = useHomeProductsContext();
   
-  // Definimos internamente qué categorías mostrar (0-6 por defecto)
-  const indexStart = 0;
-  const indexEnd = 6;
+  // Referencia para detectar cuando el usuario llega al final de la sección
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: false
+  });
+  
+  // Cargar más productos cuando el usuario llega al final
+  const handleLoadMore = useCallback(() => {
+    if (inView && hasMoreProducts && !loading) {
+      loadMoreProducts();
+    }
+  }, [inView, hasMoreProducts, loading, loadMoreProducts]);
+  
+  // Efecto para cargar más productos
+  React.useEffect(() => {
+    handleLoadMore();
+  }, [handleLoadMore]);
   
   // Usamos useMemo para evitar cálculos repetidos en cada renderizado
   const desktopCards = useMemo(() => {
-    return categories.slice(indexStart, indexEnd).map(category => {
-      const categoryProducts = sectionProducts.gridByCategory[category.id] || [];
+    // Obtener las categorías en el orden de prioridad definido
+    const orderedCategories = sections.grid.priorityOrder
+      .slice(0, maxCategories)
+      .map(categoryId => categories.find(c => c.id === categoryId))
+      .filter(Boolean);
+    
+    return orderedCategories.map(category => {
+      const categoryProducts = sections.grid.products[category!.id] || [];
       const displayProducts = categoryProducts.slice(0, 4); // Mostrar hasta 4 productos por categoría
 
       return {
-        title: locale === 'es' ? category.name_es : category.name_en || category.name,
-        link: `/products?category=${category.id}`,
+        title: locale === 'es' ? category!.name_es : category!.name_en || category!.name,
+        link: `/products?category=${category!.id}`,
         content: (
           <div className="p-3">
             {displayProducts.length > 0 ? (
@@ -47,8 +76,8 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                         <div className="h-44 flex items-center justify-center mb-1">
                           <Image
                             src={product.media && Array.isArray(product.media) && product.media.length > 0 ?
-                              (typeof (product.media[0] as { url: string }).url === 'string' ? (product.media[0] as { url: string }).url : '/https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp') :
-                              '/https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
+                              (typeof (product.media[0] as { url: string }).url === 'string' ? (product.media[0] as { url: string }).url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp') :
+                              'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
                             alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                             width={100}
                             height={100}
@@ -71,8 +100,8 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                   ))}
                 </div>
                 <div className="mt-3 text-xs text-teal-600 hover:underline text-center">
-                  <Link href={`/products?category=${category.id}`} target="_self" className="inline-flex items-center">
-                    <span>{locale === 'es' ? 'Ver todo en '+ category.name_es: 'View all in '+ category.name_en}</span>
+                  <Link href={`/products?category=${category!.id}`} target="_self" className="inline-flex items-center">
+                    <span>{locale === 'es' ? 'Ver todo en '+ category!.name_es: 'View all in '+ category!.name_en}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
@@ -84,7 +113,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                 <div className="flex items-center justify-center h-48">
                   <Image
                     src={'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
-                    alt={category.name || 'Categoría'}
+                    alt={category!.name || 'Categoría'}
                     width={180}
                     height={180}
                     style={{ objectFit: 'contain', maxHeight: '100%' }}
@@ -93,8 +122,8 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                   />
                 </div>
                 <div className="mt-3 text-xs text-teal-600 hover:underline text-center">
-                  <Link href={`/products?category=${category.id}`} target="_self" className="inline-flex items-center">
-                    <span>{locale === 'es' ? 'Ver todo en '+ category.name_es: 'View all in '+ category.name_en}</span>
+                  <Link href={`/products?category=${category!.id}`} target="_self" className="inline-flex items-center">
+                    <span>{locale === 'es' ? 'Ver todo en '+ category!.name_es: 'View all in '+ category!.name_en}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
@@ -106,7 +135,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
         ),
       };
     });
-  }, [categories, sectionProducts, indexStart, indexEnd, locale]);
+  }, [categories, sections.grid, maxCategories, locale]);
 
 
 
@@ -140,7 +169,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full max-h-full h-full">
       {/* Versión de escritorio - Muestra categorías en grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 px-4 gap-4 mb-4 mt-4 max-lg:hidden">
         {desktopCards.map((card, index) => (
@@ -150,39 +179,20 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
 
       {/* Versión móvil - Usa CarrucelSectionA para mostrar tarjetas en carrusel horizontal */}
       {mobileActive && (
-        <div className="lg:hidden">
-          <CarrucelSectionA
-            items={
-              // Ordenamos las categorías dando prioridad a Paintings y Napkin Holders
-              [...categories.slice(indexStart, indexEnd-2)]
-                .sort((a, b) => {
-                  // Obtener nombres de categorías para comparación (case insensitive)
-                  const aName = (a.name || '').toLowerCase();
-                  const bName = (b.name || '').toLowerCase();
+        <div className="lg:hidden h-full py-0.5">
+          {
+            // Precomputar categorías móviles para conocer el último índice
+          }
+          {(() => {
+            const mobileCategories = sections.grid.priorityOrder
+              .slice(0, maxCategories - 2)
+              .map(categoryId => categories.find(c => c.id === categoryId))
+              .filter(Boolean);
 
-                  // Priorizar Paintings y Napkin Holders
-                  const isPrioritizedA = aName.includes('painting') || aName.includes('napkin holder');
-                  const isPrioritizedB = bName.includes('painting') || bName.includes('napkin holder');
-
-                  // Si a es prioritario y b no, a va primero
-                  if (isPrioritizedA && !isPrioritizedB) return -1;
-                  // Si b es prioritario y a no, b va primero
-                  if (!isPrioritizedA && isPrioritizedB) return 1;
-
-                  // Si ambos son prioritarios o ninguno lo es, priorizamos por cantidad de productos
-                  const aProducts = (sectionProducts.gridByCategory[a.id] || []).length;
-                  const bProducts = (sectionProducts.gridByCategory[b.id] || []).length;
-
-                  // Priorizar categorías con 4 o más productos
-                  if (aProducts >= 4 && bProducts < 4) return -1;
-                  if (aProducts < 4 && bProducts >= 4) return 1;
-
-                  // Si ambas tienen 4+ o ambas tienen menos de 4, ordenar por cantidad
-                  return bProducts - aProducts; // Ordenar de mayor a menor
-                })
-                .map((category, index) => {
-                  // Convertir la categoría a formato esperado por CarrucelSectionA
-                  const categoryProducts = sectionProducts.gridByCategory[category.id] || [];
+            return (
+              <CarrucelSectionA
+                items={mobileCategories.map((category, index) => {
+                  const categoryProducts = sections.grid.products[category!.id] || [];
 
                   // Colores para las tarjetas
                   const cardColors = [
@@ -194,11 +204,12 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
 
                   // Seleccionar color
                   const cardColor = cardColors[index % cardColors.length];
-                  
+                  const isFirst = index === 0;
+                  const isLast = index === mobileCategories.length - 1;
                   return {
-                    title: `${locale === 'es' ? category.name_es : category.name_en || category.name}`,
+                    title: `${locale === 'es' ? category!.name_es : category!.name_en || category!.name}`,
                     content: (
-                      <div className="grid grid-cols-2 gap-2 w-full h-full px-1 pt-4">
+                      <div className="grid grid-cols-2 gap-2 w-full h-full px-1 pt-2.5">
                         {categoryProducts.slice(0, 4).map((product, idx) => (
                           <Link key={idx} href={`/product/${product.id}`} className="block text-center">
                             <div className="h-44 flex items-center justify-center bg-white rounded-lg shadow-sm">
@@ -209,25 +220,47 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                                 height={100}
                                 style={{ objectFit: 'contain', maxHeight: '100%' }}
                                 className="p-0.5"
-                                
                               />
-                            
-                        
                             </div>
-                              {/*precio*/}
-                              
+                            {product.dolar_price && (
+                              <div className="mt-1 text-white text-xs font-medium">
+                                {formatUSD(product.dolar_price)}
+                              </div>
+                            )}
                           </Link>
                         ))}
                       </div>
                     ),
-                    link: `/products?category=${category.id}`,
-                    className: `${cardColor} rounded-xl px-3 pt-2 pb-3 shadow-sm`
+                    link: `/products?category=${category!.id}`,
+                    className: `${cardColor} rounded-xl px-3 pt-2 pb-3 shadow-sm `,
+                    start: isFirst,
+                    end: isLast
                   };
-                })
-            }
-          />
+                })}
+              />
+            );
+          })()}
         </div>
       )}
+
+      {/* Botón de carga infinita */}
+      <div 
+        ref={loadMoreRef} 
+        className={`w-full flex justify-center ${hasMoreProducts ? 'my-8' : 'my-0'}`}
+      >
+        {hasMoreProducts && (
+          <button 
+            onClick={() => loadMoreProducts()} 
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${loading ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
+            disabled={loading}
+          >
+            {loading ? 
+              (locale === 'es' ? 'Cargando...' : 'Loading...') : 
+              (locale === 'es' ? 'Cargar más productos' : 'Load more products')
+            }
+          </button>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,8 +1,7 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { Database } from '@/lib/database.types';
 import OptimizedNew from '@/components/home/OptimizedNew';
+import { computeSections } from '@/lib/home/computeSections';
 
 /**
  * Server Component que pre-carga datos para la página principal
@@ -12,65 +11,86 @@ import OptimizedNew from '@/components/home/OptimizedNew';
  * - Reducir la cantidad de JavaScript enviado al cliente
  * - Permitir streaming de contenido para una experiencia más rápida
  */
-
 export default async function HomePageData({ locale }: {locale: string}) {
   // Crear cliente de Supabase para server component
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const supabase = await createClient();
+  
+  // Definir categorías prioritarias (IDs que se mostrarán primero)
+  // Estos IDs se pueden cambiar según las necesidades del negocio
+  const priorityCategoryIds = [3, 1, 5, 2]; // Ejemplo: IDs de categorías prioritarias
   
   // Pre-cargar las categorías para un renderizado más rápido
-  // Esta consulta se ejecuta en el servidor y no se envía al cliente
   const { data: categories } = await supabase
     .from('categories')
     .select('*')
     .order('name');
   
-  // Determinar las primeras categorías a mostrar (las 3 primeras)
-  const firstCategories: Database['public']['Tables']['categories']['Row'][] = categories?.slice(0, 3) || [];
-  const firstCategoryIds = firstCategories.map(category => category.id);
+  // Preparar la lista de IDs de categorías para la carga inicial
+  // Incluimos las categorías prioritarias y algunas adicionales
+  const categoryIdsToLoad = [...priorityCategoryIds];
   
-  // Extraer las segundas categorías (de la 6 a la 12)
-  const secondCategories: Database['public']['Tables']['categories']['Row'][] = categories?.slice(6, 12) || [];
-  const secondCategoryIds = secondCategories.map(category => category.id);
+  // Añadir otras categorías que no estén en la lista de prioridad
+  if (categories) {
+    categories.forEach(category => {
+      if (!categoryIdsToLoad.includes(category.id) && categoryIdsToLoad.length < 10) {
+        categoryIdsToLoad.push(category.id);
+      }
+    });
+  }
   
-  // Pre-cargar productos específicamente de las categorías que se muestran primero
-  // Esta estrategia garantiza que tengamos los productos que el usuario verá en la primera carga
+  // Pre-cargar productos de las categorías seleccionadas
   let initialProducts: Database['public']['Tables']['products']['Row'][] = [];
   
-  if (firstCategoryIds.length > 0) {
-    // Obtener productos de las primeras categorías (hasta 16 productos)
-    const { data: firstCategoryProducts } = await supabase
+  if (categoryIdsToLoad.length > 0) {
+    // Obtener productos de las categorías prioritarias (hasta 4 por categoría)
+    const { data: priorityProducts } = await supabase
       .from('products')
       .select('*')
       .eq('is_active', true)
-      .in('category_id', firstCategoryIds)
+      .in('category_id', categoryIdsToLoad)
       .order('created_at', { ascending: false })
-      .limit(16);
+      .limit(40); // Limitamos a 40 productos en total (aproximadamente 4 por categoría)
       
-    if (firstCategoryProducts) {
-      initialProducts = [...initialProducts, ...firstCategoryProducts];
+    if (priorityProducts) {
+      initialProducts = priorityProducts;
     }
     
-    // También obtenemos algunos productos de las siguientes categorías para tener un poco de contenido precargado
-    if (secondCategoryIds.length > 0) {
-      const { data: secondCategoryProducts } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .in('category_id', secondCategoryIds)
-        .order('created_at', { ascending: false })
-        .limit(8);
-        
-      if (secondCategoryProducts) {
-        initialProducts = [...initialProducts, ...secondCategoryProducts];
-      }
+    // Obtener algunos productos destacados adicionales
+    const { data: featuredProducts } = await supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .eq('is_featured', true)
+      .order('created_at', { ascending: false })
+      .limit(9);
+      
+    if (featuredProducts) {
+      // Añadir productos destacados que no estén ya en la lista inicial
+      featuredProducts.forEach(product => {
+        if (!initialProducts.some(p => p.id === product.id)) {
+          initialProducts.push(product);
+        }
+      });
     }
   }
   
-  // Pasar los datos pre-cargados al componente cliente
+  // Calcular snapshot SSR determinista de secciones para evitar mismatch de hidratación
+  const initialSections = computeSections(
+    initialProducts,
+    categories || [],
+    priorityCategoryIds,
+    4,
+    12,
+    9
+  );
+  
+  // Pasar los datos pre-cargados y la configuración al componente cliente
   return (
     <OptimizedNew 
       initialCategories={categories || []} 
       initialProducts={initialProducts} 
+      initialSections={initialSections}
+      priorityCategoryIds={priorityCategoryIds}
       locale={locale}
     />
   );
