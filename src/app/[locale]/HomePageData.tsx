@@ -38,38 +38,41 @@ export default async function HomePageData({ locale }: {locale: string}) {
     });
   }
   
-  // Pre-cargar productos de las categorías seleccionadas
+  // Pre-cargar productos para snapshot SSR: aseguramos cobertura suficiente para 6 categorías
   let initialProducts: Database['public']['Tables']['products']['Row'][] = [];
   
   if (categoryIdsToLoad.length > 0) {
-    // Obtener productos de las categorías prioritarias (hasta 4 por categoría)
-    const { data: priorityProducts } = await supabase
+    // 1) Traer productos NO destacados de las categorías consideradas con mayor límite
+    //    Esto mejora la probabilidad de tener ≥4 productos por categoría para el grid
+    const { data: baseProducts } = await supabase
       .from('products')
       .select('*')
       .eq('is_active', true)
+      .neq('is_featured', true)
       .in('category_id', categoryIdsToLoad)
       .order('created_at', { ascending: false })
-      .limit(40); // Limitamos a 40 productos en total (aproximadamente 4 por categoría)
-      
-    if (priorityProducts) {
-      initialProducts = priorityProducts;
+      .limit(120); // Mayor cobertura para asegurar 6 categorías x 4 productos
+
+    if (baseProducts) {
+      initialProducts = baseProducts;
     }
-    
-  // Obtener TODOS los productos destacados adicionales (sin límite)
-  const { data: featuredProducts } = await supabase
+
+    // 2) Agregar productos destacados (sección featured) sin duplicar IDs
+    const { data: featuredProducts } = await supabase
       .from('products')
       .select('*')
       .eq('is_active', true)
       .eq('is_featured', true)
       .order('created_at', { ascending: false });
-      
+
     if (featuredProducts) {
-      // Añadir productos destacados que no estén ya en la lista inicial
-      featuredProducts.forEach(product => {
-        if (!initialProducts.some(p => p.id === product.id)) {
+      const seen = new Set(initialProducts.map(p => p.id));
+      for (const product of featuredProducts) {
+        if (!seen.has(product.id)) {
           initialProducts.push(product);
+          seen.add(product.id);
         }
-      });
+      }
     }
   }
   

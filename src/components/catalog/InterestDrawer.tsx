@@ -129,6 +129,14 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
           phone: '',
           notes: ''
         });
+        // Incrementar el uso del código si se aplicó correctamente
+        try {
+          if (appliedDiscountCode?.id) {
+            await discountCode.incrementUsage(appliedDiscountCode.id);
+          }
+        } catch (e) {
+          console.error('No se pudo incrementar el uso del código:', e);
+        }
         
         // Cerrar drawer y redirigir
         onClose();

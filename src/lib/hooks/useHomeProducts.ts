@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import type { Database } from "@/lib/database.types";
 import { computeSections, HomeSections } from '@/lib/home/computeSections';
@@ -76,11 +76,9 @@ export function useHomeProducts({
   
   // Usar snapshot SSR para la primera renderización y evitar mismatch de hidratación
   // Mantener el snapshot HASTA que cambien los datos en cliente
-  const [useSnapshot, setUseSnapshot] = useState<boolean>(Boolean(initialSections));
-  const initialKeysRef = useRef<{ productsKey: string; categoriesKey: string }>({
-    productsKey: JSON.stringify((initialProducts || []).map(p => p.id).sort()),
-    categoriesKey: JSON.stringify((initialCategories || []).map(c => c.id).sort()),
-  });
+  // Mantener el snapshot SSR durante toda la sesión para evitar reordenamientos
+  // del grid y parpadeos cuando se cargan más productos al hacer scroll.
+  const [useSnapshot] = useState<boolean>(Boolean(initialSections));
   
   // Cargar datos iniciales
   useEffect(() => {
@@ -138,18 +136,8 @@ export function useHomeProducts({
     fetchInitialData();
   }, [initialCategories, initialProducts, supabase]);
 
-  // Dejar de usar el snapshot sólo cuando cambien los datos respecto al SSR
-  useEffect(() => {
-    if (!initialSections || !useSnapshot) return;
-    const currentProductsKey = JSON.stringify(products.map(p => p.id).sort());
-    const currentCategoriesKey = JSON.stringify(categories.map(c => c.id).sort());
-    if (
-      currentProductsKey !== initialKeysRef.current.productsKey ||
-      currentCategoriesKey !== initialKeysRef.current.categoriesKey
-    ) {
-      setUseSnapshot(false);
-    }
-  }, [products, categories, initialSections, useSnapshot]);
+  // Nota: ya no alternamos a datos en vivo para evitar que el grid cambie en CSR.
+  // Si se necesitara actualizar el snapshot, hacerlo bajo un evento de usuario explícito.
   
   // Función para cargar más productos (paginación)
   const loadMoreProducts = useCallback(async (categoryId?: number) => {

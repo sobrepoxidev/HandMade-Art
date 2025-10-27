@@ -82,7 +82,7 @@ export default function CurrencyConverterRow({
       </button>
 
       {/* Resultado */}
-      <div className="min-w-[7rem] font-semibold text-black">
+      <div className="min-w-[6rem] font-semibold text-black">
         {result ? (
           result.currency && result.converted ? (
             new Intl.NumberFormat('es-CR', {

@@ -26,7 +26,8 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
     categories, 
     sections, 
     loading, 
-    error 
+    error,
+    usingSnapshot
   } = useHomeProductsContext();
   
   // Usamos useMemo para evitar cálculos repetidos en cada renderizado
@@ -116,9 +117,9 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
     });
   }, [categories, sections.grid, maxCategories, locale]);
 
+  const showSkeleton = loading && !usingSnapshot && (sections.grid.priorityOrder?.length ?? 0) === 0;
 
-
-  if (loading) {
+  if (showSkeleton) {
     return (
       <>
         {/* Skeleton para desktop */}
