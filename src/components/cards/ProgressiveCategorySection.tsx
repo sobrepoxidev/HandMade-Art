@@ -8,6 +8,9 @@ import { Link } from '@/i18n/navigation';
 import { formatUSD } from '@/lib/formatCurrency';
 import { useInView } from 'react-intersection-observer';
 import { isMediaArray } from '@/lib/home/computeSections';
+import type { Database } from '@/lib/database.types';
+
+type Product = Database['public']['Tables']['products']['Row'];
 
 interface ProgressiveCategorySectionProps {
   productsPerCategory?: number;
@@ -50,7 +53,7 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
 
   // Indexar por categoría para evitar filtros repetidos y mejorar rendimiento
   const productsByCategory = useMemo(() => {
-    const map: Record<number, any[]> = {};
+    const map: Record<number, Product[]> = {};
     remainingProducts.forEach(p => {
       const cid = p.category_id;
       if (!cid) return;
