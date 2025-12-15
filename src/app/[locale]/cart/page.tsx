@@ -68,32 +68,10 @@ type DiscountInfo = {
 export default function CartPage() {
   const locale = useLocale();
   const router = useRouter();
+  // Use session directly from context - SupabaseProvider handles auth state changes
   const { session, supabase } = useSupabase();
-  
-  // Estado local para el estado de la sesión
-  const [currentSession, setCurrentSession] = useState(session);
-  
-  // Actualizar el estado local cuando cambia la sesión
-  useEffect(() => {
-    setCurrentSession(session);
-    
-    // Configurar un listener para cambios en la sesión
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setCurrentSession(newSession);
-      }
-    );
-    
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [session, supabase.auth]);
-  
-  console.log("currentSession:", currentSession);
-  const userId = currentSession?.user?.id || null;
-  const correo = currentSession?.user?.email;
-  console.log("userId:", userId);
-  console.log("correo:", correo);
+
+  const userId = session?.user?.id || null;
   const { cart, updateQuantity, removeFromCart, syncCartWithDB } = useCart();
 
 
@@ -520,7 +498,7 @@ export default function CartPage() {
               </div>
               <button
                 onClick={async () => {
-                  if (currentSession === null) {
+                  if (session === null) {
                     // If not logged in, redirect to login page with return URL
                     // Construimos la URL completa usando los hooks de Next.js
                     const fullPath = window.location.pathname + window.location.search;
@@ -540,7 +518,7 @@ export default function CartPage() {
                 className="w-full py-3 rounded bg-teal-600 hover:bg-teal-700 text-white font-semibold text-lg transition-colors flex items-center justify-center gap-2"
               >
                 <span>
-                  { currentSession === null ? locale === 'es' ? 'INICIAR SESIÓN PARA COMPRAR' : 'SIGN IN TO BUY' : locale === 'es' ? 'COMPRAR' : 'BUY'}
+                  { session === null ? locale === 'es' ? 'INICIAR SESIÓN PARA COMPRAR' : 'SIGN IN TO BUY' : locale === 'es' ? 'COMPRAR' : 'BUY'}
                 </span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
