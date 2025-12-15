@@ -51,9 +51,9 @@ const FeaturedProductsSection: React.FC = () => {
         {featuredOnly.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
             {featuredOnly.map((product) => (
-              <Link 
-                key={product.id} 
-                href={`/product/${product.id}`} 
+              <Link
+                key={product.id}
+                href={`/product/${product.name}`}
                 className="group"
               >
                 <div className="flex flex-col bg-white rounded-lg shadow-sm overflow-hidden h-full hover:shadow-md transform transition-all duration-300 hover:-translate-y-1 ">

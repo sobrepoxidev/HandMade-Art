@@ -325,7 +325,7 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {results.map((product) => (
                   <div key={product.id} className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group">
-                    <Link href={`/product/${product.id}`} className="block">
+                    <Link href={`/product/${product.name}`} className="block">
                       <div className="relative h-56 overflow-hidden bg-gray-50 flex items-center justify-center">
                         <Image
                           src={product.media?.[0]?.url || '/product-placeholder.png'}
@@ -349,11 +349,11 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
                         <div className="flex items-center justify-between">
                           <p className="font-bold text-teal-700">
                             {product.dolar_price ? `${formatUSD(product.dolar_price)}` : (
-                              <Link 
+                              <Link
                                 href={`https://wa.me/50684237555?text=${encodeURIComponent(
-                                  locale === 'es' 
-                                ? `¡Hola! Estoy interesado en el producto: ${product.name_es} (https://artehechoamano.com/product/${product.id}).\n¿Podrían darme más información?`
-                                      : `Hello! I'm interested in the product: ${product.name_en} (https://handmadeart.store/product/${product.id}).\nCould you give me more information?`
+                                  locale === 'es'
+                                ? `¡Hola! Estoy interesado en el producto: ${product.name_es} (https://artehechoamano.com/es/product/${product.name}).\n¿Podrían darme más información?`
+                                      : `Hello! I'm interested in the product: ${product.name_en} (https://handmadeart.store/en/product/${product.name}).\nCould you give me more information?`
                                 )}`} 
                                 target='_blank' 
                                 rel="noopener noreferrer" 

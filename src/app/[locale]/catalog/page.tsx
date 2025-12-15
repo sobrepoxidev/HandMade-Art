@@ -626,7 +626,7 @@ export default function CatalogPage() {
             )}
           </div>
 
-          <Link href={`/product/${product.id}`}>
+          <Link href={`/product/${product.name}`}>
             <h3 className="font-semibold text-gray-900 mb-2 hover:text-teal-600 transition-colors line-clamp-2">
               {locale === 'es' ? product.name_es : product.name_en}
             </h3>
@@ -1255,7 +1255,7 @@ export default function CatalogPage() {
                     {/* Acciones */}
                     <div className="flex gap-3">
                       <Link
-                        href={`/product/${quickViewProduct.id}`}
+                        href={`/product/${quickViewProduct.name}`}
                         className="flex-1 bg-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-teal-700 transition-colors text-center"
                       >
                         {locale === 'es' ? 'Ver Detalles' : 'View Details'}
@@ -1330,7 +1330,7 @@ export default function CatalogPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => {
-                      const url = `${window.location.origin}/product/${showShareModal.id}`;
+                      const url = `${window.location.origin}/product/${showShareModal.name}`;
                       window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
                     }}
                     className="flex items-center justify-center gap-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -1340,8 +1340,8 @@ export default function CatalogPage() {
                   </button>
                   <button
                     onClick={() => {
-                      const url = `${window.location.origin}/product/${showShareModal.id}`;
-                      const text = `¡Mira este producto: ${showShareModal.name}!`;
+                      const url = `${window.location.origin}/product/${showShareModal.name}`;
+                      const text = locale === 'es' ? `¡Mira este producto: ${showShareModal.name_es}!` : `Check out this product: ${showShareModal.name_en}!`;
                       window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
                     }}
                     className="flex items-center justify-center gap-2 p-3 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors"
@@ -1351,8 +1351,8 @@ export default function CatalogPage() {
                   </button>
                   <button
                     onClick={() => {
-                      const url = `${window.location.origin}/product/${showShareModal.id}`;
-                      const text = `¡Mira este producto: ${showShareModal.name}! ${url}`;
+                      const url = `${window.location.origin}/product/${showShareModal.name}`;
+                      const text = locale === 'es' ? `¡Mira este producto: ${showShareModal.name_es}! ${url}` : `Check out this product: ${showShareModal.name_en}! ${url}`;
                       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                     }}
                     className="flex items-center justify-center gap-2 p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -1362,7 +1362,7 @@ export default function CatalogPage() {
                   </button>
                   <button
                     onClick={() => {
-                      const url = `${window.location.origin}/product/${showShareModal.id}`;
+                      const url = `${window.location.origin}/product/${showShareModal.name}`;
                       copyToClipboard(url);
                     }}
                     className="flex items-center justify-center gap-2 p-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
@@ -1477,7 +1477,7 @@ export default function CatalogPage() {
                         </div>
 
                         <Link
-                          href={`/product/${product.id}`}
+                          href={`/product/${product.name}`}
                           className="block w-full mt-4 bg-teal-600 text-white py-2 px-4 rounded-lg text-center hover:bg-teal-700 transition-colors"
                         >
                           {locale === 'es' ? 'Ver Detalles' : 'View Details'}

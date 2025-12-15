@@ -83,8 +83,8 @@ export default function SearchSuggestions({
             <ul>
               {results.slice(0, 5).map((product) => (
                 <li key={product.id} className="border-b border-gray-100 last:border-b-0">
-                  <Link 
-                    href={`/product/${product.id}`}
+                  <Link
+                    href={`/product/${product.name}`}
                     className="flex items-center p-3 hover:bg-gray-50 transition"
                     onClick={onClose}
                   >

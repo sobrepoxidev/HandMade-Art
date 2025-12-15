@@ -159,8 +159,8 @@ export default function ViewedProductsHistory() {
       
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {products.map(product => (
-          <Link 
-            href={`/product/${product.id}`} 
+          <Link
+            href={`/product/${product.name}`}
             key={product.id}
             className="group"
           >

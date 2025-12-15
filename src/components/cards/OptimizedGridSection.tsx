@@ -51,7 +51,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
               <>
                 <div className="grid grid-cols-2 gap-3 bg-[#303030]">
                   {displayProducts.map((product, idx) => (
-                    <Link key={`${product.id}-${idx}`} href={`/product/${product.id}`} target="_self" className="block group">
+                    <Link key={`${product.id}-${idx}`} href={`/product/${product.name}`} target="_self" className="block group">
                       <div className="flex flex-col items-center bg-white rounded p-2 hover:shadow-sm transition-shadow">
                         <div className="h-44 flex items-center justify-center mb-1">
                           <Image
@@ -191,7 +191,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                     content: (
                       <div className="grid grid-cols-2 gap-2 w-full h-full px-1 pt-2.5">
                         {categoryProducts.slice(0, 4).map((product, idx) => (
-                          <Link key={idx} href={`/product/${product.id}`} className="block text-center">
+                          <Link key={idx} href={`/product/${product.name}`} className="block text-center">
                             <div className="h-44 flex items-center justify-center bg-white rounded-lg shadow-sm">
                               <Image
                                 src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}

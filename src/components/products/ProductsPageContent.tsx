@@ -371,8 +371,8 @@ export default function ProductsPageContent() {
                   className="flex flex-col sm:flex-row border border-gray-200 rounded-lg overflow-hidden bg-white hover:shadow-md transition"
                 >
                   {/* Imagen del producto */}
-                  <Link 
-                    href={`/product/${product.id}`}
+                  <Link
+                    href={`/product/${product.name}`}
                     className="sm:w-48 h-40 sm:h-auto relative bg-gray-50 flex-shrink-0"
                   >
                     <div className="absolute inset-0 flex items-center justify-center p-4">
@@ -390,8 +390,8 @@ export default function ProductsPageContent() {
                   {/* Información del producto */}
                   <div className="flex-1 p-4 flex flex-col">
                     <div className="mb-2">
-                      <Link 
-                        href={`/product/${product.id}`}
+                      <Link
+                        href={`/product/${product.name}`}
                         className="text-lg font-medium text-gray-900 hover:text-teal-700 transition"
                       >
                         {locale === 'es' ? product.name : product.name}
@@ -445,8 +445,8 @@ export default function ProductsPageContent() {
                         )}
                       </div>
                       
-                      <Link 
-                        href={`/product/${product.id}`}
+                      <Link
+                        href={`/product/${product.name}`}
                         className="inline-flex items-center px-3 py-1.5 border border-teal-600 text-sm font-medium rounded text-teal-700 bg-white hover:bg-teal-50 transition"
                       >
                         {locale === 'es' ? 'Ver detalles' : 'View details'}

@@ -158,7 +158,7 @@ const OptimizedCarrucelSection: React.FC<OptimizedCarrucelSectionProps> = ({
                   key={product.id} 
                   className={`${mobileInvertList ? 'order-last' : ''} min-w-[260px] flex-shrink-0 snap-start mr-4 last:mr-0 rounded-lg overflow-hidden shadow-sm`}
                 >
-                  <Link href={`/product/${product.id}`} className="block">
+                  <Link href={`/product/${product.name}`} className="block">
                     <div className={`${bgColor} p-3 h-full flex flex-col`}>
                       <h3 className="text-white font-medium text-lg mb-2 line-clamp-1">
                         {locale === 'es' ? product.name_es : product.name_en || product.name}
