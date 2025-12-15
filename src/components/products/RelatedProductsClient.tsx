@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import ProductCard from "./ProductCard";
 import { Database } from "@/lib/database.types";
 import { supabase } from "@/lib/supabaseClient";
@@ -27,11 +27,29 @@ export default function RelatedProductsClient({
   const [loading, setLoading] = useState(false);
   const { ref, inView } = useInView({ triggerOnce: true, rootMargin: "200px" });
 
+  // Memoize excludeIds to prevent unnecessary re-fetches when array reference changes
+  // but values remain the same. Sort to ensure consistent comparison.
+  const stableExcludeIds = useMemo(
+    () => [...excludeIds].sort((a, b) => a - b).join(","),
+    [excludeIds]
+  );
+
+  // Track the last fetched parameters to avoid duplicate fetches
+  const lastFetchedParams = useRef<string | null>(null);
+
   useEffect(() => {
     if (!inView) return;
 
+    // Create a unique key for the current fetch parameters
+    const currentParams = `${categoryId ?? "null"}-${stableExcludeIds}-${limit}`;
+
+    // Skip if we've already fetched with these exact parameters
+    if (lastFetchedParams.current === currentParams) return;
+
     const fetchProducts = async () => {
       setLoading(true);
+      lastFetchedParams.current = currentParams;
+
       let query = supabase
         .from("products")
         .select("id, name_es, name_en, colon_price, dolar_price, media, category_id")
@@ -43,8 +61,10 @@ export default function RelatedProductsClient({
         query = query.eq("category_id", categoryId);
       }
 
-      if (excludeIds.length) {
-        query = query.not("id", "in", `(${excludeIds.join(",")})`);
+      // Parse back the stable exclude IDs
+      const idsToExclude = stableExcludeIds ? stableExcludeIds.split(",").map(Number).filter(Boolean) : [];
+      if (idsToExclude.length) {
+        query = query.not("id", "in", `(${idsToExclude.join(",")})`);
       }
 
       const { data, error } = await query;
@@ -53,7 +73,7 @@ export default function RelatedProductsClient({
     };
 
     fetchProducts();
-  }, [inView, categoryId, excludeIds, limit]);
+  }, [inView, categoryId, stableExcludeIds, limit]);
 
   if (!inView) return <div ref={ref} />; // placeholder until in view
 
