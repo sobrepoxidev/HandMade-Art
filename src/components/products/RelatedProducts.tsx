@@ -54,12 +54,15 @@ export default async function RelatedProducts({
     query = query.not("id", "in", `(${excludeIds.join(",")})`);
   }
 
-  const { data: products, error } = await query;
+  const { data, error } = await query;
 
   if (error) {
     console.error("Error fetching related products:", error.message);
     return null;
   }
+
+  // Cast explícito para asegurar el tipo y evitar inferencias 'never'
+  const products = data as MinimalProduct[] | null;
 
   if (!products || products.length === 0) return null;
 
