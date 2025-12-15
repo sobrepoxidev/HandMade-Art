@@ -33,7 +33,7 @@ export default async function RelatedProducts({
   excludeIds = [],
   limit = 8,
 }: RelatedProductsProps) {
-  const supabase = createServerComponentClient<Database['public']['Tables']>({ cookies });
+  const supabase = createServerComponentClient<Database>({ cookies });
 
   // Base query – only active products
   let query = supabase
