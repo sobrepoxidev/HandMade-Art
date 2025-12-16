@@ -86,16 +86,16 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
           {[...Array(3)].map((_, i) => (
             <div key={i} className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="h-4 bg-gray-200 rounded w-1/3" />
-                <div className="h-3 bg-gray-200 rounded w-24" />
+                <div className="h-4 bg-[#E8E4E0] rounded w-1/3" />
+                <div className="h-3 bg-[#E8E4E0] rounded w-24" />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-3">
                 {[...Array(productsPerCategory)].map((_, j) => (
-                  <div key={j} className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
-                    <div className="relative bg-gray-100 aspect-square" />
+                  <div key={j} className="bg-[#FAF8F5] rounded-md border border-[#E8E4E0] shadow-sm overflow-hidden h-full flex flex-col">
+                    <div className="relative bg-white aspect-square" />
                     <div className="px-2.5 py-2">
-                      <div className="h-3.5 bg-gray-200 rounded w-3/4 mb-1" />
-                      <div className="h-3.5 bg-gray-200 rounded w-1/2" />
+                      <div className="h-3.5 bg-[#E8E4E0] rounded w-3/4 mb-1" />
+                      <div className="h-3.5 bg-[#E8E4E0] rounded w-1/2" />
                     </div>
                   </div>
                 ))}
@@ -112,7 +112,7 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
   }
 
   return (
-    <section className="my-4">
+    <section className="my-4 bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
       <div className="w-full px-4 mx-auto">
         {/* Bloques por categoría con UI compacta */}
         {orderedCategories.map((categoryId) => {
@@ -124,12 +124,12 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
           return (
             <div key={categoryId} className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-base lg:text-lg font-semibold text-gray-800 truncate max-w-[60%] lg:max-w-[65%]">
+                <h3 className="text-base lg:text-lg font-semibold text-[#2D2D2D] truncate max-w-[60%] lg:max-w-[65%]">
                   {(locale === 'es' ? category.name_es : category.name_en) || category.name || 'Categoría'}
                 </h3>
                 <Link
                   href={`/products?category=${categoryId}`}
-                  className="text-teal-600 hover:text-teal-700 text-xs lg:text-sm inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded"
+                  className="text-[#C9A962] hover:text-[#A08848] text-xs lg:text-sm inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962] rounded transition-colors"
                   aria-label={locale === 'es' ? `Ver más en ${category.name_es}` : `View more in ${category.name_en || category.name}`}
                   title={locale === 'es' ? `Ver más en ${category.name_es}` : `View more in ${category.name_en || category.name}`}
                 >
@@ -145,11 +145,11 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
                   <Link
                     key={product.id}
                     href={`/product/${product.id}`}
-                    className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded"
+                    className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962] rounded"
                     aria-label={(locale === 'es' ? product.name_es : product.name_en) || product.name || 'Producto'}
                   >
-                    <div className="bg-white rounded-md border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col">
-                      <div className="relative bg-gray-50 aspect-square">
+                    <div className="bg-[#FAF8F5] rounded-md border border-[#E8E4E0] hover:shadow-lg hover:border-[#C9A962]/30 transition-all overflow-hidden h-full flex flex-col">
+                      <div className="relative bg-white aspect-square">
                         <Image
                           src={Array.isArray(product.media) && product.media.length > 0
                             ? (product.media[0] as { url: string }).url
@@ -161,13 +161,13 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
                           loading="lazy"
                         />
                         {product.dolar_price && (
-                          <div className="absolute bottom-2 right-2 bg-neutral-900/80 text-white text-xs font-bold px-2 py-0.5 rounded">
+                          <div className="absolute bottom-2 right-2 bg-[#2D2D2D] text-[#C9A962] text-xs font-bold px-2 py-0.5 rounded">
                             {formatUSD(product.dolar_price)}
                           </div>
                         )}
                       </div>
                       <div className="px-2.5 py-2">
-                        <div className="text-[0.70rem] lg:text-xs leading-snug text-gray-700 line-clamp-2 group-hover:text-teal-700 transition-colors min-h-[2.2rem] lg:min-h-[2.4rem]">
+                        <div className="text-[0.70rem] lg:text-xs leading-snug text-[#4A4A4A] line-clamp-2 group-hover:text-[#C9A962] transition-colors min-h-[2.2rem] lg:min-h-[2.4rem]">
                           {(locale === 'es' ? product.name_es : product.name_en) || product.name}
                         </div>
                       </div>
@@ -182,8 +182,8 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
         {/* Sentinel al final de la sección para carga progresiva */}
         <div ref={sentinelRef} className="flex justify-center mt-6">
           {loading && (
-            <div className="flex items-center text-gray-600 text-sm">
-              <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+            <div className="flex items-center text-[#9C9589] text-sm">
+              <svg className="animate-spin h-4 w-4 mr-2 text-[#C9A962]" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
               </svg>

@@ -60,7 +60,7 @@ export default function RelatedProductsClient({
   if (loading) {
     return (
       <div ref={ref} className="mt-6 flex justify-center py-4">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#C9A962]" />
       </div>
     );
   }
@@ -68,11 +68,11 @@ export default function RelatedProductsClient({
   if (products.length === 0) return null;
 
   return (
-    <div ref={ref} className="mt-6 rounded-md overflow-hidden shadow-md">
-      <div className="px-4 py-2 bg-teal-600 text-white text-sm font-semibold">
+    <div ref={ref} className="mt-6 rounded-lg overflow-hidden border border-[#E8E4E0]">
+      <div className="px-4 py-2 bg-[#2D2D2D] text-[#C9A962] text-sm font-semibold">
         {title}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-[#FAF8F5]">
         {products.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
