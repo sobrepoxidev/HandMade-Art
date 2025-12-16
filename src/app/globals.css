@@ -1,10 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* HandMade Art - Elegant Dark Theme */
+  --background: #FAFAFA;
+  --foreground: #1A1A1A;
 
+  /* Primary Dark Palette */
+  --hm-charcoal: #2D2D2D;
+  --hm-dark: #3A3A3A;
+  --hm-darker: #1A1A1A;
+  --hm-darkest: #0D0D0D;
 
+  /* Accent Colors */
+  --hm-gold: #C9A962;
+  --hm-gold-light: #D4C4A8;
+  --hm-gold-dark: #A08848;
+  --hm-accent: #B55327;
+  --hm-accent-light: #D4714E;
+
+  /* Neutral Tones */
+  --hm-cream: #F5F1EB;
+  --hm-ivory: #FAF8F5;
+  --hm-stone: #E8E4E0;
+  --hm-warm-gray: #9C9589;
+
+  /* Semantic Colors */
+  --hm-success: #4A7C59;
+  --hm-error: #C44536;
+  --hm-warning: #D4A84B;
 }
 
 @theme inline {
@@ -12,81 +35,165 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Custom Colors for Tailwind */
+  --color-hm-charcoal: var(--hm-charcoal);
+  --color-hm-dark: var(--hm-dark);
+  --color-hm-darker: var(--hm-darker);
+  --color-hm-darkest: var(--hm-darkest);
+  --color-hm-gold: var(--hm-gold);
+  --color-hm-gold-light: var(--hm-gold-light);
+  --color-hm-gold-dark: var(--hm-gold-dark);
+  --color-hm-accent: var(--hm-accent);
+  --color-hm-accent-light: var(--hm-accent-light);
+  --color-hm-cream: var(--hm-cream);
+  --color-hm-ivory: var(--hm-ivory);
+  --color-hm-stone: var(--hm-stone);
+  --color-hm-warm-gray: var(--hm-warm-gray);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #F9FAFB;
-    --foreground: #ededed;
+    --background: #1A1A1A;
+    --foreground: #F5F1EB;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Elegant Typography */
+.font-display {
+  font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.02em;
+}
+
+.font-elegant {
+  font-family: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.03em;
+}
+
+/* Swiper Customization */
 .swiper-button-next,
 .swiper-button-prev {
-  color: rgba(0, 0, 0, 0.7) !important; /* negro con 70% opacidad */
-  transition: color 0.2s ease-in-out;
+  color: rgba(255, 255, 255, 0.8) !important;
+  transition: all 0.3s ease;
 }
 
 .swiper-button-next:hover,
 .swiper-button-prev:hover {
-  color: rgba(0, 0, 0, 0.9) !important; /* más oscuro al hacer hover */
+  color: rgba(255, 255, 255, 1) !important;
+  transform: scale(1.1);
 }
 
+.swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: var(--hm-gold) !important;
+}
+
+/* Elegant Animations */
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-.animate-fade-in {
-  animation: fade-in 0.8s;
-}
-@keyframes bounce-in {
-  0% { transform: scale(0.8); opacity: 0; }
-  60% { transform: scale(1.1); opacity: 1; }
-  80% { transform: scale(0.95); }
-  100% { transform: scale(1); opacity: 1; }
-}
-.animate-bounce-in {
-  animation: bounce-in 0.7s;
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Estilos para scroll horizontal de categorías */
+@keyframes fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out;
+}
+
+.animate-fade-in-scale {
+  animation: fade-in-scale 0.5s ease-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-gentle-pulse {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes bounce-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.05); opacity: 1; }
+  80% { transform: scale(0.98); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s ease-out;
+}
+
+/* Category Scroll Styles */
 .category-scroll {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .category-scroll::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+  display: none;
 }
 
-/* Estilos para el drawer */
+/* Drawer Styles */
 .drawer-overlay {
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
 }
 
-/* Animaciones para el drawer */
 @keyframes slide-up {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 @keyframes slide-down {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(100%);
-  }
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
 }
 
 .animate-slide-up {
@@ -96,19 +203,171 @@ body {
 .animate-slide-down {
   animation: slide-down 0.3s ease-in;
 }
+
 @layer utilities {
-  /* Hide scrollbars across browsers */
   .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   .scrollbar-hide::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
+  }
+
+  /* Elegant Text Shadow */
+  .text-shadow-elegant {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Gold Gradient Text */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, var(--hm-gold) 0%, var(--hm-gold-light) 50%, var(--hm-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Elegant Border */
+  .border-elegant {
+    border-color: rgba(201, 169, 98, 0.3);
+  }
+
+  /* Glass Effect */
+  .glass-dark {
+    background: rgba(26, 26, 26, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-light {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
   }
 }
 
 @layer components {
-  .input { @apply w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500; }
-  .btn-primary { @apply rounded-lg px-4 py-2 font-semibold bg-teal-600 text-white transition active:scale-95; }
-  .btn-outline { @apply rounded-lg px-4 py-2 font-semibold border border-teal-600 text-teal-600 transition active:scale-95; }
+  /* Elegant Input Styles */
+  .input {
+    @apply w-full rounded-lg border px-4 py-3 focus:outline-none transition-all duration-300;
+    border-color: rgba(201, 169, 98, 0.3);
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .input:focus {
+    border-color: var(--hm-gold);
+    box-shadow: 0 0 0 3px rgba(201, 169, 98, 0.15);
+  }
+
+  .input-dark {
+    @apply w-full rounded-lg border px-4 py-3 focus:outline-none transition-all duration-300;
+    background: rgba(45, 45, 45, 0.8);
+    border-color: rgba(201, 169, 98, 0.2);
+    color: var(--hm-cream);
+  }
+
+  .input-dark:focus {
+    border-color: var(--hm-gold);
+    box-shadow: 0 0 0 3px rgba(201, 169, 98, 0.2);
+  }
+
+  .input-dark::placeholder {
+    color: var(--hm-warm-gray);
+  }
+
+  /* Elegant Button Styles */
+  .btn-primary {
+    @apply rounded-lg px-6 py-3 font-medium transition-all duration-300;
+    background: linear-gradient(135deg, var(--hm-charcoal) 0%, var(--hm-darker) 100%);
+    color: var(--hm-cream);
+    border: 1px solid rgba(201, 169, 98, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--hm-dark) 0%, var(--hm-charcoal) 100%);
+    border-color: var(--hm-gold);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .btn-gold {
+    @apply rounded-lg px-6 py-3 font-medium transition-all duration-300;
+    background: linear-gradient(135deg, var(--hm-gold) 0%, var(--hm-gold-dark) 100%);
+    color: var(--hm-darkest);
+  }
+
+  .btn-gold:hover {
+    background: linear-gradient(135deg, var(--hm-gold-light) 0%, var(--hm-gold) 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(201, 169, 98, 0.4);
+  }
+
+  .btn-outline {
+    @apply rounded-lg px-6 py-3 font-medium transition-all duration-300;
+    background: transparent;
+    border: 1px solid var(--hm-gold);
+    color: var(--hm-gold);
+  }
+
+  .btn-outline:hover {
+    background: var(--hm-gold);
+    color: var(--hm-darkest);
+  }
+
+  /* Elegant Card Styles */
+  .card-elegant {
+    background: var(--hm-charcoal);
+    border: 1px solid rgba(201, 169, 98, 0.15);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .card-elegant:hover {
+    border-color: rgba(201, 169, 98, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+  }
+
+  /* Section Title Style */
+  .section-title {
+    @apply text-2xl md:text-3xl font-medium tracking-wide;
+    color: var(--hm-charcoal);
+  }
+
+  .section-title-light {
+    @apply text-2xl md:text-3xl font-medium tracking-wide;
+    color: var(--hm-cream);
+  }
+
+  /* Divider with Gold Accent */
+  .divider-gold {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--hm-gold), transparent);
+  }
+
+  /* Elegant Link */
+  .link-elegant {
+    color: var(--hm-gold);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+
+  .link-elegant::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--hm-gold);
+    transition: width 0.3s ease;
+  }
+
+  .link-elegant:hover::after {
+    width: 100%;
+  }
 }
