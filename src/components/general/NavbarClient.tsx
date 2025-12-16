@@ -112,7 +112,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
       {/* Desktop Navigation */}
       <div className="hidden w-full flex-col lg:flex" style={{ position: 'static' }}>
         {/* Primary Header Row */}
-        <div className="flex w-full items-center justify-between px-4 py-2">
+        <div className="flex w-full items-center justify-between px-4">
           {/* Left */}
           <div className="flex items-center gap-2">
             <button
@@ -175,7 +175,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
 
         {/* Category carousel */}
         {shouldShowSearchComponents && (
-          <div className="w-full flex justify-center h-8"><CategoryCarousel locale={locale} categories={categoryList} className="mt-1 max-w-6xl" /></div>
+          <div className="w-full flex justify-center h-9"><CategoryCarousel locale={locale} categories={categoryList} className="py-1 mb-0.5 max-w-6xl" /></div>
         )}
 
         {/* Hidden navigation links */}

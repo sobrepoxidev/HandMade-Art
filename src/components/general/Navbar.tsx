@@ -15,7 +15,7 @@ export default async function Navbar({ locale }: { locale: string }) {
 
 
   return (
-    <header className="relative z-40 bg-white border-b border-[#E8E4E0]">
+    <header className="relative z-40 bg-white border-b border-[#E8E4E0] ">
       {/* Top Bar */}
       <div className="container mx-auto flex items-center justify-between px-2 md:px-4 py-1 bg-white">
         {/* Logo - SSR (Left) */}
@@ -67,7 +67,7 @@ export default async function Navbar({ locale }: { locale: string }) {
 
         {/* Mobile Search Bar - Visible by default on mobile */}
         {shouldShowSearchComponents && (
-          <div className="lg:hidden bg-white px-0 py-0.5 border-t border-[#E8E4E0]/50">
+          <div className="lg:hidden bg-white px-0 my-3 border-t border-[#E8E4E0]/50">
             <SearchBar
               variant="mobile"
               initialCategory={locale === 'es' ? 'Todo' : 'All'}
