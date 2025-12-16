@@ -14,16 +14,16 @@ export default async function Navbar({ locale }: { locale: string }) {
   const shouldShowSearchComponents = !pathname.includes('/admin') && !pathname.includes('/catalog');
 
 
-  return ( 
-    <header className="relative z-40 bg-white">
+  return (
+    <header className="relative z-40 bg-white border-b border-[#E8E4E0]">
       {/* Top Bar */}
-      <div className="container mx-auto flex items-center justify-between px-2 md:px-4 py-0 bg-white">
+      <div className="container mx-auto flex items-center justify-between px-2 md:px-4 py-1 bg-white">
         {/* Logo - SSR (Left) */}
-      
+
           <div className="lg:hidden bg-white">
-          <Link href="/" className="flex items-center focus-visible:outline-teal-600" aria-label="HandMadeArt Home">
+          <Link href="/" className="flex items-center focus-visible:outline-[#C9A962] focus-visible:outline-offset-2" aria-label="HandMadeArt Home">
             <div className="relative overflow-hidden flex items-center gap-3">
-              
+
               <div className="lg:hidden">
               <Image
                 src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg"
@@ -46,16 +46,16 @@ export default async function Navbar({ locale }: { locale: string }) {
                 unoptimized
               />
               </div>
-        
-              
-              <h1 className="text-lg sm:text-3xl mr-1 tracking-wider text-gray-800">
-                <span className="mr-1">HANDMADE</span>
-                <span className="font-bold text-[#B55327]">ART</span>
+
+
+              <h1 className="text-lg sm:text-3xl mr-1 tracking-wider text-[#2D2D2D]">
+                <span className="mr-1 font-light">HANDMADE</span>
+                <span className="font-semibold text-[#B55327]">ART</span>
               </h1>
             </div>
           </Link>
           </div>
-       
+
 
         {/* Client-side interactivity (Center and Right) */}
         <div className="flex-grow flex items-center justify-end">
@@ -64,12 +64,12 @@ export default async function Navbar({ locale }: { locale: string }) {
           />
         </div>
       </div>
-        
+
         {/* Mobile Search Bar - Visible by default on mobile */}
         {shouldShowSearchComponents && (
-          <div className="lg:hidden bg-white px-0 py-0.5">
-            <SearchBar 
-              variant="mobile" 
+          <div className="lg:hidden bg-white px-0 py-0.5 border-t border-[#E8E4E0]/50">
+            <SearchBar
+              variant="mobile"
               initialCategory={locale === 'es' ? 'Todo' : 'All'}
               locale={locale}
               className="w-full px-2"

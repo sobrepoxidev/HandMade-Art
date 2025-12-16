@@ -7,7 +7,6 @@ import { useSupabase } from '@/app/supabase-provider/provider'
 import { useLocale } from 'next-intl'
 import { FaEnvelope, FaLock, FaUser, FaPhone, FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa'
 import Image from 'next/image'
-//import { Tooltip } from 'react-tooltip' // Ejemplo: npm install react-tooltip (o quítalo si no lo quieres)
 
 export default function RegisterPage() {
   const { supabase } = useSupabase()
@@ -44,9 +43,9 @@ export default function RegisterPage() {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { 
-          data: { 
-            name, 
+        options: {
+          data: {
+            name,
             phone,
             receive_promotions: receivePromotions
           },
@@ -57,7 +56,7 @@ export default function RegisterPage() {
         setErrorMsg(error.message)
         setLoading(false)
       } else {
-        setConfirmationMsg(locale === 'es' 
+        setConfirmationMsg(locale === 'es'
           ? 'Registro exitoso. Revisa tu correo y confirma tu cuenta antes de iniciar sesión.'
           : 'Registration successful. Check your email and confirm your account before logging in.')
         setLoading(false)
@@ -71,37 +70,37 @@ export default function RegisterPage() {
   const signInWithGoogle = async (returnUrl: string) => {
     setLoading(true);
     setErrorMsg("");
-  
+
     // 1. Armamos la ruta de callback UNA sola vez
     const redirectTo =
       `${window.location.origin}/auth/callback` +
       (returnUrl && returnUrl !== "/"
         ? `?next=${encodeURIComponent(returnUrl)}`
         : "");
-  
+
     // 2. Llamamos a Supabase
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
     });
-  
+
     // 3. Manejamos posibles errores
     if (error) {
       setErrorMsg(error.message);
       setLoading(false);
       return;
     }
-  
+
     // 4. Forzamos la redirección (por si el SDK no lo hace)
     if (data?.url) window.location.href = data.url;
   };
 
   // Usar los hooks de Next.js
   const searchParams = useSearchParams();
-  
+
   useEffect(() => {
     setMounted(true)
-    
+
     // Extraer returnUrl del query string usando Next.js searchParams
     const returnUrlParam = searchParams.get('returnUrl');
     console.log("Return URL Param:", returnUrlParam);
@@ -113,114 +112,126 @@ export default function RegisterPage() {
   if (!mounted) return null
 
   return (
-    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-[#8B4513] via-[#D2B48C] to-[#F5F5DC] py-2 px-4 sm:px-6 lg:px-8 text-gray-800">
-      {/* Patrón decorativo */}
-      <div className="absolute inset-0 z-0 opacity-10">
-        <div className="absolute inset-0 bg-repeat" style={{ backgroundImage: 'url("/pattern-wood.svg")', backgroundSize: '100px' }}></div>
+    <section className="relative overflow-hidden min-h-screen bg-gradient-to-br from-[#1A1A1A] via-[#2D2D2D] to-[#3A3A3A] py-8 px-4 sm:px-6 lg:px-8">
+      {/* Decorative Elements */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-[#C9A962]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#B55327]/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        <div className="absolute top-1/3 right-1/4 w-48 h-48 bg-[#C9A962]/3 rounded-full blur-2xl"></div>
       </div>
-      
-      <div className="mx-auto max-w-7xl relative z-10">
-        <div className="max-w-md mx-auto bg-white rounded-xl shadow-xl px-4 py-6 md:p-8 border border-amber-100">
-          <div className="text-center mb-4 md:mb-6">
-            <div className="flex justify-center mb-4">
-              <div className="relative w-32 h-16">
-                <Image 
-                  src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg" 
-                  alt="Handmade Art Logo" 
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#8B4513] mb-2">
-              {locale === 'es' ? 'Regístrate' : 'Register'}
-            </h1>
-            <p className="text-amber-800">
-              {locale === 'es' ? 'Crea tu cuenta para comenzar a explorar Handmade Art' : 'Create your account to start exploring Handmade Art'}
-            </p>
-          </div>
 
-          <form onSubmit={handleRegister} className="space-y-3 md:space-y-6">
-            <div className="space-y-3 md:space-y-6">
-              {confirmationMsg && (
-                <div className="mb-4 p-4 rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
-                  {confirmationMsg}
+      <div className="mx-auto max-w-7xl relative z-10 flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="w-full max-w-lg animate-fade-in-up">
+          {/* Card Container */}
+          <div className="bg-[#2D2D2D]/90 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 border border-[#C9A962]/20">
+            {/* Logo & Header */}
+            <div className="text-center mb-6">
+              <div className="flex justify-center mb-4">
+                <div className="relative w-16 h-16 bg-[#3A3A3A] rounded-2xl p-2 border border-[#C9A962]/30 shadow-lg">
+                  <Image
+                    src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg"
+                    alt="Handmade Art Logo"
+                    fill
+                    className="object-contain p-2"
+                  />
                 </div>
-              )}
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-light text-[#F5F1EB] mb-1 tracking-wide">
+                {locale === 'es' ? 'Crear cuenta' : 'Create account'}
+              </h1>
+              <p className="text-[#9C9589] text-sm tracking-wide">
+                {locale === 'es' ? 'Únete a la comunidad HandMade Art' : 'Join the HandMade Art community'}
+              </p>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-                {/* Left Column */}
+            {confirmationMsg && (
+              <div className="mb-6 p-4 rounded-xl bg-[#4A7C59]/20 text-[#7CB893] border border-[#4A7C59]/30 text-center text-sm">
+                {confirmationMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleRegister} className="space-y-4">
+              {/* Name and Phone Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Name Field */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-amber-800 mb-1">
+                  <label htmlFor="name" className="block text-sm font-medium text-[#D4C4A8] mb-1.5 tracking-wide">
                     {locale === 'es' ? 'Nombre completo' : 'Full name'}
                   </label>
-                  <div className="relative">
-                    <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600" />
+                  <div className="relative group">
+                    <FaUser className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[#9C9589] group-focus-within:text-[#C9A962] transition-colors text-sm" />
                     <input
                       type="text"
                       id="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-amber-50 text-amber-900"
+                      className="w-full pl-10 pr-4 py-3 bg-[#1A1A1A]/60 border border-[#C9A962]/20 rounded-xl text-[#F5F1EB] placeholder-[#6B6B6B] focus:border-[#C9A962] focus:ring-2 focus:ring-[#C9A962]/20 transition-all duration-300 text-sm"
+                      placeholder={locale === 'es' ? 'Tu nombre' : 'Your name'}
                       required
                     />
                   </div>
                 </div>
 
+                {/* Phone Field */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-amber-800 mb-1">
+                  <label htmlFor="phone" className="block text-sm font-medium text-[#D4C4A8] mb-1.5 tracking-wide">
                     {locale === 'es' ? 'Teléfono' : 'Phone'}
                   </label>
-                  <div className="relative">
-                    <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600" />
+                  <div className="relative group">
+                    <FaPhone className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[#9C9589] group-focus-within:text-[#C9A962] transition-colors text-sm" />
                     <input
                       type="tel"
                       id="phone"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-amber-50 text-amber-900"
+                      className="w-full pl-10 pr-4 py-3 bg-[#1A1A1A]/60 border border-[#C9A962]/20 rounded-xl text-[#F5F1EB] placeholder-[#6B6B6B] focus:border-[#C9A962] focus:ring-2 focus:ring-[#C9A962]/20 transition-all duration-300 text-sm"
+                      placeholder="+506 8888 8888"
                       required
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mt-3">
-                {/* Right Column */}
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-amber-800 mb-1">
-                    {locale === 'es' ? 'Correo electrónico' : 'Email'}
-                  </label>
-                  <div className="relative">
-                    <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600" />
-                    <input
-                      type="email"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-amber-50 text-amber-900"
-                      required
-                    />
-                  </div>
+              {/* Email Field */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-[#D4C4A8] mb-1.5 tracking-wide">
+                  {locale === 'es' ? 'Correo electrónico' : 'Email'}
+                </label>
+                <div className="relative group">
+                  <FaEnvelope className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[#9C9589] group-focus-within:text-[#C9A962] transition-colors text-sm" />
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-[#1A1A1A]/60 border border-[#C9A962]/20 rounded-xl text-[#F5F1EB] placeholder-[#6B6B6B] focus:border-[#C9A962] focus:ring-2 focus:ring-[#C9A962]/20 transition-all duration-300 text-sm"
+                    placeholder={locale === 'es' ? 'tu@email.com' : 'your@email.com'}
+                    required
+                  />
                 </div>
+              </div>
 
+              {/* Password Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Password Field */}
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-amber-800 mb-1">
+                  <label htmlFor="password" className="block text-sm font-medium text-[#D4C4A8] mb-1.5 tracking-wide">
                     {locale === 'es' ? 'Contraseña' : 'Password'}
                   </label>
-                  <div className="relative">
-                    <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600" />
+                  <div className="relative group">
+                    <FaLock className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[#9C9589] group-focus-within:text-[#C9A962] transition-colors text-sm" />
                     <input
                       type={showPassword ? "text" : "password"}
                       id="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-10 py-2 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-amber-50 text-amber-900"
+                      className="w-full pl-10 pr-11 py-3 bg-[#1A1A1A]/60 border border-[#C9A962]/20 rounded-xl text-[#F5F1EB] placeholder-[#6B6B6B] focus:border-[#C9A962] focus:ring-2 focus:ring-[#C9A962]/20 transition-all duration-300 text-sm"
+                      placeholder="••••••••"
                       required
                     />
                     <button
                       type="button"
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-amber-600 hover:text-amber-800 focus:outline-none"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9C9589] hover:text-[#C9A962] focus:outline-none transition-colors"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     >
@@ -228,61 +239,66 @@ export default function RegisterPage() {
                     </button>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-3">
-                <label htmlFor="confirmPass" className="block text-sm font-medium text-amber-800 mb-1">
-                  {locale === 'es' ? 'Confirmar contraseña' : 'Confirm password'}
-                </label>
-                <div className="relative">
-                  <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600" />
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    id="confirmPass"
-                    value={confirmPass}
-                    onChange={(e) => setConfirmPass(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2 mb-1 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-amber-50 text-amber-900"
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-amber-600 hover:text-amber-800 focus:outline-none"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                  >
-                    {showConfirmPassword ? <FaEyeSlash className="h-4 w-4" /> : <FaEye className="h-4 w-4" />}
-                  </button>
+                {/* Confirm Password Field */}
+                <div>
+                  <label htmlFor="confirmPass" className="block text-sm font-medium text-[#D4C4A8] mb-1.5 tracking-wide">
+                    {locale === 'es' ? 'Confirmar' : 'Confirm'}
+                  </label>
+                  <div className="relative group">
+                    <FaLock className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[#9C9589] group-focus-within:text-[#C9A962] transition-colors text-sm" />
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      id="confirmPass"
+                      value={confirmPass}
+                      onChange={(e) => setConfirmPass(e.target.value)}
+                      className="w-full pl-10 pr-11 py-3 bg-[#1A1A1A]/60 border border-[#C9A962]/20 rounded-xl text-[#F5F1EB] placeholder-[#6B6B6B] focus:border-[#C9A962] focus:ring-2 focus:ring-[#C9A962]/20 transition-all duration-300 text-sm"
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9C9589] hover:text-[#C9A962] focus:outline-none transition-colors"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    >
+                      {showConfirmPassword ? <FaEyeSlash className="h-4 w-4" /> : <FaEye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center mt-4">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={acceptTerms}
-                  onChange={(e) => setAcceptTerms(e.target.checked)}
-                  className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-amber-300 rounded"
-                />
-                <label htmlFor="terms" className="ml-2 text-sm text-amber-900">
+              {/* Terms Checkbox */}
+              <div className="flex items-start gap-3 mt-4">
+                <div className="flex items-center h-5">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={acceptTerms}
+                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    className="w-4 h-4 rounded border-[#C9A962]/30 bg-[#1A1A1A]/60 text-[#C9A962] focus:ring-[#C9A962]/30 focus:ring-offset-0 cursor-pointer"
+                  />
+                </div>
+                <label htmlFor="terms" className="text-xs text-[#9C9589] leading-relaxed cursor-pointer">
                   {locale === 'es' ? (
                     <>
                       Acepto los{' '}
-                      <Link href="/conditions-service" target="_blank" className="font-medium text-[#8B4513] hover:text-[#6B3100] hover:underline transition-colors duration-200">
-                        Términos y condiciones
+                      <Link href="/conditions-service" target="_blank" className="text-[#C9A962] hover:text-[#D4C4A8] transition-colors">
+                        términos y condiciones
                       </Link>{' '}
-                      así como la{' '}
-                      <Link href="/privacy-policy" target="_blank" className="font-medium text-[#8B4513] hover:text-[#6B3100] hover:underline transition-colors duration-200">
+                      y la{' '}
+                      <Link href="/privacy-policy" target="_blank" className="text-[#C9A962] hover:text-[#D4C4A8] transition-colors">
                         política de privacidad
                       </Link>
                     </>
                   ) : (
                     <>
                       I accept the{' '}
-                      <Link href="/conditions-service" target="_blank" className="font-medium text-[#8B4513] hover:text-[#6B3100] hover:underline transition-colors duration-200">
+                      <Link href="/conditions-service" target="_blank" className="text-[#C9A962] hover:text-[#D4C4A8] transition-colors">
                         terms and conditions
                       </Link>{' '}
-                      and the{' '}
-                      <Link href="/privacy-policy" target="_blank" className="font-medium text-[#8B4513] hover:text-[#6B3100] hover:underline transition-colors duration-200">
+                      and{' '}
+                      <Link href="/privacy-policy" target="_blank" className="text-[#C9A962] hover:text-[#D4C4A8] transition-colors">
                         privacy policy
                       </Link>
                     </>
@@ -290,77 +306,89 @@ export default function RegisterPage() {
                 </label>
               </div>
 
-              <div className="flex items-center mt-3">
-                <input
-                  type="checkbox"
-                  id="promotions"
-                  checked={receivePromotions}
-                  onChange={(e) => setReceivePromotions(e.target.checked)}
-                  className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-amber-300 rounded"
-                />
-                <label htmlFor="promotions" className="ml-2 text-sm text-amber-900">
-                  {locale === 'es' ? 'Deseo recibir correos promocionales y actualizaciones sobre nuevos productos' : 'I want to receive promotional emails and updates about new products'}
+              {/* Promotions Checkbox */}
+              <div className="flex items-start gap-3">
+                <div className="flex items-center h-5">
+                  <input
+                    type="checkbox"
+                    id="promotions"
+                    checked={receivePromotions}
+                    onChange={(e) => setReceivePromotions(e.target.checked)}
+                    className="w-4 h-4 rounded border-[#C9A962]/30 bg-[#1A1A1A]/60 text-[#C9A962] focus:ring-[#C9A962]/30 focus:ring-offset-0 cursor-pointer"
+                  />
+                </div>
+                <label htmlFor="promotions" className="text-xs text-[#9C9589] cursor-pointer">
+                  {locale === 'es' ? 'Deseo recibir correos promocionales y novedades' : 'I want to receive promotional emails and updates'}
                 </label>
               </div>
 
               {errorMsg && (
-                <div className="text-red-600 text-sm p-2 bg-red-50 border border-red-200 rounded-md mt-3">
+                <div className="text-[#E57373] text-sm p-3 bg-[#C44536]/10 border border-[#C44536]/30 rounded-xl">
                   {errorMsg}
                 </div>
               )}
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#8B4513] hover:bg-[#6B3100] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200 mt-4"
+                className="w-full py-3.5 px-6 bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] text-[#1A1A1A] font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mt-2"
               >
-                {loading 
-                  ? (locale === 'es' ? 'Registrando...' : 'Registering...') 
-                  : (locale === 'es' ? 'Registrarme' : 'Register')
-                }
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    {locale === 'es' ? 'Registrando...' : 'Registering...'}
+                  </span>
+                ) : (
+                  locale === 'es' ? 'Crear cuenta' : 'Create account'
+                )}
               </button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full h-px bg-gradient-to-r from-transparent via-[#C9A962]/30 to-transparent"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="px-4 text-sm text-[#9C9589] bg-[#2D2D2D]">
+                  {locale === 'es' ? 'o continúa con' : 'or continue with'}
+                </span>
+              </div>
             </div>
-          </form>
-          
-          {/* Separador */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-amber-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-amber-700">{locale === 'es' ? 'O continúa con' : 'Or continue with'}</span>
-            </div>
-          </div>
-          
-          {/* Google Sign In Button */}
-          <div>
+
+            {/* Google Sign In */}
             <button
               onClick={() => signInWithGoogle(returnUrl)}
-              className="w-full flex items-center justify-center py-2.5 px-4 border border-amber-300 rounded-md shadow-sm text-sm font-medium text-amber-900 bg-white hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200"
+              className="w-full flex items-center justify-center gap-3 py-3 px-6 bg-[#1A1A1A]/60 border border-[#C9A962]/20 rounded-xl text-[#F5F1EB] hover:bg-[#1A1A1A] hover:border-[#C9A962]/40 transition-all duration-300"
             >
-              <FaGoogle className="mr-2 h-5 w-5 text-amber-700" />
-              {locale === 'es' ? 'Registrarme con Google' : 'Register with Google'}
+              <FaGoogle className="h-5 w-5 text-[#C9A962]" />
+              <span className="font-medium text-sm">
+                {locale === 'es' ? 'Registrarme con Google' : 'Sign up with Google'}
+              </span>
             </button>
+
+            {/* Login Link */}
+            <div className="text-center mt-6 pt-5 border-t border-[#C9A962]/10">
+              <p className="text-sm text-[#9C9589]">
+                {locale === 'es' ? '¿Ya tienes cuenta?' : 'Already have an account?'}{' '}
+                <Link
+                  href={`/login${returnUrl !== '/' ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`}
+                  className="text-[#C9A962] hover:text-[#D4C4A8] font-medium transition-colors"
+                >
+                  {locale === 'es' ? 'Iniciar sesión' : 'Sign in'}
+                </Link>
+              </p>
+            </div>
           </div>
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-amber-800">
-              {locale === 'es' ? '¿Ya tienes una cuenta?' : 'Already have an account?'}{' '}
-              <Link 
-                href={`/login${returnUrl !== '/' ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`} 
-                className="font-medium text-[#8B4513] hover:text-[#6B3100] hover:underline transition-colors duration-200"
-              >
-                {locale === 'es' ? 'Inicia sesión' : 'Login'}
-              </Link>
-            </p>
-          </div>
-          
-          {/* Decoración */}
-          <div className="mt-8 pt-6 border-t border-amber-100 text-center">
-            <p className="text-xs text-amber-600">
-              {locale === 'es' ? 'Arte costarricense hecho a mano con ♥' : 'Costa Rican handmade art with ♥'}
-            </p>
-          </div>
+
+          {/* Footer Text */}
+          <p className="text-center mt-4 text-xs text-[#6B6B6B] tracking-wide">
+            {locale === 'es' ? 'Arte costarricense hecho a mano' : 'Costa Rican handmade art'}
+          </p>
         </div>
       </div>
     </section>
