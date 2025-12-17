@@ -69,7 +69,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
     <div ref={dropdownRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1 text-sm rounded-md px-3 py-1.5 text-gray-700 hover:bg-gray-50 transition"
+        className="flex items-center space-x-1 text-sm rounded-lg px-3 py-1.5 text-[#F5F1EB] hover:text-[#C9A962] hover:bg-[#3A3A3A] transition-colors"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -79,17 +79,17 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
         <span className="md:hidden">
           <User className="h-5 w-5" />
         </span>
-        <ChevronDown className="h-3 w-3" />
+        <ChevronDown className={`h-3 w-3 text-[#C9A962] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div 
-          className="absolute right-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+        <div
+          className="absolute right-0 mt-2 w-64 bg-[#2D2D2D] border border-[#C9A962]/20 rounded-xl shadow-2xl overflow-hidden"
           style={{ zIndex: 9999 }}
         >
           {!currentSession ? (
             <>
-              <div className="p-3 border-b border-gray-100">
+              <div className="p-4 border-b border-[#C9A962]/10">
                 <div className="flex justify-center py-2">
                   <button
                     onClick={() => {
@@ -97,20 +97,20 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
                       router.push(`/login?returnUrl=${fullPath}`);
                       setIsOpen(false);
                     }}
-                    className="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md transition"
+                    className="block w-full text-center px-4 py-2.5 text-sm font-medium text-[#1A1A1A] bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] rounded-lg transition-all shadow-lg"
                   >
                     {locale === 'es' ? 'Iniciar sesión' : 'Sign in'}
                   </button>
                 </div>
-                <div className="text-center text-sm mt-2">
-                  <span className="text-gray-600">{locale === 'es' ? '¿Eres nuevo?' : 'Are you new?'}</span>{' '}
+                <div className="text-center text-sm mt-3">
+                  <span className="text-[#9C9589]">{locale === 'es' ? '¿Eres nuevo?' : 'Are you new?'}</span>{' '}
                   <button
                     onClick={() => {
                       const fullPath = window.location.pathname + window.location.search;
                       router.push(`/register?returnUrl=${fullPath}`);
                       setIsOpen(false);
                     }}
-                    className="text-teal-600 hover:text-teal-800 transition"
+                    className="text-[#C9A962] hover:text-[#D4C4A8] font-medium transition-colors"
                   >
                     {locale === 'es' ? 'Crear una cuenta' : 'Create an account'}
                   </button>
@@ -118,48 +118,48 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
               </div>
             </>
           ) : (
-            <div className="p-3 border-b border-gray-100">
+            <div className="p-4 border-b border-[#C9A962]/10 bg-[#3A3A3A]/50">
               <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-gray-800">{locale === 'es' ? 'Mi cuenta' : 'My account'}</span>
+                <span className="font-medium text-[#F5F1EB]">{locale === 'es' ? 'Mi cuenta' : 'My account'}</span>
                 <button
                   onClick={async () => {
                     await onLogout(window.location.href);
                     setIsOpen(false);
                   }}
-                  className="text-xs text-red-600 hover:text-red-800"
+                  className="text-xs text-[#C44536] hover:text-[#E57373] font-medium transition-colors"
                 >
                   {locale === 'es' ? 'Cerrar sesión' : 'Sign out'}
                 </button>
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-[#9C9589]">
                 {currentSession.user.email}
               </div>
             </div>
           )}
 
-          <div className="py-1">
-            <Link 
+          <div className="py-2">
+            <Link
               href="/account"
-              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition"
+              className="flex items-center px-4 py-2.5 text-sm text-[#F5F1EB] hover:bg-[#3A3A3A] hover:text-[#C9A962] transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <User className="h-4 w-4 mr-3 text-gray-500" />
+              <User className="h-4 w-4 mr-3 text-[#C9A962]" />
               {locale === 'es' ? 'Mi cuenta' : 'My account'}
             </Link>
-            <Link 
+            <Link
               href="/viewed-history"
-              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition"
+              className="flex items-center px-4 py-2.5 text-sm text-[#F5F1EB] hover:bg-[#3A3A3A] hover:text-[#C9A962] transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <History className="h-4 w-4 mr-3 text-gray-500" />
+              <History className="h-4 w-4 mr-3 text-[#B55327]" />
               {locale === 'es' ? 'Artículos vistos recientemente' : 'Recently viewed items'}
             </Link>
-            <Link 
+            <Link
               href="/favorites"
-              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition"
+              className="flex items-center px-4 py-2.5 text-sm text-[#F5F1EB] hover:bg-[#3A3A3A] hover:text-[#C9A962] transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Heart className="h-4 w-4 mr-3 text-gray-500" />
+              <Heart className="h-4 w-4 mr-3 text-[#C44536]" />
               {locale === 'es' ? 'Mis favoritos' : 'My favorites'}
             </Link>
           </div>

@@ -2,6 +2,12 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 
+// Dominios por idioma para SEO bi-dominio
+const DOMAIN_CONFIG = {
+  es: "artehechoamano.com",
+  en: "handmadeart.store",
+} as const;
+
 // Obtiene la URL base del request actual (con fallback)
 async function getSiteUrl(): Promise<string> {
   try {
@@ -13,6 +19,11 @@ async function getSiteUrl(): Promise<string> {
     console.warn("No se pudo obtener la URL del request. Usando fallback.", err);
   }
   return process.env.NEXT_PUBLIC_SITE_URL || "https://handmadeart.store";
+}
+
+// Detecta el locale basado en el host actual
+function detectLocaleFromHost(host: string): "es" | "en" {
+  return host.includes("artehechoamano") ? "es" : "en";
 }
 
 function getDefaultImage(siteUrl: string) {
@@ -116,11 +127,15 @@ export async function buildMetadata(
   // Canonical absoluto
   const canonicalUrl = `${siteUrl}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
 
-  // Cálculo de alternates idiomáticos
+  // Cálculo de alternates idiomáticos con dominios separados
   const basePath =
     pathname.startsWith("/es") || pathname.startsWith("/en")
       ? pathname.slice(3) || "/"
       : pathname;
+
+  // URLs alternativas con dominios correctos para cada idioma
+  const esUrl = `https://${DOMAIN_CONFIG.es}/es${basePath === "/" ? "" : basePath}`;
+  const enUrl = `https://${DOMAIN_CONFIG.en}/en${basePath === "/" ? "" : basePath}`;
 
   const metadata: Metadata = {
     metadataBase: new URL(siteUrl),
@@ -134,9 +149,9 @@ export async function buildMetadata(
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        "es-CR": `${siteUrl}/es${basePath}`,
-        "en-US": `${siteUrl}/en${basePath}`,
-        "x-default": canonicalUrl,
+        "es-CR": esUrl,
+        "en-US": enUrl,
+        "x-default": locale === "es" ? esUrl : enUrl,
       },
     },
 
