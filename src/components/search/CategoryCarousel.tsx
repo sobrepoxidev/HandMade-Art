@@ -30,8 +30,8 @@ export default function CategoryCarousel({ locale, categories, className = "" }:
   if (cats.length === 0) return null;
 
   return (
-    <div className={`overflow-x-auto whitespace-nowrap scrollbar-hide max-w-[1500px] mx-auto w-full ${className}`}>
-      <div className="flex space-x-2 py-1.5 sm:items-center sm:justify-center px-2 sm:px-0">
+    <div className={`overflow-x-auto whitespace-nowrap scrollbar-hide max-w-[1500px] my-0 mx-auto w-full ${className}`}>
+      <div className="flex space-x-2 sm:items-center sm:justify-center px-2 sm:px-0">
         {cats.map((cat, index) => {
           const name = displayName(cat);
           const href = `/search?category=${cat.id}`;
