@@ -30,8 +30,6 @@ export default function CurrencyConverterRow({
   const disabled: boolean =
     pending || (!!last && last.amt === amount && last.cur === currency);
 
-
-
   const onConvert = async () => {
     if (disabled) return;
     start(async () => {
@@ -43,57 +41,61 @@ export default function CurrencyConverterRow({
   };
 
   return (
-    <div className="inline-flex flex-nowrap items-center gap-1.5 text-sm rounded-md border border-black px-0.5 py-0.5 shadow-xs">
+    <div className="inline-flex flex-nowrap items-center gap-2 text-sm rounded-lg border border-[#E8E4E0] px-2 py-1.5 bg-white shadow-sm">
       {/* Selector de divisas */}
       <select
-        className="border-none bg-transparent px-1 py-0.5 focus:outline-none focus:ring-0 text-black font-medium"
+        className="border-none bg-transparent px-1 py-0.5 focus:outline-none focus:ring-0 text-[#2D2D2D] font-medium text-sm"
         value={currency}
         onChange={e => {
           setCurrency(e.target.value.toUpperCase());
-          setResult(null);          // obliga nueva conversión
+          setResult(null);
         }}
       >
-        <option value="CRC">CRC</option>  {/* moneda local */}
+        <option value="CRC">CRC</option>
         <option value="EUR">EUR</option>
-        <option value="JPY">JPY</option>
+        <option value="MXN">MXN</option>
         <option value="GBP">GBP</option>
-        <option value="CNY">CNY</option>
-        <option value="AUD">AUD</option>
         <option value="CAD">CAD</option>
+        <option value="AUD">AUD</option>
+        <option value="JPY">JPY</option>
+        <option value="CNY">CNY</option>
         <option value="CHF">CHF</option>
         <option value="HKD">HKD</option>
         <option value="SEK">SEK</option>
-        <option value="MXN">MXN</option>
-
       </select>
 
       {/* Botón convertir */}
       <button
         onClick={onConvert}
         disabled={disabled}
-        title="Convertir"
-        className="p-1 rounded border border-transparent bg-black hover:border-teal-800 hover:bg-teal-600 hover:text-white transition-colors disabled:opacity-50"
+        title={locale === 'es' ? 'Convertir' : 'Convert'}
+        className="p-1.5 rounded-md bg-[#2D2D2D] hover:bg-[#C9A962] transition-colors disabled:opacity-50"
       >
         {pending ? (
-          <Loader2 className="h-4 w-4 animate-spin font-bold text-white" />
+          <Loader2 className="h-4 w-4 animate-spin text-white" />
         ) : (
-          <RefreshCcw className="h-4 w-4 font-bold text-white" />
+          <RefreshCcw className="h-4 w-4 text-white" />
         )}
       </button>
 
       {/* Resultado */}
-      <div className="min-w-[6rem] font-semibold text-black">
+      <div className="min-w-[5rem] font-semibold text-[#2D2D2D]">
         {result ? (
           result.currency && result.converted ? (
-            new Intl.NumberFormat('es-CR', {
-              style: 'currency',
-              currency: result.currency,
-            }).format(result.converted)
+            <span className="text-[#C9A962]">
+              {new Intl.NumberFormat('es-CR', {
+                style: 'currency',
+                currency: result.currency,
+              }).format(result.converted)}
+            </span>
           ) : (
-            <span className="text-red-500">{locale === 'es' ? 'Error en conversión' : 'Conversion error'}</span>
+            <span className="text-[#C44536] text-xs">{locale === 'es' ? 'Error' : 'Error'}</span>
           )
         ) : (
-          <span className="flex items-center gap-1 text-gray-600"><ArrowLeft className="h-3 w-3" />{locale === 'es' ? 'Convertir' : 'Convert'}</span>
+          <span className="flex items-center gap-1 text-[#9C9589] text-xs">
+            <ArrowLeft className="h-3 w-3" />
+            {locale === 'es' ? 'Ver' : 'View'}
+          </span>
         )}
       </div>
     </div>

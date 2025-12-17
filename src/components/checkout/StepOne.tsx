@@ -621,7 +621,7 @@ export default function StepOne({
               </div>
               <div className="flex justify-between text-[#4A4A4A]">
                 <span>{locale == "es" ? "Envío" : "Shipping"}</span>
-                <span className="text-[#9C9589]">$6.99</span>
+                <span className="text-[#9C9589]">$7.00</span>
               </div>
               {discountInfo && (
                 <div className="flex justify-between text-[#4A7C59] font-semibold">
@@ -639,7 +639,7 @@ export default function StepOne({
                     minimumFractionDigits: 2,
                   }).format(
                     discountInfo
-                      ? discountInfo.finalTotal
+                      ? discountInfo.finalTotal + 7 // discount total + shipping
                       : cart.reduce(
                         (sum, item) =>
                           sum + (item.product.dolar_price ?? 0) * item.quantity,

@@ -105,6 +105,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const clearCart = () => {
     setCart([]);
+    // Clear discount info when cart is cleared
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('discountInfo');
+    }
   };
 
   // 🚀 Al montar: reconstruir carrito desde URL (solo los IDs y cantidades)

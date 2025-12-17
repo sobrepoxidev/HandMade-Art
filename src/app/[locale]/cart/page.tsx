@@ -121,10 +121,55 @@ export default function CartPage() {
     if (cart.length > 0) {
       localStorage.setItem('cart', JSON.stringify(cart));
       syncCartWithDB();
+    } else {
+      // Clear discount info when cart is empty
+      localStorage.removeItem('discountInfo');
+      setDiscountInfo(null);
+      setDiscountCode('');
     }
   }, [cart, syncCartWithDB, userId]);
 
-  // En un caso real se calcularía dinámicamente
+  // Verify discount is still valid on mount (recalculate with current cart)
+  useEffect(() => {
+    if (discountInfo && cart.length > 0) {
+      // Recalculate discount with current subtotal
+      const currentSubtotal = cart.reduce((acc, item) => {
+        if (!item.product.dolar_price) return acc;
+        const price = item.product.dolar_price;
+        const discount = item.product.discount_percentage || 0;
+        const finalPrice = price * (1 - (discount / 100));
+        return acc + finalPrice * item.quantity;
+      }, 0);
+
+      // Check minimum purchase requirement
+      if (discountInfo.discount_type !== 'total_override') {
+        // Recalculate discount amount based on current subtotal
+        let newDiscountAmount = 0;
+        let newFinalTotal = currentSubtotal;
+
+        switch (discountInfo.discount_type) {
+          case 'percentage':
+            newDiscountAmount = (currentSubtotal * discountInfo.discount_value) / 100;
+            newFinalTotal = currentSubtotal - newDiscountAmount;
+            break;
+          case 'fixed':
+            newDiscountAmount = discountInfo.discount_value;
+            newFinalTotal = Math.max(0, currentSubtotal - newDiscountAmount);
+            break;
+        }
+
+        // Update discount info with recalculated values
+        const updatedDiscountInfo = {
+          ...discountInfo,
+          discountAmount: newDiscountAmount,
+          finalTotal: newFinalTotal,
+        };
+        setDiscountInfo(updatedDiscountInfo);
+        localStorage.setItem('discountInfo', JSON.stringify(updatedDiscountInfo));
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart.length]); // Only run when cart length changes
   
   // Calcular el total final teniendo en cuenta posibles descuentos
   const subtotal2 = discountInfo ? discountInfo.finalTotal : subtotal;

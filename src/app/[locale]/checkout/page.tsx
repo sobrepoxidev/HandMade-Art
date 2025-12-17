@@ -125,31 +125,31 @@ export default function CheckoutWizardPage() {
           alert('Se requiere dirección de envío');
           return;
         }
-        
+
         // Verify user is logged in or use guest approach
         if (!userId) {
           alert('Error: No se pudo identificar al usuario. Por favor inicia sesión antes de continuar.');
           router.push('/login?redirect=checkout');
           return;
         }
-        
-        // Calculate total with discounts
+
+        // Calculate subtotal in USD (using dolar_price for consistency)
         const subtotal = cart.reduce((acc, item) => {
-          if (!item.product.colon_price) return acc;
-          
-          const price = item.product.colon_price;
+          if (!item.product.dolar_price) return acc;
+
+          const price = item.product.dolar_price;
           const discount = item.product.discount_percentage || 0;
           const finalPrice = price * (1 - (discount / 100));
-          
+
           return acc + finalPrice * item.quantity;
         }, 0);
-        
-        // Shipping cost fijo en 3200
-        const shipping = cart.length ? 3200 : 0;
+
+        // Shipping cost in USD ($7)
+        const shipping = cart.length ? 7 : 0;
         const totalAmount = subtotal + shipping;
 
         // Si hay un descuento, usar el total con descuento, de lo contrario calcular normalmente
-        const total = discountInfo ? discountInfo.finalTotal : totalAmount;
+        const total = discountInfo ? discountInfo.finalTotal + shipping : totalAmount;
 
         // Preparar valores tipados para la inserción
         const dbUserId: string | null = userId === 'guest-user' ? null : userId ?? null;
@@ -170,12 +170,12 @@ export default function CheckoutWizardPage() {
           shipping_status: 'pending',
           total_amount: total,
           shipping_address: shippingAddressJson,
-          currency: 'CRC',
-          shipping_amount: 0,
+          currency: 'USD',
+          shipping_amount: shipping,
           discount_amount: discountInfo ? discountInfo.discountAmount : 0,
-          shipping_cost: 0,
-          shipping_currency: 'CRC',
-          notes: discountInfo ? `Descuento aplicado: ${discountInfo.code} - Monto: ${discountInfo.discountAmount}` : '',
+          shipping_cost: shipping,
+          shipping_currency: 'USD',
+          notes: discountInfo ? `Descuento aplicado: ${discountInfo.code} - Monto: $${discountInfo.discountAmount.toFixed(2)}` : '',
         };
 
         // Create order with shipping address and pending status
@@ -194,7 +194,7 @@ export default function CheckoutWizardPage() {
         // Save orderId in state
         setCreatedOrderId(orderInsert.id);
         
-        // Add order items
+        // Add order items (using dolar_price for USD consistency)
         for (const item of cart) {
           const { error: itemError } = await supabase
             .from('order_items')
@@ -202,7 +202,7 @@ export default function CheckoutWizardPage() {
               order_id: orderInsert.id,
               product_id: item.product.id,
               quantity: item.quantity,
-              price: item.product.colon_price || 0,
+              price: item.product.dolar_price || 0,
             });
 
           if (itemError) {
@@ -265,8 +265,12 @@ export default function CheckoutWizardPage() {
           // Set order as complete
           setOrderComplete(true);
           
-          // Enviar correo de confirmación
+          // Enviar correo de confirmación (using USD amounts)
           if (session?.user?.email && shippingAddress) {
+            const emailSubtotal = cart.reduce((acc: number, item: CartItem) => acc + (item.product.dolar_price || 0) * item.quantity, 0);
+            const emailShipping = 7; // USD
+            const emailTotal = discountInfo ? discountInfo.finalTotal + emailShipping : emailSubtotal + emailShipping;
+
             await fetch('/api/send-order-email', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -275,9 +279,10 @@ export default function CheckoutWizardPage() {
                 customerName: shippingAddress.name,
                 shippingAddress: shippingAddress,
                 items: cart,
-                subtotal: cart.reduce((acc: number, item: CartItem) => acc + (item.product.colon_price || 0) * item.quantity, 0),
-                shipping: 3200,
-                total: discountInfo ? discountInfo.finalTotal : (cart.reduce((acc, item) => acc + (item.product.colon_price || 0) * item.quantity, 0) + 3200),
+                subtotal: emailSubtotal,
+                shipping: emailShipping,
+                total: emailTotal,
+                currency: 'USD',
                 paymentMethod: 'sinpe',
                 discountInfo: discountInfo ? {
                   code: discountInfo.code,
@@ -384,7 +389,11 @@ export default function CheckoutWizardPage() {
               setBancoSeleccionado={setBancoSeleccionado}
               ultimos4={ultimos4}
               setUltimos4={setUltimos4}
-              total={discountInfo ? discountInfo.finalTotal : (cart.reduce((acc, item) => acc + (item.product.colon_price ?? 0) * item.quantity, 0) + 3200)}
+              total={
+                discountInfo
+                  ? discountInfo.finalTotal + 7 // finalTotal (USD) + shipping ($7)
+                  : cart.reduce((acc, item) => acc + (item.product.dolar_price ?? 0) * item.quantity, 0) + 7
+              }
               onFinalize={validateStep2}
               createdOrderId={createdOrderId}
               createOrder={createOrder}
