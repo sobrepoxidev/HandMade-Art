@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ProductCard from "./ProductCard";
 import { Database } from "@/lib/database.types";
 import { supabase } from "@/lib/supabaseClient";
@@ -25,10 +25,18 @@ export default function RelatedProductsClient({
 }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const { ref, inView } = useInView({ triggerOnce: true, rootMargin: "200px" });
 
+  // Use a stable string representation of excludeIds to avoid re-fetching on array reference changes
+  const excludeIdsKey = excludeIds.join(",");
+  const prevExcludeIdsKey = useRef(excludeIdsKey);
+
   useEffect(() => {
-    if (!inView) return;
+    // Only fetch if we haven't fetched yet, or if the actual values changed (not just reference)
+    if (!inView || (hasFetched && prevExcludeIdsKey.current === excludeIdsKey)) return;
+
+    prevExcludeIdsKey.current = excludeIdsKey;
 
     const fetchProducts = async () => {
       setLoading(true);
@@ -50,10 +58,11 @@ export default function RelatedProductsClient({
       const { data, error } = await query;
       if (!error && data) setProducts(data as Product[]);
       setLoading(false);
+      setHasFetched(true);
     };
 
     fetchProducts();
-  }, [inView, categoryId, excludeIds, limit]);
+  }, [inView, categoryId, excludeIdsKey, limit, hasFetched, excludeIds]);
 
   if (!inView) return <div ref={ref} />; // placeholder until in view
 

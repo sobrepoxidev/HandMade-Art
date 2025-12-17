@@ -21,11 +21,11 @@ export default function ScrollToTopButton() {
   return (
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="fixed bottom-1 right-8 z-50 bg-amber-500 text-white px-2 py-1 rounded-full shadow-lg hover:bg-amber-600 transition hidden md:block animate-fade-in"
+      className="fixed bottom-1 right-8 z-50 bg-gradient-to-r from-[#C9A962] to-[#A08848] text-[#1A1A1A] px-3 py-1.5 rounded-full shadow-lg hover:from-[#D4C4A8] hover:to-[#C9A962] transition-all hidden md:block animate-fade-in text-sm font-medium"
       aria-label="Volver arriba"
       tabIndex={0}
     >
-     ↑ {locale === 'es' ? ' Arriba' : ' Top'} 
+      ↑ {locale === 'es' ? ' Arriba' : ' Top'}
     </button>
   );
 }

@@ -9,22 +9,29 @@ const withNextIntl = createNextIntlPlugin();
  *
  * - images.remotePatterns → allows hot-linking from Supabase & Vercel Blob.
  * - htmlLimitedBots       → disables streaming-metadata for listed crawlers
- *                           (they get the “classic” blocking HTML).
+ *                           (they get the "classic" blocking HTML).
  */
 const nextConfig: NextConfig = {
   // 1️⃣  Crawler control – disable streaming for these user-agents
   htmlLimitedBots: /Googlebot|bingbot|Baiduspider|YandexBot|DuckDuckBot|facebookexternalhit|Twitterbot|MyBot|OtherBot|SimpleCrawler/,
 
-  // 2️⃣  Existing image-domain whitelist
+  // 2️⃣  Compress responses for better performance
+  compress: true,
+
+  // 3️⃣  Power optimizations
+  poweredByHeader: false, // Remove X-Powered-By header for security
+
+  // 4️⃣  Existing image-domain whitelist
   images: {
-    // 1. Mantén las imágenes en caché 31 días en el edge
+    // Mantén las imágenes en caché 31 días en el edge
     minimumCacheTTL: 26_784_00,      // 60*60*24*31
-    // 4. Define los tamaños que realmente usas (px)
+    // Define los tamaños que realmente usas (px)
     deviceSizes: [375, 640, 768, 1024, 1280],
     imageSizes: [16, 32, 48, 64, 96, 128],
-
-    // 5. Lista blanca de calidades permitidas (novedad 2025)
-    qualities: [40, 60, 75],          // la default (75) + dos reducidas
+    // Lista blanca de calidades permitidas
+    qualities: [40, 60, 75],
+    // Formato moderno preferido
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -38,22 +45,53 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // 5️⃣  Experimental features for performance
+  experimental: {
+    // Optimize package imports for smaller bundles
+    optimizePackageImports: ['lucide-react', 'react-icons', 'framer-motion'],
+  },
+
   async headers() {
     return [
       {
-        source: '/_next/image',             // respuesta del optimizer
+        source: '/_next/image',
         headers: [
           {
-            key  : 'Cache-Control',
-            value: 'public, max-age=2678400, stale-while-revalidate=86400'
-          }
-        ]
-      }
+            key: 'Cache-Control',
+            value: 'public, max-age=2678400, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        // Cache static assets aggressively
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Security headers for all pages
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
+      },
     ];
-  }
-
-  // 3️⃣  Any other Next.js options you may add later…
-  // reactStrictMode: true,
+  },
 };
 
 export default withNextIntl(nextConfig);

@@ -1,5 +1,5 @@
 // src/app/[locale]/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
@@ -13,6 +13,23 @@ import ClientLayout from "@/components/ClientLayout";
 import { NextIntlClientProvider } from "next-intl";
 import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "react-hot-toast";
+
+// Viewport optimization for mobile
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FAF8F5" },
+    { media: "(prefers-color-scheme: dark)", color: "#2D2D2D" },
+  ],
+};
+
+// Domain configuration for bi-domain SEO
+const DOMAINS = {
+  es: "artehechoamano.com",
+  en: "handmadeart.store",
+} as const;
 
 type tParams = Promise<{ locale: string }>;
 
@@ -72,9 +89,27 @@ export default async function LocaleLayout({
 
   const isEs = locale === "es";
 
+  const currentDomain = isEs ? DOMAINS.es : DOMAINS.en;
+  const currentUrl = `https://${currentDomain}`;
+
   return (
-    <html lang={locale} className="bg-white">
-      <body className="antialiased">
+    <html lang={locale} className="bg-[#FAF8F5]">
+      <head>
+        {/* Preconnect to critical third-party origins */}
+        <link rel="preconnect" href="https://mzeixepwwyowiqgwkopw.supabase.co" />
+        <link rel="preconnect" href="https://r5457gldorgj6mug.public.blob.vercel-storage.com" />
+        <link rel="dns-prefetch" href="https://mzeixepwwyowiqgwkopw.supabase.co" />
+        <link rel="dns-prefetch" href="https://r5457gldorgj6mug.public.blob.vercel-storage.com" />
+
+        {/* Preload critical assets */}
+        <link
+          rel="preload"
+          href="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg"
+          as="image"
+          type="image/svg+xml"
+        />
+      </head>
+      <body className="antialiased bg-[#FAF8F5]">
         <NextIntlClientProvider locale={locale}>
           <SessionLayout>
             <Navbar locale={locale} />
@@ -90,22 +125,32 @@ export default async function LocaleLayout({
         <Script
           id="structured-data-org"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "Handmade Art",
+              alternateName: isEs ? "Arte Hecho a Mano" : "Handmade Art Costa Rica",
               description: isEs
                 ? "Arte costarricense hecho a mano: espejos, chorreadores y piezas únicas. Envíos a todo el país. Cada compra apoya la reinserción social."
                 : "Costa Rican handmade art: mirrors, coffee drippers and unique pieces. Fast shipping. Every purchase supports social reintegration.",
-              url: "https://artehechoamano.com",
-              logo: "https://artehechoamano.com/og-image-optimized.svg",
+              url: currentUrl,
+              logo: {
+                "@type": "ImageObject",
+                url: `${currentUrl}/og-image-optimized.svg`,
+                width: 512,
+                height: 512,
+              },
               image: [
-                "https://artehechoamano.com/web-image.jpg",
-                "https://artehechoamano.com/home/artesano.webp",
-                "https://artehechoamano.com/home/artisan-working.webp",
+                `${currentUrl}/web-image.jpg`,
+                `${currentUrl}/home/artesano.webp`,
+                `${currentUrl}/home/artisan-working.webp`,
               ],
-              areaServed: "CR",
+              areaServed: {
+                "@type": "Country",
+                name: "Costa Rica",
+              },
               telephone: "+506 8585 0000",
               email: "info@artehechoamano.com",
               address: {
@@ -120,6 +165,68 @@ export default async function LocaleLayout({
                 "https://www.facebook.com/handmadeart",
                 "https://www.instagram.com/handmadeart",
               ],
+            }),
+          }}
+        />
+
+        {/* WebSite JSON-LD for Search Box */}
+        <Script
+          id="structured-data-website"
+          type="application/ld+json"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Handmade Art",
+              url: currentUrl,
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: `${currentUrl}/${locale}/search?q={search_term_string}`,
+                },
+                "query-input": "required name=search_term_string",
+              },
+              inLanguage: isEs ? "es-CR" : "en-US",
+            }),
+          }}
+        />
+
+        {/* LocalBusiness JSON-LD for local SEO */}
+        <Script
+          id="structured-data-localbusiness"
+          type="application/ld+json"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Store",
+              name: "Handmade Art",
+              image: `${currentUrl}/web-image.jpg`,
+              "@id": `${currentUrl}/#store`,
+              url: currentUrl,
+              telephone: "+506 8585 0000",
+              priceRange: "$$",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "San Ramón",
+                addressLocality: "San Ramón",
+                addressRegion: "Alajuela",
+                postalCode: "20201",
+                addressCountry: "CR",
+              },
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: 10.0866,
+                longitude: -84.4694,
+              },
+              openingHoursSpecification: {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                opens: "08:00",
+                closes: "18:00",
+              },
             }),
           }}
         />
