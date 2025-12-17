@@ -72,8 +72,8 @@ export default function ProductCard({ product }: { product: Product }) {
     : null;
   
   return (
-    <div 
-      className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col transition-shadow duration-300 h-full relative"
+    <div
+      className="bg-[#FAF8F5] border border-[#E8E4E0] rounded-lg overflow-hidden flex flex-col transition-all duration-300 h-full relative hover:shadow-lg hover:border-[#C9A962]/30"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -81,36 +81,36 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
         {/* Category badge */}
         {category && (
-          <span className="bg-teal-50 text-teal-700 text-xs px-2 py-1 rounded-full border border-teal-100">
+          <span className="bg-[#2D2D2D] text-[#F5F1EB] text-xs px-2 py-1 rounded-full border border-[#C9A962]/20">
             {locale === 'es' ? category.name_es : category.name_en}
           </span>
         )}
-        
+
         {/* Featured badge */}
         {product.is_featured && (
-          <span className="bg-amber-50 text-amber-700 text-xs px-2 py-1 rounded-full border border-amber-100 flex items-center">
-            <Star className="h-3 w-3 mr-1 fill-amber-500" />
+          <span className="bg-[#C9A962]/10 text-[#C9A962] text-xs px-2 py-1 rounded-full border border-[#C9A962]/30 flex items-center">
+            <Star className="h-3 w-3 mr-1 fill-[#C9A962]" />
             {locale === 'es' ? 'Destacado' : 'Featured'}
           </span>
         )}
-        
+
         {/* Discount badge */}
         {Number(product.discount_percentage) > 0 && (
-          <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full border border-red-200 font-medium">
+          <span className="bg-[#B55327]/10 text-[#B55327] text-xs px-2 py-1 rounded-full border border-[#B55327]/30 font-medium">
             {product.discount_percentage}% OFF
           </span>
         )}
       </div>
-      
+
       {/* Botón de favorito */}
-      <button 
-        className="absolute top-3 right-3 z-10 text-gray-400 hover:text-red-500 transition-colors"
+      <button
+        className="absolute top-3 right-3 z-10 text-[#9C9589] hover:text-[#C44536] transition-colors"
         onClick={async (e) => {
           e.preventDefault();
-          
+
           // Get user session
           const { data: { session } } = await supabase.auth.getSession();
-          
+
           if (session?.user) {
             try {
               if (isFavorite) {
@@ -129,22 +129,22 @@ export default function ProductCard({ product }: { product: Product }) {
                     product_id: product.id
                   });
               }
-              
+
               setIsFavorite(!isFavorite);
             } catch (err) {
               console.error('Error updating favorites:', err);
             }
           } else {
             // Redirect to login or show login modal
-            alert('Inicia sesión para guardar favoritos');
+            alert(locale === 'es' ? 'Inicia sesión para guardar favoritos' : 'Sign in to save favorites');
           }
         }}
       >
       </button>
-      
+
       {/* Imagen del producto */}
       <Link href={`/product/${product.id}`} className="block h-48 sm:h-56 relative">
-        <div className="h-full w-full flex items-center justify-center bg-gray-50  p-4">
+        <div className="h-full w-full flex items-center justify-center bg-white p-4">
           <Image
             src={mainImageUrl}
             alt={product.name || ''}
@@ -154,75 +154,75 @@ export default function ProductCard({ product }: { product: Product }) {
           />
         </div>
       </Link>
-      
+
       {/* Detalles del producto */}
       <div className="p-4 flex-grow flex flex-col">
-        <Link 
+        <Link
           href={`/product/${product.id}`}
-          className="text-gray-800 font-medium mb-1 hover:text-teal-700 transition-colors line-clamp-2 min-h-[48px]"
+          className="text-[#2D2D2D] font-medium mb-1 hover:text-[#C9A962] transition-colors line-clamp-2 min-h-[48px]"
         >
           {locale === 'es' ? product.name_es : product.name_en}
         </Link>
-        
+
         {/* Calificación simulada - En un sistema real se calcularía basado en reseñas */}
-        <div className="flex items-center text-amber-400 mb-2">
+        <div className="flex items-center text-[#C9A962] mb-2">
           <Star className="fill-current h-4 w-4" />
           <Star className="fill-current h-4 w-4" />
           <Star className="fill-current h-4 w-4" />
           <Star className="fill-current h-4 w-4" />
-          <Star className="fill-current h-4 w-4 text-gray-300" />
-          <span className="text-xs text-gray-500 ml-1">(4.0)</span>
+          <Star className="fill-current h-4 w-4 text-[#E8E4E0]" />
+          <span className="text-xs text-[#9C9589] ml-1">(4.0)</span>
         </div>
-        
+
         {/* Precio e Inventario */}
         <div className="mt-auto">
           {product.dolar_price ? (
             <div>
               {product.discount_percentage && product.discount_percentage > 0 ? (
                 <div className="mb-2">
-                  <p className="text-lg font-bold text-teal-700">
+                  <p className="text-lg font-bold text-[#C9A962]">
                     {formatUSD(finalPrice || 0)}
                   </p>
-                  <p className="text-xs text-gray-500 line-through">
+                  <p className="text-xs text-[#9C9589] line-through">
                     {formatUSD(product.dolar_price || 0)}
                   </p>
                 </div>
               ) : (
-                <p className="text-lg font-bold text-teal-700 mb-2">
+                <p className="text-lg font-bold text-[#C9A962] mb-2">
                   {formatUSD(product.dolar_price || 0)}
                 </p>
               )}
             </div>
           ) : (
-            <p className="text-sm font-medium text-gray-700 mb-2">
+            <p className="text-sm font-medium text-[#4A4A4A] mb-2">
               {locale === 'es' ? 'Precio a consultar' : 'Price to consult'}
             </p>
           )}
-          
+
           {/* Inventory status */}
           <p className="text-xs mb-2">
             {inventory > 0 ? (
-              <span className="text-green-600 flex items-center">
+              <span className="text-[#4A7C59] flex items-center">
                 <Check className="h-3 w-3 mr-1" />
                 {inventory > 10 ? locale === 'es' ? 'En stock' : 'In stock' : `${inventory} ${locale === 'es' ? 'disponibles' : 'available'}`}
               </span>
             ) : (
-              <span className="text-red-600">{locale === 'es' ? 'Agotado' : 'Out of stock'}</span>
+              <span className="text-[#C44536]">{locale === 'es' ? 'Agotado' : 'Out of stock'}</span>
             )}
           </p>
-          
+
           {/* Botones de acción */}
           <div className="flex space-x-2 mt-2">
-            <Link 
+            <Link
               href={`/product/${product.id}`}
-              className="flex-1 py-2 text-sm text-center text-teal-700 border border-teal-600 rounded hover:bg-teal-50 transition"
+              className="flex-1 py-2 text-sm text-center text-[#2D2D2D] border border-[#E8E4E0] rounded hover:bg-[#FAF8F5] hover:border-[#C9A962]/50 hover:text-[#C9A962] transition"
             >
               {locale === 'es' ? 'Ver detalles' : 'View details'}
             </Link>
-            <button 
+            <button
               onClick={() => addToCart(product, 1)}
               className={`flex items-center justify-center p-2 rounded transition
-                ${inventory > 0 ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                ${inventory > 0 ? 'bg-gradient-to-r from-[#C9A962] to-[#A08848] text-[#1A1A1A] hover:from-[#D4C4A8] hover:to-[#C9A962]' : 'bg-[#E8E4E0] text-[#9C9589] cursor-not-allowed'}`}
               aria-label={locale === 'es' ? 'Añadir al carrito' : 'Add to cart'}
               disabled={inventory <= 0}
             >

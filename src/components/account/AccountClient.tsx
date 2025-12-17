@@ -189,63 +189,65 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
-        {t('myAccount')}
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <h1 className="text-2xl md:text-3xl font-bold text-[#2D2D2D] mb-6 border-l-4 border-[#C9A962] pl-4">
+          {t('myAccount')}
+        </h1>
 
-      {/* Loading state */}
-      {loading && (
-        <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-        </div>
-      )}
+        {/* Loading state */}
+        {loading && (
+          <div className="flex justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C9A962]"></div>
+          </div>
+        )}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 mb-8">
-          <TabsTrigger 
-            value="profile" 
-            className="text-[0.7rem] sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-4 truncate"
-          >
-            {t('personalInfo')}
-          </TabsTrigger>
-          <TabsTrigger 
-            value="address" 
-            className="text-[0.7rem] sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-4 truncate"
-          >
-            {t('shippingAddress')}
-          </TabsTrigger>
-          <TabsTrigger 
-            value="orders" 
-            className="text-[0.7rem] sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-4 truncate"
-          >
-            {t('orderHistory')}
-          </TabsTrigger>
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-3 mb-8 bg-[#FAF8F5] border border-[#E8E4E0] rounded-lg p-1">
+            <TabsTrigger
+              value="profile"
+              className="text-[0.7rem] sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-4 truncate text-[#4A4A4A] data-[state=active]:bg-[#2D2D2D] data-[state=active]:text-[#C9A962] rounded-md transition-all"
+            >
+              {t('personalInfo')}
+            </TabsTrigger>
+            <TabsTrigger
+              value="address"
+              className="text-[0.7rem] sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-4 truncate text-[#4A4A4A] data-[state=active]:bg-[#2D2D2D] data-[state=active]:text-[#C9A962] rounded-md transition-all"
+            >
+              {t('shippingAddress')}
+            </TabsTrigger>
+            <TabsTrigger
+              value="orders"
+              className="text-[0.7rem] sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-4 truncate text-[#4A4A4A] data-[state=active]:bg-[#2D2D2D] data-[state=active]:text-[#C9A962] rounded-md transition-all"
+            >
+              {t('orderHistory')}
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-100">
-          <TabsContent value="profile">
-            <ProfileTab 
-              user={user} 
-              profile={convertToProfileTabProfile(profile)} 
-              updateFullName={updateFullName} 
-              loading={loading} 
-            />
-          </TabsContent>
+          <div className="bg-[#FAF8F5] p-4 md:p-6 rounded-lg shadow-sm border border-[#E8E4E0]">
+            <TabsContent value="profile">
+              <ProfileTab
+                user={user}
+                profile={convertToProfileTabProfile(profile)}
+                updateFullName={updateFullName}
+                loading={loading}
+              />
+            </TabsContent>
 
-          <TabsContent value="address">
-            <AddressTab 
-              profile={convertToAddressTabProfile(profile)} 
-              updateShippingAddress={updateShippingAddress} 
-              loading={loading} 
-            />
-          </TabsContent>
+            <TabsContent value="address">
+              <AddressTab
+                profile={convertToAddressTabProfile(profile)}
+                updateShippingAddress={updateShippingAddress}
+                loading={loading}
+              />
+            </TabsContent>
 
-          <TabsContent value="orders">
-            <OrdersTab userId={user.id} />
-          </TabsContent>
-        </div>
-      </Tabs>
+            <TabsContent value="orders">
+              <OrdersTab userId={user.id} />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
     </div>
   );
 }
