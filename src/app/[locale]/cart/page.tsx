@@ -519,7 +519,7 @@ export default function CartPage() {
                 onClick={async () => {
                   if (currentSession === null) {
                     const fullPath = window.location.pathname + window.location.search;
-                    router.push(`/login?returnUrl=${fullPath}`);
+                    router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
                     return;
                   }
 

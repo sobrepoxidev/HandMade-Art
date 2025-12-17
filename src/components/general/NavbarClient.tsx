@@ -337,7 +337,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
                     <button
                       onClick={() => {
                         const fullPath = window.location.pathname + window.location.search;
-                        router.push(`/login?returnUrl=${fullPath}`);
+                        router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
                         setIsMenuOpen(false);
                       }}
                       className="text-sm font-medium text-[#2D2D2D] hover:text-[#C9A962] transition-colors"
@@ -347,7 +347,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
                     <button
                       onClick={() => {
                         const fullPath = window.location.pathname + window.location.search;
-                        router.push(`/register?returnUrl=${fullPath}`);
+                        router.push(`/register?returnUrl=${encodeURIComponent(fullPath)}`);
                         setIsMenuOpen(false);
                       }}
                       className="text-sm font-medium text-[#C9A962] hover:text-[#A08848] transition-colors"

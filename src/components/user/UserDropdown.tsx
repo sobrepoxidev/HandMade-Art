@@ -94,7 +94,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
                   <button
                     onClick={() => {
                       const fullPath = window.location.pathname + window.location.search;
-                      router.push(`/login?returnUrl=${fullPath}`);
+                      router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
                       setIsOpen(false);
                     }}
                     className="block w-full text-center px-4 py-2.5 text-sm font-medium text-[#1A1A1A] bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] rounded-lg transition-all shadow-lg"
@@ -107,7 +107,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
                   <button
                     onClick={() => {
                       const fullPath = window.location.pathname + window.location.search;
-                      router.push(`/register?returnUrl=${fullPath}`);
+                      router.push(`/register?returnUrl=${encodeURIComponent(fullPath)}`);
                       setIsOpen(false);
                     }}
                     className="text-[#C9A962] hover:text-[#D4C4A8] font-medium transition-colors"
