@@ -21,10 +21,6 @@ async function getSiteUrl(): Promise<string> {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://handmadeart.store";
 }
 
-// Detecta el locale basado en el host actual
-function detectLocaleFromHost(host: string): "es" | "en" {
-  return host.includes("artehechoamano") ? "es" : "en";
-}
 
 function getDefaultImage(siteUrl: string) {
   // Tu imagen 1:1 válida
