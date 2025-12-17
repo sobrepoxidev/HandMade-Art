@@ -69,11 +69,11 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
     <div ref={dropdownRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1 text-sm rounded-lg px-3 py-1.5 text-[#F5F1EB] hover:text-[#C9A962] hover:bg-[#3A3A3A] transition-colors"
+        className="flex items-center space-x-1 text-sm rounded-lg px-3 py-1.5 text-[#2D2D2D] hover:text-[#C9A962] hover:bg-[#F5F1EB] transition-colors"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <span className="hidden md:inline">
+        <span className="hidden md:inline font-medium">
           {currentSession ? `${locale === 'es' ? 'Hola' : 'Hello'}, ${currentSession.user.email?.split('@')[0]}` : locale === 'es' ? 'Cuenta y Listas' : 'Account and Lists'}
         </span>
         <span className="md:hidden">

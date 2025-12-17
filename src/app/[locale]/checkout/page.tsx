@@ -325,39 +325,42 @@ export default function CheckoutWizardPage() {
     // -------------- Render principal --------------
     if (cart.length === 0) {
       return (
-        <main className="w-full mx-auto px-6 py-14 flex flex-row gap-4">
-          <button onClick={() => router.back()} className="bg-teal-600 p-2 rounded-md text-gray-800 hover:bg-teal-700 transition">
-            &larr; Regresar
+        <main className="w-full mx-auto px-6 py-14 flex flex-row gap-4 bg-gradient-to-b from-[#FAF8F5] to-white min-h-screen">
+          <button onClick={() => router.back()} className="bg-gradient-to-r from-[#C9A962] to-[#A08848] p-2 px-4 rounded-lg text-[#1A1A1A] font-medium hover:from-[#D4C4A8] hover:to-[#C9A962] transition-all shadow-md">
+            &larr; {locale === 'es' ? 'Regresar' : 'Go back'}
           </button>
-          <h1 className="text-2xl font-bold mt-4 text-gray-900">Carrito vacío</h1>
+          <h1 className="text-2xl font-bold mt-4 text-[#2D2D2D]">{locale === 'es' ? 'Carrito vacío' : 'Empty cart'}</h1>
         </main>
       );
     }
-  
+
     return (
-      <main className="w-full flex flex-col min-h-[67vh] py-2 px-4 md:px-12 lg:px-24">
+      <main className="w-full flex flex-col min-h-[67vh] py-4 px-4 md:px-12 lg:px-24 bg-gradient-to-b from-[#FAF8F5] to-white">
         {/* Encabezado */}
         <header className="flex items-center gap-4 mb-6">
           {currentStep > 1 && currentStep <= 3 && (
             <button
               onClick={goBack}
-              className="bg-teal-600 text-gray-800 p-1 rounded-md hover:bg-teal-700 transition "
+              className="bg-[#2D2D2D] text-[#F5F1EB] px-3 py-1.5 rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium text-sm"
             >
-              &larr; Paso anterior
+              &larr; {locale === 'es' ? 'Paso anterior' : 'Previous step'}
             </button>
           )}
           {currentStep === 1 && (
             <button
               onClick={() => router.back()}
-              className="bg-teal-600 text-gray-800 p-1 rounded-md hover:bg-teal-700 transition "
+              className="bg-[#2D2D2D] text-[#F5F1EB] px-3 py-1.5 rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium text-sm"
             >
-              &larr; Regresar
+              &larr; {locale === 'es' ? 'Regresar' : 'Go back'}
             </button>
           )}
           {currentStep >= 1 && currentStep <= 3 ? (
-            <h1 className="text-base sm:text-2xl font-bold text-gray-900">{currentStep==1?"Información de entrega":currentStep==2?"Pago":currentStep==3?"Pago":"Confirmación"} (Paso {currentStep} de 3)</h1>
+            <h1 className="text-base sm:text-2xl font-bold text-[#2D2D2D]">
+              {currentStep === 1 ? (locale === 'es' ? 'Información de entrega' : 'Shipping information') : currentStep === 2 ? (locale === 'es' ? 'Pago' : 'Payment') : (locale === 'es' ? 'Pago' : 'Payment')}
+              <span className="text-[#C9A962] ml-2">({locale === 'es' ? 'Paso' : 'Step'} {currentStep} {locale === 'es' ? 'de' : 'of'} 3)</span>
+            </h1>
           ) : (
-            <h1 className="text-base sm:text-2xl font-bold">¡Compra realizada con éxito!</h1>
+            <h1 className="text-base sm:text-2xl font-bold text-[#4A7C59]">{locale === 'es' ? '¡Compra realizada con éxito!' : 'Purchase completed successfully!'}</h1>
           )}
         </header>
   
