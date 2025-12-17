@@ -73,10 +73,10 @@ export default function StepTwo({
       }
     }, []);    
     return (
-      <section className="text-gray-900 w-full">
-        <h2 className="text-xl font-semibold mb-4 ">{locale == "es" ? "Seleccione un método de pago" : "Select a payment method"}</h2>
-  
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <section className="text-[#2D2D2D] w-full">
+        <h2 className="text-xl font-semibold mb-4">{locale == "es" ? "Seleccione un método de pago" : "Select a payment method"}</h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <PaymentOption
             label="SINPE Móvil"
             selected={paymentMethod === "sinpe"}
@@ -86,7 +86,7 @@ export default function StepTwo({
           <PaymentOption
             label="PayPal / Tarjeta sin registro"
             selected={paymentMethod === "paypal"}
-            onClick={async () => { 
+            onClick={async () => {
               setPaymentMethod("paypal");
               await createOrder("paypal");
             }}
@@ -111,43 +111,36 @@ export default function StepTwo({
           createdOrderId={createdOrderId}
           locale={locale}
         />
-        
+
         {/* Resumen del pedido */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-md">
-          <h3 className="text-lg font-medium mb-3">{locale == "es" ? "Resumen del pedido" : "Order summary"}</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-slate-700">
+        <div className="mt-6 p-5 bg-white rounded-xl shadow-lg border border-[#E8E4E0]">
+          <h3 className="text-lg font-semibold mb-4 text-[#2D2D2D]">{locale == "es" ? "Resumen del pedido" : "Order summary"}</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm text-[#4A4A4A]">
               <span>{locale == "es" ? "Subtotal" : "Subtotal"}</span>
-              <span>${(cart.reduce((sum, item) => sum + ((item.product.dolar_price || 0) * item.quantity), 0) || 0).toFixed(2)}</span>
+              <span className="font-medium text-[#2D2D2D]">${(cart.reduce((sum, item) => sum + ((item.product.dolar_price || 0) * item.quantity), 0) || 0).toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm text-slate-700">
+            <div className="flex justify-between text-sm text-[#4A4A4A]">
               <span>{locale == "es" ? "Envío" : "Shipping"}</span>
-              <span>$7(₡3.200)</span>
+              <span className="text-[#9C9589]">$7 (₡3.200)</span>
             </div>
             {discountInfo && (
-              <div className="flex justify-between text-sm text-green-600 font-medium">
+              <div className="flex justify-between text-sm text-[#4A7C59] font-semibold">
                 <span>{locale == "es" ? "Descuento" : "Discount"} ({discountInfo.code})</span>
-                <span>- $ {discountInfo.discountAmount ? discountInfo.discountAmount.toFixed(2) : '0.00'}</span>
+                <span>- ${discountInfo.discountAmount ? discountInfo.discountAmount.toFixed(2) : '0.00'}</span>
               </div>
             )}
-            <hr className="border-slate-300 my-2" />
-            <div className="flex justify-between font-semibold text-base text-slate-800">
-              <span>{locale == "es" ? "Total del pedido" : "Order total"}</span>
-              <span>$ {total ? total.toFixed(2) : '0.00'}</span>
+            <hr className="border-[#E8E4E0] my-2" />
+            <div className="flex justify-between font-bold text-base">
+              <span className="text-[#2D2D2D]">{locale == "es" ? "Total del pedido" : "Order total"}</span>
+              <span className="text-[#C9A962]">${total ? total.toFixed(2) : '0.00'}</span>
             </div>
           </div>
         </div>
-  
-        {/* <button
-          onClick={onContinue}
-          className="mt-6 px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-500"
-        >
-          Continuar &rarr;
-        </button> */}
       </section>
     );
   }
-  /** Botón estilo */
+/** Botón estilo - HandMade Art brand identity */
 function PaymentOption({
     label,
     selected,
@@ -162,15 +155,18 @@ function PaymentOption({
     return (
       <div
         onClick={onClick}
-        className={`cursor-pointer flex flex-col p-1 border-2 rounded-lg text-center justify-end transition ${selected ? "border-teal-300 bg-teal-50 "  : "border-gray-300 hover:border-gray-400 "}`}
+        className={`cursor-pointer flex flex-col p-3 border-2 rounded-xl text-center justify-end transition-all duration-200 min-h-[120px] ${
+          selected
+            ? "border-[#C9A962] bg-[#FAF8F5] shadow-md ring-2 ring-[#C9A962]/20"
+            : "border-[#E8E4E0] bg-white hover:border-[#C9A962] hover:shadow-sm"
+        }`}
       >
-        <div className="flex items-center justify-center gap-2 ">
+        <div className="flex items-center justify-center gap-2 flex-1">
           <Image
             src={img[0]}
             alt={label}
             width={56}
             height={56}
-            layout="fixed"
             className="object-contain"
           />
           {img.length > 1 && (
@@ -179,12 +175,13 @@ function PaymentOption({
               alt={label}
               width={56}
               height={56}
-              layout="fixed"
               className="object-contain"
             />
           )}
         </div>
-        <div className="flex flex-col-reverse mb-2 font-semibold ">{label}</div>
+        <div className={`mt-2 text-sm font-semibold leading-tight ${selected ? "text-[#C9A962]" : "text-[#2D2D2D]"}`}>
+          {label}
+        </div>
       </div>
     );
   }

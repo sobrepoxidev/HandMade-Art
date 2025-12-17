@@ -401,11 +401,11 @@ export default function StepOne({
             </div>
 
             {/* Form fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {/* Nombre */}
               <div>
-                <label htmlFor="nombre" className="block text-sm font-medium mb-1">
-                  {locale == "es" ? "Nombre" : "Name"} <span className="text-red-500">*</span>
+                <label htmlFor="nombre" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                  {locale == "es" ? "Nombre" : "Name"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
                   type="text"
@@ -413,16 +413,16 @@ export default function StepOne({
                   name="nombre"
                   value={formData.nombre}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded-md ${errors.nombre ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.nombre ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.nombre ? "true" : "false"}
                 />
-                {errors.nombre && <p className="text-red-500 text-xs mt-1">{errors.nombre}</p>}
+                {errors.nombre && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.nombre}</p>}
               </div>
 
               {/* Apellidos */}
               <div>
-                <label htmlFor="apellidos" className="block text-sm font-medium mb-1">
-                  {locale == "es" ? "Apellidos" : "Last name"} <span className="text-red-500">*</span>
+                <label htmlFor="apellidos" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                  {locale == "es" ? "Apellidos" : "Last name"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
                   type="text"
@@ -430,16 +430,16 @@ export default function StepOne({
                   name="apellidos"
                   value={formData.apellidos}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded-md ${errors.apellidos ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.apellidos ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.apellidos ? "true" : "false"}
                 />
-                {errors.apellidos && <p className="text-red-500 text-xs mt-1">{errors.apellidos}</p>}
+                {errors.apellidos && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.apellidos}</p>}
               </div>
 
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">
-                  {locale == "es" ? "Email" : "Email"} <span className="text-red-500">*</span>
+                <label htmlFor="email" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                  {locale == "es" ? "Email" : "Email"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
                   type="email"
@@ -447,16 +447,16 @@ export default function StepOne({
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded-md ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.email ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.email ? "true" : "false"}
                 />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                {errors.email && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.email}</p>}
               </div>
 
               {/* Teléfono */}
               <div>
-                <label htmlFor="telefono" className="block text-sm font-medium mb-1">
-                  {locale == "es" ? "Teléfono" : "Phone"} <span className="text-red-500">*</span>
+                <label htmlFor="telefono" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                  {locale == "es" ? "Teléfono" : "Phone"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
                   type="tel"
@@ -465,16 +465,16 @@ export default function StepOne({
                   value={formData.telefono}
                   onChange={handleChange}
                   placeholder="8888-8888"
-                  className={`w-full p-2 border rounded-md ${errors.telefono ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white placeholder-[#9C9589] transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.telefono ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.telefono ? "true" : "false"}
                 />
-                {errors.telefono && <p className="text-red-500 text-xs mt-1">{errors.telefono}</p>}
+                {errors.telefono && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.telefono}</p>}
               </div>
 
               {/* Dirección 1 */}
               <div className="md:col-span-2">
-                <label htmlFor="direccion1" className="block text-sm font-medium mb-1">
-                  {locale == "es" ? "Dirección" : "Address"} <span className="text-red-500">*</span>
+                <label htmlFor="direccion1" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                  {locale == "es" ? "Dirección" : "Address"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
                   type="text"
@@ -482,39 +482,39 @@ export default function StepOne({
                   name="direccion1"
                   value={formData.direccion1}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded-md ${errors.direccion1 ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.direccion1 ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.direccion1 ? "true" : "false"}
                 />
-                {errors.direccion1 && <p className="text-red-500 text-xs mt-1">{errors.direccion1}</p>}
+                {errors.direccion1 && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.direccion1}</p>}
               </div>
 
               {/* Provincia */}
               <div>
-                <label htmlFor="provincia" className="block text-sm font-medium mb-1">
-                  {locale == "es" ? "Provincia" : "Province"} <span className="text-red-500">*</span>
+                <label htmlFor="provincia" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                  {locale == "es" ? "Provincia" : "Province"} <span className="text-[#C44536]">*</span>
                 </label>
                 <select
                   id="provincia"
                   name="provincia"
                   value={formData.provincia}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded-md ${errors.provincia ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.provincia ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.provincia ? "true" : "false"}
                 >
-                  <option value="">{locale == "es" ? "Seleccionar provincia" : "Select province"}</option>
+                  <option value="" className="text-[#9C9589]">{locale == "es" ? "Seleccionar provincia" : "Select province"}</option>
                   {provincias.map((provincia) => (
                     <option key={provincia} value={provincia}>
                       {provincia}
                     </option>
                   ))}
                 </select>
-                {errors.provincia && <p className="text-red-500 text-xs mt-1">{errors.provincia}</p>}
+                {errors.provincia && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.provincia}</p>}
               </div>
 
               {/* Cantón */}
               <div>
-                <label htmlFor="canton" className="block text-sm font-medium mb-1">
-                  {locale == "es" ? "Cantón" : "Canton"} <span className="text-red-500">*</span>
+                <label htmlFor="canton" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                  {locale == "es" ? "Cantón" : "Canton"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
                   type="text"
@@ -522,16 +522,16 @@ export default function StepOne({
                   name="canton"
                   value={formData.canton}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded-md ${errors.canton ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.canton ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.canton ? "true" : "false"}
                 />
-                {errors.canton && <p className="text-red-500 text-xs mt-1">{errors.canton}</p>}
+                {errors.canton && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.canton}</p>}
               </div>
 
               {/* Distrito */}
               <div>
-                <label htmlFor="distrito" className="block text-sm font-medium mb-1">
-                  {locale == "es" ? "Distrito" : "District"} <span className="text-red-500">*</span>
+                <label htmlFor="distrito" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                  {locale == "es" ? "Distrito" : "District"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
                   type="text"
@@ -539,15 +539,15 @@ export default function StepOne({
                   name="distrito"
                   value={formData.distrito}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded-md ${errors.distrito ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.distrito ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.distrito ? "true" : "false"}
                 />
-                {errors.distrito && <p className="text-red-500 text-xs mt-1">{errors.distrito}</p>}
+                {errors.distrito && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.distrito}</p>}
               </div>
 
               {/* Código Postal */}
               <div>
-                <label htmlFor="codigoPostal" className="block text-sm font-medium mb-1">
+                <label htmlFor="codigoPostal" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
                   {locale == "es" ? "Código Postal" : "Postal code"}
                 </label>
                 <input
@@ -556,7 +556,7 @@ export default function StepOne({
                   name="codigoPostal"
                   value={formData.codigoPostal}
                   onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-[#E8E4E0] rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none"
                 />
               </div>
             </div>
