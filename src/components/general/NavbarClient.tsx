@@ -175,7 +175,9 @@ export default function NavbarClient({ locale }: { locale: string }) {
 
         {/* Category carousel */}
         {shouldShowSearchComponents && (
-          <div className="w-full flex justify-center h-8"><CategoryCarousel locale={locale} categories={categoryList} className="mt-1 max-w-6xl" /></div>
+          <div className="w-full flex justify-center px-4 pb-2">
+            <CategoryCarousel locale={locale} categories={categoryList} className="max-w-6xl" />
+          </div>
         )}
 
         {/* Hidden navigation links */}

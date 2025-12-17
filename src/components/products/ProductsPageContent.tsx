@@ -211,31 +211,31 @@ export default function ProductsPageContent() {
   
   
   return (
-    <div className="container mx-auto px-4 py-0">
-      {/* Breadcrumb */}
-      <div className="mb-0.5 flex items-center text-sm text-gray-500">
-        <Link href="/" className="hover:text-teal-600">{locale === 'es' ? 'Inicio' : 'Home'}</Link>
-        <ChevronRight className="h-4 w-4 mx-1" />
-        <span className="font-medium text-gray-600">{locale === 'es' ? 'Productos' : 'Products'}</span>
-        {categoryFilter && (
-          <>
-            <ChevronRight className="h-4 w-4 mx-1" />
-            <span className="font-medium text-gray-900">{categoryName}</span>
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
+      <div className="container mx-auto px-4 py-4">
+        {/* Breadcrumb */}
+        <div className="mb-2 flex items-center text-sm text-[#9C9589]">
+          <Link href="/" className="hover:text-[#C9A962] transition-colors">{locale === 'es' ? 'Inicio' : 'Home'}</Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span className="font-medium text-[#4A4A4A]">{locale === 'es' ? 'Productos' : 'Products'}</span>
+          {categoryFilter && (
+            <>
+              <ChevronRight className="h-4 w-4 mx-1" />
+              <span className="font-medium text-[#2D2D2D]">{categoryName}</span>
+            </>
+          )}
+        </div>
 
-          </>
-        )}
-      </div>
-      
-      {/* Encabezado */}
-      <div className="mb-2">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {categoryFilter ? `${categoryName}` : locale === 'es' ? 'Todos los Productos' : 'All Products'}
-        </h1>
-        <p className="text-gray-600 text-sm">
-          {locale === 'es' ? 'Descubre nuestra colección de productos hechos a mano.' : 'Discover our collection of handmade products.'}
-          {totalCount > 0 && ` ${locale === 'es' ? 'Mostrando' : 'Showing'} ${products.length} ${locale === 'es' ? 'de' : 'of'} ${totalCount} ${locale === 'es' ? 'productos' : 'products'}.`}
-        </p>
-      </div>
+        {/* Encabezado */}
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-[#2D2D2D] border-l-4 border-[#C9A962] pl-3">
+            {categoryFilter ? `${categoryName}` : locale === 'es' ? 'Todos los Productos' : 'All Products'}
+          </h1>
+          <p className="text-[#4A4A4A] text-sm mt-1">
+            {locale === 'es' ? 'Descubre nuestra colección de productos hechos a mano.' : 'Discover our collection of handmade products.'}
+            {totalCount > 0 && ` ${locale === 'es' ? 'Mostrando' : 'Showing'} ${products.length} ${locale === 'es' ? 'de' : 'of'} ${totalCount} ${locale === 'es' ? 'productos' : 'products'}.`}
+          </p>
+        </div>
       
       {/* Contenido principal */}
       <div className="flex flex-col md:flex-row gap-2">
@@ -263,28 +263,28 @@ export default function ProductsPageContent() {
         {/* Lista de productos */}
         <div className="flex-1">
           {/* Barra de control */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-2 pb-3 border-b border-gray-200">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-[#E8E4E0]">
             {/* Información de resultados */}
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-[#9C9589]">
               {totalCount > 0 && (
                 <p>
-                  {locale === 'es' ? 'Mostrando' : 'Showing'} <span className="font-medium text-gray-900">{products.length}</span> de <span className="font-medium text-gray-900">{totalCount}</span> {locale === 'es' ? 'productos' : 'products'}
+                  {locale === 'es' ? 'Mostrando' : 'Showing'} <span className="font-medium text-[#2D2D2D]">{products.length}</span> de <span className="font-medium text-[#2D2D2D]">{totalCount}</span> {locale === 'es' ? 'productos' : 'products'}
                   {currentPage > 1 && ` (${locale === 'es' ? 'página' : 'page'} ${currentPage} de ${totalPages})`}
                 </p>
               )}
             </div>
-            
+
             {/* Controles */}
             <div className="flex items-center space-x-4">
               {/* Selector de ordenamiento */}
               <div className="relative">
                 <select
-                  className="appearance-none h-9 pl-3 pr-8 text-sm border border-gray-300 text-gray-900 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 focus:border-transparent"
+                  className="appearance-none h-9 pl-3 pr-8 text-sm border border-[#E8E4E0] text-[#2D2D2D] bg-[#FAF8F5] rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C9A962] focus:border-transparent"
                   value={sortBy}
                   onChange={(e) => {
                     const params = new URLSearchParams(searchParams.toString());
                     params.set('sort', e.target.value);
-                    params.set('page', '1'); // Reset página al cambiar ordenamiento
+                    params.set('page', '1');
                     handleFilterChange(params);
                   }}
                 >
@@ -296,20 +296,20 @@ export default function ProductsPageContent() {
                   <option value="discount">{locale === 'es' ? 'Mayor descuento' : 'Highest discount'}</option>
                   <option value="popular">{locale === 'es' ? 'Más populares' : 'Most popular'}</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4 text-gray-500" />
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4 text-[#9C9589]" />
               </div>
-              
+
               {/* Cambio de vista (grid/list) */}
-              <div className="hidden md:flex border border-gray-300 rounded-md">
+              <div className="hidden md:flex border border-[#E8E4E0] rounded-md overflow-hidden">
                 <button
-                  className={`p-1.5 ${viewMode === 'grid' ? 'bg-teal-50 text-teal-700' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`p-1.5 ${viewMode === 'grid' ? 'bg-[#2D2D2D] text-[#C9A962]' : 'text-[#9C9589] hover:text-[#C9A962] bg-[#FAF8F5]'}`}
                   onClick={() => setViewMode('grid')}
                   aria-label="Ver en cuadrícula"
                 >
                   <GridIcon className="h-5 w-5" />
                 </button>
                 <button
-                  className={`p-1.5 ${viewMode === 'list' ? 'bg-teal-50 text-teal-700' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`p-1.5 ${viewMode === 'list' ? 'bg-[#2D2D2D] text-[#C9A962]' : 'text-[#9C9589] hover:text-[#C9A962] bg-[#FAF8F5]'}`}
                   onClick={() => setViewMode('list')}
                   aria-label="Ver en lista"
                 >
@@ -318,27 +318,27 @@ export default function ProductsPageContent() {
               </div>
             </div>
           </div>
-          
+
           {/* Estado de carga */}
           {loading && (
             <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#C9A962]"></div>
             </div>
           )}
-          
+
           {/* Mensaje de error */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-              <p className="text-red-700">{error}</p>
+            <div className="bg-[#C44536]/10 border border-[#C44536]/30 rounded-lg p-4 mb-6">
+              <p className="text-[#C44536]">{error}</p>
             </div>
           )}
-          
+
           {/* Sin resultados */}
           {!loading && !error && products.length === 0 && (
-            <div className="bg-gray-50 rounded-lg border border-gray-200 p-6 text-center">
-              <h2 className="text-lg font-medium text-gray-900 mb-2">No se encontraron productos</h2>
-              <p className="text-gray-600 mb-4">
-                No hay productos disponibles con los filtros seleccionados.
+            <div className="bg-[#FAF8F5] rounded-lg border border-[#E8E4E0] p-6 text-center">
+              <h2 className="text-lg font-medium text-[#2D2D2D] mb-2">{locale === 'es' ? 'No se encontraron productos' : 'No products found'}</h2>
+              <p className="text-[#4A4A4A] mb-4">
+                {locale === 'es' ? 'No hay productos disponibles con los filtros seleccionados.' : 'No products available with the selected filters.'}
               </p>
               <button
                 onClick={() => {
@@ -346,7 +346,7 @@ export default function ProductsPageContent() {
                   params.set('page', '1');
                   handleFilterChange(params);
                 }}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-[#1A1A1A] bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C9A962] transition-all"
               >
                 {locale === 'es' ? 'Borrar filtros' : 'Clear filters'}
               </button>
@@ -366,18 +366,18 @@ export default function ProductsPageContent() {
           {hasProducts && viewMode === 'list' && (
             <div className="space-y-4">
               {products.map((product) => (
-                <div 
-                  key={product.id} 
-                  className="flex flex-col sm:flex-row border border-gray-200 rounded-lg overflow-hidden bg-white hover:shadow-md transition"
+                <div
+                  key={product.id}
+                  className="flex flex-col sm:flex-row border border-[#E8E4E0] rounded-lg overflow-hidden bg-[#FAF8F5] hover:shadow-lg hover:border-[#C9A962]/30 transition-all"
                 >
                   {/* Imagen del producto */}
-                  <Link 
+                  <Link
                     href={`/product/${product.id}`}
-                    className="sm:w-48 h-40 sm:h-auto relative bg-gray-50 flex-shrink-0"
+                    className="sm:w-48 h-40 sm:h-auto relative bg-white flex-shrink-0"
                   >
                     <div className="absolute inset-0 flex items-center justify-center p-4">
-                      <Image 
-                        src={(product.media as MediaItem[])?.[0]?.url || '/product-placeholder.png'} 
+                      <Image
+                        src={(product.media as MediaItem[])?.[0]?.url || '/product-placeholder.png'}
                         alt={product.name || ''}
                         width={150}
                         height={150}
@@ -386,34 +386,34 @@ export default function ProductsPageContent() {
                       />
                     </div>
                   </Link>
-                  
+
                   {/* Información del producto */}
                   <div className="flex-1 p-4 flex flex-col">
                     <div className="mb-2">
-                      <Link 
+                      <Link
                         href={`/product/${product.id}`}
-                        className="text-lg font-medium text-gray-900 hover:text-teal-700 transition"
+                        className="text-lg font-medium text-[#2D2D2D] hover:text-[#C9A962] transition"
                       >
                         {locale === 'es' ? product.name : product.name}
                       </Link>
                       {product.category_id && (
                         <div className="mt-1">
-                          <span className="inline-block px-2 py-0.5 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-100">
+                          <span className="inline-block px-2 py-0.5 bg-[#2D2D2D] text-[#F5F1EB] text-xs rounded-full border border-[#C9A962]/20">
                             {locale === 'es' ? categories.find(cat => cat.id === product.category_id)?.name_es : categories.find(cat => cat.id === product.category_id)?.name_en || 'Categoría'}
                           </span>
                         </div>
                       )}
                       {product.brand && (
-                        <span className="ml-1 inline-block px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-100">
+                        <span className="ml-1 inline-block px-2 py-0.5 bg-[#C9A962]/10 text-[#A08848] text-xs rounded-full border border-[#C9A962]/30">
                           {product.brand}
                         </span>
                       )}
                     </div>
-                    
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                      {product.description || 'No hay descripción disponible para este producto.'}
+
+                    <p className="text-sm text-[#4A4A4A] mb-4 line-clamp-2">
+                      {product.description || (locale === 'es' ? 'No hay descripción disponible.' : 'No description available.')}
                     </p>
-                    
+
                     <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
                       <div>
                         {product.dolar_price ? (
@@ -421,33 +421,33 @@ export default function ProductsPageContent() {
                             {product.discount_percentage && product.discount_percentage > 0 ? (
                               <div className="flex flex-col">
                                 <div className="flex items-center gap-2">
-                                    <p className="text-lg font-bold text-teal-700">
-                                     ${((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100)).toFixed(2)}
-                                    </p>
-                                    <span className="text-xs font-medium bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                                  <p className="text-lg font-bold text-[#C9A962]">
+                                    ${((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100)).toFixed(2)}
+                                  </p>
+                                  <span className="text-xs font-medium bg-[#B55327]/10 text-[#B55327] px-1.5 py-0.5 rounded border border-[#B55327]/30">
                                     {product.discount_percentage}% OFF
                                   </span>
                                 </div>
-                                <p className="text-xs text-gray-500 line-through">
-                                  ${((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100)).toFixed(2)}
+                                <p className="text-xs text-[#9C9589] line-through">
+                                  ${(Number(product.dolar_price) || 0).toFixed(2)}
                                 </p>
                               </div>
                             ) : (
-                              <p className="text-lg font-bold text-teal-700">
-                                ${((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100)).toFixed(2)}
+                              <p className="text-lg font-bold text-[#C9A962]">
+                                ${(Number(product.dolar_price) || 0).toFixed(2)}
                               </p>
                             )}
                           </div>
                         ) : (
-                          <p className="text-sm font-medium text-gray-700">
-                           {locale === 'es' ? 'Precio a consultar' : 'Price to consult'}
+                          <p className="text-sm font-medium text-[#4A4A4A]">
+                            {locale === 'es' ? 'Precio a consultar' : 'Price to consult'}
                           </p>
                         )}
                       </div>
-                      
-                      <Link 
+
+                      <Link
                         href={`/product/${product.id}`}
-                        className="inline-flex items-center px-3 py-1.5 border border-teal-600 text-sm font-medium rounded text-teal-700 bg-white hover:bg-teal-50 transition"
+                        className="inline-flex items-center px-3 py-1.5 border border-[#C9A962] text-sm font-medium rounded text-[#C9A962] bg-transparent hover:bg-[#C9A962] hover:text-[#1A1A1A] transition-all"
                       >
                         {locale === 'es' ? 'Ver detalles' : 'View details'}
                       </Link>
@@ -457,17 +457,17 @@ export default function ProductsPageContent() {
               ))}
             </div>
           )}
-          
+
           {/* Paginación */}
           {hasProducts && totalPages > 1 && (
             <div className="mt-8">
-              <PaginationControls 
-                currentPage={currentPage} 
-                totalPages={totalPages} 
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
               />
             </div>
           )}
-          
+
           {/* Recently viewed products */}
           {!loading && !error && (
             <div className="mt-16">
@@ -475,6 +475,7 @@ export default function ProductsPageContent() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
