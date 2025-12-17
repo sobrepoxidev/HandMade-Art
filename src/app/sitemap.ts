@@ -51,7 +51,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     make("/feria-artesanias"),
     make("/feria-artesanias-terminos"),
     make("/fiestas-patronales-de-san-ramon"),
-    make("/impact"),
     make("/search"),
   ];
 }

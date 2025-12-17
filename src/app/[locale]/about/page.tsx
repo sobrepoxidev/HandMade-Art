@@ -446,7 +446,7 @@ export default async function About({ params }: { params: tParams }) {
               {isEs ? 'Explorar productos' : 'Explore products'}
             </Link>
             <Link
-              href="/impact"
+              href="/reinsercion-sociolaboral"
               className="rounded-md bg-transparent border-2 border-[#C9A962] text-[#C9A962] px-6 py-3 transition hover:bg-[#C9A962] hover:text-[#1A1A1A] font-medium"
             >
               {isEs ? 'Conocer nuestro impacto' : 'Learn our impact'}
