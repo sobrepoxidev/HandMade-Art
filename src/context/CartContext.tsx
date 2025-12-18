@@ -1,10 +1,11 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/supabaseClient';
- 
+
+const CART_STORAGE_KEY = 'handmade_cart';
 
 type Product = Database['public']['Tables']['products']['Row'];
 
@@ -38,7 +39,7 @@ const CartContext = createContext<CartContextProps>({
   syncCartWithDB: async () => {},
 });
 
-// Helpers
+// Helpers for URL encoding
 function encodeCartToBase64(cart: CartItem[]): string {
   const minimalCart = cart.map(item => ({ id: item.product.id, qty: item.quantity }));
   return btoa(JSON.stringify(minimalCart));
@@ -52,19 +53,59 @@ function decodeCartFromBase64(encoded: string): { id: number; qty: number }[] {
     return [];
   }
 }
+
+// Helpers for localStorage persistence
+function saveCartToStorage(cart: CartItem[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const minimalCart = cart.map(item => ({ id: item.product.id, qty: item.quantity }));
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(minimalCart));
+  } catch (error) {
+    console.error("Error saving cart to localStorage:", error);
+  }
+}
+
+function loadCartFromStorage(): { id: number; qty: number }[] | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    if (!stored) return null;
+    const parsed = JSON.parse(stored);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error loading cart from localStorage:", error);
+    return null;
+  }
+}
+
+function clearCartFromStorage(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(CART_STORAGE_KEY);
+  } catch (error) {
+    console.error("Error clearing cart from localStorage:", error);
+  }
+}
+
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  
+
   // 🔄 Control para evitar el sync en el primer render
   const firstRender = useRef(true);
+  const isRebuilding = useRef(false);
 
   // 🧠 Efecto: sincronizar carrito con URL solo cuando el carrito cambie
   useEffect(() => {
-    if (firstRender.current) {
+    // Don't sync URL during initial load or while rebuilding
+    if (firstRender.current || isRebuilding.current || !isInitialized) {
       firstRender.current = false;
       return;
     }
@@ -72,85 +113,131 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const params = new URLSearchParams(searchParams.toString());
     if (cart.length > 0) {
       params.set('cart', encodeCartToBase64(cart));
+      // Also save to localStorage as backup
+      saveCartToStorage(cart);
     } else {
       params.delete('cart');
+      clearCartFromStorage();
     }
 
-    router.replace(`${pathname}?${params.toString()}`);
-  }, [cart, pathname, router, searchParams]);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [cart, pathname, router, searchParams, isInitialized]);
 
   // 🎁 Funciones del carrito
-  const addToCart = (product: Product, quantity: number = 1) => {
+  const addToCart = useCallback((product: Product, quantity: number = 1) => {
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id);
-      return existing
+      const newCart = existing
         ? prev.map(item =>
             item.product.id === product.id
               ? { ...item, quantity: item.quantity + quantity }
               : item
           )
         : [...prev, { product, quantity }];
+
+      // Immediately save to localStorage
+      saveCartToStorage(newCart);
+      return newCart;
     });
-  };
+  }, []);
 
-  const updateQuantity = (productId: number, quantity: number) => {
-    setCart(prev => prev.map(item =>
-      item.product.id === productId ? { ...item, quantity } : item
-    ));
-  };
+  const updateQuantity = useCallback((productId: number, quantity: number) => {
+    setCart(prev => {
+      const newCart = prev.map(item =>
+        item.product.id === productId ? { ...item, quantity } : item
+      );
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+  }, []);
 
-  const removeFromCart = (productId: number) => {
-    setCart(prev => prev.filter(item => item.product.id !== productId));
-  };
+  const removeFromCart = useCallback((productId: number) => {
+    setCart(prev => {
+      const newCart = prev.filter(item => item.product.id !== productId);
+      if (newCart.length === 0) {
+        clearCartFromStorage();
+      } else {
+        saveCartToStorage(newCart);
+      }
+      return newCart;
+    });
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
+    clearCartFromStorage();
     // Clear discount info when cart is cleared
     if (typeof window !== 'undefined') {
       localStorage.removeItem('discountInfo');
     }
-  };
+  }, []);
 
-  // 🚀 Al montar: reconstruir carrito desde URL (solo los IDs y cantidades)
+  // 🚀 Al montar: reconstruir carrito desde URL o localStorage
   useEffect(() => {
-    const encoded = searchParams.get('cart');
-    if (!encoded) return;
+    // Only run once on mount
+    if (isInitialized) return;
 
-    const parsed = decodeCartFromBase64(encoded);
-    if (parsed.length === 0) return;
-
-    // Evitar reconstruir si ya hay items en el carrito
-    if (cart.length > 0) return;
-
-    console.log("Reconstrucción del carrito requerida:", parsed);
-    
-    // Función asíncrona para obtener los productos por ID
-    const fetchProductsAndRebuildCart = async () => {
+    const rebuildCart = async () => {
+      isRebuilding.current = true;
       setIsLoading(true);
+
       try {
-        // Obtener todos los IDs de productos del carrito
-        const productIds = parsed.map(item => item.id);
-        
-        // Fetch de productos desde Supabase
+        // Priority 1: Check URL parameter
+        const encoded = searchParams.get('cart');
+        let parsedCart: { id: number; qty: number }[] = [];
+
+        if (encoded) {
+          parsedCart = decodeCartFromBase64(encoded);
+          console.log("Cart found in URL:", parsedCart);
+        }
+
+        // Priority 2: If URL is empty, check localStorage
+        if (parsedCart.length === 0) {
+          const storedCart = loadCartFromStorage();
+          if (storedCart && storedCart.length > 0) {
+            parsedCart = storedCart;
+            console.log("Cart found in localStorage:", parsedCart);
+          }
+        }
+
+        // If no cart data found anywhere, we're done
+        if (parsedCart.length === 0) {
+          console.log("No cart data found");
+          setIsInitialized(true);
+          isRebuilding.current = false;
+          setIsLoading(false);
+          return;
+        }
+
+        // Fetch products from Supabase
+        const productIds = parsedCart.map(item => item.id);
+
         const { data: products, error } = await supabase
           .from('products')
           .select('*')
           .in('id', productIds);
-        
+
         if (error) {
           console.error('Error fetching products:', error);
+          setIsInitialized(true);
+          isRebuilding.current = false;
+          setIsLoading(false);
           return;
         }
-        
+
         if (!products || products.length === 0) {
           console.warn('No products found for the IDs in cart');
+          clearCartFromStorage();
+          setIsInitialized(true);
+          isRebuilding.current = false;
+          setIsLoading(false);
           return;
         }
-        
-        // Reconstruir el carrito con los productos completos
+
+        // Rebuild cart with full product data
         const newCartItems: CartItem[] = [];
-        
-        parsed.forEach(parsedItem => {
+
+        parsedCart.forEach(parsedItem => {
           const product = products.find(p => p.id === parsedItem.id);
           if (product) {
             newCartItems.push({
@@ -159,18 +246,25 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
             });
           }
         });
-        
-        // Actualizar el carrito
-        setCart(newCartItems);
+
+        if (newCartItems.length > 0) {
+          console.log("Cart rebuilt successfully:", newCartItems.length, "items");
+          setCart(newCartItems);
+          // Save to localStorage to ensure persistence
+          saveCartToStorage(newCartItems);
+        }
+
       } catch (err) {
-        console.error('Error rebuilding cart from URL:', err);
+        console.error('Error rebuilding cart:', err);
       } finally {
+        setIsInitialized(true);
+        isRebuilding.current = false;
         setIsLoading(false);
       }
     };
-    
-    fetchProductsAndRebuildCart();
-  }, [searchParams]);
+
+    rebuildCart();
+  }, [searchParams, isInitialized]);
 
   // Calculate total items and subtotal
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);

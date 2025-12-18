@@ -94,7 +94,7 @@ export default function CartPage() {
   const correo = currentSession?.user?.email;
   console.log("userId:", userId);
   console.log("correo:", correo);
-  const { cart, updateQuantity, removeFromCart, syncCartWithDB } = useCart();
+  const { cart, updateQuantity, removeFromCart } = useCart();
 
 
   
@@ -117,17 +117,14 @@ export default function CartPage() {
     return acc + finalPrice * item.quantity;
   }, 0);
 
+  // Clear discount info when cart becomes empty
   useEffect(() => {
-    if (cart.length > 0) {
-      localStorage.setItem('cart', JSON.stringify(cart));
-      syncCartWithDB();
-    } else {
-      // Clear discount info when cart is empty
+    if (cart.length === 0) {
       localStorage.removeItem('discountInfo');
       setDiscountInfo(null);
       setDiscountCode('');
     }
-  }, [cart, syncCartWithDB, userId]);
+  }, [cart.length]);
 
   // Verify discount is still valid on mount (recalculate with current cart)
   useEffect(() => {
