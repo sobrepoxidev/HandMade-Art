@@ -21,6 +21,7 @@ async function getSiteUrl(): Promise<string> {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://handmadeart.store";
 }
 
+
 function getDefaultImage(siteUrl: string) {
   // Tu imagen 1:1 válida
   return {
