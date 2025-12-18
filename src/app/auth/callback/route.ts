@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 type Locale = "es" | "en";
 
@@ -16,17 +16,13 @@ function splitPathAndQuery(path: string): { p: string; q: string } {
 
 /**
  * Quita EXACTAMENTE un locale inicial (/es|/en) y devuelve el path sin locale.
- * No toca locales en medio del path (ej: "/producto/especial" queda igual).
  */
 function stripLeadingLocale(path: string): string {
   return path.replace(/^\/(es|en)(?=\/|$)/, "");
 }
 
 /**
- * Normaliza una ruta local:
- *  - Asegura slash inicial
- *  - Colapsa dobles slashes
- *  - Quita un locale si lo trae y agrega el locale objetivo
+ * Normaliza una ruta local con el locale objetivo
  */
 function normalizeLocalePath(pathWithQuery: string, targetLocale: Locale): string {
   if (!pathWithQuery.startsWith("/")) pathWithQuery = "/" + pathWithQuery;
@@ -35,7 +31,6 @@ function normalizeLocalePath(pathWithQuery: string, targetLocale: Locale): strin
   const { p, q } = splitPathAndQuery(pathWithQuery);
   const pathNoLocale = stripLeadingLocale(p);
 
-  // Si la ruta “real” queda vacía o "/", vamos a la raíz del idioma
   const withLocale =
     "/" + targetLocale + (pathNoLocale === "" || pathNoLocale === "/" ? "" : pathNoLocale);
 
@@ -43,23 +38,20 @@ function normalizeLocalePath(pathWithQuery: string, targetLocale: Locale): strin
 }
 
 /**
- * Convierte "next" (que puede ser relativo o absoluto) a una ruta local segura,
- * con el locale correcto para el dominio actual.
+ * Convierte "next" a una ruta local segura con el locale correcto
  */
 function sanitizeNext(rawNext: string, reqOrigin: string, targetLocale: Locale): string {
   try {
     const req = new URL(reqOrigin);
-    const u = new URL(rawNext, reqOrigin); // soporta relativo y absoluto
+    const u = new URL(rawNext, reqOrigin);
 
-    // Anti open-redirect: si el origin NO coincide, ignora y manda a raíz del idioma
+    // Anti open-redirect
     if (u.origin !== req.origin) {
       return `/${targetLocale}`;
     }
 
-    // Solo usamos pathname + search. (hash no importa para navegación SSR)
     return normalizeLocalePath(u.pathname + (u.search || ""), targetLocale);
   } catch {
-    // Si no parsea, trátalo como path local
     return normalizeLocalePath(rawNext, targetLocale);
   }
 }
@@ -81,57 +73,59 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/${targetLocale}/login?error=code_missing`);
   }
 
-  const supabase = createRouteHandlerClient({ cookies });
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options?: CookieOptions }[]) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options as CookieOptions)
+            );
+          } catch {
+            // Ignore errors from Server Component context
+          }
+        },
+      },
+    }
+  );
 
   try {
-    // Intercambiar código por sesión
+    // Exchange code for session
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
     if (error) {
       console.error("OAuth Callback - Exchange error:", error.message);
       return NextResponse.redirect(`${origin}/${targetLocale}/login?error=oauth`);
     }
 
-    console.log('OAuth Callback - Session exchanged successfully:', { 
+    console.log('OAuth Callback - Session exchanged successfully:', {
       userId: data.session?.user?.id,
-      email: data.session?.user?.email 
+      email: data.session?.user?.email
     });
 
-    // Verificar la sesión múltiples veces para asegurar persistencia
-    let session = data.session;
-    let attempts = 0;
-    const maxAttempts = 3;
-
-    while (!session && attempts < maxAttempts) {
-      attempts++;
-      console.log(`OAuth Callback - Attempt ${attempts} to get session`);
-      
-      // Esperar un poco antes de reintentar
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (sessionData.session) {
-        session = sessionData.session;
-      }
-    }
-
-    if (!session) {
-      console.error('OAuth Callback - Session not found after multiple attempts');
+    if (!data.session) {
+      console.error('OAuth Callback - No session returned');
       return NextResponse.redirect(`${origin}/${targetLocale}/login?error=session_missing`);
     }
 
-    // Normaliza "next" para que sea local, sin duplicar locale ni codificar de más
+    // Normalize the return URL
     const next = sanitizeNext(rawNext, origin, targetLocale);
 
     console.log('OAuth Callback - Redirecting to:', `${origin}${next}`);
 
-    // Crear respuesta con headers adicionales para forzar actualización de sesión
+    // Create response with cache headers to prevent stale session
     const response = NextResponse.redirect(`${origin}${next}`);
-    
-    // Agregar headers para forzar actualización de sesión en el cliente
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
-    
+
     return response;
 
   } catch (error) {
