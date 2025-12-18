@@ -85,8 +85,9 @@ export default function CheckoutWizardPage() {
 
     const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
     // Using _ prefix to indicate these state setters are needed but the values aren't directly used
-    const [, setIsProcessing] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [, setOrderComplete] = useState(false);
+    const [isRedirecting, setIsRedirecting] = useState(false);
     
     // Cargar información de descuento desde localStorage
     useEffect(() => {
@@ -247,12 +248,12 @@ export default function CheckoutWizardPage() {
         // If the payment is SINPE, update the reference
         if (paymentMethod === "sinpe" && bancoSeleccionado) {
           const paymentReference = `4 ultimos digitos: ${ultimos4} - Banco: ${bancoSeleccionado.nombre}`;
-          
+
           await supabase
             .from("orders")
             .update({ payment_reference: paymentReference })
             .eq("id", orderId);
-            
+
           // For SINPE, we can clear the cart and redirect immediately
           // Clear cart items from cart_items table if logged in
           if (userId) {
@@ -261,17 +262,21 @@ export default function CheckoutWizardPage() {
               .delete()
               .eq("user_id", userId);
           }
-          
+
           // Set order as complete
           setOrderComplete(true);
-          
+
+          // Mark as redirecting BEFORE clearing cart to prevent "empty cart" flash
+          setIsRedirecting(true);
+
           // Enviar correo de confirmación (using USD amounts)
           if (session?.user?.email && shippingAddress) {
             const emailSubtotal = cart.reduce((acc: number, item: CartItem) => acc + (item.product.dolar_price || 0) * item.quantity, 0);
             const emailShipping = 7; // USD
             const emailTotal = discountInfo ? discountInfo.finalTotal + emailShipping : emailSubtotal + emailShipping;
 
-            await fetch('/api/send-order-email', {
+            // Fire and forget - don't wait for email to complete
+            fetch('/api/send-order-email', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -291,14 +296,16 @@ export default function CheckoutWizardPage() {
                 } : null,
                 userEmail: session.user.email
               })
-            });
+            }).catch(err => console.error('Error sending email:', err));
           }
 
-          // Clear local cart
-          clearCart();
-          
-          // Redirect to confirmation page
+          // Redirect FIRST, then clear cart
           router.push(`/order-confirmation?order_id=${orderId}`);
+
+          // Clear local cart after redirect is initiated
+          setTimeout(() => {
+            clearCart();
+          }, 100);
         }
         // For PayPal, we'll let the PayPalCardMethod component handle the redirect
         // after successful payment
@@ -328,6 +335,21 @@ export default function CheckoutWizardPage() {
   //   };
 
     // -------------- Render principal --------------
+    // Show loading/redirecting state during payment processing
+    if (isRedirecting || isProcessing) {
+      return (
+        <main className="w-full mx-auto px-6 py-14 flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-[#FAF8F5] to-white min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A962]"></div>
+          <h1 className="text-xl font-medium text-[#2D2D2D]">
+            {locale === 'es' ? 'Procesando tu pedido...' : 'Processing your order...'}
+          </h1>
+          <p className="text-[#4A4A4A]">
+            {locale === 'es' ? 'Por favor espera, serás redirigido a la confirmación.' : 'Please wait, you will be redirected to confirmation.'}
+          </p>
+        </main>
+      );
+    }
+
     if (cart.length === 0) {
       return (
         <main className="w-full mx-auto px-6 py-14 flex flex-row gap-4 bg-gradient-to-b from-[#FAF8F5] to-white min-h-screen">
