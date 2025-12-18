@@ -143,7 +143,7 @@ export default function ProductCard({ product }: { product: Product }) {
       </button>
 
       {/* Imagen del producto */}
-      <Link href={`/product/${product.id}`} className="block h-48 sm:h-56 relative">
+      <Link href={`/product/${product.name}`} className="block h-48 sm:h-56 relative">
         <div className="h-full w-full flex items-center justify-center bg-white p-4">
           <Image
             src={mainImageUrl}
@@ -158,7 +158,7 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Detalles del producto */}
       <div className="p-4 flex-grow flex flex-col">
         <Link
-          href={`/product/${product.id}`}
+          href={`/product/${product.name}`}
           className="text-[#2D2D2D] font-medium mb-1 hover:text-[#C9A962] transition-colors line-clamp-2 min-h-[48px]"
         >
           {locale === 'es' ? product.name_es : product.name_en}
@@ -214,7 +214,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* Botones de acción */}
           <div className="flex space-x-2 mt-2">
             <Link
-              href={`/product/${product.id}`}
+              href={`/product/${product.name}`}
               className="flex-1 py-2 text-sm text-center text-[#2D2D2D] border border-[#E8E4E0] rounded hover:bg-[#FAF8F5] hover:border-[#C9A962]/50 hover:text-[#C9A962] transition"
             >
               {locale === 'es' ? 'Ver detalles' : 'View details'}

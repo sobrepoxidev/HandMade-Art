@@ -125,31 +125,31 @@ export default function CheckoutWizardPage() {
           alert('Se requiere dirección de envío');
           return;
         }
-        
+
         // Verify user is logged in or use guest approach
         if (!userId) {
           alert('Error: No se pudo identificar al usuario. Por favor inicia sesión antes de continuar.');
           router.push('/login?redirect=checkout');
           return;
         }
-        
-        // Calculate total with discounts
+
+        // Calculate subtotal in USD (using dolar_price for consistency)
         const subtotal = cart.reduce((acc, item) => {
-          if (!item.product.colon_price) return acc;
-          
-          const price = item.product.colon_price;
+          if (!item.product.dolar_price) return acc;
+
+          const price = item.product.dolar_price;
           const discount = item.product.discount_percentage || 0;
           const finalPrice = price * (1 - (discount / 100));
-          
+
           return acc + finalPrice * item.quantity;
         }, 0);
-        
-        // Shipping cost fijo en 3200
-        const shipping = cart.length ? 3200 : 0;
+
+        // Shipping cost in USD ($7)
+        const shipping = cart.length ? 7 : 0;
         const totalAmount = subtotal + shipping;
 
         // Si hay un descuento, usar el total con descuento, de lo contrario calcular normalmente
-        const total = discountInfo ? discountInfo.finalTotal : totalAmount;
+        const total = discountInfo ? discountInfo.finalTotal + shipping : totalAmount;
 
         // Preparar valores tipados para la inserción
         const dbUserId: string | null = userId === 'guest-user' ? null : userId ?? null;
@@ -170,12 +170,12 @@ export default function CheckoutWizardPage() {
           shipping_status: 'pending',
           total_amount: total,
           shipping_address: shippingAddressJson,
-          currency: 'CRC',
-          shipping_amount: 0,
+          currency: 'USD',
+          shipping_amount: shipping,
           discount_amount: discountInfo ? discountInfo.discountAmount : 0,
-          shipping_cost: 0,
-          shipping_currency: 'CRC',
-          notes: discountInfo ? `Descuento aplicado: ${discountInfo.code} - Monto: ${discountInfo.discountAmount}` : '',
+          shipping_cost: shipping,
+          shipping_currency: 'USD',
+          notes: discountInfo ? `Descuento aplicado: ${discountInfo.code} - Monto: $${discountInfo.discountAmount.toFixed(2)}` : '',
         };
 
         // Create order with shipping address and pending status
@@ -194,7 +194,7 @@ export default function CheckoutWizardPage() {
         // Save orderId in state
         setCreatedOrderId(orderInsert.id);
         
-        // Add order items
+        // Add order items (using dolar_price for USD consistency)
         for (const item of cart) {
           const { error: itemError } = await supabase
             .from('order_items')
@@ -202,7 +202,7 @@ export default function CheckoutWizardPage() {
               order_id: orderInsert.id,
               product_id: item.product.id,
               quantity: item.quantity,
-              price: item.product.colon_price || 0,
+              price: item.product.dolar_price || 0,
             });
 
           if (itemError) {
@@ -265,8 +265,12 @@ export default function CheckoutWizardPage() {
           // Set order as complete
           setOrderComplete(true);
           
-          // Enviar correo de confirmación
+          // Enviar correo de confirmación (using USD amounts)
           if (session?.user?.email && shippingAddress) {
+            const emailSubtotal = cart.reduce((acc: number, item: CartItem) => acc + (item.product.dolar_price || 0) * item.quantity, 0);
+            const emailShipping = 7; // USD
+            const emailTotal = discountInfo ? discountInfo.finalTotal + emailShipping : emailSubtotal + emailShipping;
+
             await fetch('/api/send-order-email', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -275,9 +279,10 @@ export default function CheckoutWizardPage() {
                 customerName: shippingAddress.name,
                 shippingAddress: shippingAddress,
                 items: cart,
-                subtotal: cart.reduce((acc: number, item: CartItem) => acc + (item.product.colon_price || 0) * item.quantity, 0),
-                shipping: 3200,
-                total: discountInfo ? discountInfo.finalTotal : (cart.reduce((acc, item) => acc + (item.product.colon_price || 0) * item.quantity, 0) + 3200),
+                subtotal: emailSubtotal,
+                shipping: emailShipping,
+                total: emailTotal,
+                currency: 'USD',
                 paymentMethod: 'sinpe',
                 discountInfo: discountInfo ? {
                   code: discountInfo.code,
@@ -325,39 +330,42 @@ export default function CheckoutWizardPage() {
     // -------------- Render principal --------------
     if (cart.length === 0) {
       return (
-        <main className="w-full mx-auto px-6 py-14 flex flex-row gap-4">
-          <button onClick={() => router.back()} className="bg-teal-600 p-2 rounded-md text-gray-800 hover:bg-teal-700 transition">
-            &larr; Regresar
+        <main className="w-full mx-auto px-6 py-14 flex flex-row gap-4 bg-gradient-to-b from-[#FAF8F5] to-white min-h-screen">
+          <button onClick={() => router.back()} className="bg-gradient-to-r from-[#C9A962] to-[#A08848] p-2 px-4 rounded-lg text-[#1A1A1A] font-medium hover:from-[#D4C4A8] hover:to-[#C9A962] transition-all shadow-md">
+            &larr; {locale === 'es' ? 'Regresar' : 'Go back'}
           </button>
-          <h1 className="text-2xl font-bold mt-4 text-gray-900">Carrito vacío</h1>
+          <h1 className="text-2xl font-bold mt-4 text-[#2D2D2D]">{locale === 'es' ? 'Carrito vacío' : 'Empty cart'}</h1>
         </main>
       );
     }
-  
+
     return (
-      <main className="w-full flex flex-col min-h-[67vh] py-2 px-4 md:px-12 lg:px-24">
+      <main className="w-full flex flex-col min-h-[67vh] py-4 px-4 md:px-12 lg:px-24 bg-gradient-to-b from-[#FAF8F5] to-white">
         {/* Encabezado */}
         <header className="flex items-center gap-4 mb-6">
           {currentStep > 1 && currentStep <= 3 && (
             <button
               onClick={goBack}
-              className="bg-teal-600 text-gray-800 p-1 rounded-md hover:bg-teal-700 transition "
+              className="bg-[#2D2D2D] text-[#F5F1EB] px-3 py-1.5 rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium text-sm"
             >
-              &larr; Paso anterior
+              &larr; {locale === 'es' ? 'Paso anterior' : 'Previous step'}
             </button>
           )}
           {currentStep === 1 && (
             <button
               onClick={() => router.back()}
-              className="bg-teal-600 text-gray-800 p-1 rounded-md hover:bg-teal-700 transition "
+              className="bg-[#2D2D2D] text-[#F5F1EB] px-3 py-1.5 rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium text-sm"
             >
-              &larr; Regresar
+              &larr; {locale === 'es' ? 'Regresar' : 'Go back'}
             </button>
           )}
           {currentStep >= 1 && currentStep <= 3 ? (
-            <h1 className="text-base sm:text-2xl font-bold text-gray-900">{currentStep==1?"Información de entrega":currentStep==2?"Pago":currentStep==3?"Pago":"Confirmación"} (Paso {currentStep} de 3)</h1>
+            <h1 className="text-base sm:text-2xl font-bold text-[#2D2D2D]">
+              {currentStep === 1 ? (locale === 'es' ? 'Información de entrega' : 'Shipping information') : currentStep === 2 ? (locale === 'es' ? 'Pago' : 'Payment') : (locale === 'es' ? 'Pago' : 'Payment')}
+              <span className="text-[#C9A962] ml-2">({locale === 'es' ? 'Paso' : 'Step'} {currentStep} {locale === 'es' ? 'de' : 'of'} 3)</span>
+            </h1>
           ) : (
-            <h1 className="text-base sm:text-2xl font-bold">¡Compra realizada con éxito!</h1>
+            <h1 className="text-base sm:text-2xl font-bold text-[#4A7C59]">{locale === 'es' ? '¡Compra realizada con éxito!' : 'Purchase completed successfully!'}</h1>
           )}
         </header>
   
@@ -381,7 +389,11 @@ export default function CheckoutWizardPage() {
               setBancoSeleccionado={setBancoSeleccionado}
               ultimos4={ultimos4}
               setUltimos4={setUltimos4}
-              total={discountInfo ? discountInfo.finalTotal : (cart.reduce((acc, item) => acc + (item.product.colon_price ?? 0) * item.quantity, 0) + 3200)}
+              total={
+                discountInfo
+                  ? discountInfo.finalTotal + 7 // finalTotal (USD) + shipping ($7)
+                  : cart.reduce((acc, item) => acc + (item.product.dolar_price ?? 0) * item.quantity, 0) + 7
+              }
               onFinalize={validateStep2}
               createdOrderId={createdOrderId}
               createOrder={createOrder}

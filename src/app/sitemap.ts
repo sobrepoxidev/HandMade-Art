@@ -1,8 +1,13 @@
 // src/app/sitemap.ts
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "edge";
+
+// Create a Supabase client for edge runtime
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const host =
@@ -15,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const altLocale: "es" | "en" = locale === "es" ? "en" : "es";
 
   // → Códigos hreflang
-  const localeTag    = locale    === "es" ? "es-cr" : "en-us";
+  const localeTag = locale === "es" ? "es-cr" : "en-us";
   const altLocaleTag = altLocale === "es" ? "es-cr" : "en-us";
 
   // → Dominio alterno fijo
@@ -31,17 +36,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: isProduct ? 0.8 : 0.6,
     alternates: {
       languages: {
-        [localeTag]:    `https://${host}/${locale}${path}`,
+        [localeTag]: `https://${host}/${locale}${path}`,
         [altLocaleTag]: `https://${altDomain}/${altLocale}${path}`,
       },
     },
   });
 
-  return [
+  // Static pages
+  const staticPages: MetadataRoute.Sitemap = [
     make(""),
     make("/about"),
     make("/products"),
-    //make("/product/[id]", true),
     make("/shipping"),
     make("/contact"),
     make("/privacy-policies"),
@@ -51,7 +56,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     make("/feria-artesanias"),
     make("/feria-artesanias-terminos"),
     make("/fiestas-patronales-de-san-ramon"),
-    make("/impact"),
     make("/search"),
+    make("/reinsercion-sociolaboral"),
   ];
+
+  // Fetch active products for dynamic product pages
+  let productPages: MetadataRoute.Sitemap = [];
+
+  try {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+    const { data: products, error } = await supabase
+      .from("products")
+      .select("name, modified_at")
+      .eq("is_active", true)
+      .not("name", "is", null);
+
+    if (!error && products) {
+      productPages = products.map((product) => ({
+        url: `https://${host}/${locale}/product/${product.name}`,
+        lastModified: product.modified_at ? new Date(product.modified_at) : now,
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+        alternates: {
+          languages: {
+            [localeTag]: `https://${host}/${locale}/product/${product.name}`,
+            [altLocaleTag]: `https://${altDomain}/${altLocale}/product/${product.name}`,
+          },
+        },
+      }));
+    }
+  } catch (err) {
+    console.error("Error fetching products for sitemap:", err);
+  }
+
+  return [...staticPages, ...productPages];
 }

@@ -188,7 +188,7 @@ const isMediaArray = (media: Json): media is Array<{ url: string; type?: string;
       
       return (
         <div key={product.id} className="min-w-[180px] mx-2 flex-shrink-0">
-          <Link href={`/product/${product.id}`} className="block">
+          <Link href={`/product/${product.name}`} className="block">
             <div className="bg-white h-full relative">
               <div className="h-40 flex items-center justify-center">
                 <Image
@@ -233,7 +233,7 @@ const isMediaArray = (media: Json): media is Array<{ url: string; type?: string;
               : '/placeholder-image.png';
             
             return (
-              <Link key={product.id} href={`/product/${product.id}`} className="block">
+              <Link key={product.id} href={`/product/${product.name}`} className="block">
                 <div className={`rounded-lg ${colors[0]}`}>
                   <div className="h-[120px] flex items-center justify-center p-2">
                     <Image
@@ -261,7 +261,7 @@ const isMediaArray = (media: Json): media is Array<{ url: string; type?: string;
               : '/placeholder-image.png';
             
             return (
-              <Link key={product.id} href={`/product/${product.id}`} className="block">
+              <Link key={product.id} href={`/product/${product.name}`} className="block">
                 <div className={`rounded-lg ${colors[1]}`}>
                   <div className="h-[120px] flex items-center justify-center p-2">
                     <Image

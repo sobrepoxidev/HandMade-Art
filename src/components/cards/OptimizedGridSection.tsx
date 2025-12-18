@@ -47,7 +47,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
               <>
                 <div className="grid grid-cols-2 gap-3 bg-[#2D2D2D]">
                   {displayProducts.map((product, idx) => (
-                    <Link key={`${product.id}-${idx}`} href={`/product/${product.id}`} target="_self" className="block group">
+                    <Link key={`${product.id}-${idx}`} href={`/product/${product.name}`} target="_self" className="block group">
                       <div className="flex flex-col items-center bg-[#FAF8F5] rounded-lg p-2 hover:shadow-md transition-all border border-[#E8E4E0] hover:border-[#C9A962]/30">
                         <div className="h-44 flex items-center justify-center mb-1">
                           <Image
@@ -182,7 +182,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                     content: (
                       <div className="grid grid-cols-2 gap-2 w-full h-full px-1 pt-2.5">
                         {categoryProducts.slice(0, 4).map((product, idx) => (
-                          <Link key={idx} href={`/product/${product.id}`} className="block text-center">
+                          <Link key={idx} href={`/product/${product.name}`} className="block text-center">
                             <div className="h-44 flex items-center justify-center bg-[#FAF8F5] rounded-lg shadow-sm border border-[#E8E4E0]">
                               <Image
                                 src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}

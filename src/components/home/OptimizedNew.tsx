@@ -129,7 +129,7 @@ export default function OptimizedNewHome({
           </BannerTemplate>
 
           {/* Banner 2: Artesanías (segundo lugar) */}
-          <BannerTemplate linkHref="/impact" bgColor="bg-gradient-to-r from-[#F5F1EB] to-[#FAF8F5]">
+          <BannerTemplate linkHref="/about" bgColor="bg-gradient-to-r from-[#F5F1EB] to-[#FAF8F5]">
             <div className="absolute top-0 left-0 right-0 flex flex-col items-center lg:justify-center ">
               <div className="text-center z-20 mt-2 lg:mt-4 px-4">
                 <h1 className="text-lg lg:text-xl text-[#2D2D2D] font-medium lg:mb-2 hidden sm:block tracking-wide">

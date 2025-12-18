@@ -36,7 +36,7 @@ const ShareCartButton: React.FC<{ locale: string }> = ({ locale }) => {
     }
   };
   return (
-    <button onClick={handleShare} className="inline-flex items-center gap-1 text-teal-600 hover:text-teal-800 hover:underline text-sm cursor-pointer">
+    <button onClick={handleShare} className="inline-flex items-center gap-1 text-[#C9A962] hover:text-[#A08848] hover:underline text-sm cursor-pointer font-medium transition-colors">
       <Share2 className="w-4 h-4" />
       {locale === 'es' ? 'Compartir carrito' : 'Share cart'}
     </button>
@@ -121,10 +121,55 @@ export default function CartPage() {
     if (cart.length > 0) {
       localStorage.setItem('cart', JSON.stringify(cart));
       syncCartWithDB();
+    } else {
+      // Clear discount info when cart is empty
+      localStorage.removeItem('discountInfo');
+      setDiscountInfo(null);
+      setDiscountCode('');
     }
   }, [cart, syncCartWithDB, userId]);
 
-  // En un caso real se calcularía dinámicamente
+  // Verify discount is still valid on mount (recalculate with current cart)
+  useEffect(() => {
+    if (discountInfo && cart.length > 0) {
+      // Recalculate discount with current subtotal
+      const currentSubtotal = cart.reduce((acc, item) => {
+        if (!item.product.dolar_price) return acc;
+        const price = item.product.dolar_price;
+        const discount = item.product.discount_percentage || 0;
+        const finalPrice = price * (1 - (discount / 100));
+        return acc + finalPrice * item.quantity;
+      }, 0);
+
+      // Check minimum purchase requirement
+      if (discountInfo.discount_type !== 'total_override') {
+        // Recalculate discount amount based on current subtotal
+        let newDiscountAmount = 0;
+        let newFinalTotal = currentSubtotal;
+
+        switch (discountInfo.discount_type) {
+          case 'percentage':
+            newDiscountAmount = (currentSubtotal * discountInfo.discount_value) / 100;
+            newFinalTotal = currentSubtotal - newDiscountAmount;
+            break;
+          case 'fixed':
+            newDiscountAmount = discountInfo.discount_value;
+            newFinalTotal = Math.max(0, currentSubtotal - newDiscountAmount);
+            break;
+        }
+
+        // Update discount info with recalculated values
+        const updatedDiscountInfo = {
+          ...discountInfo,
+          discountAmount: newDiscountAmount,
+          finalTotal: newFinalTotal,
+        };
+        setDiscountInfo(updatedDiscountInfo);
+        localStorage.setItem('discountInfo', JSON.stringify(updatedDiscountInfo));
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart.length]); // Only run when cart length changes
   
   // Calcular el total final teniendo en cuenta posibles descuentos
   const subtotal2 = discountInfo ? discountInfo.finalTotal : subtotal;
@@ -232,31 +277,31 @@ export default function CartPage() {
   //   }, [cart]);
 
   return (
-    <section className="min-h-screen w-full  py-8 px-4 md:px-12 lg:px-24">
+    <section className="min-h-screen w-full bg-gradient-to-b from-[#FAF8F5] to-white py-8 px-4 md:px-12 lg:px-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <h1 className="text-4xl font-semibold mb-4 text-slate-800">{locale === 'es' ? 'Carrito de compra' : 'Shopping cart'}</h1>
+        <h1 className="text-4xl font-semibold mb-4 text-[#2D2D2D]">{locale === 'es' ? 'Carrito de compra' : 'Shopping cart'}</h1>
         <div className="flex items-center gap-4 max-sm:gap-2">
-          <Link href="/products" className="text-teal-600 hover:underline text-sm">
+          <Link href="/products" className="text-[#C9A962] hover:text-[#A08848] hover:underline text-sm font-medium transition-colors">
             {locale === 'es' ? 'Seguir comprando' : 'Continue shopping'}
           </Link>
           <ShareCartButton locale={locale} />
         </div>
 
         {/* Tabla del carrito */}
-        <div className="mt-6 rounded-md overflow-hidden shadow-md ">
+        <div className="mt-6 rounded-xl overflow-hidden shadow-lg bg-white border border-[#E8E4E0]">
           {/* Encabezado dinámico */}
-          <div className="px-4 py-2 bg-teal-600 text-white text-sm font-semibold">
-            {cart.length === 1 ? locale === 'es' ? "Tienes 1 artículo en el carrito" : "You have 1 item in your cart" : `Tienes ${cart.length} artículos en el carrito`}
+          <div className="px-4 py-3 bg-[#2D2D2D] text-[#F5F1EB] text-sm font-semibold">
+            {cart.length === 1 ? locale === 'es' ? "Tienes 1 artículo en el carrito" : "You have 1 item in your cart" : `${locale === 'es' ? 'Tienes' : 'You have'} ${cart.length} ${locale === 'es' ? 'artículos en el carrito' : 'items in your cart'}`}
           </div>
 
           {cart.length === 0 && (
-            <p className="p-6 text-center text-slate-600">{locale === 'es' ? 'Tu carrito está vacío.' : 'Your cart is empty.'}</p>
+            <p className="p-6 text-center text-[#4A4A4A]">{locale === 'es' ? 'Tu carrito está vacío.' : 'Your cart is empty.'}</p>
           )}
 
           {cart.map(({ product, quantity }) => (
             <Fragment key={product.id}>
-              <div className="grid grid-cols-12 gap-4 p-4 border-b border-teal-500  last:border-0">
+              <div className="grid grid-cols-12 gap-4 p-4 border-b border-[#E8E4E0] last:border-0 hover:bg-[#FAF8F5]/50 transition-colors">
                 {/* Imagen */}
                 <div className="col-span-12 sm:col-span-2 flex items-center justify-center">
                   {product.media && Array.isArray(product.media) && product.media[0] && typeof product.media[0] === 'object' && product.media[0] !== null && 'url' in product.media[0] ? (
@@ -265,32 +310,31 @@ export default function CartPage() {
                       alt={product.name ?? "producto"}
                       width={80}
                       height={80}
-                      className="rounded"
+                      className="rounded-lg border border-[#E8E4E0]"
                     />
                   ) : (
-                    <div className="w-20 h-20 bg-slate-200 rounded" />
+                    <div className="w-20 h-20 bg-[#F5F1EB] rounded-lg" />
                   )}
                 </div>
 
                 {/* Nombre y descripción */}
                 <div className="col-span-12 sm:col-span-5 flex flex-col justify-center">
-                  <h3 className="font-medium text-slate-800 leading-tight">
+                  <h3 className="font-medium text-[#2D2D2D] leading-tight">
                     {locale === 'es' ? product.name_es : product.name_en}
                   </h3>
                   {product.description && (
-                    <p className="text-sm text-slate-600 line-clamp-2">
+                    <p className="text-sm text-[#4A4A4A] line-clamp-2">
                       {product.description}
                     </p>
                   )}
                   <div className="flex flex-wrap gap-1 mt-1">
-
                     {product.brand && (
-                      <span className="inline-flex items-center text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full border border-blue-100">
+                      <span className="inline-flex items-center text-xs px-2 py-0.5 bg-[#C9A962]/10 text-[#A08848] rounded-full border border-[#C9A962]/20">
                         {product.brand}
                       </span>
                     )}
                     {stockWarnings[product.id] && (
-                      <span className="inline-flex items-center text-xs px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full border border-amber-100">
+                      <span className="inline-flex items-center text-xs px-2 py-0.5 bg-[#B55327]/10 text-[#B55327] rounded-full border border-[#B55327]/20">
                         <AlertTriangle className="h-3 w-3 mr-1" />
                         {stockWarnings[product.id]}
                       </span>
@@ -303,7 +347,7 @@ export default function CartPage() {
                   <select
                     value={quantity}
                     onChange={(e) => updateQuantity(product.id, Number(e.target.value))}
-                    className="border border-slate-600 rounded px-2 py-1 text-sm text-slate-800"
+                    className="border border-[#E8E4E0] rounded-lg px-3 py-1.5 text-sm text-[#2D2D2D] bg-white focus:border-[#C9A962] focus:ring-1 focus:ring-[#C9A962] transition-colors"
                   >
                     {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>
@@ -317,18 +361,18 @@ export default function CartPage() {
                 <div className="col-span-6 sm:col-span-2 flex flex-col items-center justify-center">
                   {product.discount_percentage && product.discount_percentage > 0 ? (
                     <>
-                      <span className="font-medium text-slate-800">
+                      <span className="font-semibold text-[#C9A962]">
                         {formatUSD(((product.dolar_price || 0) * (1 - (product.discount_percentage / 100))).toFixed(0))}
                       </span>
-                      <span className="text-xs text-gray-500 line-through">
+                      <span className="text-xs text-[#9C9589] line-through">
                         {formatUSD(product.dolar_price || 0)}
                       </span>
-                      <span className="text-xs bg-red-100 text-red-700 px-1 py-0.5 rounded">
+                      <span className="text-xs bg-[#C44536]/10 text-[#C44536] px-1.5 py-0.5 rounded-full font-medium">
                         {product.discount_percentage}% OFF
                       </span>
                     </>
                   ) : (
-                    <span className="font-medium text-slate-800">
+                    <span className="font-semibold text-[#C9A962]">
                       {formatUSD(product.dolar_price ?? 0)}
                     </span>
                   )}
@@ -338,7 +382,7 @@ export default function CartPage() {
                 <div className="col-span-12 sm:col-span-1 flex items-center justify-center sm:justify-end">
                   <button
                     onClick={() => removeFromCart(product.id)}
-                    className="text-teal-700 text-sm hover:underline"
+                    className="text-[#C44536] text-sm hover:text-[#A03328] hover:underline font-medium transition-colors"
                   >
                     {locale === 'es' ? 'Eliminar' : 'Remove'}
                   </button>
@@ -350,23 +394,23 @@ export default function CartPage() {
 
         {/* Cupón & Totales */}
         {cart.length > 0 && (
-          <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cupón */}
-            <div className="lg:col-span-2  p-6 rounded shadow-md">
-              <h2 className="text-lg font-medium mb-4 text-slate-800">{locale === 'es' ? '¿Descuento o promoción?' : 'Discount or promotion?'}</h2>
+            <div className="lg:col-span-2 p-6 rounded-xl shadow-lg bg-white border border-[#E8E4E0]">
+              <h2 className="text-lg font-semibold mb-4 text-[#2D2D2D]">{locale === 'es' ? '¿Descuento o promoción?' : 'Discount or promotion?'}</h2>
               <div className="flex flex-col sm:flex-row gap-4">
                 <input
                   type="text"
                   placeholder={locale === 'es' ? 'CÓDIGO DE CUPÓN' : 'DISCOUNT CODE'}
-                  className={`flex-1 border ${discountError ? 'border-red-500' : 'border-gray-600'} rounded px-4 py-2 text-sm placeholder-gray-500 text-gray-950`}
+                  className={`flex-1 border ${discountError ? 'border-[#C44536]' : 'border-[#E8E4E0]'} rounded-lg px-4 py-2.5 text-sm placeholder-[#9C9589] text-[#2D2D2D] focus:border-[#C9A962] focus:ring-1 focus:ring-[#C9A962] transition-colors`}
                   value={discountCode}
                   onChange={(e) => {
                     setDiscountCode(e.target.value);
                     if (discountError) setDiscountError('');
                   }}
                 />
-                <button 
-                  className={`px-6 py-2 rounded ${discountInfo ? 'bg-red-600 hover:bg-red-700' : 'bg-teal-600 hover:bg-teal-700'} text-white text-sm font-medium shadow flex items-center justify-center`}
+                <button
+                  className={`px-6 py-2.5 rounded-lg ${discountInfo ? 'bg-[#C44536] hover:bg-[#A03328]' : 'bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962]'} text-sm font-medium shadow-lg flex items-center justify-center transition-all`}
                   onClick={async () => {
                     if (discountInfo) {
                       // Si ya hay un descuento aplicado, lo eliminamos
@@ -468,99 +512,84 @@ export default function CartPage() {
                   disabled={isApplyingDiscount}
                 >
                   {isApplyingDiscount ? (
-                    <span className="animate-pulse">{locale === 'es' ? 'Validando...' : 'Validating...'}</span>
+                    <span className="animate-pulse text-white">{locale === 'es' ? 'Validando...' : 'Validating...'}</span>
                   ) : discountInfo ? (
-                    <span className="text-red-900">{locale === 'es' ? 'ELIMINAR CÓDIGO' : 'REMOVE CODE'}</span>
+                    <span className="text-white font-semibold">{locale === 'es' ? 'ELIMINAR CÓDIGO' : 'REMOVE CODE'}</span>
                   ) : (
-                    <span className="text-gray-800 hover:text-gray-600 cursor-pointer">{locale === 'es' ? 'APLICAR CÓDIGO' : 'APPLY CODE'}</span>
+                    <span className="text-[#1A1A1A] font-semibold">{locale === 'es' ? 'APLICAR CÓDIGO' : 'APPLY CODE'}</span>
                   )}
                 </button>
               </div>
               {discountError && (
-                <p className="text-red-500 text-sm mt-2">{discountError}</p>
+                <p className="text-[#C44536] text-sm mt-2 font-medium">{discountError}</p>
               )}
               {discountInfo && (
-                <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                  <p className="text-green-700 text-sm font-medium">{locale === 'es' ? 'Código aplicado correctamente!' : 'Discount applied successfully!'}</p>
+                <div className="mt-3 p-3 bg-[#4A7C59]/10 border border-[#4A7C59]/20 rounded-lg">
+                  <p className="text-[#4A7C59] text-sm font-semibold">{locale === 'es' ? 'Código aplicado correctamente!' : 'Discount applied successfully!'}</p>
                   {discountInfo.description && (
-                    <p className="text-sm text-green-600">{discountInfo.description}</p>
+                    <p className="text-sm text-[#4A7C59]/80 mt-1">{discountInfo.description}</p>
                   )}
                 </div>
               )}
             </div>
 
             {/* Resumen */}
-            <div className="p-6 rounded shadow-md space-y-4">
-              <h2 className="text-lg font-medium text-slate-800 mb-2">{locale === 'es' ? 'Resumen del pedido' : 'Order summary'}</h2>
-              <div className="space-y-2 mb-6 text-gray-600">
-                <div className="flex justify-between text-sm text-slate-700">
-                  <span>{locale === 'es' ? 'Total del artículo' : 'Total of the article'} ({cart.length} artículo{cart.length !== 1 && "s"})</span>
-                  <span>{formatUSD(subtotal)}</span>
+            <div className="p-6 rounded-xl shadow-lg bg-white border border-[#E8E4E0] space-y-4">
+              <h2 className="text-lg font-semibold text-[#2D2D2D] mb-2">{locale === 'es' ? 'Resumen del pedido' : 'Order summary'}</h2>
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm text-[#4A4A4A]">
+                  <span>{locale === 'es' ? 'Total del artículo' : 'Total of the article'} ({cart.length} {locale === 'es' ? (cart.length !== 1 ? 'artículos' : 'artículo') : (cart.length !== 1 ? 'items' : 'item')})</span>
+                  <span className="font-medium text-[#2D2D2D]">{formatUSD(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-slate-700">
+                <div className="flex justify-between text-sm text-[#4A4A4A]">
                   <span>{locale === 'es' ? 'Envío' : 'Shipping'}</span>
-                  <span>{locale === 'es' ? 'Se calculará en el siguiente paso' : 'Will be calculated in the next step'}</span>
-
+                  <span className="text-[#9C9589] italic">{locale === 'es' ? 'Se calculará después' : 'Calculated at checkout'}</span>
                 </div>
                 {discountInfo && (
-                  <div className="flex justify-between text-sm text-green-600 font-medium">
+                  <div className="flex justify-between text-sm text-[#4A7C59] font-semibold">
                     <span>{locale === 'es' ? 'Descuento' : 'Discount'} ({discountInfo.code})</span>
                     <span>- {formatUSD(discountInfo.discountAmount)}</span>
                   </div>
                 )}
-                <hr className="border-slate-300" />
-                <div className="flex justify-between font-semibold text-base text-slate-800">
+                <hr className="border-[#E8E4E0]" />
+                <div className="flex justify-between font-bold text-base text-[#2D2D2D]">
                   <span>{locale === 'es' ? 'Total del pedido' : 'Total of the order'}</span>
-                  <span>{formatUSD(subtotal2)}</span>
+                  <span className="text-[#C9A962]">{formatUSD(subtotal2)}</span>
                 </div>
-                {locale === 'es' ? <p>Conoce el valor en tu moneda:</p> : <p>Know the value in your currency:</p>}
+                <p className="text-sm text-[#4A4A4A]">{locale === 'es' ? 'Conoce el valor en tu moneda:' : 'Know the value in your currency:'}</p>
                 <CurrencyConverterRow amount={subtotal2} />
-                <p className="text-xs text-slate-500">{locale === 'es' ? `Nota: se te cobrará en USD para ${formatUSD(subtotal2)}` : `Note: you will be charged in USD for ${formatUSD(subtotal2)}`}</p>
-
+                <p className="text-xs text-[#9C9589]">{locale === 'es' ? `Nota: se te cobrará en USD por ${formatUSD(subtotal2)}` : `Note: you will be charged in USD for ${formatUSD(subtotal2)}`}</p>
               </div>
               <button
                 onClick={async () => {
                   if (currentSession === null) {
-                    // If not logged in, redirect to login page with return URL
-                    // Construimos la URL completa usando los hooks de Next.js
                     const fullPath = window.location.pathname + window.location.search;
-                    router.push(`/login?returnUrl=${fullPath}`);
+                    router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
                     return;
                   }
-                  
-                  // Check for inventory issues before proceeding to checkout
+
                   if (Object.keys(stockWarnings).length > 0) {
                     alert(locale === 'es' ? 'Por favor, revise las advertencias de stock antes de continuar.' : 'Please check the stock warnings before proceeding.');
                     return;
                   }
-                  
-                  // Proceed to checkout
+
                   router.push('/checkout');
                 }}
-                className="w-full py-3 rounded bg-teal-600 hover:bg-teal-700 text-white font-semibold text-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] text-[#1A1A1A] font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
               >
                 <span>
-                  { currentSession === null ? locale === 'es' ? 'INICIAR SESIÓN PARA COMPRAR' : 'SIGN IN TO BUY' : locale === 'es' ? 'COMPRAR' : 'BUY'}
+                  {currentSession === null ? (locale === 'es' ? 'INICIAR SESIÓN PARA COMPRAR' : 'SIGN IN TO BUY') : (locale === 'es' ? 'COMPRAR' : 'BUY')}
                 </span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </button>
-              <div className="flex justify-center gap-2 mt-2">
-                {/* {[
-                  "visa.svg",
-                  "mastercard.svg",
-                  "amex.svg",
-                  "discover.svg",
-                  "paypal.svg",
-                ].map((icon) => (
-                  <Image key={icon} src={`/payments/${icon}`} alt={icon} width={40} height={24} />
-                ))} */}
-                <FaCcVisa className="h-10 w-10 text-gray-900" />
-                <FaCcMastercard className="h-10 w-10 text-gray-900" />
-                <FaCcAmex className="h-10 w-10 text-gray-900" />
-                <FaCcDiscover className="h-10 w-10 text-gray-900" />
-                <FaCcPaypal className="h-10 w-10 text-gray-900" />
+              <div className="flex justify-center gap-3 mt-4 pt-4 border-t border-[#E8E4E0]">
+                <FaCcVisa className="h-8 w-8 text-[#4A4A4A]" />
+                <FaCcMastercard className="h-8 w-8 text-[#4A4A4A]" />
+                <FaCcAmex className="h-8 w-8 text-[#4A4A4A]" />
+                <FaCcDiscover className="h-8 w-8 text-[#4A4A4A]" />
+                <FaCcPaypal className="h-8 w-8 text-[#4A4A4A]" />
               </div>
             </div>
           </div>

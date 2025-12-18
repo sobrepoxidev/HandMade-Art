@@ -69,11 +69,11 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
     <div ref={dropdownRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1 text-sm rounded-lg px-3 py-1.5 text-[#F5F1EB] hover:text-[#C9A962] hover:bg-[#3A3A3A] transition-colors"
+        className="flex items-center space-x-1 text-sm rounded-lg px-3 py-1.5 text-[#2D2D2D] hover:text-[#C9A962] hover:bg-[#F5F1EB] transition-colors"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <span className="hidden md:inline">
+        <span className="hidden md:inline font-medium">
           {currentSession ? `${locale === 'es' ? 'Hola' : 'Hello'}, ${currentSession.user.email?.split('@')[0]}` : locale === 'es' ? 'Cuenta y Listas' : 'Account and Lists'}
         </span>
         <span className="md:hidden">
@@ -94,7 +94,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
                   <button
                     onClick={() => {
                       const fullPath = window.location.pathname + window.location.search;
-                      router.push(`/login?returnUrl=${fullPath}`);
+                      router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
                       setIsOpen(false);
                     }}
                     className="block w-full text-center px-4 py-2.5 text-sm font-medium text-[#1A1A1A] bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] rounded-lg transition-all shadow-lg"
@@ -107,7 +107,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
                   <button
                     onClick={() => {
                       const fullPath = window.location.pathname + window.location.search;
-                      router.push(`/register?returnUrl=${fullPath}`);
+                      router.push(`/register?returnUrl=${encodeURIComponent(fullPath)}`);
                       setIsOpen(false);
                     }}
                     className="text-[#C9A962] hover:text-[#D4C4A8] font-medium transition-colors"

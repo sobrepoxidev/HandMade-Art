@@ -626,7 +626,7 @@ export default function CatalogPage() {
             )}
           </div>
 
-          <Link href={`/product/${product.id}`}>
+          <Link href={`/product/${product.name}`}>
             <h3 className="font-semibold text-gray-900 mb-2 hover:text-teal-600 transition-colors line-clamp-2">
               {locale === 'es' ? product.name_es : product.name_en}
             </h3>
@@ -1477,7 +1477,7 @@ export default function CatalogPage() {
                         </div>
 
                         <Link
-                          href={`/product/${product.id}`}
+                          href={`/product/${product.name}`}
                           className="block w-full mt-4 bg-teal-600 text-white py-2 px-4 rounded-lg text-center hover:bg-teal-700 transition-colors"
                         >
                           {locale === 'es' ? 'Ver Detalles' : 'View Details'}

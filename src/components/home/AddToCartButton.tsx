@@ -105,8 +105,8 @@ export default function AddToCartButton({
       <Link 
         href={`https://wa.me/50684237555?text=${encodeURIComponent(
           locale === 'es' 
-            ? `¡Hola! Estoy interesado en el producto: ${product.name} (https://artehechoamano.com/product/${product.id}).\n¿Podrían darme más información?`
-            : `Hello! I'm interested in the product: ${product.name} (https://handmadeart.store/product/${product.id}).\nCould you give me more information?`
+            ? `¡Hola! Estoy interesado en el producto: ${product.name} (https://artehechoamano.com/product/${product.name}).\n¿Podrían darme más información?`
+            : `Hello! I'm interested in the product: ${product.name} (https://handmadeart.store/product/${product.name}).\nCould you give me more information?`
         )}`} 
         target='_blank' 
         rel="noopener noreferrer" 
