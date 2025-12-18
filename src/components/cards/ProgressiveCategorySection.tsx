@@ -144,7 +144,7 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
                 {list.map((product) => (
                   <Link
                     key={product.id}
-                    href={`/product/${product.id}`}
+                    href={`/product/${product.name}`}
                     className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962] rounded"
                     aria-label={(locale === 'es' ? product.name_es : product.name_en) || product.name || 'Producto'}
                   >

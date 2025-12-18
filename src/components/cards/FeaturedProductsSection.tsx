@@ -53,7 +53,7 @@ const FeaturedProductsSection: React.FC = () => {
             {featuredOnly.map((product) => (
               <Link
                 key={product.id}
-                href={`/product/${product.id}`}
+                href={`/product/${product.name}`}
                 className="group"
               >
                 <div className="flex flex-col bg-[#FAF8F5] border border-[#E8E4E0] rounded-lg overflow-hidden h-full hover:shadow-lg hover:border-[#C9A962]/30 transform transition-all duration-300 hover:-translate-y-1">

@@ -84,7 +84,7 @@ export default function SearchSuggestions({
               {results.slice(0, 5).map((product) => (
                 <li key={product.id} className="border-b border-[#C9A962]/10 last:border-b-0">
                   <Link
-                    href={`/product/${product.id}`}
+                    href={`/product/${product.name}`}
                     className="flex items-center p-3 hover:bg-[#3A3A3A] transition-colors"
                     onClick={onClose}
                   >

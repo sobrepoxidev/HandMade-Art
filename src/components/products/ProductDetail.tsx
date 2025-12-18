@@ -39,7 +39,7 @@ function isMediaArray(media: Json): media is Array<{ url: string }> {
 }
 
 // The client component that handles UI and state
-export default function ProductDetail({ id, locale }: { id: string, locale: string }) {
+export default function ProductDetail({ slug, locale }: { slug: string, locale: string }) {
   // Ensure viewport starts at top when navigating to product page
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -86,16 +86,16 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
     };
   }, [session, supabaseContext.auth]);
   
-  // Cargar producto por ID y sus datos relacionados
+  // Cargar producto por slug (name) y sus datos relacionados
   useEffect(() => {
     async function fetchProductAndRelatedData() {
       setLoading(true);
       try {
-        // Fetch product data
+        // Fetch product data by slug (name field)
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
-          .eq('id', parseInt(id))
+          .eq('name', slug)
           .single();
 
         if (productError) {
@@ -161,10 +161,10 @@ export default function ProductDetail({ id, locale }: { id: string, locale: stri
       }
     }
 
-    if (id) {
+    if (slug) {
       fetchProductAndRelatedData();
     }
-  }, [id]); // Use id as dependency
+  }, [slug]); // Use slug as dependency
 
   // Resetear zoom cuando cambia la imagen activa
   useEffect(() => {

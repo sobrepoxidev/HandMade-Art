@@ -372,7 +372,7 @@ export default function ProductsPageContent() {
                 >
                   {/* Imagen del producto */}
                   <Link
-                    href={`/product/${product.id}`}
+                    href={`/product/${product.name}`}
                     className="sm:w-48 h-40 sm:h-auto relative bg-white flex-shrink-0"
                   >
                     <div className="absolute inset-0 flex items-center justify-center p-4">
@@ -391,7 +391,7 @@ export default function ProductsPageContent() {
                   <div className="flex-1 p-4 flex flex-col">
                     <div className="mb-2">
                       <Link
-                        href={`/product/${product.id}`}
+                        href={`/product/${product.name}`}
                         className="text-lg font-medium text-[#2D2D2D] hover:text-[#C9A962] transition"
                       >
                         {locale === 'es' ? product.name : product.name}
@@ -446,7 +446,7 @@ export default function ProductsPageContent() {
                       </div>
 
                       <Link
-                        href={`/product/${product.id}`}
+                        href={`/product/${product.name}`}
                         className="inline-flex items-center px-3 py-1.5 border border-[#C9A962] text-sm font-medium rounded text-[#C9A962] bg-transparent hover:bg-[#C9A962] hover:text-[#1A1A1A] transition-all"
                       >
                         {locale === 'es' ? 'Ver detalles' : 'View details'}

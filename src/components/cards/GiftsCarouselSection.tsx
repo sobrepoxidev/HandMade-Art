@@ -213,7 +213,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
 
                 <div className="grid grid-cols-2 gap-2 w-full h-full">
                   {groupProducts.map((product, idx) => (
-                    <Link key={`${product.id}-${idx}`} href={`/product/${product.id}`} className="block text-center">
+                    <Link key={`${product.id}-${idx}`} href={`/product/${product.name}`} className="block text-center">
                       <div className="h-32 flex items-center justify-center bg-white rounded-lg shadow-sm p-1">
                         <Image
                           src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
@@ -239,7 +239,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
         {/* Desktop: productos individuales */}
         <div className="hidden lg:flex w-full space-x-4 px-4">
           {displayProducts.map((product, idx) => (
-            <Link key={`desktop-product-${product.id}-${idx}`} href={`/product/${product.id}`} className="block h-full min-w-[200px] flex-shrink-0 snap-start group">
+            <Link key={`desktop-product-${product.id}-${idx}`} href={`/product/${product.name}`} className="block h-full min-w-[200px] flex-shrink-0 snap-start group">
               <div className="bg-[#FAF8F5] border border-[#E8E4E0] rounded-lg p-3 hover:shadow-md hover:border-[#C9A962]/30 transition-all duration-300 h-full flex flex-col transform group-hover:-translate-y-1">
                 <div className="relative overflow-hidden rounded-md mb-3">
                   <div className="h-40 flex items-center justify-center p-2 bg-white rounded-md">

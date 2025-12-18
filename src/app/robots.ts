@@ -10,11 +10,27 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     (await headers()).get("host") ??
     "";
 
+  // Determine the alternate domain based on current domain
+  const isSpanish = host.includes("artehechoamano");
+  const altDomain = isSpanish ? "handmadeart.store" : "artehechoamano.com";
+
   return {
-    rules: { userAgent: "*", allow: "/" },
-    // Declaramos *ambos* sitemaps para reforzar la relación entre dominios
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/admin/",
+          "/_next/",
+          "/auth/",
+        ],
+      },
+    ],
+    // Declare both sitemaps for bi-domain SEO
     sitemap: [
       `https://${host}/sitemap.xml`,
+      `https://${altDomain}/sitemap.xml`,
     ],
   };
 }

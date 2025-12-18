@@ -104,7 +104,7 @@ export function ProductCard({ product, interestList, appliedDiscountCode, onCalc
     interestList.removeItem(product.id);
   };
 
-  const productUrl = `https://handmadeart.store/en/product/${product.id}`;
+  const productUrl = `https://handmadeart.store/en/product/${product.name}`;
 
   // Funciones de zoom y arrastre
   const handleImageClick = (e: React.MouseEvent) => {

@@ -134,7 +134,7 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
             <>
               <div className="grid grid-cols-2 gap-3">
                 {displayProducts.map((product: Product, idx: number) => (
-                  <Link key={idx} href={`/product/${product.id}`} className="block group">
+                  <Link key={idx} href={`/product/${product.name}`} className="block group">
                     <div className="flex flex-col items-center bg-gray-50 rounded p-2 hover:shadow-sm transition-shadow">
                       <div className="h-44 flex items-center justify-center mb-1">
                         <Image
@@ -292,7 +292,7 @@ const GridSection = ({ indexStart, indexEnd, mobileActive = true }: { indexStart
                   content: (
                     <div className="grid grid-cols-2 gap-2 w-full h-full px-1 pt-4">
                       {categoryProducts.slice(0, 4).map((product, idx) => (
-                        <Link key={idx} href={`/product/${product.id}`} className="block text-center">
+                        <Link key={idx} href={`/product/${product.name}`} className="block text-center">
                           <div className="h-44 flex items-center justify-center bg-white rounded-lg shadow-sm">
                             <Image
                               src={product.media && isMediaArray(product.media) && product.media.length > 0 ? product.media[0].url : '/placeholder-image.png'}
