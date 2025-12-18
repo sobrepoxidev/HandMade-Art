@@ -25,35 +25,46 @@ export default function SupabaseProvider({
   const [session, setSession] = React.useState<Session | null>(initialSession)
 
   React.useEffect(() => {
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        console.log('Auth state changed:', event, newSession?.user?.email)
-
-        // Update session on any auth event
-        setSession(newSession)
-
-        // On sign out, clear the session
-        if (event === 'SIGNED_OUT') {
-          setSession(null)
-        }
-      }
-    )
-
-    // Get current session on mount
-    const getSession = async () => {
+    // Get current session immediately on mount
+    const initSession = async () => {
       const { data: { session: currentSession } } = await supabase.auth.getSession()
       if (currentSession) {
+        console.log('SupabaseProvider: Found session on mount:', currentSession.user?.email)
         setSession(currentSession)
       }
     }
 
-    getSession()
+    initSession()
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, newSession) => {
+        console.log('SupabaseProvider: Auth event:', event, newSession?.user?.email)
+
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setSession(newSession)
+        } else if (event === 'SIGNED_OUT') {
+          setSession(null)
+        } else if (event === 'INITIAL_SESSION') {
+          // This fires when the page loads and there's an existing session
+          if (newSession) {
+            setSession(newSession)
+          }
+        }
+      }
+    )
 
     return () => {
       subscription.unsubscribe()
     }
   }, [supabase])
+
+  // Also update when initialSession prop changes (server-side session)
+  React.useEffect(() => {
+    if (initialSession && !session) {
+      setSession(initialSession)
+    }
+  }, [initialSession, session])
 
   return (
     <Context.Provider value={{ supabase, session }}>
@@ -62,7 +73,6 @@ export default function SupabaseProvider({
   )
 }
 
-// Hook para usar el contexto
 export const useSupabase = () => {
   const context = React.useContext(Context)
   if (!context) {

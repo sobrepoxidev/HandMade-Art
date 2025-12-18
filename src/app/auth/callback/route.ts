@@ -14,16 +14,10 @@ function splitPathAndQuery(path: string): { p: string; q: string } {
   return { p: path.slice(0, i), q: path.slice(i) };
 }
 
-/**
- * Quita EXACTAMENTE un locale inicial (/es|/en) y devuelve el path sin locale.
- */
 function stripLeadingLocale(path: string): string {
   return path.replace(/^\/(es|en)(?=\/|$)/, "");
 }
 
-/**
- * Normaliza una ruta local con el locale objetivo
- */
 function normalizeLocalePath(pathWithQuery: string, targetLocale: Locale): string {
   if (!pathWithQuery.startsWith("/")) pathWithQuery = "/" + pathWithQuery;
   pathWithQuery = collapseSlashes(pathWithQuery);
@@ -37,15 +31,11 @@ function normalizeLocalePath(pathWithQuery: string, targetLocale: Locale): strin
   return collapseSlashes(withLocale) + q;
 }
 
-/**
- * Convierte "next" a una ruta local segura con el locale correcto
- */
 function sanitizeNext(rawNext: string, reqOrigin: string, targetLocale: Locale): string {
   try {
     const req = new URL(reqOrigin);
     const u = new URL(rawNext, reqOrigin);
 
-    // Anti open-redirect
     if (u.origin !== req.origin) {
       return `/${targetLocale}`;
     }
@@ -63,17 +53,19 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const rawNext = searchParams.get("next") ?? "/";
 
-  // Determina el locale objetivo por dominio
   const targetLocale: Locale = hostname.includes("artehechoamano") ? "es" : "en";
 
-  console.log('OAuth Callback - Starting process:', { code: !!code, rawNext, targetLocale, hostname });
+  console.log('OAuth Callback - Starting:', { code: !!code, rawNext, targetLocale });
 
   if (!code) {
-    console.error('OAuth Callback - Missing code parameter');
+    console.error('OAuth Callback - Missing code');
     return NextResponse.redirect(`${origin}/${targetLocale}/login?error=code_missing`);
   }
 
   const cookieStore = await cookies();
+
+  // Collect cookies to set on the response
+  const cookiesToSet: { name: string; value: string; options: CookieOptions }[] = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -83,21 +75,23 @@ export async function GET(request: Request) {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string; options?: CookieOptions }[]) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options as CookieOptions)
-            );
-          } catch {
-            // Ignore errors from Server Component context
-          }
+        setAll(cookies: { name: string; value: string; options?: CookieOptions }[]) {
+          cookies.forEach(({ name, value, options }) => {
+            // Store for later - we'll set them on the redirect response
+            cookiesToSet.push({ name, value, options: options || {} });
+            // Also try to set on cookieStore
+            try {
+              cookieStore.set(name, value, options as CookieOptions);
+            } catch {
+              // Ignore - we'll set on redirect response
+            }
+          });
         },
       },
     }
   );
 
   try {
-    // Exchange code for session
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
@@ -105,23 +99,28 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}/${targetLocale}/login?error=oauth`);
     }
 
-    console.log('OAuth Callback - Session exchanged successfully:', {
+    console.log('OAuth Callback - Session created:', {
       userId: data.session?.user?.id,
       email: data.session?.user?.email
     });
 
     if (!data.session) {
-      console.error('OAuth Callback - No session returned');
+      console.error('OAuth Callback - No session');
       return NextResponse.redirect(`${origin}/${targetLocale}/login?error=session_missing`);
     }
 
-    // Normalize the return URL
     const next = sanitizeNext(rawNext, origin, targetLocale);
-
     console.log('OAuth Callback - Redirecting to:', `${origin}${next}`);
 
-    // Create response with cache headers to prevent stale session
+    // Create redirect response and SET THE COOKIES on it
     const response = NextResponse.redirect(`${origin}${next}`);
+
+    // Apply all collected cookies to the redirect response
+    cookiesToSet.forEach(({ name, value, options }) => {
+      response.cookies.set(name, value, options);
+    });
+
+    // Prevent caching
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
@@ -129,7 +128,7 @@ export async function GET(request: Request) {
     return response;
 
   } catch (error) {
-    console.error('OAuth Callback - Unexpected error:', error);
+    console.error('OAuth Callback - Error:', error);
     return NextResponse.redirect(`${origin}/${targetLocale}/login?error=unexpected`);
   }
 }
