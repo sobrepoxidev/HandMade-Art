@@ -1,123 +1,134 @@
 "use client";
-import { useActionState} from 'react';
+import { useActionState } from "react";
 import { handleVacationForm } from "../../actions";
-import { motion } from 'framer-motion';
-import { FaSpinner, FaCheck } from 'react-icons/fa';
-import { useLocale } from 'next-intl';
+import { motion } from "framer-motion";
+import { FaSpinner, FaCheck, FaPaperPlane } from "react-icons/fa";
+import { useLocale } from "next-intl";
 
 export default function FormMail() {
-  const [state, formAction, isPending] = useActionState(handleVacationForm, null);
+  const [state, formAction, isPending] = useActionState(
+    handleVacationForm,
+    null
+  );
   const locale = useLocale();
+  const t = locale === "en";
 
   return (
-    <div>
-      <motion.form
-        action={formAction}
-        className="space-y-4"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <div className="space-y-4 text-start">
-          <div>
-            <label className="block mb-2 font-medium text-gray-700 text-sm">
-              {locale === "es" ? "Nombre" : "Name"}
-            </label>
-            <input
-              type="text"
-              name="name"
-              required
-              placeholder="Tu nombre"
-              className="w-full p-3 border border-gray-300 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
-                       transition-all text-sm md:text-base"
-              disabled={isPending}
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-medium text-gray-700 text-sm">
-              {locale === "es" ? "Correo electrónico" : "Email"}
-            </label>
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="tu@email.com"
-              className="w-full p-3 border border-gray-300 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
-                       transition-all text-sm md:text-base"
-              disabled={isPending}
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-medium text-gray-700 text-sm">
-              {locale === "es" ? "Teléfono" : "Phone"}
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              placeholder="+52 XXX XXX XXXX"
-              className="w-full p-3 border border-gray-300 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
-                       transition-all text-sm md:text-base"
-              disabled={isPending}
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-medium text-gray-700 text-sm">
-              {locale === "es" ? "Mensaje" : "Message"}
-            </label>
-            <textarea
-              name="message"
-              required
-              rows={4}
-              placeholder="¿Cómo podemos ayudarte?"
-              className="w-full p-3 border border-gray-300 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
-                       transition-all resize-y min-h-24 text-sm md:text-base"
-              disabled={isPending }
-            />
-          </div>
-
-          <button
-            type="submit"
+    <motion.form
+      action={formAction}
+      className="space-y-5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4, delay: 0.1 }}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Name */}
+        <div>
+          <label className="block mb-1.5 text-sm font-medium text-[#2D2D2D]">
+            {t ? "Name" : "Nombre"} <span className="text-[#C9A962]">*</span>
+          </label>
+          <input
+            type="text"
+            name="name"
+            required
+            placeholder={t ? "Your name" : "Tu nombre"}
+            className="input text-sm"
             disabled={isPending}
-            className={`w-full py-3 rounded-lg transition-all duration-300 flex items-center justify-center
-                      text-sm md:text-base font-medium
-                      ${state?.success 
-                        ? 'bg-green-600 hover:bg-green-700 text-white' 
-                        : 'rounded-md bg-teal-600 px-6 py-3 text-white shadow transition hover:bg-teal-700 flex items-center justify-center gap-1'} 
-                      disabled:opacity-70 disabled:cursor-not-allowed`}
-          >
-            {isPending ? (
-              <>
-                <FaSpinner className="inline-block animate-spin mr-2" />
-                <span>{locale === "es" ? "Enviando..." : "Sending..."}</span>
-              </>
-            ) : state?.success ? (
-              <>
-                <FaCheck className="inline-block mr-2" />
-                <span>{locale === "es" ? "Enviado con éxito!" : "Message sent successfully"}</span>
-              </>
-            ) : (
-              <span>{locale === "es" ? "Enviar mensaje" : "Send message"}</span>
-            )}
-          </button>
-          {state && !state?.success && (
-            <motion.p 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`text-center text-sm md:text-base font-medium p-2 rounded
-                ${state?.success ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}
-            >
-              {state?.message}
-            </motion.p>
-          )}
+          />
         </div>
-      </motion.form>
-    </div>
+
+        {/* Email */}
+        <div>
+          <label className="block mb-1.5 text-sm font-medium text-[#2D2D2D]">
+            {t ? "Email" : "Correo electrónico"}{" "}
+            <span className="text-[#C9A962]">*</span>
+          </label>
+          <input
+            type="email"
+            name="email"
+            required
+            placeholder={t ? "you@email.com" : "tu@email.com"}
+            className="input text-sm"
+            disabled={isPending}
+          />
+        </div>
+      </div>
+
+      {/* Phone */}
+      <div>
+        <label className="block mb-1.5 text-sm font-medium text-[#2D2D2D]">
+          {t ? "Phone" : "Teléfono"}{" "}
+          <span className="text-[#9C9589] text-xs font-normal">
+            ({t ? "optional" : "opcional"})
+          </span>
+        </label>
+        <input
+          type="tel"
+          name="phone"
+          placeholder="+506 XXXX XXXX"
+          className="input text-sm"
+          disabled={isPending}
+        />
+      </div>
+
+      {/* Message */}
+      <div>
+        <label className="block mb-1.5 text-sm font-medium text-[#2D2D2D]">
+          {t ? "Message" : "Mensaje"}{" "}
+          <span className="text-[#C9A962]">*</span>
+        </label>
+        <textarea
+          name="message"
+          required
+          rows={5}
+          placeholder={
+            t ? "How can we help you?" : "¿Cómo podemos ayudarte?"
+          }
+          className="input text-sm resize-y min-h-[120px]"
+          disabled={isPending}
+        />
+      </div>
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        disabled={isPending}
+        className={`w-full py-3 px-6 rounded-lg font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2
+          ${
+            state?.success
+              ? "bg-[#4A7C59] text-white"
+              : "bg-[#2D2D2D] text-[#F5F1EB] hover:bg-[#3A3A3A] border border-[#C9A962]/30 hover:border-[#C9A962] hover:shadow-md"
+          }
+          disabled:opacity-60 disabled:cursor-not-allowed`}
+      >
+        {isPending ? (
+          <>
+            <FaSpinner className="animate-spin w-4 h-4" />
+            <span>{t ? "Sending..." : "Enviando..."}</span>
+          </>
+        ) : state?.success ? (
+          <>
+            <FaCheck className="w-4 h-4" />
+            <span>{t ? "Message sent!" : "¡Mensaje enviado!"}</span>
+          </>
+        ) : (
+          <>
+            <FaPaperPlane className="w-3.5 h-3.5" />
+            <span>{t ? "Send Message" : "Enviar Mensaje"}</span>
+          </>
+        )}
+      </button>
+
+      {/* Error Message */}
+      {state && !state.success && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center text-sm font-medium p-3 rounded-lg text-[#C44536] bg-[#C44536]/5 border border-[#C44536]/10"
+        >
+          {state.message}
+        </motion.div>
+      )}
+    </motion.form>
   );
 }
