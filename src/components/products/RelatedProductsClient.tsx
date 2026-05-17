@@ -1,13 +1,26 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import ProductCard from "./ProductCard";
-import { Database } from "@/lib/database.types";
-import { supabase } from "@/lib/supabaseClient";
-
 import { useInView } from "react-intersection-observer";
+import { supabase } from "@/lib/supabaseClient";
+import { Database } from "@/lib/database.types";
+import RelatedProductCard, { RelatedProductCardData } from "./RelatedProductCard";
+import RelatedProductsSkeleton from "./RelatedProductsSkeleton";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
+type CategoryEmbed = Pick<
+  Database["public"]["Tables"]["categories"]["Row"],
+  "id" | "name_es" | "name_en"
+> | null;
+type InventoryEmbed = Pick<
+  Database["public"]["Tables"]["inventory"]["Row"],
+  "quantity"
+>[];
+
+type RelatedProductRow = Product & {
+  categories: CategoryEmbed;
+  inventory: InventoryEmbed;
+};
 
 interface Props {
   title: string;
@@ -19,44 +32,79 @@ interface Props {
 
 export default function RelatedProductsClient({
   title,
+  locale,
   categoryId,
   excludeIds = [],
   limit = 8,
 }: Props) {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [cards, setCards] = useState<RelatedProductCardData[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
   const { ref, inView } = useInView({ triggerOnce: true, rootMargin: "200px" });
 
-  // Use a stable string representation of excludeIds to avoid re-fetching on array reference changes
   const excludeIdsKey = excludeIds.join(",");
   const prevExcludeIdsKey = useRef(excludeIdsKey);
 
   useEffect(() => {
-    // Only fetch if we haven't fetched yet, or if the actual values changed (not just reference)
     if (!inView || (hasFetched && prevExcludeIdsKey.current === excludeIdsKey)) return;
-
     prevExcludeIdsKey.current = excludeIdsKey;
 
     const fetchProducts = async () => {
       setLoading(true);
+
       let query = supabase
         .from("products")
-        .select("id, name_es, name_en, colon_price, dolar_price, media, category_id")
+        .select(
+          `id, name, name_es, name_en, colon_price, dolar_price,
+           discount_percentage, is_featured, media, category_id, is_active,
+           brand, country_of_origin, created_at, customs_description_en,
+           dangerous_goods, description, description_en, height_cm, hs_code,
+           length_cm, modified_at, sku, specifications, tags, weight_kg, width_cm,
+           categories ( id, name_es, name_en ),
+           inventory ( quantity )`
+        )
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(limit);
 
-      if (categoryId) {
-        query = query.eq("category_id", categoryId);
-      }
-
+      if (categoryId != null) query = query.eq("category_id", categoryId);
       if (excludeIds.length) {
         query = query.not("id", "in", `(${excludeIds.join(",")})`);
       }
 
       const { data, error } = await query;
-      if (!error && data) setProducts(data as Product[]);
+      if (error || !data) {
+        if (error) console.error("RelatedProductsClient query error:", error);
+        setLoading(false);
+        setHasFetched(true);
+        return;
+      }
+
+      const rows = data as unknown as RelatedProductRow[];
+      const productIds = rows.map((r) => r.id);
+
+      let favoriteIds = new Set<number>();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user && productIds.length) {
+        const { data: favs } = await supabase
+          .from("favorites")
+          .select("product_id")
+          .eq("user_id", session.user.id)
+          .in("product_id", productIds);
+        if (favs) favoriteIds = new Set(favs.map((f) => f.product_id));
+      }
+
+      const next: RelatedProductCardData[] = rows.map((row) => {
+        const { categories, inventory, ...product } = row;
+        return {
+          product: product as Product,
+          category: categories,
+          inventory: inventory?.[0]?.quantity ?? 0,
+          isFavorite: favoriteIds.has(row.id),
+        };
+      });
+
+      setCards(next);
       setLoading(false);
       setHasFetched(true);
     };
@@ -64,28 +112,33 @@ export default function RelatedProductsClient({
     fetchProducts();
   }, [inView, categoryId, excludeIdsKey, limit, hasFetched, excludeIds]);
 
-  if (!inView) return <div ref={ref} />; // placeholder until in view
+  if (!inView) {
+    return <div ref={ref} className="min-h-[100px]" />;
+  }
 
-  if (loading) {
+  if (loading || !hasFetched) {
     return (
-      <div ref={ref} className="mt-6 flex justify-center py-4">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#C9A962]" />
+      <div ref={ref}>
+        <RelatedProductsSkeleton title={title} />
       </div>
     );
   }
 
-  if (products.length === 0) return null;
+  if (cards.length === 0) return null;
 
   return (
-    <div ref={ref} className="mt-6 rounded-lg overflow-hidden border border-[#E8E4E0]">
-      <div className="px-4 py-2 bg-[#2D2D2D] text-[#C9A962] text-sm font-semibold">
+    <section
+      ref={ref}
+      className="mt-12 rounded-xl overflow-hidden border border-[#E8E4E0] bg-white"
+    >
+      <header className="px-5 py-3 bg-[#2D2D2D] text-[#C9A962] text-sm font-semibold tracking-wide border-b border-[#C9A962]/20">
         {title}
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-[#FAF8F5]">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
+      </header>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4 bg-[#FAF8F5]">
+        {cards.map((card) => (
+          <RelatedProductCard key={card.product.id} {...card} locale={locale} />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

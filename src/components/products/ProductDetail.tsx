@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -24,7 +24,6 @@ import { useSupabase } from '@/app/supabase-provider/provider';
 import { useCart } from '@/context/CartContext';
 import { Database, Json } from '@/lib/database.types';
 import ReviewsList from '@/components/products/ReviewsList';
-import RelatedProductsClient from '@/components/products/RelatedProductsClient';
 import ReviewForm from '@/components/products/ReviewForm';
 import { formatUSD } from '@/lib/formatCurrency';
 
@@ -39,7 +38,7 @@ function isMediaArray(media: Json): media is Array<{ url: string }> {
 }
 
 // The client component that handles UI and state
-export default function ProductDetail({ slug, locale }: { slug: string, locale: string }) {
+export default function ProductDetail({ slug, locale, children }: { slug: string, locale: string, children?: ReactNode }) {
   // Ensure viewport starts at top when navigating to product page
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -783,15 +782,8 @@ export default function ProductDetail({ slug, locale }: { slug: string, locale: 
         </div>
       </div>
 
-      {/* Related products */}
-      {product && (
-        <RelatedProductsClient
-          title={locale === 'es' ? 'Otros productos' : 'Other products'}
-          locale={locale}
-          categoryId={product.category_id}
-          excludeIds={[product.id]}
-        />
-      )}
+      {/* Related products (server-streamed via Suspense) */}
+      {children}
 
       {/* Reviews Section */}
       {!loading && !error && product && (

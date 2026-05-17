@@ -1,82 +1,104 @@
-import { cookies } from "next/headers";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import ProductCard from "./ProductCard";
-import { Database } from "@/lib/database.types";
+import { createClient } from '@/utils/supabase/server';
+import { Database } from '@/lib/database.types';
+import RelatedProductCard, { RelatedProductCardData } from './RelatedProductCard';
 
-/**
- * Minimal product type for related products display.
- * Only includes the fields we need for the ProductCard component.
- */
-export type MinimalProduct = Pick<Database['public']['Tables']['products']['Row'],
-  | "id"
-  | "name"
-  | "name_es"
-  | "name_en"
-  | "colon_price"
-  | "dolar_price"
-  | "media"
-  | "category_id"
-  | "discount_percentage"
-  | "is_featured">;
+type Product = Database['public']['Tables']['products']['Row'];
+type CategoryEmbed = Pick<
+  Database['public']['Tables']['categories']['Row'],
+  'id' | 'name_es' | 'name_en'
+> | null;
+type InventoryEmbed = Pick<
+  Database['public']['Tables']['inventory']['Row'],
+  'quantity'
+>[];
 
-interface RelatedProductsProps {
+type RelatedProductRow = Product & {
+  categories: CategoryEmbed;
+  inventory: InventoryEmbed;
+};
+
+type Props = {
   title: string;
   locale: string;
   categoryId?: number | null;
   excludeIds?: number[];
   limit?: number;
-}
+};
 
 export default async function RelatedProducts({
   title,
+  locale,
   categoryId,
   excludeIds = [],
   limit = 8,
-}: RelatedProductsProps) {
-  const supabase = createServerComponentClient<Database>({ cookies });
+}: Props) {
+  const supabase = await createClient();
 
-  // Base query – only active products
   let query = supabase
-    .from("products")
+    .from('products')
     .select(
-      "id, name, name_es, name_en, colon_price, dolar_price, media, category_id, discount_percentage, is_featured"
+      `id, name, name_es, name_en, colon_price, dolar_price,
+       discount_percentage, is_featured, media, category_id, is_active,
+       brand, country_of_origin, created_at, customs_description_en,
+       dangerous_goods, description, description_en, height_cm, hs_code,
+       length_cm, modified_at, sku, specifications, tags, weight_kg, width_cm,
+       categories ( id, name_es, name_en ),
+       inventory ( quantity )`
     )
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
     .limit(limit);
 
-  if (categoryId) {
-    query = query.eq("category_id", categoryId);
+  if (categoryId != null) {
+    query = query.eq('category_id', categoryId);
   }
-
   if (excludeIds.length) {
-    // Supabase "not in" filter expects a parenthesised comma-separated list
-    query = query.not("id", "in", `(${excludeIds.join(",")})`);
+    query = query.not('id', 'in', `(${excludeIds.join(',')})`);
   }
 
   const { data, error } = await query;
 
   if (error) {
-    console.error("Error fetching related products:", error.message);
+    console.error('RelatedProducts query error:', error);
     return null;
   }
 
-  // Cast explícito para asegurar el tipo y evitar inferencias 'never'
-  const products = data as MinimalProduct[] | null;
+  const rows = (data ?? []) as unknown as RelatedProductRow[];
+  if (rows.length === 0) return null;
 
-  if (!products || products.length === 0) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  let favoriteIds = new Set<number>();
+
+  if (user) {
+    const productIds = rows.map((r) => r.id);
+    const { data: favs } = await supabase
+      .from('favorites')
+      .select('product_id')
+      .eq('user_id', user.id)
+      .in('product_id', productIds);
+    if (favs) favoriteIds = new Set(favs.map((f) => f.product_id));
+  }
+
+  const cards: RelatedProductCardData[] = rows.map((row) => {
+    const { categories, inventory, ...product } = row;
+    return {
+      product: product as Product,
+      category: categories,
+      inventory: inventory?.[0]?.quantity ?? 0,
+      isFavorite: favoriteIds.has(row.id),
+    };
+  });
 
   return (
-    <div className="mt-6 rounded-md overflow-hidden shadow-md">
-      <div className="px-4 py-2 bg-teal-600 text-white text-sm font-semibold">
+    <section className="mt-12 rounded-xl overflow-hidden border border-[#E8E4E0] bg-white">
+      <header className="px-5 py-3 bg-[#2D2D2D] text-[#C9A962] text-sm font-semibold tracking-wide border-b border-[#C9A962]/20">
         {title}
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product as Database['public']['Tables']['products']['Row']} />
+      </header>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4 bg-[#FAF8F5]">
+        {cards.map((card) => (
+          <RelatedProductCard key={card.product.id} {...card} locale={locale} />
         ))}
       </div>
-    </div>
+    </section>
   );
 }
