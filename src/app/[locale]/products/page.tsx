@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import Script from "next/script";
 import { headers } from "next/headers";
 import { buildMetadata } from "@/lib/metadata";
 import Loading from "@/components/products/LoadingGallery";
@@ -8,12 +7,20 @@ import ProductsPageContent from "@/components/products/ProductsPageContent";
 import { createClient } from "@/utils/supabase/server";
 
 /**
- * Página principal de catálogo. Renderiza un ItemList JSON-LD con los
- * productos activos para que crawlers y LLMs entiendan la lista sin
- * ejecutar JavaScript.
+ * Catálogo principal. Renderiza JSON-LD (CollectionPage + ItemList + Breadcrumb)
+ * en el HTML estático para que crawlers y LLMs lean la lista sin ejecutar JS.
  */
 
 type tParams = Promise<{ locale: string }>;
+
+type MediaItem = { url: string; alt?: string };
+
+async function getSiteUrl(): Promise<string> {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") || h.get("host") || "handmadeart.store";
+  const proto = h.get("x-forwarded-proto") || "https";
+  return `${proto}://${host}`;
+}
 
 export async function generateMetadata({
   params,
@@ -33,29 +40,51 @@ export async function generateMetadata({
       ? "Explora todas las piezas únicas: espejos, chorreadores, esculturas y decoración hecha a mano en Costa Rica. Envíos a todo el país."
       : "Browse every one-of-a-kind piece: mirrors, coffee drippers, sculptures and décor handmade in Costa Rica. Shipping nationwide.";
 
+  // Try to pull a representative image from the first featured product.
+  let ogImage:
+    | { url: string; width: number; height: number; alt: string }
+    | undefined;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("products")
+      .select("media")
+      .eq("is_active", true)
+      .eq("is_featured", true)
+      .limit(1)
+      .maybeSingle();
+    const media = (data?.media as MediaItem[] | null) || [];
+    const first = media[0];
+    if (first?.url) {
+      ogImage = {
+        url: first.url,
+        width: 1200,
+        height: 1200,
+        alt:
+          currentLocale === "es"
+            ? "Catálogo de artesanía hecha a mano en Costa Rica"
+            : "Costa Rican handmade art catalog",
+      };
+    }
+  } catch (err) {
+    console.warn("Catalog OG image lookup failed:", err);
+  }
+
   return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/products`,
     title,
     description,
+    image: ogImage,
   });
 }
-
-async function getSiteUrl(): Promise<string> {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") || h.get("host") || "handmadeart.store";
-  const proto = h.get("x-forwarded-proto") || "https";
-  return `${proto}://${host}`;
-}
-
-type MediaItem = { url: string; alt?: string };
 
 export default async function ProductsPage({ params }: { params: tParams }) {
   const { locale } = await params;
   const currentLocale: "es" | "en" = locale === "es" ? "es" : "en";
   const siteUrl = await getSiteUrl();
 
-  // Lightweight server-side fetch ONLY for the JSON-LD listing.
+  // Lightweight server-side fetch ONLY for JSON-LD listing.
   // The interactive catalog UI is still rendered by ProductsPageContent (client).
   const supabase = await createClient();
   const { data: products } = await supabase
@@ -69,7 +98,8 @@ export default async function ProductsPage({ params }: { params: tParams }) {
   const itemList = (products ?? []).map((p, i) => {
     const displayName =
       (currentLocale === "es" ? p.name_es : p.name_en) || p.name || "";
-    const url = `${siteUrl}/${locale}/product/${p.name}`;
+    const slug = encodeURIComponent(p.name || "");
+    const url = `${siteUrl}/${locale}/product/${slug}`;
     const media = (p.media as MediaItem[] | null) ?? [];
     const image = media[0]?.url;
     const discount = p.discount_percentage ?? 0;
@@ -101,7 +131,7 @@ export default async function ProductsPage({ params }: { params: tParams }) {
     };
   });
 
-  const schema = {
+  const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "@id": `${siteUrl}/${locale}/products#collection`,
@@ -111,6 +141,12 @@ export default async function ProductsPage({ params }: { params: tParams }) {
         ? "Catálogo de artesanía costarricense hecha a mano"
         : "Costa Rican handmade art catalog",
     inLanguage: currentLocale === "es" ? "es-CR" : "en-US",
+    isPartOf: {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      name: "Handmade Art",
+      url: siteUrl,
+    },
     mainEntity: {
       "@type": "ItemList",
       itemListOrder: "https://schema.org/ItemListOrderDescending",
@@ -119,7 +155,7 @@ export default async function ProductsPage({ params }: { params: tParams }) {
     },
   };
 
-  const breadcrumb = {
+  const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
@@ -140,17 +176,15 @@ export default async function ProductsPage({ params }: { params: tParams }) {
 
   return (
     <>
-      <Script
-        id="products-collection-jsonld"
+      <script
         type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
       />
-      <Script
-        id="products-breadcrumb-jsonld"
+      <script
         type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       <Suspense fallback={<Loading />}>

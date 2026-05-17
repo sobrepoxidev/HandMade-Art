@@ -155,26 +155,32 @@ export default async function ProductPage({ params }: { params: tParams }) {
     notFound();
   }
 
-  // Parallel SSR fetches of related data (category, inventory, reviews stats)
+  // Parallel SSR fetches of related data (category, inventory, reviews)
   const [categoryRes, inventoryRes, reviewsRes] = await Promise.all([
     product.category_id
       ? supabase.from('categories').select('*').eq('id', product.category_id).single()
       : Promise.resolve({ data: null, error: null } as { data: Category | null; error: null }),
     supabase.from('inventory').select('quantity').eq('product_id', product.id).maybeSingle(),
-    supabase.from('reviews').select('rating').eq('product_id', product.id),
+    supabase
+      .from('reviews')
+      .select('id, rating, comment, created_at')
+      .eq('product_id', product.id)
+      .order('created_at', { ascending: false })
+      .limit(20),
   ]);
 
   const category = (categoryRes.data ?? null) as Category | null;
   const inventory = inventoryRes.data?.quantity ?? 0;
 
-  const ratings = (reviewsRes.data ?? []).map((r) => r.rating).filter((n): n is number => typeof n === 'number');
+  const reviewRows = reviewsRes.data ?? [];
+  const ratings = reviewRows.map((r) => r.rating).filter((n): n is number => typeof n === 'number');
   const reviewCount = ratings.length;
   const ratingAvg = reviewCount > 0
     ? Math.round((ratings.reduce((a, b) => a + b, 0) / reviewCount) * 10) / 10
     : null;
 
   const siteUrl = await getSiteUrl();
-  const canonicalUrl = `${siteUrl}/${locale}/product/${slug}`;
+  const canonicalUrl = `${siteUrl}/${locale}/product/${encodeURIComponent(slug)}`;
 
   const relatedTitle = currentLocale === 'es' ? 'Otros productos' : 'Other products';
 
@@ -186,6 +192,7 @@ export default async function ProductPage({ params }: { params: tParams }) {
         inventory={inventory}
         ratingAvg={ratingAvg}
         reviewCount={reviewCount}
+        reviews={reviewRows}
         locale={currentLocale}
         url={canonicalUrl}
       />
@@ -200,7 +207,7 @@ export default async function ProductPage({ params }: { params: tParams }) {
                     (currentLocale === 'es' ? category.name_es : category.name_en) ||
                     category.name ||
                     'Categoría',
-                  url: `${siteUrl}/${locale}/products?category=${category.id}`,
+                  url: `${siteUrl}/${locale}/products?category=${encodeURIComponent(String(category.id))}`,
                 },
               ]
             : []),

@@ -1,14 +1,12 @@
-import Script from 'next/script';
-
 type Item = {
   name: string;
   url: string;
 };
 
 /**
- * Server-side BreadcrumbList JSON-LD.
- * Renders a structured breadcrumb in the static HTML so Google can show
- * breadcrumbs in SERP and crawlers/LLMs can understand the page hierarchy.
+ * Server-side BreadcrumbList JSON-LD via plain <script> tag.
+ * Emitted into the static HTML so Google can render the breadcrumb in SERP
+ * and LLM crawlers can understand the page hierarchy.
  */
 export default function BreadcrumbJsonLd({ items }: { items: Item[] }) {
   const schema = {
@@ -23,10 +21,9 @@ export default function BreadcrumbJsonLd({ items }: { items: Item[] }) {
   };
 
   return (
-    <Script
-      id="breadcrumb-jsonld"
+    <script
       type="application/ld+json"
-      strategy="afterInteractive"
+      // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />
   );
