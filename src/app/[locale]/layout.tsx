@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { hasLocale } from "next-intl";
+import { Frank_Ruhl_Libre, Geist } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { buildMetadata } from "@/lib/metadata";
 import Script from "next/script";
@@ -13,6 +14,19 @@ import ClientLayout from "@/components/ClientLayout";
 import { NextIntlClientProvider } from "next-intl";
 import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "react-hot-toast";
+
+const fontDisplay = Frank_Ruhl_Libre({
+  subsets: ["latin"],
+  variable: "--font-display-family",
+  weight: ["400", "500", "700", "900"],
+  display: "swap",
+});
+
+const fontSans = Geist({
+  subsets: ["latin"],
+  variable: "--font-sans-family",
+  display: "swap",
+});
 
 // Viewport optimization for mobile
 export const viewport: Viewport = {
@@ -93,7 +107,7 @@ export default async function LocaleLayout({
   const currentUrl = `https://${currentDomain}`;
 
   return (
-    <html lang={locale} className="bg-[#FAF8F5]">
+    <html lang={locale} className={`bg-[#FAF8F5] ${fontDisplay.variable} ${fontSans.variable}`}>
       <head>
         {/* Preconnect to critical third-party origins */}
         <link rel="preconnect" href="https://mzeixepwwyowiqgwkopw.supabase.co" />

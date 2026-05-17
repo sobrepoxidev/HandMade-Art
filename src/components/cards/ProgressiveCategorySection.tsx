@@ -124,12 +124,12 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
           return (
             <div key={categoryId} className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-base lg:text-lg font-semibold text-[#2D2D2D] truncate max-w-[60%] lg:max-w-[65%]">
+                <h3 className="font-display text-base lg:text-lg font-medium text-[#2D2D2D] tracking-[-0.005em] truncate max-w-[60%] lg:max-w-[65%]">
                   {(locale === 'es' ? category.name_es : category.name_en) || category.name || 'Categoría'}
                 </h3>
                 <Link
                   href={`/products?category=${categoryId}`}
-                  className="text-[#C9A962] hover:text-[#A08848] text-xs lg:text-sm inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962] rounded transition-colors"
+                  className="inline-flex items-center min-h-[44px] px-2 py-2 text-[#A08848] hover:text-[#2D2D2D] text-xs lg:text-sm font-medium rounded transition-colors"
                   aria-label={locale === 'es' ? `Ver más en ${category.name_es}` : `View more in ${category.name_en || category.name}`}
                   title={locale === 'es' ? `Ver más en ${category.name_es}` : `View more in ${category.name_en || category.name}`}
                 >
@@ -145,11 +145,11 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
                   <Link
                     key={product.id}
                     href={`/product/${product.name}`}
-                    className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962] rounded"
+                    className="group block rounded"
                     aria-label={(locale === 'es' ? product.name_es : product.name_en) || product.name || 'Producto'}
                   >
-                    <div className="bg-[#FAF8F5] rounded-md border border-[#E8E4E0] hover:shadow-lg hover:border-[#C9A962]/30 transition-all overflow-hidden h-full flex flex-col">
-                      <div className="relative bg-white aspect-square">
+                    <div className="bg-white rounded-md border border-[#E8E4E0] hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 group-hover:-translate-y-0.5 overflow-hidden h-full flex flex-col">
+                      <div className="relative bg-[#FAF8F5] aspect-square">
                         <Image
                           src={Array.isArray(product.media) && product.media.length > 0
                             ? (product.media[0] as { url: string }).url
@@ -157,17 +157,17 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
                           alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || 'Producto'}
                           fill
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                          className="object-contain p-2 group-hover:scale-105 transition-transform"
+                          className="object-contain p-3 group-hover:scale-[1.04] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
                           loading="lazy"
                         />
                         {product.dolar_price && (
-                          <div className="absolute bottom-2 right-2 bg-[#2D2D2D] text-[#C9A962] text-xs font-bold px-2 py-0.5 rounded">
+                          <div className="absolute bottom-2 right-2 bg-[#2D2D2D] text-[#C9A962] text-xs font-semibold tabular-nums px-2 py-0.5 rounded-sm">
                             {formatUSD(product.dolar_price)}
                           </div>
                         )}
                       </div>
                       <div className="px-2.5 py-2">
-                        <div className="text-[0.70rem] lg:text-xs leading-snug text-[#4A4A4A] line-clamp-2 group-hover:text-[#C9A962] transition-colors min-h-[2.2rem] lg:min-h-[2.4rem]">
+                        <div className="text-[11px] lg:text-xs leading-snug text-[#4A4A4A] line-clamp-2 group-hover:text-[#A08848] transition-colors min-h-[2.2rem] lg:min-h-[2.4rem]">
                           {(locale === 'es' ? product.name_es : product.name_en) || product.name}
                         </div>
                       </div>

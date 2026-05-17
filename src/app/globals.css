@@ -33,8 +33,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans-family), 'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font-display-family), 'Times New Roman', Georgia, serif;
 
   /* Custom Colors for Tailwind */
   --color-hm-charcoal: var(--hm-charcoal);
@@ -62,20 +62,46 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans-family), 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Elegant Typography */
+/* Elegant Typography (next/font variables) */
 .font-display {
-  font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display-family), 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.005em;
+  font-feature-settings: "lnum" 1;
 }
 
 .font-elegant {
-  font-family: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
-  letter-spacing: 0.03em;
+  font-family: var(--font-display-family), 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.01em;
+  font-style: italic;
+}
+
+/* A11y: respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* A11y: visible focus ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--hm-gold-dark);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Avoid double-rings on elements that already have their own focus styling */
+.focus-visible-none:focus-visible {
+  outline: none;
 }
 
 /* Swiper Customization */

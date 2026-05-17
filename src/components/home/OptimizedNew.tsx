@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Carousel, BannerTemplate } from "@/components/home/Banner";
-import { BadgeCheck, Handshake, Sprout } from 'lucide-react';
+import { BadgeCheck, Handshake, Sprout, Scale } from 'lucide-react';
 import { HomeProductsProvider } from '@/context/HomeProductsContext';
 import OptimizedGridSection from '@/components/cards/OptimizedGridSection';
 import FeaturedProductsSection from '../cards/FeaturedProductsSection';
@@ -12,22 +12,14 @@ import ProgressiveCategorySection from '@/components/cards/ProgressiveCategorySe
 import type { Database } from '@/lib/database.types';
 import type { HomeSections } from '@/lib/home/computeSections';
 
-// Tipos para los datos pre-cargados desde el servidor
 type Product = Database['public']['Tables']['products']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
 
-/**
- * Componente principal de la página de inicio optimizado
- * - Utiliza un proveedor centralizado para los datos
- * - Aprovecha los datos pre-cargados desde el servidor
- * - Evita solicitudes duplicadas a Supabase
- * - Optimiza la carga de imágenes
- */
 interface OptimizedNewHomeProps {
   initialCategories?: Category[];
   initialProducts?: Product[];
   initialSections?: HomeSections;
-  priorityCategoryIds?: number[]; // IDs de categorías en orden de prioridad
+  priorityCategoryIds?: number[];
   locale?: string;
 }
 
@@ -36,7 +28,7 @@ export default function OptimizedNewHome({
   initialProducts = [],
   initialSections,
   priorityCategoryIds = [],
-  locale
+  locale = 'es',
 }: OptimizedNewHomeProps) {
   return (
     <HomeProductsProvider
@@ -46,150 +38,135 @@ export default function OptimizedNewHome({
       priorityCategoryIds={priorityCategoryIds}
     >
       <div className="max-w-[1500px] mx-auto relative z-0 bg-gradient-to-b from-[#F5F1EB] via-[#FAF8F5] to-white">
+        <h2 className="sr-only">
+          {locale === 'es' ? 'Avisos y propuesta de valor' : 'Notices and value props'}
+        </h2>
         <Carousel>
-          {/* Banner principal: Reinserción Sociolaboral - Proyecto de Ley 24870 */}
+          {/* Banner 1: Artesanía (oficio primero) */}
+          <BannerTemplate linkHref="/about" bgColor="bg-gradient-to-r from-[#F5F1EB] to-[#FAF8F5]">
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
+              <h3 className="font-display text-[#2D2D2D] text-xl lg:text-2xl font-medium tracking-[-0.005em] text-center">
+                {locale === 'es' ? 'Artesanía única hecha a mano' : 'One-of-a-kind handmade craft'}
+              </h3>
+              <p className="text-[#9C9589] text-xs sm:text-sm mt-1 text-center max-w-xl">
+                {locale === 'es'
+                  ? 'Por residentes en rehabilitación de centros penales'
+                  : 'By residents in rehabilitation centers'}
+              </p>
+
+              <div className="flex items-center justify-center gap-6 sm:gap-12 mt-3 lg:mt-4">
+                <ValueProp
+                  icon={<Handshake className="w-5 h-5 lg:w-6 lg:h-6 text-[#A08848]" strokeWidth={1.75} />}
+                  title={locale === 'es' ? 'Impacto social' : 'Social impact'}
+                  subtitle={locale === 'es' ? 'Apoyando la reinserción' : 'Supporting reintegration'}
+                />
+                <ValueProp
+                  icon={<Sprout className="w-5 h-5 lg:w-6 lg:h-6 text-[#A08848]" strokeWidth={1.75} />}
+                  title={locale === 'es' ? 'Sostenibilidad' : 'Sustainability'}
+                  subtitle={locale === 'es' ? 'Materiales ecológicos' : 'Eco-friendly materials'}
+                />
+                <ValueProp
+                  icon={<BadgeCheck className="w-5 h-5 lg:w-6 lg:h-6 text-[#A08848]" strokeWidth={1.75} />}
+                  title={locale === 'es' ? 'Calidad' : 'Quality'}
+                  subtitle={locale === 'es' ? 'Detalles artesanales' : 'Artisanal details'}
+                />
+              </div>
+            </div>
+          </BannerTemplate>
+
+          {/* Banner 2: Envíos a Costa Rica */}
+          <BannerTemplate linkHref="/shipping" bgColor="bg-gradient-to-r from-[#FAF8F5] to-[#F5F1EB]">
+            <div className="relative h-full flex flex-col md:flex-row justify-center items-center md:gap-10 px-4 md:px-24 py-4 md:py-6">
+              <div className="max-w-full text-center md:text-left">
+                <h3 className="font-display text-[#2D2D2D] text-xl sm:text-2xl font-medium tracking-[-0.005em]">
+                  {locale === 'es' ? 'Envíos a todo Costa Rica' : 'Shipping across Costa Rica'}
+                </h3>
+                <p className="text-sm sm:text-base font-light text-[#2D2D2D] mt-1">
+                  <span className="font-semibold text-[#A08848]">
+                    {locale === 'es' ? 'Tarifas desde $6.99' : 'Rates from $6.99'}
+                  </span>
+                </p>
+                <p className="text-[#9C9589] text-[11px] sm:text-xs mt-1">
+                  {locale === 'es'
+                    ? '*Costo variable según el peso. Pulsa para más información'
+                    : '*Variable cost depending on weight. Click for more info'}
+                </p>
+              </div>
+
+              <div className="relative h-[60px] w-[60px] md:h-[110px] md:w-[110px] shrink-0 mt-2 md:mt-0">
+                <Image
+                  src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/home/mapa-cr-DZ7GK5iuwsfpfwJ2Udbhz8Rxd1bUBF.webp"
+                  alt={locale === 'es' ? 'Mapa de Costa Rica' : 'Map of Costa Rica'}
+                  fill
+                  sizes="(max-width: 768px) 60px, 110px"
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          </BannerTemplate>
+
+          {/* Banner 3: Reinserción Sociolaboral */}
           <BannerTemplate
             linkHref="/reinsercion-sociolaboral"
-            bgColor="bg-gradient-to-r from-[#1A1A1A] via-[#2D2D2D] to-[#1A1A1A]">
-
-            <div className="h-full flex items-start justify-between py-8 sm:py-20 px-4 lg:px-8">
-              {/* Sección izquierda - Información principal */}
-              <div className="flex items-center gap-1 lg:gap-3 lg:mx-12">
-                <div className="text-xl lg:text-2xl">⚖️</div>
+            bgColor="bg-gradient-to-r from-[#1A1A1A] via-[#2D2D2D] to-[#1A1A1A]"
+          >
+            <div className="h-full flex items-center justify-between gap-3 py-4 px-4 sm:px-8 lg:px-16">
+              <div className="flex items-center gap-3 lg:gap-4">
+                <div className="grid place-items-center w-9 h-9 lg:w-12 lg:h-12 rounded-full bg-[#C9A962]/15 shrink-0">
+                  <Scale className="w-4 h-4 lg:w-5 lg:h-5 text-[#C9A962]" strokeWidth={1.75} />
+                </div>
                 <div>
-                  <h1 className="text-sm lg:text-lg font-medium text-[#F5F1EB] leading-tight tracking-wide">
+                  <h3 className="text-sm lg:text-lg font-medium text-[#F5F1EB] leading-tight tracking-wide">
                     {locale === 'es' ? 'Reinserción sociolaboral' : 'Social and labor reintegration'}
-                  </h1>
-                  <p className="text-xs lg:text-sm font-light text-[#C9A962]">
+                  </h3>
+                  <p className="text-[11px] lg:text-sm font-light text-[#A08848] mt-0.5">
                     {locale === 'es' ? 'Proyecto de Ley 24870' : 'Law Project 24870'}
                   </p>
-                  {/* CTA breve - visible en móvil */}
-                  <p className="text-[10px] lg:hidden text-[#9C9589] mt-0.5 leading-tight">
-                    {locale === 'es' ? 'Conoce el proyecto' : 'Learn about the project'}
-                  </p>
                 </div>
               </div>
 
-              {/* Sección central - Título (solo desktop) */}
-              <div className="hidden lg:flex flex-col items-center text-center">
-                <div className="text-xl mb-1">🏛️</div>
-                <p className="text-lg text-[#F5F1EB] font-light leading-tight tracking-wide">
-                  {locale === 'es' ? 'Reinserción sociolaboral' : 'Social and labor reintegration'}
-                </p>
-                <p className="text-xs text-[#C9A962] mt-0.5">
-                  {locale === 'es' ? 'Proyecto de Ley 24870' : 'Law Project 24870'}
-                </p>
-              </div>
-
-              {/* Sección derecha - Botón */}
-              <div className="text-center">
-                <button className="bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] text-[#1A1A1A] text-xs lg:text-sm px-3 lg:px-6 mx-6 lg:mx-12 py-1.5 lg:py-2 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl">
-                  {locale === 'es' ? 'Leer más' : 'Read more'}
-                </button>
-                <p className="text-[8px] lg:text-xs text-[#9C9589] mt-1.5 leading-tight font-light">
-                  {locale === 'es' ? 'Reinserción con oportunidades reales' : 'Reintegration with real opportunities'}
-                </p>
-              </div>
+              <span
+                className="hidden sm:inline-flex items-center px-4 lg:px-5 py-2 lg:py-2.5 rounded-sm
+                           text-xs lg:text-sm font-semibold tracking-wide text-[#1A1A1A] bg-[#C9A962]
+                           transition-colors duration-200 hover:bg-[#D4C4A8]"
+                aria-hidden
+              >
+                {locale === 'es' ? 'Leer más' : 'Read more'}
+              </span>
             </div>
           </BannerTemplate>
-
-          {/* Banner 1: Envío a Costa Rica (ahora primero) */}
-          <BannerTemplate linkHref="/shipping" bgColor="bg-gradient-to-r from-[#FAF8F5] to-[#F5F1EB]">
-            <div className="relative h-full flex flex-col md:flex-row justify-center items-center md:gap-10 px-4 md:px-24 py-2 md:py-6">
-              <div className="max-w-full text-center md:text-left mt-0.5 md:mt-0 ">
-                <h2 className="text-lg xs:text-xl sm:text-2xl font-medium tracking-wide text-[#2D2D2D]">
-                  <span className="mr-1">{locale === 'es' ? 'Envíos a todo Costa Rica' : 'Shipping to all Costa Rica'}</span>
-                </h2>
-                <div className="flex flex-col">
-                  <div>
-                    <p className="text-xs lg:text-lg font-light text-[#2D2D2D]">
-                      <span className="font-semibold text-[#C9A962]">{locale === 'es' ? 'Con tarifas desde $6.99' : 'With rates from $6.99'}</span>
-                    </p>
-                    <p className="text-[#9C9589] text-[0.60rem] lg:text-xs mt-1 lg:mt-2">
-                      {locale === 'es' ? '*Costo variable dependiendo del peso. Pulsa para más información' : '*Variable cost depending on weight. Click for more information'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center md:gap-8 px-2 md:px-4 h-auto">
-                <div className="relative h-[35px] w-[55px] md:h-[110px] md:w-[110px]">
-                  <Image
-                    src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/home/mapa-cr-DZ7GK5iuwsfpfwJ2Udbhz8Rxd1bUBF.webp"
-                    alt={locale === 'es' ? 'Mapa de Costa Rica' : 'Map of Costa Rica'}
-                    fill
-                    sizes="(max-width: 768px) 40px, 110px"
-                    style={{ objectFit: 'contain' }}
-                    priority
-                    unoptimized
-                  />
-                </div>
-              </div>
-            </div>
-          </BannerTemplate>
-
-          {/* Banner 2: Artesanías (segundo lugar) */}
-          <BannerTemplate linkHref="/about" bgColor="bg-gradient-to-r from-[#F5F1EB] to-[#FAF8F5]">
-            <div className="absolute top-0 left-0 right-0 flex flex-col items-center lg:justify-center ">
-              <div className="text-center z-20 mt-2 lg:mt-4 px-4">
-                <h1 className="text-lg lg:text-xl text-[#2D2D2D] font-medium lg:mb-2 hidden sm:block tracking-wide">
-                  {locale === 'es' ? 'Artesanía única hecha a mano' : 'Unique handmade crafts'}
-                </h1>
-                <h1 className="text-md text-[#2D2D2D] font-medium lg:mb-2 sm:hidden tracking-wide">
-                  {locale === 'es' ? 'Artesanía hecha a mano' : 'Handmade crafts'}
-                </h1>
-
-                <p className="text-[#9C9589] text-xs mx-auto max-w-xl">
-                  {locale === 'es' ? 'Por residentes en rehabilitación de centros penales' : 'By residents in rehabilitation centers'}
-                </p>
-
-                <div className="flex items-center justify-center space-x-4 md:space-x-12 my-0.5 lg:mt-5">
-                  <div className="flex flex-col items-center">
-                    <div className="rounded-full flex items-center justify-center w-7 h-7 lg:w-10 lg:h-10 bg-[#2D2D2D]/5">
-                      <Handshake className="w-5 h-5 lg:w-6 lg:h-6 text-[#C9A962]" />
-                    </div>
-                    <span className="text-[#2D2D2D] font-medium text-xs hidden sm:block mt-1">{locale === 'es' ? 'Impacto Social' : 'Social Impact'}</span>
-                    <span className="text-[#2D2D2D] font-medium text-[0.65rem] lg:text-xs sm:hidden">{locale === 'es' ? 'Impacto' : 'Impact'}</span>
-                    <span className="text-[0.65rem] text-[#9C9589] hidden sm:block">{locale === 'es' ? 'Apoyando la reinserción' : 'Supporting reintegration'}</span>
-                  </div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="rounded-full flex items-center justify-center w-7 h-7 lg:w-10 lg:h-10 bg-[#2D2D2D]/5">
-                      <Sprout className="w-5 h-5 lg:w-6 lg:h-6 text-[#C9A962]" />
-                    </div>
-                    <span className="text-[#2D2D2D] font-medium text-[0.65rem] lg:text-xs mt-1">{locale === 'es' ? 'Sostenibilidad' : 'Sustainability'}</span>
-                    <span className="text-[0.65rem] text-[#9C9589] hidden sm:block">{locale === 'es' ? 'Materiales ecológicos' : 'Eco-friendly materials'}</span>
-                  </div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="rounded-full flex items-center justify-center w-7 h-7 lg:w-10 lg:h-10 bg-[#2D2D2D]/5">
-                      <BadgeCheck className="w-5 h-5 lg:w-6 lg:h-6 text-[#C9A962]" />
-                    </div>
-                    <span className="text-[#2D2D2D] font-medium text-[0.65rem] lg:text-xs mt-1">{locale === 'es' ? 'Calidad' : 'Quality'}</span>
-                    <span className="text-[0.65rem] text-[#9C9589] hidden sm:block">{locale === 'es' ? 'Detalles artesanales' : 'Artisanal details'}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </BannerTemplate>
-
-
         </Carousel>
 
-        {/* Secciones de productos optimizadas */}
-        <OptimizedGridSection  />
+        {/* Secciones de productos */}
+        <OptimizedGridSection />
         <GiftsCarouselSection />
-        {/* Nueva sección de productos destacados con mayor visibilidad */}
         <FeaturedProductsSection />
-        {/* Sección progresiva categorizada con scroll infinito y sin duplicados */}
         <ProgressiveCategorySection />
-
-
-
-        {/* <SecondaryGridSection /> */}
-
-        {/* <DetailsCarouselSection /> */}
       </div>
     </HomeProductsProvider>
+  );
+}
+
+function ValueProp({
+  icon,
+  title,
+  subtitle,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="flex flex-col items-center text-center max-w-[110px]">
+      <div className="grid place-items-center w-9 h-9 lg:w-11 lg:h-11 rounded-full bg-[#C9A962]/10 mb-1.5">
+        {icon}
+      </div>
+      <span className="text-[#2D2D2D] font-medium text-[11px] sm:text-xs leading-tight">
+        {title}
+      </span>
+      <span className="hidden sm:block text-[10px] text-[#9C9589] mt-0.5 leading-tight">
+        {subtitle}
+      </span>
+    </div>
   );
 }

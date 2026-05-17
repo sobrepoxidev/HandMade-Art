@@ -42,32 +42,29 @@ export default async function HomePageData({ locale }: {locale: string}) {
   let initialProducts: Database['public']['Tables']['products']['Row'][] = [];
   
   if (categoryIdsToLoad.length > 0) {
-    // 1) Traer productos NO destacados de las categorías consideradas con mayor límite
-    //    Esto mejora la probabilidad de tener ≥4 productos por categoría para el grid
-    const { data: baseProducts } = await supabase
-      .from('products')
-      .select('*')
-      .eq('is_active', true)
-      .neq('is_featured', true)
-      .in('category_id', categoryIdsToLoad)
-      .order('created_at', { ascending: false })
-      .limit(120); // Mayor cobertura para asegurar 6 categorías x 4 productos
+    // Paralelizar: productos base + destacados son independientes
+    const [baseRes, featuredRes] = await Promise.all([
+      supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .neq('is_featured', true)
+        .in('category_id', categoryIdsToLoad)
+        .order('created_at', { ascending: false })
+        .limit(120),
+      supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .eq('is_featured', true)
+        .order('created_at', { ascending: false }),
+    ]);
 
-    if (baseProducts) {
-      initialProducts = baseProducts;
-    }
+    if (baseRes.data) initialProducts = baseRes.data;
 
-    // 2) Agregar productos destacados (sección featured) sin duplicar IDs
-    const { data: featuredProducts } = await supabase
-      .from('products')
-      .select('*')
-      .eq('is_active', true)
-      .eq('is_featured', true)
-      .order('created_at', { ascending: false });
-
-    if (featuredProducts) {
+    if (featuredRes.data) {
       const seen = new Set(initialProducts.map(p => p.id));
-      for (const product of featuredProducts) {
+      for (const product of featuredRes.data) {
         if (!seen.has(product.id)) {
           initialProducts.push(product);
           seen.add(product.id);

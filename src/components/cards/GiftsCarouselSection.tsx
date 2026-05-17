@@ -141,7 +141,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
           <h2 className="text-xl font-bold text-[#2D2D2D]">{title}</h2>
         </div>
 
-        <Link href="/products" className="px-1 py-0 text-sm text-[#C9A962] font-medium hover:text-[#A08848] transition-colors flex items-center">
+        <Link href="/products" className="inline-flex items-center px-2 py-2 min-h-[44px] text-sm text-[#A08848] font-medium hover:text-[#2D2D2D] transition-colors">
           {locale === 'es' ? 'Ver más' : 'View more'}
           <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 ml-1" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -155,8 +155,8 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
           <button
             onClick={scrollToPrev}
             disabled={scrollPosition <= 0}
-            className={`p-0.5 rounded-full border transition-colors ${scrollPosition <= 0 ? 'text-[#E8E4E0] border-[#E8E4E0] cursor-not-allowed' : 'text-[#C9A962] border-[#C9A962] hover:bg-[#C9A962]/10'}`}
-            aria-label="Anterior"
+            className={`grid place-items-center w-11 h-11 rounded-full border transition-colors ${scrollPosition <= 0 ? 'text-[#E8E4E0] border-[#E8E4E0] cursor-not-allowed' : 'text-[#A08848] border-[#E8E4E0] hover:border-[#A08848] hover:bg-[#FAF8F5]'}`}
+            aria-label={locale === 'es' ? 'Anterior' : 'Previous'}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -173,8 +173,8 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
           <button
             onClick={scrollToNext}
             disabled={scrollPosition >= maxScrollPosition}
-            className={`p-0.5 rounded-full border transition-colors ${scrollPosition >= maxScrollPosition ? 'text-[#E8E4E0] border-[#E8E4E0] cursor-not-allowed' : 'text-[#C9A962] border-[#C9A962] hover:bg-[#C9A962]/10'}`}
-            aria-label="Siguiente"
+            className={`grid place-items-center w-11 h-11 rounded-full border transition-colors ${scrollPosition >= maxScrollPosition ? 'text-[#E8E4E0] border-[#E8E4E0] cursor-not-allowed' : 'text-[#A08848] border-[#E8E4E0] hover:border-[#A08848] hover:bg-[#FAF8F5]'}`}
+            aria-label={locale === 'es' ? 'Siguiente' : 'Next'}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +225,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
                           loading="lazy"
                         />
                       </div>
-                      <div className="mt-1 text-[#C9A962] text-xs font-medium line-clamp-1">
+                      <div className="mt-1 text-[#F5F1EB] text-xs font-medium line-clamp-1 tabular-nums">
                         {product.dolar_price && (<>{formatUSD(product.dolar_price)}</>)}
                       </div>
                     </Link>
@@ -240,35 +240,36 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
         <div className="hidden lg:flex w-full space-x-4 px-4">
           {displayProducts.map((product, idx) => (
             <Link key={`desktop-product-${product.id}-${idx}`} href={`/product/${product.name}`} className="block h-full min-w-[200px] flex-shrink-0 snap-start group">
-              <div className="bg-[#FAF8F5] border border-[#E8E4E0] rounded-lg p-3 hover:shadow-md hover:border-[#C9A962]/30 transition-all duration-300 h-full flex flex-col transform group-hover:-translate-y-1">
+              <div className="bg-white border border-[#E8E4E0] rounded-md p-3 hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 h-full flex flex-col group-hover:-translate-y-0.5">
                 <div className="relative overflow-hidden rounded-md mb-3">
-                  <div className="h-40 flex items-center justify-center p-2 bg-white rounded-md">
+                  <div className="aspect-square flex items-center justify-center p-2 bg-[#FAF8F5] rounded-md">
                     <Image
                       src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
                       alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
-                      width={140}
-                      height={140}
+                      width={180}
+                      height={180}
+                      sizes="(max-width: 768px) 140px, 200px"
                       style={{ objectFit: 'contain', maxHeight: '100%' }}
                       loading="lazy"
-                      className="transform group-hover:scale-105 transition-transform duration-300"
+                      className="transform group-hover:scale-[1.04] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
                     />
                   </div>
                   {product.is_featured && (
-                    <div className="absolute top-2 left-2 bg-[#C9A962] text-[#1A1A1A] text-xs font-medium px-1.5 py-0.5 rounded-sm">
+                    <div className="absolute top-2 left-2 bg-[#C9A962] text-[#1A1A1A] text-[10px] font-semibold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-sm">
                       {locale === 'es' ? 'Destacado' : 'Featured'}
                     </div>
                   )}
                 </div>
-                <h3 className="text-[#2D2D2D] text-sm font-medium line-clamp-2 flex-grow group-hover:text-[#C9A962] transition-colors">
+                <h3 className="text-[#2D2D2D] text-sm font-medium leading-snug line-clamp-2 flex-grow group-hover:text-[#A08848] transition-colors">
                   {locale === 'es' ? product.name_es : product.name_en || product.name}
                 </h3>
                 {product.dolar_price && (
                   <div className="mt-2 flex items-center justify-between">
-                    <div className="text-[#C9A962] font-bold text-sm">
+                    <div className="text-[#2D2D2D] font-semibold text-sm tabular-nums tracking-tight">
                       {formatUSD(product.dolar_price)}
                     </div>
-                    <div className="text-xs text-[#C9A962] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
-                      {locale === 'es' ? 'Ver detalles' : 'View details'}
+                    <div className="text-xs text-[#A08848] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
+                      {locale === 'es' ? 'Ver' : 'View'}
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                       </svg>

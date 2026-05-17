@@ -67,7 +67,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                           {locale === 'es' ? product.name_es : product.name_en}
                         </span>
                         {product.dolar_price && (
-                          <span className="text-[10px] font-bold text-[#C9A962] mt-0.5">
+                          <span className="text-[10px] font-semibold text-[#2D2D2D] mt-0.5 tabular-nums">
                             {formatUSD(product.dolar_price)}
                           </span>
                         )}
@@ -75,8 +75,8 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                     </Link>
                   ))}
                 </div>
-                <div className="mt-3 text-xs text-[#C9A962] hover:text-[#D4C4A8] text-center transition-colors">
-                  <Link href={`/products?category=${category!.id}`} target="_self" className="inline-flex items-center">
+                <div className="mt-3 text-sm font-medium text-[#F5F1EB] hover:text-[#C9A962] text-center transition-colors">
+                  <Link href={`/products?category=${category!.id}`} target="_self" className="inline-flex items-center min-h-[44px] px-2 py-2">
                     <span>{locale === 'es' ? 'Ver todo en '+ category!.name_es: 'View all in '+ category!.name_en}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -93,12 +93,12 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                     width={180}
                     height={180}
                     style={{ objectFit: 'contain', maxHeight: '100%' }}
-                    className="transition-transform hover:scale-105"
+                    className="transition-transform hover:scale-[1.04]"
 
                   />
                 </div>
-                <div className="mt-3 text-xs text-[#C9A962] hover:text-[#D4C4A8] text-center transition-colors">
-                  <Link href={`/products?category=${category!.id}`} target="_self" className="inline-flex items-center">
+                <div className="mt-3 text-sm font-medium text-[#F5F1EB] hover:text-[#C9A962] text-center transition-colors">
+                  <Link href={`/products?category=${category!.id}`} target="_self" className="inline-flex items-center min-h-[44px] px-2 py-2">
                     <span>{locale === 'es' ? 'Ver todo en '+ category!.name_es: 'View all in '+ category!.name_en}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -194,7 +194,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                               />
                             </div>
                             {product.dolar_price && (
-                              <div className="mt-1 text-[#C9A962] text-xs font-semibold">
+                              <div className="mt-1 text-[#F5F1EB] text-xs font-semibold tabular-nums">
                                 {formatUSD(product.dolar_price)}
                               </div>
                             )}

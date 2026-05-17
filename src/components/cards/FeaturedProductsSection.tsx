@@ -37,12 +37,16 @@ const FeaturedProductsSection: React.FC = () => {
     <section className="my-2 bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
       <div className="w-full px-4 mx-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-[#2D2D2D] border-l-4 border-[#C9A962] pl-3">
+          <h2 className="font-display text-2xl font-medium text-[#2D2D2D] tracking-[-0.005em] flex items-center gap-3">
+            <span aria-hidden className="block w-1 h-6 bg-[#C9A962]" />
             {title}
           </h2>
-          <Link href="/products" className="text-[#C9A962] hover:text-[#A08848] text-sm px-1 font-medium flex items-center transition-colors">
+          <Link
+            href="/products"
+            className="inline-flex items-center min-h-[44px] px-2 py-2 text-sm font-medium text-[#A08848] hover:text-[#2D2D2D] transition-colors"
+          >
             {locale === 'es' ? 'Ver todos' : 'View all'}
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </Link>
@@ -56,42 +60,42 @@ const FeaturedProductsSection: React.FC = () => {
                 href={`/product/${product.name}`}
                 className="group"
               >
-                <div className="flex flex-col bg-[#FAF8F5] border border-[#E8E4E0] rounded-lg overflow-hidden h-full hover:shadow-lg hover:border-[#C9A962]/30 transform transition-all duration-300 hover:-translate-y-1">
+                <div className="flex flex-col bg-white border border-[#E8E4E0] rounded-md overflow-hidden h-full hover:shadow-[0_12px_32px_-18px_rgba(45,45,45,0.28)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 group-hover:-translate-y-0.5">
                   {/* Imagen del producto */}
-                  <div className="relative bg-white aspect-square">
+                  <div className="relative bg-[#FAF8F5] aspect-square">
                     <Image
                       src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
                       alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
                       fill
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                      className="object-contain p-3 group-hover:scale-[1.04] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
                       loading="lazy"
                     />
                     {product.is_featured && (
-                      <div className="absolute top-2 left-2 bg-[#C9A962] text-[#1A1A1A] text-xs font-medium sm:px-2 px-0.5 sm:py-1 py-0 rounded-md">
+                      <div className="absolute top-2 left-2 bg-[#C9A962] text-[#1A1A1A] text-[10px] font-semibold uppercase tracking-[0.06em] px-2 py-0.5 rounded-sm">
                         {locale === 'es' ? 'Destacado' : 'Featured'}
                       </div>
                     )}
                     {product.dolar_price && (
-                      <div className="absolute bottom-2 right-2 bg-[#2D2D2D] text-[#C9A962] text-sm font-bold sm:px-3 px-1.5 sm:py-1 py-0.5 rounded-md">
+                      <div className="absolute bottom-2 right-2 bg-[#2D2D2D] text-[#C9A962] text-sm font-semibold tabular-nums px-2.5 py-0.5 rounded-sm">
                         {formatUSD(product.dolar_price)}
                       </div>
                     )}
                   </div>
                   <div className="p-4 flex flex-col flex-grow">
-                    <h3 className="text-[#2D2D2D] font-medium text-md mb-2 line-clamp-2 group-hover:text-[#C9A962] transition-colors">
+                    <h3 className="text-[#2D2D2D] font-medium text-[14px] leading-snug mb-2 line-clamp-2 group-hover:text-[#A08848] transition-colors">
                       {locale === 'es' ? product.name_es : product.name_en || product.name}
                     </h3>
                     {product.category_id && (
                       <div className="mt-auto">
-                        <span className="text-[0.67rem] text-[#F5F1EB] bg-[#2D2D2D] px-1.5 py-1 rounded-full">
+                        <span className="text-[10px] uppercase tracking-[0.08em] font-medium text-[#F5F1EB] bg-[#2D2D2D] px-2 py-0.5 rounded-sm">
                           {locale === 'es' ? categories.find(c => c.id === product.category_id)?.name_es : categories.find(c => c.id === product.category_id)?.name_en || ''}
                         </span>
                       </div>
                     )}
-                    <div className="mt-3 text-[#C9A962] text-sm font-medium flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="mt-3 text-[#A08848] text-xs font-medium flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                       {locale === 'es' ? 'Ver detalles' : 'View details'}
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 ml-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                       </svg>
                     </div>
