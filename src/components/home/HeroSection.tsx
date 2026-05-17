@@ -46,7 +46,7 @@ export default function HeroSection({ locale }: Props) {
     <section className="relative isolate overflow-hidden bg-[#2D2D2D]">
       <div className="absolute inset-0 -z-10">
         <Image
-          src="/home/hombre-exhibiendo-espejo-tallado-en-madera.webp"
+          src="/home/hero.webp"
           alt={t.imageAlt}
           fill
           priority

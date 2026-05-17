@@ -59,6 +59,14 @@
   }
 }
 
+html,
+body {
+  /* Prevent stray horizontal overflow from any descendant (carousels,
+     wide-text, oversized images). 'clip' preserves position: sticky,
+     unlike 'hidden'. */
+  overflow-x: clip;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

@@ -19,6 +19,7 @@ import {
   Check,
   Tag,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { supabase } from '@/lib/supabaseClient';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useCart } from '@/context/CartContext';
@@ -339,10 +340,37 @@ export default function ProductDetail({
     if (!product) return;
 
     addToCart(product, quantity);
+
+    const productName =
+      (locale === 'es' ? product.name_es : product.name_en) ||
+      product.name ||
+      '';
+    const toastMsg =
+      locale === 'es'
+        ? `${productName} · ${quantity} ${quantity === 1 ? 'unidad' : 'unidades'} añadidas al carrito`
+        : `${productName} · ${quantity} ${quantity === 1 ? 'unit' : 'units'} added to cart`;
+
+    toast.success(toastMsg, {
+      duration: 2800,
+      style: {
+        background: '#2D2D2D',
+        color: '#F5F1EB',
+        border: '1px solid rgba(201,169,98,0.35)',
+        borderRadius: '4px',
+        padding: '12px 16px',
+        fontSize: '14px',
+        fontWeight: 500,
+      },
+      iconTheme: {
+        primary: '#C9A962',
+        secondary: '#1A1A1A',
+      },
+    });
+
     setAnnouncement(
       locale === 'es'
-        ? `Producto añadido al carrito: ${product.name_es || product.name}, cantidad ${quantity}.`
-        : `Added to cart: ${product.name_en || product.name}, quantity ${quantity}.`
+        ? `Producto añadido al carrito: ${productName}, cantidad ${quantity}.`
+        : `Added to cart: ${productName}, quantity ${quantity}.`
     );
 
     if (currentSession?.user) {
