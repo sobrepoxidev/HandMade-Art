@@ -6,45 +6,32 @@ import { Database } from '@/lib/database.types';
 import { Star } from 'lucide-react';
 import { useLocale } from 'next-intl';
 
-// Define a type for profile data
 type ProfileType = Database['public']['Tables']['user_profiles']['Row'];
-
 type Review = Database['public']['Tables']['reviews']['Row'];
 
-// We don't need a User type since we're fetching from profiles directly
+const RTF_ES = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+const RTF_EN = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
-// Helper function to format relative time without date-fns
-function formatRelativeTime(dateString: string): string {
+function formatRelativeTime(dateString: string, locale: 'es' | 'en'): string {
   const date = new Date(dateString);
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  if (diffInSeconds < 60) {
-    return `hace ${diffInSeconds} segundos`;
+  const diff = (date.getTime() - Date.now()) / 1000;
+  const rtf = locale === 'es' ? RTF_ES : RTF_EN;
+
+  const units: [Intl.RelativeTimeFormatUnit, number][] = [
+    ['year', 60 * 60 * 24 * 365],
+    ['month', 60 * 60 * 24 * 30],
+    ['day', 60 * 60 * 24],
+    ['hour', 60 * 60],
+    ['minute', 60],
+    ['second', 1],
+  ];
+
+  for (const [unit, secondsInUnit] of units) {
+    if (Math.abs(diff) >= secondsInUnit) {
+      return rtf.format(Math.round(diff / secondsInUnit), unit);
+    }
   }
-  
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `hace ${diffInMinutes} ${diffInMinutes === 1 ? 'minuto' : 'minutos'}`;
-  }
-  
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `hace ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
-  }
-  
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) {
-    return `hace ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
-  }
-  
-  const diffInMonths = Math.floor(diffInDays / 30);
-  if (diffInMonths < 12) {
-    return `hace ${diffInMonths} ${diffInMonths === 1 ? 'mes' : 'meses'}`;
-  }
-  
-  const diffInYears = Math.floor(diffInMonths / 12);
-  return `hace ${diffInYears} ${diffInYears === 1 ? 'año' : 'años'}`;
+  return rtf.format(0, 'second');
 }
 
 interface ReviewsListProps {
@@ -52,129 +39,157 @@ interface ReviewsListProps {
 }
 
 export default function ReviewsList({ productId }: ReviewsListProps) {
-    const locale = useLocale();
+  const locale = useLocale() as 'es' | 'en';
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [users, setUsers] = useState<{[key: string]: ProfileType}>({});
+  const [users, setUsers] = useState<Record<string, ProfileType>>({});
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState<number | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchReviews = async () => {
       setLoading(true);
-      
-      // Fetch reviews for the product
+
       const { data, error } = await supabase
         .from('reviews')
         .select('*')
         .eq('product_id', productId)
         .order('created_at', { ascending: false });
-        
+
+      if (cancelled) return;
+
       if (error) {
         console.error('Error fetching reviews:', error);
         setLoading(false);
         return;
       }
-      
-      setReviews(data || []);
-      
-      // Calculate average rating
-      if (data && data.length > 0) {
-        const totalRating = data.reduce((sum, review) => sum + (review.rating || 0), 0);
-        setAverageRating(totalRating / data.length);
-        
-        // Fetch user information for each review
-        const userIds = [...new Set(data.map(review => review.user_id))];
-        const usersData: {[key: string]: ProfileType} = {};
-        
-        for (const userId of userIds) {
-          const { data: userData } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-            
-          if (userData) {
-            usersData[userId] = userData;
-          }
-        }
-        
-        setUsers(usersData);
+
+      const rows = data || [];
+      setReviews(rows);
+
+      if (rows.length === 0) {
+        setLoading(false);
+        return;
       }
-      
+
+      const totalRating = rows.reduce((sum, r) => sum + (r.rating || 0), 0);
+      setAverageRating(totalRating / rows.length);
+
+      // Batch fetch user profiles (was N+1)
+      const userIds = [...new Set(rows.map((r) => r.user_id).filter(Boolean))];
+      if (userIds.length) {
+        const { data: usersData } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .in('id', userIds);
+        if (!cancelled && usersData) {
+          const map: Record<string, ProfileType> = {};
+          for (const u of usersData) map[u.id] = u;
+          setUsers(map);
+        }
+      }
+
       setLoading(false);
     };
-    
+
     fetchReviews();
+    return () => {
+      cancelled = true;
+    };
   }, [productId]);
-  
+
   if (loading) {
     return (
-      <div className="py-4">
+      <div className="py-2" aria-busy="true" aria-live="polite">
         <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-[#E8E4E0] rounded w-1/4" />
+          <div className="h-4 bg-[#E8E4E0] rounded w-1/2" />
+          <div className="h-4 bg-[#E8E4E0] rounded w-3/4" />
         </div>
       </div>
     );
   }
-  
+
   if (reviews.length === 0) {
     return (
-      <div className="py-4">
-        <p className="text-gray-500">{locale === 'es' ? 'Este producto aún no tiene reseñas. ¡Sé el primero en compartir tu opinión!' : 'This product has no reviews yet. Be the first to share your opinion!'}</p>
-      </div>
+      <p className="text-[#6B6459] py-2">
+        {locale === 'es'
+          ? 'Este producto aún no tiene reseñas. Sé el primero en compartir tu experiencia.'
+          : 'No reviews yet. Be the first to share your experience.'}
+      </p>
     );
   }
-  
+
   return (
     <div className="space-y-6">
-      {/* Average Rating */}
       {averageRating !== null && (
-        <div className="flex items-center mb-4">
-          <div className="flex mr-2">
+        <div className="flex items-baseline gap-2 mb-4">
+          <div className="flex" aria-label={`${averageRating.toFixed(1)} ${locale === 'es' ? 'de' : 'out of'} 5`}>
             {[1, 2, 3, 4, 5].map((star) => (
-              <Star 
+              <Star
                 key={star}
-                className={`h-5 w-5 ${star <= Math.round(averageRating) ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} 
+                className={`h-5 w-5 ${
+                  star <= Math.round(averageRating)
+                    ? 'fill-[#C9A962] text-[#C9A962]'
+                    : 'fill-[#E8E4E0] text-[#E8E4E0]'
+                }`}
+                strokeWidth={0}
+                aria-hidden
               />
             ))}
           </div>
-          <span className="text-lg font-medium">
-            {averageRating.toFixed(1)} de 5
+          <span className="font-display text-2xl font-medium text-[#2D2D2D] tabular-nums">
+            {averageRating.toFixed(1)}
           </span>
-          <span className="text-gray-500 ml-2">
-            ({reviews.length} {reviews.length === 1 ? 'reseña' : 'reseñas'})
+          <span className="text-sm text-[#6B6459]">
+            ({reviews.length}{' '}
+            {locale === 'es'
+              ? reviews.length === 1 ? 'reseña' : 'reseñas'
+              : reviews.length === 1 ? 'review' : 'reviews'})
           </span>
         </div>
       )}
-      
-      {/* Reviews List */}
-      <div className="space-y-6">
+
+      <ul className="space-y-6">
         {reviews.map((review) => (
-          <div key={review.id} className="border-b border-gray-200 pb-4">
-            <div className="flex items-center mb-2">
-              <div className="flex mr-2">
+          <li
+            key={review.id}
+            className="border-b border-[#E8E4E0] pb-5 last:border-b-0"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex" aria-label={`${review.rating} ${locale === 'es' ? 'de' : 'out of'} 5`}>
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star 
+                  <Star
                     key={star}
-                    className={`h-4 w-4 ${star <= (review.rating || 0) ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} 
+                    className={`h-3.5 w-3.5 ${
+                      star <= (review.rating || 0)
+                        ? 'fill-[#C9A962] text-[#C9A962]'
+                        : 'fill-[#E8E4E0] text-[#E8E4E0]'
+                    }`}
+                    strokeWidth={0}
+                    aria-hidden
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-500 ml-2">
-                {review.created_at && formatRelativeTime(review.created_at)}
+              <span className="text-xs text-[#6B6459]">
+                {review.created_at && formatRelativeTime(review.created_at, locale)}
               </span>
             </div>
-            
-            <h3 className="font-medium">{users[review.user_id]?.full_name || 'Usuario anónimo'}</h3>
-            
+
+            <p className="text-sm font-semibold text-[#2D2D2D] mb-1">
+              {users[review.user_id]?.full_name ||
+                (locale === 'es' ? 'Cliente verificado' : 'Verified customer')}
+            </p>
+
             {review.comment && (
-              <p className="text-gray-700 mt-2">{review.comment}</p>
+              <p className="text-[#4A4A4A] leading-relaxed text-[14.5px]">
+                {review.comment}
+              </p>
             )}
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }

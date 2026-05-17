@@ -1,31 +1,50 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import CurrencyConverterRow from '../CurrencyConverterRow';
-import { 
-  ChevronRight, 
-  MinusCircle, 
-  PlusCircle, 
-  ShoppingCart, 
-  Heart, 
-  Share2, 
-  Search, 
+import {
+  ChevronRight,
+  Minus,
+  Plus,
+  ShoppingCart,
+  Heart,
+  Share2,
+  ZoomIn,
   ArrowLeft,
   Check,
   Tag,
-  MessageSquare
 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useCart } from '@/context/CartContext';
 import { Database, Json } from '@/lib/database.types';
-import ReviewsList from '@/components/products/ReviewsList';
-import ReviewForm from '@/components/products/ReviewForm';
 import { formatUSD } from '@/lib/formatCurrency';
+
+// Reviews live below the fold and are not critical for first paint.
+// Lazy-load them so framer-motion (used in the gallery) is the only
+// big dependency that ships with the main bundle.
+const ReviewsSection = dynamic(() => import('./ReviewsSection'), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="mt-16 border-t border-[#E8E4E0] pt-10"
+      aria-busy="true"
+      aria-live="polite"
+    >
+      <div className="h-7 w-56 bg-[#E8E4E0] rounded animate-pulse mb-6" />
+      <div className="space-y-4">
+        <div className="h-5 w-1/3 bg-[#E8E4E0] rounded animate-pulse" />
+        <div className="h-4 w-2/3 bg-[#E8E4E0] rounded animate-pulse" />
+        <div className="h-4 w-1/2 bg-[#E8E4E0] rounded animate-pulse" />
+      </div>
+    </div>
+  ),
+});
 
 type Product = Database['public']['Tables']['products']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
@@ -74,8 +93,10 @@ export default function ProductDetail({
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomScale, setZoomScale] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
-  const [lastTouchDistance, setLastTouchDistance] = useState(0);
-  const [reviewsRefreshKey, setReviewsRefreshKey] = useState<number>(0);
+  // Pinch state: kept as ref to avoid render thrashing during touchmove (60+ fps).
+  const lastTouchDistanceRef = useRef(0);
+  // Live announcement for screen readers when something happens (cart add).
+  const [announcement, setAnnouncement] = useState('');
   
   const { addToCart } = useCart();
   const router = useRouter();
@@ -182,88 +203,96 @@ export default function ProductDetail({
     setIsZoomed(false);
     setZoomScale(1);
     setIsDragging(false);
-    setLastTouchDistance(0);
+    lastTouchDistanceRef.current = 0;
   }, [activeImageIndex]);
 
-  // Manejar la cantidad
-  const handleIncrement = () => {
-    if (quantity < 10) {
-      setQuantity(prev => prev + 1);
-    }
-  };
+  // Quantity handlers (stable references).
+  const handleIncrement = useCallback(() => {
+    setQuantity((prev) => (prev < 10 ? prev + 1 : prev));
+  }, []);
 
-  const handleDecrement = () => {
-    if (quantity > 1) {
-      setQuantity(prev => prev - 1);
-    }
-  };
+  const handleDecrement = useCallback(() => {
+    setQuantity((prev) => (prev > 1 ? prev - 1 : prev));
+  }, []);
 
-  // Manejar click en la imagen para activar/desactivar zoom
-  const handleImageClick = (e: React.MouseEvent) => {
-    // Prevenir el click si estamos arrastrando
-    if (isDragging) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
-    
-    if (isZoomed) {
-      setIsZoomed(false);
-      setZoomScale(1);
-    } else {
-      setIsZoomed(true);
-      setZoomScale(2.5);
-    }
-  };
+  // Toggle zoom on click/Enter/Space.
+  const toggleZoom = useCallback(() => {
+    setIsZoomed((prev) => {
+      const next = !prev;
+      setZoomScale(next ? 2.5 : 1);
+      return next;
+    });
+  }, []);
 
-  const handleDragStart = () => {
+  const handleImageClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isDragging) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      toggleZoom();
+    },
+    [isDragging, toggleZoom]
+  );
+
+  const handleImageKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleZoom();
+      } else if (e.key === 'Escape' && isZoomed) {
+        e.preventDefault();
+        toggleZoom();
+      }
+    },
+    [isZoomed, toggleZoom]
+  );
+
+  const handleDragStart = useCallback(() => {
     setIsDragging(true);
-  };
+  }, []);
 
-  const handleDragEnd = () => {
-    // Delay más largo para asegurar que no se active el click
+  const handleDragEnd = useCallback(() => {
     setTimeout(() => setIsDragging(false), 200);
-  };
+  }, []);
 
-  // Función helper para calcular distancia entre dos toques
+  // Pinch helpers — only the final scale lands in React state.
   const getTouchDistance = (touches: TouchList) => {
     if (touches.length < 2) return 0;
-    const touch1 = touches[0];
-    const touch2 = touches[1];
-    return Math.sqrt(
-      Math.pow(touch2.clientX - touch1.clientX, 2) + 
-      Math.pow(touch2.clientY - touch1.clientY, 2)
-    );
+    const [t1, t2] = [touches[0], touches[1]];
+    return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
   };
 
-  // Manejar inicio de toque
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 2) {
-      const distance = getTouchDistance(e.touches as unknown as TouchList);
-      setLastTouchDistance(distance);
+      lastTouchDistanceRef.current = getTouchDistance(
+        e.touches as unknown as TouchList
+      );
     }
-  };
+  }, []);
 
-  // Manejar movimiento de toque (pinch-to-zoom)
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 2 && lastTouchDistance > 0) {
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2 && lastTouchDistanceRef.current > 0) {
       e.preventDefault();
-      const currentDistance = getTouchDistance(e.touches as unknown as TouchList);
-      const scaleChange = currentDistance / lastTouchDistance;
-      const newScale = Math.max(1, Math.min(4, zoomScale * scaleChange));
-      
-      setZoomScale(newScale);
-      setIsZoomed(newScale > 1);
-      setLastTouchDistance(currentDistance);
+      const currentDistance = getTouchDistance(
+        e.touches as unknown as TouchList
+      );
+      const scaleChange = currentDistance / lastTouchDistanceRef.current;
+      setZoomScale((prev) => {
+        const next = Math.max(1, Math.min(4, prev * scaleChange));
+        setIsZoomed(next > 1);
+        return next;
+      });
+      lastTouchDistanceRef.current = currentDistance;
     }
-  };
+  }, []);
 
-  // Manejar fin de toque
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (e.touches.length < 2) {
-      setLastTouchDistance(0);
+      lastTouchDistanceRef.current = 0;
     }
-  };
+  }, []);
 
   // Añadir o quitar de favoritos
   const handleToggleFavorite = async () => {
@@ -308,74 +337,104 @@ export default function ProductDetail({
   // Añadir al carrito
   const handleAddToCart = async () => {
     if (!product) return;
-    
-    // Añadir al carrito
+
     addToCart(product, quantity);
-    
-    // Sincronizar con la base de datos si hay un usuario
-    // Usamos el currentSession del nivel de componente
+    setAnnouncement(
+      locale === 'es'
+        ? `Producto añadido al carrito: ${product.name_es || product.name}, cantidad ${quantity}.`
+        : `Added to cart: ${product.name_en || product.name}, quantity ${quantity}.`
+    );
+
     if (currentSession?.user) {
       try {
-        // Verificar si ya existe en el carrito
         const { data: existingItem } = await supabase
           .from('cart_items')
           .select('id, quantity')
           .eq('user_id', currentSession.user.id)
           .eq('product_id', product.id)
-          .single();
-        
+          .maybeSingle();
+
         if (existingItem) {
-          // Actualizar cantidad
           await supabase
             .from('cart_items')
             .update({ quantity: existingItem.quantity + quantity })
             .eq('id', existingItem.id);
         } else {
-          // Insertar nuevo item
-          await supabase
-            .from('cart_items')
-            .insert({
-              user_id: currentSession.user.id,
-              product_id: product.id,
-              quantity: quantity
-            });
+          await supabase.from('cart_items').insert({
+            user_id: currentSession.user.id,
+            product_id: product.id,
+            quantity,
+          });
         }
       } catch (error) {
         console.error('Error al sincronizar con la base de datos:', error);
       }
     }
-    
   };
 
-  // Si está cargando, muestra un spinner
+  const handleShare = useCallback(async () => {
+    const shareData = {
+      title: product?.name_es || product?.name_en || product?.name || 'Handmade Art',
+      text:
+        (locale === 'es' ? product?.description : product?.description_en) ||
+        (locale === 'es'
+          ? 'Mira esta pieza artesanal de Handmade Art'
+          : 'Check out this handmade piece from Handmade Art'),
+      url: typeof window !== 'undefined' ? window.location.href : '',
+    };
+
+    try {
+      if (typeof navigator !== 'undefined' && 'share' in navigator) {
+        await navigator.share(shareData);
+        return;
+      }
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(shareData.url);
+        setAnnouncement(
+          locale === 'es' ? 'Enlace copiado al portapapeles.' : 'Link copied to clipboard.'
+        );
+      }
+    } catch (err) {
+      console.error('Share failed:', err);
+    }
+  }, [product, locale]);
+
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#C9A962]"></div>
-      </div>
+      <main
+        className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[60vh]"
+        aria-busy="true"
+        aria-live="polite"
+      >
+        <span className="sr-only">
+          {locale === 'es' ? 'Cargando producto…' : 'Loading product…'}
+        </span>
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#E8E4E0] border-t-[#A08848]" />
+      </main>
     );
   }
 
-  // Si hay un error, muestra un mensaje
   if (error || !product) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <div className="bg-[#FAF8F5] border border-[#C44536]/30 rounded-lg p-6 inline-block">
-          <h1 className="text-xl font-semibold text-[#C44536] mb-2">
-            {error || 'Producto no encontrado'}
+      <main className="container mx-auto px-4 py-12 text-center">
+        <div className="bg-white border border-[#E8E4E0] rounded-md p-8 max-w-md mx-auto">
+          <h1 className="font-display text-xl font-medium text-[#2D2D2D] mb-2">
+            {error || (locale === 'es' ? 'Producto no encontrado' : 'Product not found')}
           </h1>
-          <p className="text-[#C44536]/80 mb-4">
-            {locale === 'es' ? 'Lo sentimos, no pudimos encontrar el producto que estás buscando.' : 'We apologize, we were unable to find the product you were looking for.'}
+          <p className="text-[#6B6459] mb-5 text-sm leading-relaxed">
+            {locale === 'es'
+              ? 'No pudimos encontrar el producto que estás buscando.'
+              : "We couldn't find the product you're looking for."}
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-[#C9A962] to-[#A08848] text-[#1A1A1A] rounded-md hover:from-[#D4C4A8] hover:to-[#C9A962] transition font-medium"
+            className="inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 text-sm font-semibold text-[#F5F1EB] bg-[#2D2D2D] rounded-sm hover:bg-[#1A1A1A] transition-colors duration-200"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-2" aria-hidden />
             {locale === 'es' ? 'Volver a productos' : 'Back to products'}
           </Link>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -384,44 +443,59 @@ export default function ProductDetail({
     : '/product-placeholder.png';
 
   return (
-    <div className="container mx-auto px-4 py-0 bg-[#FAF8F5]">
-      {/* Breadcrumb */}
-      <div className="mb-0.5 flex items-center text-sm text-[#9C9589]">
-        <Link href="/" className="hover:text-[#C9A962] transition-colors">{locale === 'es' ? 'Inicio' : 'Home'}</Link>
-        <ChevronRight className="h-4 w-4 mx-1" />
-        <Link href="/products" className="hover:text-[#C9A962] transition-colors"> {locale === 'es' ? 'Productos' : 'Products'}</Link>
-        <ChevronRight className="h-4 w-4 mx-1" />
-        <span className="font-medium text-[#2D2D2D] truncate max-w-[200px]">{locale === 'es' ? product.name_es : product.name_en}</span>
+    <main className="container mx-auto px-4 py-2 bg-[#FAF8F5]">
+      {/* Accessible live region for cart / share announcements */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
       </div>
 
-      {/* Contenido principal */}
-      <div className="flex flex-col md:flex-row md:gap-8">
-        {/* Columna izquierda: Imágenes */}
+      {/* Breadcrumb */}
+      <nav
+        aria-label={locale === 'es' ? 'Migas de pan' : 'Breadcrumb'}
+        className="py-3 flex items-center text-[13px] text-[#6B6459]"
+      >
+        <Link href="/" className="hover:text-[#A08848] transition-colors">
+          {locale === 'es' ? 'Inicio' : 'Home'}
+        </Link>
+        <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-[#9C9589]" aria-hidden />
+        <Link href="/products" className="hover:text-[#A08848] transition-colors">
+          {locale === 'es' ? 'Productos' : 'Products'}
+        </Link>
+        <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-[#9C9589]" aria-hidden />
+        <span className="font-medium text-[#2D2D2D] truncate max-w-[180px] sm:max-w-[320px]">
+          {locale === 'es' ? product.name_es : product.name_en}
+        </span>
+      </nav>
+
+      <article className="flex flex-col md:flex-row md:gap-10">
+        {/* LEFT — gallery */}
         <div className="w-full md:w-7/12">
           <div className="sticky top-12">
-            {/* Imagen principal con zoom */}
-            <div className="relative bg-white h-[250px] md:h-[500px] flex items-center justify-center border border-[#E8E4E0] rounded-lg overflow-hidden mb-4">
-              {/* Contenedor de la imagen con zoom y arrastre */}
-              <motion.div 
-                className="relative w-full h-full cursor-pointer"
+            {/* Main image with zoom */}
+            <div className="relative bg-white aspect-square md:aspect-[4/5] border border-[#E8E4E0] rounded-md overflow-hidden mb-4">
+              <motion.div
+                className={`relative w-full h-full ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
+                role="button"
+                tabIndex={0}
+                aria-label={
+                  isZoomed
+                    ? locale === 'es' ? 'Salir del zoom' : 'Exit zoom'
+                    : locale === 'es' ? 'Ampliar imagen' : 'Zoom image'
+                }
+                aria-pressed={isZoomed}
                 onClick={handleImageClick}
+                onKeyDown={handleImageKeyDown}
                 drag={isZoomed}
-                dragConstraints={{ left: -200, right: 200, top: -200, bottom: 200 }}
+                dragConstraints={{ left: -250, right: 250, top: -250, bottom: 250 }}
                 dragElastic={0.1}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
-                animate={{ 
-                  scale: zoomScale,
-                }}
-                transition={{ 
-                  type: "spring", 
-                  stiffness: 300, 
-                  damping: 30,
-                  mass: 0.8
-                }}
-                style={{ 
+                animate={{ scale: zoomScale }}
+                transition={{ type: 'tween', duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                style={{
                   touchAction: isZoomed ? 'none' : 'auto',
-                  transformOrigin: 'center center'
+                  transformOrigin: 'center center',
+                  willChange: isZoomed ? 'transform' : 'auto',
                 }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
@@ -437,395 +511,418 @@ export default function ProductDetail({
                       : 'Handmade artisan product from Costa Rica')
                   }
                   fill
-                  sizes="(max-width: 768px) 100vw, 60vw"
-                  className="object-contain select-none pointer-events-none"
+                  sizes="(max-width: 768px) 100vw, 58vw"
+                  className="object-contain select-none pointer-events-none p-4 sm:p-6"
                   priority
                   draggable={false}
                 />
               </motion.div>
 
-              {/* Indicadores fijos que no se mueven con el arrastre */}
-              {!isZoomed && (
-                <motion.div 
-                  className="absolute bottom-2 right-2 bg-black bg-opacity-40 text-white text-xs px-2 py-1 rounded pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {locale === 'es' ? 'Clic para zoom' : 'Click to zoom'}
-                </motion.div>
-              )}
-              
-              {isZoomed && (
-                <>
-                  <motion.div 
-                    className="absolute top-1 left-1 bg-black/25 bg-opacity-60 text-white text-[0.70rem] px-1 rounded pointer-events-none z-10"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1 }}
-                  >
-                    {isDragging ? (locale === 'es' ? 'Arrastrando...' : 'Dragging...') : (locale === 'es' ? 'Arrastra para mover • Clic para salir • Pellizca para zoom' : 'Drag to move • Click to exit • Pinch to zoom')}
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="absolute top-2 right-2 bg-white bg-opacity-80 rounded-full p-2 pointer-events-none z-10"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 }}
-                  >
-                    <Search className="h-4 w-4 text-gray-700" />
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded pointer-events-none z-10"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1 }}
-                  >
-                    {Math.round(zoomScale * 100)}%
-                  </motion.div>
-                </>
-              )}
+              {/* Single, sober zoom indicator */}
+              <div
+                aria-hidden
+                className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-[#1A1A1A]/80 text-[#F5F1EB] text-[11px] font-medium px-2 py-1 rounded-sm pointer-events-none backdrop-blur-sm"
+              >
+                <ZoomIn className="h-3 w-3" strokeWidth={2} />
+                {isZoomed
+                  ? `${Math.round(zoomScale * 100)}%`
+                  : locale === 'es' ? 'Ampliar' : 'Zoom'}
+              </div>
             </div>
 
-            {/* Galería de miniaturas */}
+            {/* Thumbnails */}
             {product.media && isMediaArray(product.media) && product.media.length > 1 && (
-              <div className="grid grid-cols-5 gap-2">
-                {product.media.map((item, index) => (
-                  <button
-                    key={index}
-                    className={`relative h-16 border rounded-md overflow-hidden transition hover:border-[#C9A962] ${
-                      activeImageIndex === index ? 'border-[#C9A962] ring-2 ring-[#C9A962]/30' : 'border-[#E8E4E0]'
-                    }`}
-                    onClick={() => {
+              <div
+                className="grid grid-cols-4 sm:grid-cols-5 gap-2"
+                role="tablist"
+                aria-label={locale === 'es' ? 'Vistas del producto' : 'Product views'}
+              >
+                {product.media.map((item, index) => {
+                  const isActive = activeImageIndex === index;
+                  return (
+                    <button
+                      key={index}
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls="product-main-image"
+                      tabIndex={isActive ? 0 : -1}
+                      onClick={() => {
                         setActiveImageIndex(index);
                         setIsZoomed(false);
                         setZoomScale(1);
                         setIsDragging(false);
-                        setLastTouchDistance(0);
+                        lastTouchDistanceRef.current = 0;
                       }}
-                    aria-label={`Ver imagen ${index + 1}`}
-                  >
-                    <Image
-                      src={item.url}
-                      alt={
+                      aria-label={
                         locale === 'es'
-                          ? `Vista ${index + 1} de ${product.name_es || product.name}`
-                          : `View ${index + 1} of ${product.name_en || product.name}`
+                          ? `Ver vista ${index + 1}`
+                          : `View image ${index + 1}`
                       }
-                      fill
-                      sizes="80px"
-                      className="object-contain p-1"
-                    />
-                  </button>
-                ))}
+                      className={`relative aspect-square border rounded-sm overflow-hidden transition-[border-color,box-shadow] duration-200 ${
+                        isActive
+                          ? 'border-[#A08848] shadow-[0_0_0_2px_rgba(160,136,72,0.18)]'
+                          : 'border-[#E8E4E0] hover:border-[#C9A962]/60'
+                      }`}
+                    >
+                      <Image
+                        src={item.url}
+                        alt={
+                          locale === 'es'
+                            ? `Vista ${index + 1} de ${product.name_es || product.name}`
+                            : `View ${index + 1} of ${product.name_en || product.name}`
+                        }
+                        fill
+                        sizes="(max-width: 640px) 25vw, 96px"
+                        className="object-contain p-1"
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
 
-        {/* Columna derecha: Información del producto */}
-        <div className="w-full md:w-5/12">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#2D2D2D] mb-2">
+        {/* RIGHT — product info */}
+        <div className="w-full md:w-5/12 mt-6 md:mt-0">
+          {/* Category / brand pills */}
+          {(category || product.brand) && (
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {category && (
+                <Link
+                  href={`/products?category=${category.id}`}
+                  className="inline-flex items-center px-2.5 py-1 bg-[#2D2D2D] text-[#F5F1EB] text-[10px] uppercase tracking-[0.08em] font-medium rounded-sm hover:bg-[#1A1A1A] transition-colors"
+                >
+                  {locale === 'es' ? category.name_es : category.name_en}
+                </Link>
+              )}
+              {product.brand && (
+                <span className="inline-flex items-center px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] font-medium text-[#A08848] border border-[#C9A962]/45 rounded-sm">
+                  {product.brand}
+                </span>
+              )}
+            </div>
+          )}
+
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-[42px] leading-[1.1] font-medium text-[#2D2D2D] tracking-[-0.005em] mb-3">
             {locale === 'es' ? product.name_es : product.name_en}
           </h1>
 
-          {/* Categoría */}
-          <div className="mb-2">
-            {category && (
-              <Link
-                href={`/products?category=${category.id}`}
-                className="inline-block px-2 py-1 bg-[#2D2D2D] text-[#F5F1EB] text-[0.7rem] rounded-full border border-[#C9A962]/20 hover:border-[#C9A962]/50 hover:bg-[#3A3A3A] transition"
-              >
-                {locale === 'es' ? category.name_es : category.name_en}
-              </Link>
-            )}
-            {product.brand && (
-              <span className="ml-2 inline-block px-2 py-1 bg-[#C9A962]/10 text-[#C9A962] text-[0.7rem] rounded-full border border-[#C9A962]/30">
-                {product.brand}
-              </span>
-            )}
-          </div>
-          
-          {/* Precio */}
-          <div className="mb-2">
+          {/* Price block */}
+          <div className="mb-3">
             {product.dolar_price ? (
-               product.discount_percentage && product.discount_percentage > 0 ? (
-                 <div className="flex flex-col sm:flex-row sm:justify-start items-start sm:items-center gap-1 sm:gap-4">
-                   {/* Price & discount section */}
-                   <div className="flex items-center gap-0.5">
-                     <p className="text-3xl font-bold text-[#C9A962]">
-                       {formatUSD((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100))}
-                     </p>
-                     <p className="text-lg text-[#9C9589] line-through">
-                       {formatUSD((Number(product.dolar_price) || 0) )}
-                     </p>
-                     <span className="text-sm font-medium bg-[#B55327]/10 text-[#B55327] px-2 py-0.5 rounded">
-                       {product.discount_percentage}% OFF
-                     </span>
-                   </div>
-
-                   {/* Currency converter in separate row when there's discount */}
-                   <div className="flex items-center sm:mx-auto">
-                     <CurrencyConverterRow amount={Number(product.dolar_price || 0)} />
-                   </div>
-                 </div>
-               ) : (
-                 <div className="flex flex-row items-start sm:items-center gap-2 sm:gap-4">
-                   {/* Price and currency converter in same row when no discount */}
-                   <p className="text-3xl font-bold text-[#C9A962]">
-                     {formatUSD((Number(product.dolar_price) || 0))}
-                   </p>
-                   <CurrencyConverterRow amount={Number(product.dolar_price || 0)} />
-                 </div>
-               )
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-4">
+                <div className="flex items-baseline gap-2">
+                  <p className="font-display text-[34px] sm:text-[40px] font-semibold text-[#2D2D2D] tracking-tight tabular-nums leading-none">
+                    {formatUSD(
+                      (Number(product.dolar_price) || 0) *
+                        (1 - (Number(product.discount_percentage) || 0) / 100)
+                    )}
+                  </p>
+                  {Number(product.discount_percentage) > 0 && (
+                    <>
+                      <p className="text-base text-[#9C9589] line-through tabular-nums">
+                        {formatUSD(Number(product.dolar_price) || 0)}
+                      </p>
+                      <span className="inline-flex items-center text-[11px] font-semibold uppercase tracking-[0.06em] bg-[#C44536] text-white px-2 py-0.5 rounded-sm">
+                        -{product.discount_percentage}%
+                      </span>
+                    </>
+                  )}
+                </div>
+                <CurrencyConverterRow
+                  amount={Number(product.dolar_price || 0)}
+                />
+              </div>
             ) : (
-              <p className="text-xl font-medium text-[#C9A962]">
-                {locale === 'es' ? 'Precio a consultar' : 'Price to consult'}
+              <p className="font-display text-2xl font-medium text-[#A08848]">
+                {locale === 'es' ? 'Precio a consultar' : 'Price on request'}
               </p>
-            )
-          }
-            <p className="mt-2 text-sm">
+            )}
+
+            {/* Stock + SKU row */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-sm">
               {inventory > 0 ? (
-                <span className="text-[#4A7C59] flex items-center">
-                  <Check className="h-4 w-4 mr-1" />
-                  {inventory > 10 ? (locale === 'es' ? 'En stock' : 'In stock') : inventory==1 ? (locale === 'es' ? 'Última unidad' : 'Last unit') : (locale === 'es' ? `Solo quedan ${inventory} unidades` : `Only ${inventory} left`)}
+                <span className="inline-flex items-center gap-1.5 text-[#2F5F3E]">
+                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[#4A7C59]" />
+                  <Check className="h-4 w-4" aria-hidden />
+                  <span className="font-medium">
+                    {inventory > 10
+                      ? locale === 'es' ? 'En stock' : 'In stock'
+                      : inventory === 1
+                      ? locale === 'es' ? 'Última unidad' : 'Last unit'
+                      : locale === 'es'
+                      ? `Solo quedan ${inventory} unidades`
+                      : `Only ${inventory} left`}
+                  </span>
                 </span>
               ) : (
-                <span className="text-[#C44536]">{locale === 'es' ? 'Vendido' : 'Sold out'}</span>
+                <span className="inline-flex items-center gap-1.5 text-[#9F2D24]">
+                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[#C44536]" />
+                  <span className="font-medium">
+                    {locale === 'es' ? 'Vendido' : 'Sold out'}
+                  </span>
+                </span>
               )}
-            </p>
-
-            {/* SKU */}
-            {product.sku && (
-              <p className="text-xs text-[#9C9589] mt-1">
-                SKU: {product.sku}
-              </p>
-            )}
+              {product.sku && (
+                <span className="text-xs text-[#6B6459] tabular-nums">
+                  SKU: <span className="font-medium text-[#4A4A4A]">{product.sku}</span>
+                </span>
+              )}
+            </div>
           </div>
-          
-          {/* Descripción */}
-          <div className="mb-4 border-b border-[#E8E4E0]">
-            <h2 className="text-lg font-semibold mb-2 text-[#2D2D2D]">{locale === 'es' ? 'Descripción' : 'Description'}</h2>
-            <p className="text-[#4A4A4A] whitespace-pre-line pb-4">
+
+          {/* Description */}
+          <div className="mb-5 pt-5 border-t border-[#E8E4E0]">
+            <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
+              {locale === 'es' ? 'Descripción' : 'Description'}
+            </h2>
+            <p className="text-[14.5px] text-[#4A4A4A] leading-relaxed whitespace-pre-line">
               {locale === 'es' ? product.description : product.description_en}
             </p>
           </div>
 
-          {/* Especificaciones técnicas */}
+          {/* Technical specs as <dl> for semantic SEO + a11y */}
           {(product.weight_kg || product.length_cm || product.width_cm || product.height_cm) && (
-            <div className="mb-8 border-b border-[#E8E4E0] pb-2 text-start">
-              <h2 className="text-lg font-semibold mb-4 text-[#2D2D2D]">
+            <div className="mb-6 pt-5 border-t border-[#E8E4E0]">
+              <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-3">
                 {locale === 'es' ? 'Especificaciones técnicas' : 'Technical specifications'}
               </h2>
-              <div className="grid grid-cols-2 gap-4 text-sm text-start">
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
                 {product.weight_kg && (
-                  <div className="flex justify-between py-2 border-b border-[#E8E4E0]/50">
-                    <span className="text-[#9C9589]">
-                      {locale === 'es' ? 'Peso:' : 'Weight:'}
-                    </span>
-                    <span className="font-medium text-[#2D2D2D]">
-                      {product.weight_kg} kg
-                    </span>
+                  <div className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70">
+                    <dt className="text-[#6B6459]">{locale === 'es' ? 'Peso' : 'Weight'}</dt>
+                    <dd className="font-medium text-[#2D2D2D] tabular-nums">{product.weight_kg} kg</dd>
                   </div>
                 )}
                 {product.length_cm && (
-                  <div className="flex justify-between py-2 border-b border-[#E8E4E0]/50">
-                    <span className="text-[#9C9589]">
-                      {locale === 'es' ? 'Largo:' : 'Length:'}
-                    </span>
-                    <span className="font-medium text-[#2D2D2D]">
-                      {product.length_cm} cm
-                    </span>
+                  <div className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70">
+                    <dt className="text-[#6B6459]">{locale === 'es' ? 'Largo' : 'Length'}</dt>
+                    <dd className="font-medium text-[#2D2D2D] tabular-nums">{product.length_cm} cm</dd>
                   </div>
                 )}
                 {product.width_cm && (
-                  <div className="flex justify-between py-2 border-b border-[#E8E4E0]/50">
-                    <span className="text-[#9C9589]">
-                      {locale === 'es' ? 'Ancho:' : 'Width:'}
-                    </span>
-                    <span className="font-medium text-[#2D2D2D]">
-                      {product.width_cm} cm
-                    </span>
+                  <div className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70">
+                    <dt className="text-[#6B6459]">{locale === 'es' ? 'Ancho' : 'Width'}</dt>
+                    <dd className="font-medium text-[#2D2D2D] tabular-nums">{product.width_cm} cm</dd>
                   </div>
                 )}
                 {product.height_cm && (
-                  <div className="flex justify-between py-2 border-b border-[#E8E4E0]/50">
-                    <span className="text-[#9C9589]">
-                      {locale === 'es' ? 'Alto:' : 'Height:'}
-                    </span>
-                    <span className="font-medium text-[#2D2D2D]">
-                      {product.height_cm} cm
-                    </span>
+                  <div className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70">
+                    <dt className="text-[#6B6459]">{locale === 'es' ? 'Alto' : 'Height'}</dt>
+                    <dd className="font-medium text-[#2D2D2D] tabular-nums">{product.height_cm} cm</dd>
                   </div>
                 )}
-              </div>
+              </dl>
             </div>
           )}
           
-          {/* Acciones */}
-          <div className="space-y-6 border-b border-[#E8E4E0] pb-6 mb-6">
-            {/* Selector de cantidad */}
+          {/* Actions */}
+          <div className="pt-5 pb-6 border-t border-[#E8E4E0] space-y-5">
+            {/* Quantity selector */}
             <div>
-              <h2 className="text-sm font-medium mb-2 text-[#2D2D2D]">{locale === 'es' ? 'Cantidad' : 'Quantity'}</h2>
-              <div className="flex items-center space-x-2">
+              <label
+                htmlFor="qty-display"
+                className="block text-xs uppercase tracking-[0.08em] font-medium text-[#6B6459] mb-2"
+              >
+                {locale === 'es' ? 'Cantidad' : 'Quantity'}
+              </label>
+              <div className="inline-flex items-center border border-[#E8E4E0] rounded-sm overflow-hidden">
                 <button
+                  type="button"
                   onClick={handleDecrement}
                   disabled={quantity <= 1}
-                  className="text-[#9C9589] hover:text-[#C9A962] disabled:text-[#E8E4E0] transition-colors"
-                  aria-label="Disminuir cantidad"
+                  className="grid place-items-center w-11 h-11 text-[#2D2D2D] hover:bg-[#FAF8F5] disabled:text-[#E8E4E0] disabled:hover:bg-transparent transition-colors"
+                  aria-label={locale === 'es' ? 'Disminuir cantidad' : 'Decrease quantity'}
+                  aria-controls="qty-display"
                 >
-                  <MinusCircle className="h-6 w-6" />
+                  <Minus className="h-4 w-4" strokeWidth={2} aria-hidden />
                 </button>
-                <span className="w-8 text-center font-medium text-[#2D2D2D]">{quantity}</span>
+                <span
+                  id="qty-display"
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                  className="min-w-[44px] text-center font-medium text-[#2D2D2D] tabular-nums select-none"
+                >
+                  {quantity}
+                </span>
                 <button
+                  type="button"
                   onClick={handleIncrement}
                   disabled={quantity >= 10}
-                  className="text-[#9C9589] hover:text-[#C9A962] disabled:text-[#E8E4E0] transition-colors"
-                  aria-label="Aumentar cantidad"
+                  className="grid place-items-center w-11 h-11 text-[#2D2D2D] hover:bg-[#FAF8F5] disabled:text-[#E8E4E0] disabled:hover:bg-transparent transition-colors"
+                  aria-label={locale === 'es' ? 'Aumentar cantidad' : 'Increase quantity'}
+                  aria-controls="qty-display"
                 >
-                  <PlusCircle className="h-6 w-6" />
+                  <Plus className="h-4 w-4" strokeWidth={2} aria-hidden />
                 </button>
               </div>
             </div>
 
-            {/* Botones de acción */}
-            <div className="flex flex-col space-y-3">
+            {/* Primary CTA + secondary actions */}
+            <div className="flex flex-col gap-3">
               {inventory > 0 ? (
                 <button
+                  type="button"
                   onClick={handleAddToCart}
-                  className="flex items-center justify-center w-full py-3 px-4 bg-gradient-to-r from-[#C9A962] to-[#A08848] text-[#1A1A1A] rounded-lg hover:from-[#D4C4A8] hover:to-[#C9A962] transition-all shadow-sm font-medium"
+                  className="inline-flex items-center justify-center w-full min-h-[52px] px-5 py-3 bg-[#C9A962] text-[#1A1A1A]
+                             text-sm font-semibold tracking-wide uppercase
+                             rounded-sm hover:bg-[#A08848] hover:text-[#F5F1EB]
+                             transition-colors duration-200
+                             shadow-[0_2px_8px_-4px_rgba(160,136,72,0.4)]"
                 >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  <ShoppingCart className="h-4 w-4 mr-2.5" strokeWidth={2} aria-hidden />
                   {locale === 'es' ? 'Añadir al carrito' : 'Add to cart'}
                 </button>
               ) : (
                 <Link
                   href={`https://wa.me/50684237555?text=${encodeURIComponent(
-                    locale === 'es' ? 'Hola, estoy interesado en el producto: ' + product?.name_es + ' (' + window.location.href + ')' : 'Hello, I am interested in the product: ' + product?.name_en + ' (' + window.location.href + ')'
+                    locale === 'es'
+                      ? `Hola, estoy interesado en el producto: ${product.name_es} (${typeof window !== 'undefined' ? window.location.href : ''})`
+                      : `Hello, I am interested in the product: ${product.name_en} (${typeof window !== 'undefined' ? window.location.href : ''})`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center bg-[#4A7C59]/10 justify-center w-full px-4 py-2 text-sm font-medium text-[#4A7C59] hover:text-[#3A6349] border border-[#4A7C59]/30 rounded-md hover:bg-[#4A7C59]/20 transition-colors"
+                  aria-label={
+                    locale === 'es'
+                      ? 'Consultar disponibilidad por WhatsApp (abre en nueva ventana)'
+                      : 'Check availability on WhatsApp (opens in new window)'
+                  }
+                  className="inline-flex items-center justify-center w-full min-h-[52px] px-5 py-3 text-sm font-semibold text-[#2F5F3E] bg-[#4A7C59]/10 border border-[#4A7C59]/40 rounded-sm hover:bg-[#4A7C59]/20 transition-colors"
                 >
-                  {locale === 'es' ? 'Consultar disponibilidad' : 'Check availability'}
-                  <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  {locale === 'es' ? 'Consultar por WhatsApp' : 'Ask on WhatsApp'}
+                  <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.520-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.488" />
                   </svg>
                 </Link>
               )}
 
-              <div className="flex space-x-3">
+              <div className="flex gap-3">
                 <button
+                  type="button"
                   onClick={handleToggleFavorite}
-                  className={`flex items-center justify-center flex-1 py-2 px-4 border rounded-lg transition ${isFavorite ? 'bg-[#C44536]/10 text-[#C44536] border-[#C44536]/30' : 'border-[#E8E4E0] text-[#4A4A4A] hover:bg-[#FAF8F5] hover:border-[#C9A962]/30'}`}
+                  aria-pressed={isFavorite}
+                  aria-label={
+                    isFavorite
+                      ? locale === 'es' ? 'Quitar de favoritos' : 'Remove from favorites'
+                      : locale === 'es' ? 'Añadir a favoritos' : 'Add to favorites'
+                  }
+                  className={`inline-flex items-center justify-center flex-1 min-h-[44px] px-4 py-2.5 text-sm font-medium rounded-sm border transition-colors ${
+                    isFavorite
+                      ? 'bg-[#C44536]/10 text-[#9F2D24] border-[#C44536]/40'
+                      : 'text-[#2D2D2D] border-[#E8E4E0] hover:border-[#C9A962]/60 hover:bg-[#FAF8F5]'
+                  }`}
                 >
-                  <Heart className={`h-5 w-5 mr-2 ${isFavorite ? 'fill-[#C44536]' : ''}`} />
-                  {isFavorite ? (locale === 'es' ? 'Guardado' : 'Saved') : (locale === 'es' ? 'Favorito' : 'Favorite')}
+                  <Heart
+                    className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-[#C44536]' : ''}`}
+                    strokeWidth={2}
+                    aria-hidden
+                  />
+                  {isFavorite
+                    ? locale === 'es' ? 'Guardado' : 'Saved'
+                    : locale === 'es' ? 'Favorito' : 'Favorite'}
                 </button>
                 <button
-                  className="flex items-center justify-center flex-1 py-2 px-4 border border-[#E8E4E0] text-[#4A4A4A] rounded-lg hover:bg-[#FAF8F5] hover:border-[#C9A962]/30 transition"
-                  onClick={() => {
-                    // Use Web Share API if available
-                    if (navigator.share) {
-                      navigator.share({
-                        title: product?.name || 'Producto artesanal',
-                        text: product?.description || 'Mira este increíble producto artesanal',
-                        url: window.location.href
-                      })
-                      .catch(err => console.error('Error al compartir:', err));
-                    } else {
-                      // Fallback - copy to clipboard
-                      navigator.clipboard.writeText(window.location.href);
-                      alert(locale === 'es' ? 'Enlace copiado al portapapeles' : 'Link copied to clipboard');
-                    }
-                  }}
+                  type="button"
+                  onClick={handleShare}
+                  aria-label={locale === 'es' ? 'Compartir producto' : 'Share product'}
+                  className="inline-flex items-center justify-center flex-1 min-h-[44px] px-4 py-2.5 text-sm font-medium text-[#2D2D2D] border border-[#E8E4E0] rounded-sm hover:border-[#C9A962]/60 hover:bg-[#FAF8F5] transition-colors"
                 >
-                  <Share2 className="h-5 w-5 mr-2" />
+                  <Share2 className="h-4 w-4 mr-2" strokeWidth={2} aria-hidden />
                   {locale === 'es' ? 'Compartir' : 'Share'}
                 </button>
               </div>
             </div>
           </div>
-          
-          {/* Detalles adicionales */}
-          <div className="space-y-6">
-            {/* Especificaciones */}
+
+          {/* Optional sections */}
+          <div className="space-y-6 pt-2">
+            {/* Specifications JSON */}
             {product.specifications && Object.keys(product.specifications).length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold mb-3 text-[#2D2D2D]">{locale === 'es' ? 'Especificaciones' : 'Specifications'}</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
+                  {locale === 'es' ? 'Detalles' : 'Details'}
+                </h2>
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
                   {Object.entries(product.specifications).map(([key, value]) => (
-                    <div key={key} className="py-1 border-b border-[#E8E4E0]/50">
-                      <span className="text-[#9C9589] text-sm">{key}: </span>
-                      <span className="text-[#2D2D2D] font-medium text-sm">{String(value)}</span>
+                    <div
+                      key={key}
+                      className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70"
+                    >
+                      <dt className="text-[#6B6459] capitalize">{key}</dt>
+                      <dd className="font-medium text-[#2D2D2D] text-right">{String(value)}</dd>
                     </div>
                   ))}
-                </div>
+                </dl>
               </div>
             )}
 
-            {/* Etiquetas */}
+            {/* Tags */}
             {product.tags && product.tags.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold mb-3 text-[#2D2D2D]">{locale === 'es' ? 'Etiquetas' : 'Tags'}</h2>
-                <div className="flex flex-wrap gap-2">
+                <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
+                  {locale === 'es' ? 'Etiquetas' : 'Tags'}
+                </h2>
+                <ul className="flex flex-wrap gap-2">
                   {product.tags.map((tag, index) => (
-                    <Link
-                      key={index}
-                      href={`/products?tag=${tag}`}
-                      className="inline-flex items-center px-3 py-1 rounded-full bg-[#2D2D2D] hover:bg-[#3A3A3A] text-[#F5F1EB] text-sm transition border border-[#C9A962]/10 hover:border-[#C9A962]/30"
-                    >
-                      <Tag className="h-3 w-3 mr-1 text-[#C9A962]" />
-                      {tag}
-                    </Link>
+                    <li key={index}>
+                      <Link
+                        href={`/products?tag=${encodeURIComponent(tag)}`}
+                        className="inline-flex items-center min-h-[32px] px-3 py-1 rounded-sm bg-[#2D2D2D] hover:bg-[#1A1A1A] text-[#F5F1EB] text-xs font-medium transition-colors"
+                      >
+                        <Tag className="h-3 w-3 mr-1.5 text-[#C9A962]" strokeWidth={2} aria-hidden />
+                        {tag}
+                      </Link>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
 
-            {/* Características generales */}
+            {/* Brand promise (always shown) */}
             <div>
-              <h2 className="text-lg font-semibold mb-3 text-[#2D2D2D]">{locale === 'es' ? 'Características' : 'Features'}</h2>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-start">
-                  <span className="text-[#C9A962] font-medium mr-2">•</span>
-                  <span className="text-[#4A4A4A]">{locale === 'es' ? 'Producto hecho a mano con materiales de calidad' : 'Product made by hand with quality materials'}</span>
+              <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
+                {locale === 'es' ? 'Por qué importa' : 'Why it matters'}
+              </h2>
+              <ul className="space-y-1.5 text-sm text-[#4A4A4A]">
+                <li className="flex items-start gap-2.5">
+                  <span aria-hidden className="text-[#A08848] mt-1 leading-none">·</span>
+                  <span>
+                    {locale === 'es'
+                      ? 'Hecho a mano con materiales nobles, sin atajos industriales.'
+                      : 'Handmade with honest materials, no industrial shortcuts.'}
+                  </span>
                 </li>
-                <li className="flex items-start">
-                  <span className="text-[#C9A962] font-medium mr-2">•</span>
-                  <span className="text-[#4A4A4A]">{locale === 'es' ? 'Diseño único y exclusivo' : 'Unique and exclusive design'}</span>
+                <li className="flex items-start gap-2.5">
+                  <span aria-hidden className="text-[#A08848] mt-1 leading-none">·</span>
+                  <span>
+                    {locale === 'es'
+                      ? 'Diseño único — no encontrarás dos piezas idénticas.'
+                      : 'One-of-a-kind design — no two pieces are identical.'}
+                  </span>
                 </li>
-                <li className="flex items-start">
-                  <span className="text-[#C9A962] font-medium mr-2">•</span>
-                  <span className="text-[#4A4A4A]">{locale === 'es' ? 'Artesanía local de Costa Rica' : 'Local craftsmanship from Costa Rica'}</span>
+                <li className="flex items-start gap-2.5">
+                  <span aria-hidden className="text-[#A08848] mt-1 leading-none">·</span>
+                  <span>
+                    {locale === 'es'
+                      ? 'Cada compra apoya la reinserción social y laboral en Costa Rica.'
+                      : 'Every purchase supports social reintegration in Costa Rica.'}
+                  </span>
                 </li>
               </ul>
             </div>
           </div>
         </div>
-      </div>
+      </article>
 
       {/* Related products (server-streamed via Suspense) */}
       {children}
 
-      {/* Reviews Section */}
+      {/* Reviews — lazy-loaded to keep the main bundle lean */}
       {!loading && !error && product && (
-        <div className="mt-16 border-t border-[#E8E4E0] pt-10">
-          <h2 className="text-2xl font-bold flex items-center mb-6 text-[#2D2D2D]">
-            <MessageSquare className="h-6 w-6 mr-2 text-[#C9A962]" />
-            {locale === 'es' ? 'Reseñas y opiniones' : 'Reviews and opinions'}
-          </h2>
-
-          <div className="space-y-8">
-            <ReviewsList productId={product.id} key={reviewsRefreshKey} />
-            <ReviewForm
-              productId={product.id}
-              onReviewSubmitted={() => setReviewsRefreshKey(prev => prev + 1)}
-            />
-          </div>
-        </div>
+        <ReviewsSection productId={product.id} />
       )}
-    </div>
+    </main>
   );
 }

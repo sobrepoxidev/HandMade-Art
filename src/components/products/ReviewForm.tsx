@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Star } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Star, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useLocale } from 'next-intl';
 
@@ -17,8 +17,9 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
   const [hoveredStar, setHoveredStar] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const { supabase } = useSupabase();
-    const locale = useLocale();
+  const { supabase } = useSupabase();
+  const locale = useLocale();
+  const starsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,143 +27,204 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
     setIsSubmitting(true);
 
     try {
-      // Get current user session
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session?.user) {
-        setError(locale === 'es' ? 'Debes iniciar sesión para dejar una reseña.' : 'You must be logged in to leave a review.');
+        setError(
+          locale === 'es'
+            ? 'Debes iniciar sesión para dejar una reseña.'
+            : 'You must be signed in to leave a review.'
+        );
         setIsSubmitting(false);
         return;
       }
-      
-      // Validate comment
+
       if (!comment.trim()) {
-        setError(locale === 'es' ? 'El contenido de la reseña es obligatorio.' : 'The review content is required.');
+        setError(
+          locale === 'es'
+            ? 'Escribe tu opinión antes de enviar.'
+            : 'Write your opinion before submitting.'
+        );
         setIsSubmitting(false);
         return;
       }
-      
-      // Check if user has already reviewed this product
+
       const { data: existingReview } = await supabase
         .from('reviews')
         .select('id')
         .eq('product_id', productId)
         .eq('user_id', session.user.id)
-        .single();
-      
+        .maybeSingle();
+
       if (existingReview) {
-        // Update existing review
         const { error: updateError } = await supabase
           .from('reviews')
-          .update({
-            comment,
-            rating,
-            updated_at: new Date().toISOString()
-          })
+          .update({ comment, rating, updated_at: new Date().toISOString() })
           .eq('id', existingReview.id);
-          
         if (updateError) throw updateError;
-        setSuccessMessage(locale === 'es' ? 'Tu reseña ha sido actualizada.' : 'Your review has been updated.');
+        setSuccessMessage(
+          locale === 'es' ? 'Tu reseña fue actualizada.' : 'Your review was updated.'
+        );
       } else {
-        // Insert new review
         const { error: insertError } = await supabase
           .from('reviews')
-          .insert({
-            product_id: productId,
-            user_id: session.user.id,
-            comment,
-            rating
-          });
-          
+          .insert({ product_id: productId, user_id: session.user.id, comment, rating });
         if (insertError) throw insertError;
-        setSuccessMessage(locale === 'es' ? 'Tu reseña ha sido publicada.' : 'Your review has been published.');
+        setSuccessMessage(
+          locale === 'es' ? 'Tu reseña fue publicada.' : 'Your review was published.'
+        );
       }
-      
-      // Clear form
+
       setComment('');
       setRating(5);
-      
-      // Notify parent that a review was submitted
       onReviewSubmitted();
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSuccessMessage(null);
-      }, 3000);
-    } catch (err: Error | unknown) {
+
+      setTimeout(() => setSuccessMessage(null), 3500);
+    } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(locale === 'es' ? `Error al enviar la reseña: ${errorMessage}` : `Error submitting review: ${errorMessage}`);
+      setError(
+        locale === 'es'
+          ? `Error al enviar la reseña: ${errorMessage}`
+          : `Error submitting review: ${errorMessage}`
+      );
       console.error('Error submitting review:', err);
     } finally {
       setIsSubmitting(false);
     }
   };
-  
-  return (
-    <div className="bg-gray-50 p-4 rounded-lg mt-6">
-      <h3 className="text-lg font-medium mb-4 text-gray-800">{locale === 'es' ? 'Deja tu opinión' : 'Leave your review'}</h3>
-      
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
-          {error}
-        </div>
-      )}
-      
-      {successMessage && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
-          {successMessage}
-        </div>
-      )}
-      
-      <form onSubmit={handleSubmit}>
-        {/* Rating */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            {locale === 'es' ? 'Calificación' : 'Rating'}
-          </label>
-          <div className="flex">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star 
-                key={star}
-                className={`h-8 w-8 cursor-pointer ${
-                  star <= (hoveredStar || rating) 
-                    ? 'fill-amber-400 text-amber-400' 
-                    : 'fill-gray-200 text-gray-200'
-                }`} 
-                onClick={() => setRating(star)}
-                onMouseEnter={() => setHoveredStar(star)}
-                onMouseLeave={() => setHoveredStar(0)}
-              />
-            ))}
-          </div>
-        </div>
-        
 
-        
+  const handleStarKey = (e: React.KeyboardEvent, idx: number) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const next = Math.min(5, idx + 2);
+      setRating(next);
+      starsRef.current[next - 1]?.focus();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const prev = Math.max(1, idx);
+      setRating(prev);
+      starsRef.current[prev - 1]?.focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      setRating(1);
+      starsRef.current[0]?.focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      setRating(5);
+      starsRef.current[4]?.focus();
+    }
+  };
+
+  return (
+    <section className="bg-[#FAF8F5] border border-[#E8E4E0] rounded-md p-5 mt-8">
+      <h3 className="font-display text-xl font-medium text-[#2D2D2D] mb-4 tracking-[-0.005em]">
+        {locale === 'es' ? 'Deja tu opinión' : 'Leave your review'}
+      </h3>
+
+      <div aria-live="polite" aria-atomic="true">
+        {error && (
+          <div className="flex items-start gap-2 bg-[#C44536]/8 border border-[#C44536]/30 text-[#9F2D24] px-3 py-2.5 rounded-sm mb-4 text-sm">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2} aria-hidden />
+            <span>{error}</span>
+          </div>
+        )}
+        {successMessage && (
+          <div className="flex items-start gap-2 bg-[#4A7C59]/10 border border-[#4A7C59]/30 text-[#2F5F3E] px-3 py-2.5 rounded-sm mb-4 text-sm">
+            <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2} aria-hidden />
+            <span>{successMessage}</span>
+          </div>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit} noValidate>
+        {/* Rating */}
+        <fieldset className="mb-5">
+          <legend className="block text-sm font-medium text-[#2D2D2D] mb-2">
+            {locale === 'es' ? 'Calificación' : 'Rating'}
+          </legend>
+          <div
+            className="flex items-center gap-1"
+            role="radiogroup"
+            aria-label={locale === 'es' ? 'Calificación de 1 a 5 estrellas' : 'Rating from 1 to 5 stars'}
+          >
+            {[1, 2, 3, 4, 5].map((star) => {
+              const isFilled = star <= (hoveredStar || rating);
+              return (
+                <button
+                  key={star}
+                  ref={(el) => {
+                    starsRef.current[star - 1] = el;
+                  }}
+                  type="button"
+                  role="radio"
+                  aria-checked={rating === star}
+                  aria-label={
+                    locale === 'es'
+                      ? `${star} ${star === 1 ? 'estrella' : 'estrellas'}`
+                      : `${star} ${star === 1 ? 'star' : 'stars'}`
+                  }
+                  tabIndex={rating === star ? 0 : -1}
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHoveredStar(star)}
+                  onMouseLeave={() => setHoveredStar(0)}
+                  onKeyDown={(e) => handleStarKey(e, star)}
+                  className="grid place-items-center w-11 h-11 rounded-sm transition-colors hover:bg-[#C9A962]/10"
+                >
+                  <Star
+                    className={`h-7 w-7 transition-colors ${
+                      isFilled
+                        ? 'fill-[#C9A962] text-[#C9A962]'
+                        : 'fill-[#E8E4E0] text-[#E8E4E0]'
+                    }`}
+                    strokeWidth={0}
+                    aria-hidden
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
         {/* Comment */}
-        <div className="mb-4">
-          <label htmlFor="review-comment" className="block text-sm font-medium text-gray-700 mb-1">
-            {locale === 'es' ? 'Opinión' : 'Opinion'} <span className="text-red-500">*</span>
+        <div className="mb-5">
+          <label
+            htmlFor="review-comment"
+            className="block text-sm font-medium text-[#2D2D2D] mb-1.5"
+          >
+            {locale === 'es' ? 'Opinión' : 'Opinion'}{' '}
+            <span aria-hidden className="text-[#C44536]">*</span>
+            <span className="sr-only"> ({locale === 'es' ? 'requerido' : 'required'})</span>
           </label>
           <textarea
             id="review-comment"
-            className="w-full p-2 border border-gray-300 rounded-md h-24 text-gray-800"
+            className="w-full p-3 border border-[#E8E4E0] rounded-sm bg-white text-[#2D2D2D] placeholder:text-[#9C9589] resize-y min-h-[96px] focus:border-[#A08848] focus:outline-none"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder={locale === 'es' ? 'Comparte tu experiencia con este producto...' : 'Share your experience with this product...'}
+            placeholder={
+              locale === 'es'
+                ? 'Comparte tu experiencia con esta pieza...'
+                : 'Share your experience with this piece...'
+            }
             required
+            aria-required="true"
           />
         </div>
-        
-        {/* Submit button */}
+
+        {/* Submit */}
         <button
           type="submit"
-          className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isSubmitting}
+          className="inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-sm
+                     text-sm font-semibold tracking-wide text-[#1A1A1A] bg-[#C9A962]
+                     hover:bg-[#A08848] hover:text-[#F5F1EB]
+                     disabled:opacity-60 disabled:cursor-not-allowed
+                     transition-colors duration-200"
         >
-          {isSubmitting ? (locale === 'es' ? 'Enviando...' : 'Sending...') : (locale === 'es' ? 'Enviar reseña' : 'Submit review')}
+          {isSubmitting
+            ? locale === 'es' ? 'Enviando…' : 'Sending…'
+            : locale === 'es' ? 'Enviar reseña' : 'Submit review'}
         </button>
       </form>
-    </div>
+    </section>
   );
 }
