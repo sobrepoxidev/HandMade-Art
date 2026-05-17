@@ -60,7 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     make("/reinsercion-sociolaboral"),
   ];
 
-  // Fetch active products for dynamic product pages
+  // Fetch active products for dynamic product pages (with images for image sitemap)
   let productPages: MetadataRoute.Sitemap = [];
 
   try {
@@ -68,23 +68,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const { data: products, error } = await supabase
       .from("products")
-      .select("name, modified_at")
+      .select("name, modified_at, media")
       .eq("is_active", true)
       .not("name", "is", null);
 
     if (!error && products) {
-      productPages = products.map((product) => ({
-        url: `https://${host}/${locale}/product/${product.name}`,
-        lastModified: product.modified_at ? new Date(product.modified_at) : now,
-        changeFrequency: "weekly" as const,
-        priority: 0.8,
-        alternates: {
-          languages: {
-            [localeTag]: `https://${host}/${locale}/product/${product.name}`,
-            [altLocaleTag]: `https://${altDomain}/${altLocale}/product/${product.name}`,
+      productPages = products.map((product) => {
+        const media = Array.isArray(product.media) ? product.media : [];
+        const images = media
+          .map((m) => (m as { url?: string })?.url)
+          .filter((u): u is string => typeof u === "string" && u.length > 0)
+          .slice(0, 5);
+
+        return {
+          url: `https://${host}/${locale}/product/${product.name}`,
+          lastModified: product.modified_at ? new Date(product.modified_at) : now,
+          changeFrequency: "weekly" as const,
+          priority: 0.8,
+          alternates: {
+            languages: {
+              [localeTag]: `https://${host}/${locale}/product/${product.name}`,
+              [altLocaleTag]: `https://${altDomain}/${altLocale}/product/${product.name}`,
+            },
           },
-        },
-      }));
+          // Google Image Sitemap extension — Next.js serializes this as <image:image>
+          ...(images.length ? { images } : {}),
+        };
+      });
     }
   } catch (err) {
     console.error("Error fetching products for sitemap:", err);

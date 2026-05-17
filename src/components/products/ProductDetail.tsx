@@ -38,7 +38,23 @@ function isMediaArray(media: Json): media is Array<{ url: string }> {
 }
 
 // The client component that handles UI and state
-export default function ProductDetail({ slug, locale, children }: { slug: string, locale: string, children?: ReactNode }) {
+interface ProductDetailProps {
+  slug: string;
+  locale: string;
+  initialProduct?: Product | null;
+  initialCategory?: Category | null;
+  initialInventory?: number;
+  children?: ReactNode;
+}
+
+export default function ProductDetail({
+  slug,
+  locale,
+  initialProduct = null,
+  initialCategory = null,
+  initialInventory = 0,
+  children,
+}: ProductDetailProps) {
   // Ensure viewport starts at top when navigating to product page
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -46,11 +62,12 @@ export default function ProductDetail({ slug, locale, children }: { slug: string
     }
   }, []);
 
-  const [product, setProduct] = useState<Product | null>(null);
-  const [category, setCategory] = useState<Category | null>(null);
-  const [inventory, setInventory] = useState<number>(0);
+  // Start hydrated with SSR data so the HTML on first paint already has the full product.
+  const [product, setProduct] = useState<Product | null>(initialProduct);
+  const [category, setCategory] = useState<Category | null>(initialCategory);
+  const [inventory, setInventory] = useState<number>(initialInventory);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialProduct == null);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -85,23 +102,21 @@ export default function ProductDetail({ slug, locale, children }: { slug: string
     };
   }, [session, supabaseContext.auth]);
   
-  // Cargar producto por slug (name) y sus datos relacionados
+  // Fallback fetch: only runs if SSR didn't pre-fill the product.
+  // The page.tsx server component already SSRs product + category + inventory.
+  // Here we (a) cover the legacy path where ProductDetail is imported without SSR data,
+  // and (b) record view history + favorites which depend on the client session.
   useEffect(() => {
-    async function fetchProductAndRelatedData() {
+    async function loadFallback() {
       setLoading(true);
       try {
-        // Fetch product data by slug (name field)
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
           .eq('name', slug)
           .single();
 
-        if (productError) {
-          throw productError;
-        }
-
-        if (!productData) {
+        if (productError || !productData) {
           setError('Producto no encontrado');
           setLoading(false);
           return;
@@ -109,49 +124,21 @@ export default function ProductDetail({ slug, locale, children }: { slug: string
 
         setProduct(productData as Product);
 
-        // Registrar la visualización en el historial (si hay un usuario autenticado)
-        if (currentSession?.user) {
-          // Record view in view_history table
-          await supabase.from('view_history').insert({
-            user_id: currentSession.user.id,
-            product_id: productData.id,
-          }).select();
-        }
-
-        // Fetch category if available
         if (productData.category_id) {
           const { data: categoryData } = await supabase
             .from('categories')
             .select('*')
             .eq('id', productData.category_id)
             .single();
-          
-          setCategory(categoryData as Category);
+          if (categoryData) setCategory(categoryData as Category);
         }
 
-        // Fetch inventory data
         const { data: inventoryData } = await supabase
           .from('inventory')
           .select('quantity')
           .eq('product_id', productData.id)
-          .single();
-        
-        if (inventoryData) {
-          setInventory(inventoryData.quantity);
-        }
-
-        // Check if product is in favorites (if user is logged in)
-        if (currentSession?.user) {
-          const { data: favoriteData } = await supabase
-            .from('favorites')
-            .select('id')
-            .eq('user_id', currentSession.user.id)
-            .eq('product_id', productData.id)
-            .single();
-
-          setIsFavorite(!!favoriteData);
-        }
-
+          .maybeSingle();
+        if (inventoryData) setInventory(inventoryData.quantity);
       } catch (err) {
         console.error('Error al cargar el producto:', err);
         setError('Error al cargar el producto');
@@ -160,10 +147,35 @@ export default function ProductDetail({ slug, locale, children }: { slug: string
       }
     }
 
-    if (slug) {
-      fetchProductAndRelatedData();
+    if (slug && !initialProduct) {
+      loadFallback();
     }
-  }, [slug]); // Use slug as dependency
+  }, [slug, initialProduct]);
+
+  // Side effects that always depend on the client session: view history + favorites.
+  useEffect(() => {
+    if (!product?.id) return;
+    const productId = product.id;
+
+    if (currentSession?.user) {
+      void supabase
+        .from('view_history')
+        .insert({ user_id: currentSession.user.id, product_id: productId })
+        .select();
+
+      void supabase
+        .from('favorites')
+        .select('id')
+        .eq('user_id', currentSession.user.id)
+        .eq('product_id', productId)
+        .maybeSingle()
+        .then(({ data }) => {
+          setIsFavorite(!!data);
+        });
+    } else {
+      setIsFavorite(false);
+    }
+  }, [product?.id, currentSession?.user]);
 
   // Resetear zoom cuando cambia la imagen activa
   useEffect(() => {
@@ -417,8 +429,15 @@ export default function ProductDetail({ slug, locale, children }: { slug: string
               >
                 <Image
                   src={mainImageUrl}
-                  alt={product.name || ''}
+                  alt={
+                    (locale === 'es' ? product.name_es : product.name_en) ||
+                    product.name ||
+                    (locale === 'es'
+                      ? 'Producto artesanal hecho a mano en Costa Rica'
+                      : 'Handmade artisan product from Costa Rica')
+                  }
                   fill
+                  sizes="(max-width: 768px) 100vw, 60vw"
                   className="object-contain select-none pointer-events-none"
                   priority
                   draggable={false}
@@ -489,8 +508,13 @@ export default function ProductDetail({ slug, locale, children }: { slug: string
                   >
                     <Image
                       src={item.url}
-                      alt={`Imagen ${index + 1} de ${locale === 'es' ? product.name_es : product.name_en}`}
+                      alt={
+                        locale === 'es'
+                          ? `Vista ${index + 1} de ${product.name_es || product.name}`
+                          : `View ${index + 1} of ${product.name_en || product.name}`
+                      }
                       fill
+                      sizes="80px"
                       className="object-contain p-1"
                     />
                   </button>
