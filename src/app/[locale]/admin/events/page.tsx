@@ -2,7 +2,10 @@ import { redirect } from 'next/navigation';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { Calendar, Plus, Clock, MapPin, Users } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
+// Admin sub-routes (e.g. /admin/events/new) are internal — they don't
+// go through localized routing, so we use next/link instead of the
+// typed i18n Link to avoid restricting hrefs to declared pathnames.
+import Link from 'next/link';
 
 // Lista de correos electrónicos de administradores autorizados
 const AUTHORIZED_ADMINS = ['sobrepoxidev@gmail.com', 'bryamlopez4@gmail.com'];
@@ -41,7 +44,7 @@ export default async function AdminEventsPage({
           </p>
         </div>
         <Link
-          href={`/admin/events/new`}
+          href={`/${locale}/admin/events/new`}
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -61,7 +64,7 @@ export default async function AdminEventsPage({
             </p>
             <div className="mt-6">
               <Link
-                href={`/admin/events/new`}
+                href={`/${locale}/admin/events/new`}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
                 <Plus className="w-4 h-4 mr-2" />
