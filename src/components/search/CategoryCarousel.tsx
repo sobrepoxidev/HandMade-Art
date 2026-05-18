@@ -30,22 +30,26 @@ export default function CategoryCarousel({ locale, categories, className = "" }:
   if (cats.length === 0) return null;
 
   return (
-    <div className={`overflow-x-auto whitespace-nowrap scrollbar-hide max-w-[1500px] my-0 mx-auto w-full ${className}`}>
-      <div className="flex space-x-2 sm:items-center sm:justify-center px-2 sm:px-0">
+    <nav
+      aria-label={locale === 'es' ? 'Categorías' : 'Categories'}
+      className={`overflow-x-auto whitespace-nowrap scrollbar-hide max-w-[1500px] my-0 mx-auto w-full ${className}`}
+    >
+      <ul className="flex gap-2 sm:items-center sm:justify-center px-2 sm:px-0">
         {cats.map((cat, index) => {
           const name = displayName(cat);
           const href = `/search?category=${cat.id}`;
           return (
-            <Link
-              key={cat.id}
-              href={href}
-              className={`flex-shrink-0 text-sm font-medium text-[#F5F1EB] bg-[#2D2D2D] hover:bg-[#3A3A3A] hover:text-[#C9A962] px-3 py-1 rounded-lg transition-colors border border-[#C9A962]/20 hover:border-[#C9A962]/40 ${index === 0 ? "max-sm:ml-0" : ""} ${index === cats.length - 1 ? "max-sm:mr-0" : ""}`}
-            >
-              {name}
-            </Link>
+            <li key={cat.id} className="flex-shrink-0">
+              <Link
+                href={href}
+                className={`inline-flex items-center min-h-[36px] text-sm font-medium text-[#F5F1EB] bg-[#2D2D2D] hover:bg-[#3A3A3A] hover:text-[#C9A962] px-3 py-1 rounded-sm transition-colors border border-[#C9A962]/25 hover:border-[#C9A962]/50 ${index === 0 ? "max-sm:ml-0" : ""} ${index === cats.length - 1 ? "max-sm:mr-0" : ""}`}
+              >
+                {name}
+              </Link>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ul>
+    </nav>
   );
 }

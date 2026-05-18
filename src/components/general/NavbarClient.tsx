@@ -1,7 +1,7 @@
 // components/layout/Navbar/NavbarClient.tsx
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
@@ -47,6 +47,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categoryList, setCategoryList] = useState<{ id: number, name: string | null, name_es: string | null, name_en: string | null }[]>([]);
   const [showStoreCategories, setShowStoreCategories] = useState(false);
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!shouldShowSearchComponents) return;
@@ -68,6 +69,26 @@ export default function NavbarClient({ locale }: { locale: string }) {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, [isMenuOpen]);
+
+  // A11y: ESC closes the mobile menu and focus returns to the trigger button.
+  // Body scroll is locked while the menu is open.
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsMenuOpen(false);
+        // restore focus after React renders
+        setTimeout(() => menuTriggerRef.current?.focus(), 0);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
   }, [isMenuOpen]);
 
   const navigationLinks: NavLink[] = [
@@ -251,63 +272,82 @@ export default function NavbarClient({ locale }: { locale: string }) {
 
         <button
           onClick={handleLanguageChange}
-          className="flex h-10 items-center space-x-1 rounded-lg px-2 text-sm text-[#2D2D2D] transition hover:bg-[#F5F1EB]"
-          aria-label={locale === 'es' ? 'Cambiar idioma' : 'Change language'}
+          className="grid grid-flow-col auto-cols-max items-center gap-1 min-w-[44px] h-11 rounded-sm px-2 text-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB]"
+          aria-label={locale === 'es' ? `Idioma actual: español. Cambiar a inglés.` : `Current language: English. Switch to Spanish.`}
         >
-          <Globe className="h-4 w-4" />
+          <Globe className="h-4 w-4" strokeWidth={2} aria-hidden />
           <span className="font-medium">{locale === 'es' ? 'ES' : 'EN'}</span>
         </button>
 
         {shouldShowSearchComponents && (
           <Link
             href="/cart"
-            className="relative flex h-10 items-center space-x-0.5 rounded-lg px-1 text-sm text-[#2D2D2D] transition hover:bg-[#F5F1EB]"
-            aria-label={locale === 'es' ? 'Carrito' : 'Cart'}
+            className="relative inline-flex items-center gap-1 min-w-[44px] h-11 rounded-sm px-2 text-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB]"
+            aria-label={
+              locale === 'es'
+                ? `Carrito con ${totalItems} ${totalItems === 1 ? 'artículo' : 'artículos'}`
+                : `Cart with ${totalItems} ${totalItems === 1 ? 'item' : 'items'}`
+            }
           >
-            <ShoppingBag className="h-5 w-5" />
+            <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden />
             <span className="hidden md:inline">{locale === 'es' ? 'Carrito' : 'Cart'}</span>
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#C9A962] text-xs font-semibold text-[#1A1A1A]">
+            <span
+              className="grid place-items-center h-5 min-w-[20px] px-1 rounded-full bg-[#C9A962] text-xs font-semibold text-[#1A1A1A] tabular-nums"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               {totalItems}
             </span>
           </Link>
         )}
 
         <button
+          ref={menuTriggerRef}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="flex h-10 w-10 items-center justify-center text-[#2D2D2D] transition hover:bg-[#F5F1EB] rounded-lg focus-visible:outline-none"
-          style={{ width: '40px', height: '40px', flexShrink: 0 }}
+          className="grid place-items-center w-11 h-11 text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB] rounded-sm"
           aria-label={isMenuOpen ? (locale === 'es' ? 'Cerrar menú' : 'Close menu') : (locale === 'es' ? 'Abrir menú' : 'Open menu')}
           aria-expanded={isMenuOpen}
+          aria-controls="mobile-nav-menu"
         >
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '20px', height: '20px' }}>
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </div>
+          {isMenuOpen ? (
+            <X className="h-5 w-5" strokeWidth={2} aria-hidden />
+          ) : (
+            <Menu className="h-5 w-5" strokeWidth={2} aria-hidden />
+          )}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="absolute left-0 right-0 top-full z-50 max-h-[calc(100vh-57px)] overflow-y-auto bg-white shadow-xl w-full lg:fixed lg:top-0 lg:left-0 lg:h-full lg:w-80 lg:max-h-none border-t border-[#E8E4E0]">
+        <div
+          id="mobile-nav-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label={locale === 'es' ? 'Menú de navegación' : 'Navigation menu'}
+          className="absolute left-0 right-0 top-full z-50 max-h-[calc(100vh-57px)] overflow-y-auto bg-white shadow-xl w-full lg:fixed lg:top-0 lg:left-0 lg:h-full lg:w-80 lg:max-h-none border-t border-[#E8E4E0]"
+        >
 
           <button
             onClick={() => setIsMenuOpen(false)}
-            className="absolute top-3 right-3 p-1.5 text-[#2D2D2D] hover:bg-[#F5F1EB] rounded-lg lg:block hidden z-50 transition-colors"
-            aria-label="Cerrar menú"
+            className="absolute top-3 right-3 grid place-items-center w-11 h-11 text-[#2D2D2D] hover:bg-[#F5F1EB] rounded-sm lg:block hidden z-50 transition-colors"
+            aria-label={locale === 'es' ? 'Cerrar menú' : 'Close menu'}
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5" strokeWidth={2} aria-hidden />
           </button>
 
-          <nav className="px-4 py-4">
+          <nav className="px-4 py-4" aria-label={locale === 'es' ? 'Menú principal' : 'Main menu'}>
             {/* Cart Link */}
             {shouldShowSearchComponents && (
               <div className="mb-4">
                 <Link
                   href="/cart"
-                  className="flex items-center space-x-3 text-sm font-medium bg-gradient-to-r from-[#C9A962] to-[#A08848] p-3.5 rounded-xl text-[#1A1A1A] w-full shadow-sm hover:shadow-md transition-shadow"
+                  className="inline-flex items-center w-full min-h-[48px] gap-3 text-sm font-semibold bg-[#C9A962] hover:bg-[#A08848] hover:text-[#F5F1EB] text-[#1A1A1A] px-4 py-3 rounded-sm transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <ShoppingBag className="h-5 w-5" />
-                  <span>{locale === 'es' ? 'Ver carrito' : 'View cart'} ({totalItems})</span>
+                  <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden />
+                  <span>
+                    {locale === 'es' ? 'Ver carrito' : 'View cart'} ({totalItems})
+                  </span>
                 </Link>
               </div>
             )}

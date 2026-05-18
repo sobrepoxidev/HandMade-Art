@@ -48,41 +48,52 @@ export default function SearchSuggestions({
     width: '100%'
   };
 
+  const isEs = locale === 'es';
+
   return (
     <div
       className={isStandalone ? 'standalone-suggestions' : 'navbar-suggestions'}
       style={suggestionStyles}
       onClick={(e) => e.stopPropagation()}
+      role="region"
+      aria-label={isEs ? 'Sugerencias de búsqueda' : 'Search suggestions'}
     >
-      <div className="flex items-center justify-between border-b border-[#C9A962]/10 px-4 py-3">
-        <p className="text-sm font-medium text-[#F5F1EB]">
+      <div className="flex items-center justify-between border-b border-[#C9A962]/15 px-4 py-3">
+        <p
+          className="text-sm font-medium text-[#F5F1EB]"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {loading ? (
-            locale === 'es' ? 'Buscando...' : 'Searching...'
+            isEs ? 'Buscando…' : 'Searching…'
           ) : results.length > 0 ? (
-            locale === 'es' ? `${results.length} resultados para "${query}"` : `${results.length} results for "${query}"`
+            isEs ? `${results.length} resultados para "${query}"` : `${results.length} results for "${query}"`
           ) : (
-            locale === 'es' ? `No se encontraron resultados para "${query}"` : `No results found for "${query}"`
+            isEs ? `Sin resultados para "${query}"` : `No results for "${query}"`
           )}
         </p>
         <button
+          type="button"
           onClick={onClose}
-          className="text-[#9C9589] hover:text-[#C9A962] transition-colors"
-          aria-label="Cerrar sugerencias"
+          className="grid place-items-center w-9 h-9 rounded-sm text-[#B5AC9D] hover:text-[#C9A962] hover:bg-[#3A3A3A] transition-colors"
+          aria-label={isEs ? 'Cerrar sugerencias' : 'Close suggestions'}
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" strokeWidth={2} aria-hidden />
         </button>
       </div>
 
       <div className="max-h-[60vh] overflow-y-auto">
         {loading ? (
-          <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#C9A962]"></div>
+          <div className="flex justify-center items-center py-8" role="status" aria-busy="true">
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#E8E4E0]/30 border-t-[#C9A962]" />
+            <span className="sr-only">{isEs ? 'Cargando' : 'Loading'}</span>
           </div>
         ) : results.length > 0 ? (
           <>
-            <ul>
+            <ul role="listbox" aria-label={isEs ? 'Resultados' : 'Results'}>
               {results.slice(0, 5).map((product) => (
-                <li key={product.id} className="border-b border-[#C9A962]/10 last:border-b-0">
+                <li key={product.id} role="option" aria-selected="false" className="border-b border-[#C9A962]/15 last:border-b-0">
                   <Link
                     href={`/product/${product.name}`}
                     className="flex items-center p-3 hover:bg-[#3A3A3A] transition-colors"
@@ -106,7 +117,7 @@ export default function SearchSuggestions({
                           </span>
                         )}
                         {product.highlight && (
-                          <p className="text-sm text-[#9C9589] truncate">{product.highlight}</p>
+                          <p className="text-sm text-[#B5AC9D] truncate">{product.highlight}</p>
                         )}
                       </div>
                     </div>
@@ -117,7 +128,7 @@ export default function SearchSuggestions({
                             <p className="font-medium text-[#C9A962]">
                               {formatUSD(product.dolar_price)}
                             </p>
-                            <p className="text-xs text-[#9C9589] line-through">
+                            <p className="text-xs text-[#B5AC9D] line-through">
                               {formatUSD(product.dolar_price)}
                             </p>
                           </div>
@@ -127,7 +138,7 @@ export default function SearchSuggestions({
                           </p>
                         )
                       ) : (
-                        <p className="font-medium text-[#9C9589]">
+                        <p className="font-medium text-[#B5AC9D]">
                           {locale === 'es' ? 'Consultar' : 'Consult'}
                         </p>
                       )}
@@ -150,7 +161,7 @@ export default function SearchSuggestions({
           </>
         ) : (
           <div className="py-6 px-4 text-center">
-            <p className="text-[#9C9589] mb-3">{locale === 'es' ? 'No se encontraron productos que coincidan con tu búsqueda.' : 'No products found that match your search.'}</p>
+            <p className="text-[#B5AC9D] mb-3">{locale === 'es' ? 'No se encontraron productos que coincidan con tu búsqueda.' : 'No products found that match your search.'}</p>
             <Link
               href="/products"
               className="text-sm text-[#C9A962] hover:text-[#D4C4A8] font-medium transition-colors"

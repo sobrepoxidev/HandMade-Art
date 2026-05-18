@@ -174,14 +174,16 @@ export default function SearchBar({
     return () => window.removeEventListener('resize', handleResize);
   }, [isCategoryMenuOpen]);
 
+  const isEs = locale === 'es';
+  const inputId = `search-input-${variant}`;
+  const listboxId = `search-categories-${variant}`;
+
   return (
     <div
       ref={searchRef}
       className={`z-40 relative w-full ${className}`}
-      style={{
-        zIndex: 40,
-        position: 'relative'
-      }}
+      style={{ zIndex: 40, position: 'relative' }}
+      role="search"
     >
       <form onSubmit={handleSubmit} className="flex w-full" style={{ position: 'relative' }}>
         {/* Category dropdown */}
@@ -193,55 +195,62 @@ export default function SearchBar({
               e.preventDefault();
               e.stopPropagation();
             }}
-            className={`flex items-center justify-between w-full h-10 px-3 text-sm text-[#F5F1EB] bg-[#2D2D2D] border border-r-0 border-[#C9A962]/30 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#C9A962] focus:border-[#C9A962] transition-colors ${
+            className={`flex items-center justify-between w-full h-11 px-3 text-sm text-[#F5F1EB] bg-[#2D2D2D] border border-r-0 border-[#C9A962]/30 rounded-l-sm hover:bg-[#1A1A1A] transition-colors ${
               isMobile ? 'w-24' : isNavbar ? 'w-32' : 'w-40'
             }`}
             aria-expanded={isCategoryMenuOpen}
-            aria-haspopup="true"
+            aria-haspopup="listbox"
+            aria-controls={listboxId}
+            aria-label={isEs ? `Categoría: ${selectedCategory}. Cambiar.` : `Category: ${selectedCategory}. Change.`}
           >
             <span className="max-w-[100px] truncate category-trigger">{selectedCategory}</span>
-            <ChevronDown className={`h-4 w-4 category-trigger text-[#C9A962] transition-transform ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              className={`h-4 w-4 category-trigger text-[#C9A962] transition-transform ${isCategoryMenuOpen ? 'rotate-180' : ''}`}
+              strokeWidth={2}
+              aria-hidden
+            />
           </button>
 
           {isCategoryMenuOpen && (
             <div
               ref={categoryMenuRef}
-              className="absolute left-0 top-full w-56 border border-[#C9A962]/20 bg-[#2D2D2D] shadow-xl rounded-lg overflow-hidden"
-              role="menu"
+              id={listboxId}
+              role="listbox"
+              aria-label={isEs ? 'Categorías' : 'Categories'}
+              className="absolute left-0 top-full w-56 border border-[#C9A962]/25 bg-[#2D2D2D] shadow-xl rounded-sm overflow-hidden mt-1"
               onClick={(e) => e.stopPropagation()}
-              style={{
-                zIndex: 50,
-                position: 'absolute',
-              }}
+              style={{ zIndex: 50, position: 'absolute' }}
             >
               <ul className="py-1 max-h-[60vh] overflow-y-auto">
-                <li>
+                <li role="option" aria-selected={selectedCategory === 'Todas' || selectedCategory === 'All'}>
                   <button
                     type="button"
                     className="block w-full px-4 py-2.5 text-left text-sm text-[#F5F1EB] hover:bg-[#3A3A3A] hover:text-[#C9A962] transition-colors"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setSelectedCategory('Todas');
+                      setSelectedCategory(isEs ? 'Todas' : 'All');
                       setIsCategoryMenuOpen(false);
-
                       if (variant !== 'navbar' && inputRef.current) {
-                        setTimeout(() => {
-                          inputRef.current?.focus();
-                        }, 50);
+                        setTimeout(() => inputRef.current?.focus(), 50);
                       }
                     }}
                   >
-                    {locale === 'es' ? 'Todas las categorías' : 'All categories'}
+                    {isEs ? 'Todas las categorías' : 'All categories'}
                   </button>
                 </li>
                 {categories.map((cat) => {
-                  const displayName = locale === 'es' ? cat.name_es : cat.name_en || cat.name;
+                  const displayName = isEs ? cat.name_es : cat.name_en || cat.name;
+                  const isSelected = selectedCategory === displayName;
                   return (
-                    <li key={cat.id}>
+                    <li key={cat.id} role="option" aria-selected={isSelected}>
                       <button
                         type="button"
-                        className="block w-full px-4 py-2.5 text-left text-sm text-[#F5F1EB] hover:bg-[#3A3A3A] hover:text-[#C9A962] transition-colors"
+                        className={`block w-full px-4 py-2.5 text-left text-sm transition-colors ${
+                          isSelected
+                            ? 'bg-[#3A3A3A] text-[#C9A962]'
+                            : 'text-[#F5F1EB] hover:bg-[#3A3A3A] hover:text-[#C9A962]'
+                        }`}
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -259,13 +268,18 @@ export default function SearchBar({
         </div>
 
         {/* Search input */}
+        <label htmlFor={inputId} className="sr-only">
+          {isEs ? 'Buscar productos' : 'Search products'}
+        </label>
         <input
-          type="text"
-          placeholder={locale === 'es' ? 'Buscar productos...' : 'Search products...'}
+          id={inputId}
+          type="search"
+          autoComplete="off"
+          placeholder={isEs ? 'Buscar productos…' : 'Search products…'}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setShowSuggestions(true)}
-          className={`flex-1 h-10 px-4 py-2 text-sm text-[#2D2D2D] bg-white border border-[#E8E4E0] focus:ring-2 focus:ring-[#C9A962] focus:border-[#C9A962] placeholder-[#9C9589] transition-colors ${
+          className={`flex-1 h-11 px-4 py-2 text-sm text-[#2D2D2D] bg-white border border-[#E8E4E0] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 placeholder-[#9C9589] transition-colors ${
             isMobile ? 'w-full' : isNavbar ? 'w-full' : 'w-96'
           }`}
           ref={inputRef}
@@ -274,10 +288,10 @@ export default function SearchBar({
         {/* Search button */}
         <button
           type="submit"
-          className="flex h-10 w-11 items-center justify-center bg-gradient-to-r from-[#C9A962] to-[#A08848] text-[#1A1A1A] hover:from-[#D4C4A8] hover:to-[#C9A962] border-0 rounded-r-lg transition-all"
-          aria-label="Buscar"
+          className="grid place-items-center h-11 w-11 bg-[#C9A962] text-[#1A1A1A] hover:bg-[#A08848] hover:text-[#F5F1EB] border-0 rounded-r-sm transition-colors"
+          aria-label={isEs ? 'Buscar' : 'Search'}
         >
-          <Search className="h-5 w-5" />
+          <Search className="h-5 w-5" strokeWidth={2} aria-hidden />
         </button>
       </form>
 

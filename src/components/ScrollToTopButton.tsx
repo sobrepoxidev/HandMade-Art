@@ -1,8 +1,8 @@
 "use client";
-import React from "react";
 
 import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
+import { ArrowUp } from "lucide-react";
 
 export default function ScrollToTopButton() {
   const locale = useLocale();
@@ -12,7 +12,7 @@ export default function ScrollToTopButton() {
     const onScroll = () => {
       setVisible(window.scrollY > 200);
     };
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -20,13 +20,17 @@ export default function ScrollToTopButton() {
 
   return (
     <button
+      type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="fixed bottom-1 right-8 z-50 bg-gradient-to-r from-[#C9A962] to-[#A08848] text-[#1A1A1A] px-3 py-1.5 rounded-full shadow-lg hover:from-[#D4C4A8] hover:to-[#C9A962] transition-all hidden md:block animate-fade-in text-sm font-medium"
-      aria-label="Volver arriba"
-      tabIndex={0}
+      aria-label={locale === 'es' ? 'Volver arriba' : 'Scroll to top'}
+      className="hidden md:inline-flex items-center gap-1.5 fixed bottom-2 right-8 z-50
+                 min-h-[44px] px-4 py-2 rounded-full text-sm font-medium
+                 bg-[#2D2D2D] text-[#F5F1EB] border border-[#F5F1EB]/15 shadow-lg
+                 hover:bg-[#1A1A1A] hover:border-[#C9A962]/50
+                 transition-colors duration-200 animate-fade-in"
     >
-      ↑ {locale === 'es' ? ' Arriba' : ' Top'}
+      <ArrowUp className="h-4 w-4" strokeWidth={2} aria-hidden />
+      {locale === 'es' ? 'Arriba' : 'Top'}
     </button>
   );
 }
-
