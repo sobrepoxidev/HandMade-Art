@@ -16,7 +16,7 @@ interface ShippingAddress {
   postal_code: string;
   phone: string;
 }
-import { toast } from 'react-hot-toast';
+import { notify } from '@/components/ui/notify';
 import ProfileTab from './ProfileTab';
 import AddressTab from './AddressTab';
 import OrdersTab from './OrdersTab';
@@ -152,10 +152,10 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
       // Actualizar el estado
       setProfile(prev => prev ? { ...prev, full_name: fullName } : null);
       
-      toast.success(t('profileUpdated'));
+      notify.success(t('profileUpdated'));
     } catch (error) {
       console.error('Error updating name:', error);
-      toast.error(t('updateError'));
+      notify.error(t('updateError'));
     } finally {
       setLoading(false);
     }
@@ -179,10 +179,10 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
       // Actualizar el estado
       setProfile(prev => prev ? { ...prev, shipping_address: addressAsJson } : null);
       
-      toast.success(t('addressUpdated'));
+      notify.success(t('addressUpdated'));
     } catch (error) {
       console.error('Error updating address:', error);
-      toast.error(t('updateError'));
+      notify.error(t('updateError'));
     } finally {
       setLoading(false);
     }
@@ -191,7 +191,7 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <h1 className="text-2xl md:text-3xl font-bold text-[#2D2D2D] mb-6 border-l-4 border-[#C9A962] pl-4">
+        <h1 className="font-display text-2xl md:text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D] mb-6 border-l-2 border-[#C9A962] pl-4">
           {t('myAccount')}
         </h1>
 

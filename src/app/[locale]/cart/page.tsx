@@ -8,7 +8,9 @@ import { useCart } from "@/context/CartContext";
 import { useSupabase } from "@/app/supabase-provider/provider";
 import { Database } from "@/lib/database.types";
 import { FaCcVisa, FaCcMastercard, FaCcAmex, FaCcDiscover, FaCcPaypal } from "react-icons/fa";
-import toast from "react-hot-toast";
+import { notify } from "@/components/ui/notify";
+import EmptyState from "@/components/ui/EmptyState";
+import { ShoppingBag } from "lucide-react";
 import { AlertTriangle, Share2 } from "lucide-react";
 import { GalleryModal } from "@/components/products/ClientComponents";
 import RelatedProductsClient from "@/components/products/RelatedProductsClient";
@@ -29,7 +31,7 @@ const ShareCartButton: React.FC<{ locale: string }> = ({ locale }) => {
         await navigator.share({ title, url });
       } else {
         await navigator.clipboard.writeText(url);
-        toast.success(locale === 'es' ? 'Enlace copiado al portapapeles' : 'Link copied to clipboard');
+        notify.success(locale === 'es' ? 'Enlace copiado al portapapeles' : 'Link copied to clipboard');
       }
     } catch (err) {
       console.error('Share error:', err);
@@ -292,7 +294,21 @@ export default function CartPage() {
           </div>
 
           {cart.length === 0 && (
-            <p className="p-6 text-center text-[#4A4A4A]">{locale === 'es' ? 'Tu carrito está vacío.' : 'Your cart is empty.'}</p>
+            <div className="p-6">
+              <EmptyState
+                icon={<ShoppingBag className="h-7 w-7" strokeWidth={1.75} aria-hidden />}
+                title={locale === 'es' ? 'Tu carrito está vacío' : 'Your cart is empty'}
+                description={
+                  locale === 'es'
+                    ? 'Explorá el catálogo y encontrá una pieza artesanal única.'
+                    : 'Browse the catalog and find a one-of-a-kind handmade piece.'
+                }
+                cta={{
+                  label: locale === 'es' ? 'Ver catálogo' : 'Browse catalog',
+                  href: '/products',
+                }}
+              />
+            </div>
           )}
 
           {cart.map(({ product, quantity }) => (
@@ -340,10 +356,16 @@ export default function CartPage() {
 
                 {/* Cantidad */}
                 <div className="col-span-6 sm:col-span-2 flex items-center justify-center">
+                  <label className="sr-only" htmlFor={`qty-${product.id}`}>
+                    {locale === 'es'
+                      ? `Cantidad de ${product.name_es || product.name}`
+                      : `Quantity of ${product.name_en || product.name}`}
+                  </label>
                   <select
+                    id={`qty-${product.id}`}
                     value={quantity}
                     onChange={(e) => updateQuantity(product.id, Number(e.target.value))}
-                    className="border border-[#E8E4E0] rounded-lg px-3 py-1.5 text-sm text-[#2D2D2D] bg-white focus:border-[#C9A962] focus:ring-1 focus:ring-[#C9A962] transition-colors"
+                    className="min-h-[40px] border border-[#E8E4E0] rounded-sm px-3 py-1.5 text-sm text-[#2D2D2D] bg-white focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 transition-colors tabular-nums"
                   >
                     {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>
@@ -377,8 +399,25 @@ export default function CartPage() {
                 {/* Eliminar */}
                 <div className="col-span-12 sm:col-span-1 flex items-center justify-center sm:justify-end">
                   <button
-                    onClick={() => removeFromCart(product.id)}
-                    className="text-[#C44536] text-sm hover:text-[#A03328] hover:underline font-medium transition-colors"
+                    type="button"
+                    onClick={() => {
+                      const name =
+                        (locale === 'es' ? product.name_es : product.name_en) ||
+                        product.name ||
+                        '';
+                      removeFromCart(product.id);
+                      notify.success(
+                        locale === 'es'
+                          ? `${name} se quitó del carrito`
+                          : `${name} removed from cart`
+                      );
+                    }}
+                    aria-label={
+                      locale === 'es'
+                        ? `Quitar ${product.name_es || product.name} del carrito`
+                        : `Remove ${product.name_en || product.name} from cart`
+                    }
+                    className="inline-flex items-center min-h-[44px] px-2 text-sm text-[#9F2D24] hover:text-[#7A201A] font-medium transition-colors"
                   >
                     {locale === 'es' ? 'Eliminar' : 'Remove'}
                   </button>
@@ -494,9 +533,15 @@ export default function CartPage() {
                       
                       // Guardar en el estado
                       setDiscountInfo(discountData);
-                      
+
                       // Guardar en localStorage para que esté disponible en checkout
                       localStorage.setItem('discountInfo', JSON.stringify(discountData));
+
+                      notify.success(
+                        locale === 'es'
+                          ? `Código "${data.code}" aplicado · ahorrás ${formatUSD(discountAmount)}`
+                          : `Code "${data.code}" applied · you save ${formatUSD(discountAmount)}`
+                      );
                       
                     } catch (err) {
                       console.error(locale === 'es' ? 'Error al validar el código de descuento:' : 'Error validating discount code:', err);

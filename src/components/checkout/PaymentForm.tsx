@@ -1,6 +1,6 @@
 
 import PayPalCardMethod from "./PayPalCardMethod";
-import toast from "react-hot-toast";
+import { notify } from "@/components/ui/notify";
 
 type PaymentMethod = "sinpe" | "paypal" | "transfer" | "card";
 type Banco = {
@@ -47,16 +47,7 @@ export default function PaymentForm({
         if (bancoSeleccionado?.permiteSMS) {
             const mensaje = `PASE 1000 8888-9999`;
             navigator.clipboard.writeText(mensaje);
-            toast.success("Mensaje copiado al portapapeles", {
-                duration: 3000,
-                position: "top-center",
-                style: {
-                    background: "#4A7C59",
-                    color: "white",
-                    fontWeight: "500"
-                },
-                icon: "📋"
-            });
+            notify.success("Mensaje SINPE copiado al portapapeles");
         }
     };
     const handleBancoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
