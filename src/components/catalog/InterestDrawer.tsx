@@ -441,7 +441,8 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
               </Transition.Child>
             </div>
           </div>
-        </Dialog>
-      </Transition.Root>
+        </div>
+      </Dialog>
+    </Transition.Root>
   );
 }
