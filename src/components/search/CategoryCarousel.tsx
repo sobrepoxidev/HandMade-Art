@@ -1,6 +1,7 @@
 // CategoryCarousel.tsx
-// Editorial category navigation — replaces the old dark-pill chips.
-// Functional (still clearly clickable) but reads like a boutique masthead.
+// Editorial category navigation.
+// Desktop (≥ lg): wraps into multiple rows if needed — no hidden horizontal scroll.
+// Mobile (< lg): horizontal snap scroll (works naturally with touch).
 
 import { use } from "react";
 import Link from "next/link";
@@ -36,15 +37,15 @@ export default function CategoryCarousel({
   return (
     <nav
       aria-label={locale === "es" ? "Categorías" : "Categories"}
-      className={`bg-[#FAF6EF] border-y border-[#E8E4E0] ${className}`}
+      className={`w-full bg-[#FAF6EF] border-y border-[#E8E4E0] ${className}`}
     >
       <ul
         className="
-          mx-auto max-w-[1500px] w-full
+          mx-auto w-full max-w-7xl
           flex items-center
-          overflow-x-auto whitespace-nowrap scrollbar-hide snap-x
-          px-3 sm:px-6 lg:px-10
-          divide-x divide-[#E8E4E0]
+          flex-nowrap overflow-x-auto whitespace-nowrap scrollbar-hide snap-x snap-mandatory
+          lg:flex-wrap lg:overflow-visible lg:whitespace-normal lg:justify-center
+          px-3 sm:px-6
           font-display
         "
       >
@@ -52,17 +53,17 @@ export default function CategoryCarousel({
           const name = displayName(cat);
           const href = `/search?category=${cat.id}`;
           return (
-            <li key={cat.id} className="snap-start flex-shrink-0">
+            <li key={cat.id} className="snap-start shrink-0 lg:shrink">
               <Link
                 href={href}
                 className="
                   inline-flex items-center
-                  min-h-[56px] px-4 sm:px-5
+                  min-h-[48px] px-3.5 sm:px-4
                   text-[14px] tracking-[0.005em]
                   text-[#2D2D2D] hover:text-[#A08848]
                   transition-colors duration-200
                   border-b-2 border-transparent
-                  hover:border-[#C9A962]/40
+                  hover:border-[#C9A962]/45
                 "
               >
                 {name}

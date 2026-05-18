@@ -109,11 +109,11 @@
   }
 }
 
-html,
 body {
   /* Prevent stray horizontal overflow from any descendant (carousels,
      wide-text, oversized images). 'clip' preserves position: sticky,
-     unlike 'hidden'. */
+     unlike 'hidden'. Applied to <body> only, NOT <html> — applying it
+     to <html> can break local overflow scrolling on some browsers. */
   overflow-x: clip;
 }
 

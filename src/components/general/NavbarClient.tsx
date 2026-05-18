@@ -133,7 +133,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
       {/* Desktop Navigation */}
       <div className="hidden w-full flex-col lg:flex" style={{ position: 'static' }}>
         {/* Primary Header Row */}
-        <div className="flex w-full items-center justify-between px-4">
+        <div className="flex w-full max-w-7xl mx-auto items-center justify-between px-4">
           {/* Left */}
           <div className="flex items-center gap-2">
             <button
@@ -144,10 +144,21 @@ export default function NavbarClient({ locale }: { locale: string }) {
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            <Link href="/" className="flex items-center gap-2 group">
-              <Image src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg" alt="HandMadeArt Logo" width={40} height={40} className="w-8 md:w-10 object-cover" unoptimized />
-              <span className="hidden sm:block text-lg md:text-2xl tracking-wider text-[#2D2D2D]">
-                <span className="mr-1 font-light">HANDMADE</span><span className="font-semibold text-[#B55327]">ART</span>
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 group"
+              aria-label="Handmade Art"
+            >
+              <Image
+                src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg"
+                alt=""
+                width={40}
+                height={40}
+                className="w-8 md:w-10 object-contain"
+                unoptimized
+              />
+              <span className="hidden sm:block font-display text-xl md:text-2xl tracking-[-0.005em] text-[#2D2D2D]">
+                Handmade <span className="text-[#A08848]">Art</span>
               </span>
             </Link>
           </div>
@@ -173,23 +184,18 @@ export default function NavbarClient({ locale }: { locale: string }) {
           </div>
         </div>
 
-        {/* Search bar */}
+        {/* Search bar — aligned to header max-width */}
         {shouldShowSearchComponents && (
-          <div className="flex w-full items-center justify-center pt-3 px-4">
-            <div className="flex w-full max-w-6xl items-center">
-              <div
-                className="relative w-full flex items-center rounded-lg overflow-visible"
-                style={{
-                  zIndex: 40,
-                  position: 'relative',
-                }}
-              >
-                <SearchBar
-                  variant="navbar"
-                  initialCategory={locale === 'es' ? 'Todo' : 'All'}
-                  locale={locale}
-                />
-              </div>
+          <div className="w-full max-w-7xl mx-auto pt-3 px-4">
+            <div
+              className="relative w-full flex items-center"
+              style={{ zIndex: 40, position: 'relative' }}
+            >
+              <SearchBar
+                variant="navbar"
+                initialCategory={locale === 'es' ? 'Todo' : 'All'}
+                locale={locale}
+              />
             </div>
           </div>
         )}
