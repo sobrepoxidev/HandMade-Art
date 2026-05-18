@@ -40,6 +40,9 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
         : 'Discover everything about the San Ramón Patronal Festivities 2025 from August 21-31. Handmade Art will be present with its unique crafts at this centenary event.',
       images: ['/banner-fiestas-san-ramon.webp'],
     },
+    // Event has ended — keep the URL alive for historical links but
+    // exclude from index so it doesn't compete with the catalog.
+    robots: { index: false, follow: true },
   };
 }
 

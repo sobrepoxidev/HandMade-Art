@@ -18,29 +18,33 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 export default async function TerminosCondicionesPage({ params }: { params: tParams }) {
   const { locale } = await params;
   return (
-    <div className="min-h-screen bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#FAF8F5] py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-8 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-          <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-2">
-            {locale === "es" ? "Términos y Condiciones de Servicio" : "Terms and Conditions"}
+        <div className="px-6 py-8 border-b border-[#E8E4E0] bg-[#FAF8F5]">
+          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-[-0.005em] text-[#2D2D2D] text-center mb-2">
+            {locale === "es" ? "Términos y Condiciones" : "Terms and Conditions"}
           </h1>
-          <p className="text-gray-600 text-center">
+          <p className="text-[#6B6459] text-center text-sm">
             {locale === "es" ? "Última actualización: 9 de abril de 2025" : "Last updated: April 9, 2025"}
           </p>
         </div>
 
-        <div className="px-6 py-8 prose prose-gray max-w-none text-gray-700 leading-relaxed">
+        <div className="px-6 py-8 prose prose-stone max-w-none text-[#4A4A4A] leading-relaxed">
           <div className="mb-12">
-            <p className="text-lg font-medium">
-              {locale === "es" ? "Bienvenido a nuestro servicio. Estos Términos y Condiciones (&ldquo;Términos&rdquo;) constituyen un acuerdo legal entre usted y nuestra plataforma de autenticación. Lea detenidamente estos Términos antes de utilizar nuestro sistema de inicio de sesión." : "Welcome to our service. These Terms and Conditions (&ldquo;Terms&rdquo;) constitute a legal agreement between you and our authentication platform. Read these Terms carefully before using our login system."}
+            <p className="text-lg text-[#2D2D2D]">
+              {locale === "es"
+                ? "Acá están las reglas del juego para usar la tienda y la cuenta de Handmade Art. Son las que nos protegen a vos y a nosotros para que la experiencia sea justa."
+                : "These are the rules for using the Handmade Art store and account. They keep both you and us protected so the experience stays fair."}
             </p>
             <p>
-              {locale === "es" ? "Al registrarse, acceder o utilizar nuestros servicios de autenticación, usted acepta estar legalmente vinculado por estos Términos. Si no está de acuerdo con alguna parte de estos Términos, le pedimos que no utilice nuestros servicios." : "By registering, accessing or using our authentication services, you accept being legally bound by these Terms. If you do not agree with any part of these Terms, we ask you not to use our services."}
+              {locale === "es"
+                ? "Al registrarte, hacer pedidos o usar la cuenta, aceptás estos términos. Si hay algo que no compartís, no podemos prestar el servicio bajo otras condiciones — pero podés escribirnos a info@handmadeart.store si tenés dudas puntuales."
+                : "By registering, placing orders or using your account, you accept these terms. If anything here doesn't work for you, we can't provide the service under different conditions — but feel free to write to info@handmadeart.store with specific questions."}
             </p>
           </div>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">{locale === "es" ? "Definiciones" : "Definitions"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">{locale === "es" ? "Definiciones" : "Definitions"}</h2>
             <ul className="space-y-4 pl-5 list-disc">
               <li>
                 <span className="font-medium">{locale === "es" ? "Servicio:" : "Service:"}</span> {locale === "es" ? "Sistema de autenticación e inicio de sesión que facilita el acceso a nuestra plataforma mediante credenciales de usuario." : "Authentication and login system that facilitates access to our platform through user credentials."}
@@ -58,9 +62,9 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">2. {locale === "es" ? "Registro y Cuenta de Usuario" : "Registration and User Account"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">2. {locale === "es" ? "Registro y Cuenta de Usuario" : "Registration and User Account"}</h2>
             
-            <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-4">2.1 {locale === "es" ? "Proceso de Registro" : "Registration Process"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-6 mb-4">2.1 {locale === "es" ? "Proceso de Registro" : "Registration Process"}</h3>
             <p>
               {locale === "es" ? "Para acceder a nuestros servicios, deberá crear una cuenta proporcionando un correo electrónico válido. El proceso de registro está diseñado para ser simple y requerir únicamente información esencial:" : "To access our services, you must create an account by providing a valid email address. The registration process is designed to be simple and require only essential information:"}
             </p>
@@ -79,7 +83,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
               <li>{locale === "es" ? "No está suplantando la identidad de otra persona o entidad." : "You are not impersonating another person or entity."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">2.2 {locale === "es" ? "Seguridad de la Cuenta" : "Account Security"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">2.2 {locale === "es" ? "Seguridad de la Cuenta" : "Account Security"}</h3>
             <p>
               {locale === "es" ? "La seguridad de su cuenta es fundamental para nosotros, pero también depende en gran medida de sus acciones. Para mantener su cuenta segura:" : "The security of your account is fundamental for us, but it also depends to a great extent on your actions. To keep your account secure:"}
             </p>
@@ -91,7 +95,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
               <li>{locale === "es" ? "Notifíquenos inmediatamente si detecta actividad sospechosa o accesos no autorizados a su cuenta." : "Notify us immediately if you detect suspicious activity or unauthorized access to your account."}</li>
             </ul>
             
-            <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">2.3 {locale === "es" ? "Responsabilidad de la Cuenta" : "Account Responsibility"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">2.3 {locale === "es" ? "Responsabilidad de la Cuenta" : "Account Responsibility"}</h3>
             <p>
               {locale === "es" ? "Usted es plenamente responsable de todas las actividades realizadas bajo su cuenta. Nos reservamos el derecho de:" : "You are fully responsible for all activities carried out under your account. We reserve the right to:"}
             </p>
@@ -103,9 +107,9 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">3. {locale === "es" ? "Sistema de Inicio de Sesión" : "Login System"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">3. {locale === "es" ? "Sistema de Inicio de Sesión" : "Login System"}</h2>
             
-            <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-4">3.1 {locale === "es" ? "Proceso de Autenticación" : "Authentication Process"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-6 mb-4">3.1 {locale === "es" ? "Proceso de Autenticación" : "Authentication Process"}</h3>
             <p>
               {locale === "es" ? "Nuestro sistema de inicio de sesión está diseñado para ser seguro y sencillo:" : "Our login system is designed to be secure and simple:"}
             </p>
@@ -116,7 +120,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
               <li>{locale === "es" ? "Sus datos de inicio de sesión son procesados mediante técnicas de cifrado modernas." : "Your login data is processed using modern encryption techniques."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">3.2 {locale === "es" ? "Sesiones Activas" : "Active Sessions"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">3.2 {locale === "es" ? "Sesiones Activas" : "Active Sessions"}</h3>
             <p>
               {locale === "es" ? "Para su comodidad y seguridad:" : "For your convenience and security:"}
             </p>
@@ -126,7 +130,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
               <li>{locale === "es" ? "Tiene la capacidad de cerrar remotamente sesiones en otros dispositivos." : "You have the ability to remotely close sessions on other devices."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">3.3 {locale === "es" ? "Recuperación de Acceso" : "Access Recovery"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">3.3 {locale === "es" ? "Recuperación de Acceso" : "Access Recovery"}</h3>
             <p>
               {locale === "es" ? "Si olvida su contraseña o tiene dificultades para acceder:" : "If you forget your password or have difficulty accessing it:"}
             </p>
@@ -139,9 +143,9 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">4. {locale === "es" ? "Datos de Usuario y Privacidad" : "User Data and Privacy"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">4. {locale === "es" ? "Datos de Usuario y Privacidad" : "User Data and Privacy"}</h2>
             
-            <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-4">4.1 {locale === "es" ? "Datos Recopilados" : "Collected Data"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-6 mb-4">4.1 {locale === "es" ? "Datos Recopilados" : "Collected Data"}</h3>
             <p>
               {locale === "es" ? "Nuestro sistema de autenticación recopila únicamente la información esencial para su funcionamiento:" : "Our authentication system collects only the essential information for its operation:"}
             </p>
@@ -153,7 +157,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
               <li>{locale === "es" ? "Registros de inicio de sesión para protección de su cuenta." : "Login records for your account protection."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">4.2 {locale === "es" ? "Uso de los Datos" : "Use of Data"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">4.2 {locale === "es" ? "Uso de los Datos" : "Use of Data"}</h3>
             <p>
               {locale === "es" ? "Los datos recopilados se utilizan exclusivamente para:" : "The collected data is used exclusively for:"}
             </p>
@@ -165,7 +169,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
               <li>{locale === "es" ? "Cumplir con obligaciones legales cuando sea necesario." : "Complying with legal obligations when necessary."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">4.3 {locale === "es" ? "Protección de Datos" : "Data Protection"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">4.3 {locale === "es" ? "Protección de Datos" : "Data Protection"}</h3>
             <p>
               {locale === "es" ? "Su privacidad es importante para nosotros:" : "Your privacy is important to us:"}
             </p>
@@ -178,7 +182,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">5. {locale === "es" ? "Uso Aceptable" : "Acceptable Use"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">5. {locale === "es" ? "Uso Aceptable" : "Acceptable Use"}</h2>
             <p>
               {locale === "es" ? "Al utilizar nuestro sistema de autenticación, usted se compromete a:" : "When using our authentication system, you commit to:"}
             </p>
@@ -194,9 +198,9 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">6. {locale === "es" ? "Modificaciones y Comunicaciones" : "Modifications and Communications"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">6. {locale === "es" ? "Modificaciones y Comunicaciones" : "Modifications and Communications"}</h2>
             
-            <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-4">6.1 {locale === "es" ? "Modificaciones a los Términos" : "Modifications to the Terms"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-6 mb-4">6.1 {locale === "es" ? "Modificaciones a los Términos" : "Modifications to the Terms"}</h3>
             <p>
               {locale === "es" ? "Nos reservamos el derecho de modificar estos Términos en cualquier momento:" : "We reserve the right to modify these Terms at any time:"}
             </p>
@@ -207,7 +211,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
               <li>{locale === "es" ? "Le recomendamos revisar estos Términos periódicamente." : "We recommend periodically reviewing these Terms."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">6.2 {locale === "es" ? "Comunicaciones" : "Communications"}</h3>
+            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">6.2 {locale === "es" ? "Comunicaciones" : "Communications"}</h3>
             <p>
               {locale === "es" ? "Para comunicaciones importantes:" : "For important communications:"}
             </p>
@@ -219,7 +223,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">7. {locale === "es" ? "Terminación" : "Termination"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">7. {locale === "es" ? "Terminación" : "Termination"}</h2>
             <p>
               {locale === "es" ? "Nos reservamos el derecho de:" : "We reserve the right to:"}
             </p>
@@ -234,7 +238,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">8. {locale === "es" ? "Limitación de Responsabilidad" : "Limitation of Liability"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">8. {locale === "es" ? "Limitación de Responsabilidad" : "Limitation of Liability"}</h2>
             <p>
               {locale === "es" ? "En la máxima medida permitida por la ley aplicable:" : "To the maximum extent permitted by applicable law:"}
             </p>
@@ -247,7 +251,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">9. {locale === "es" ? "Disposiciones Generales" : "General Dispositions"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">9. {locale === "es" ? "Disposiciones Generales" : "General Dispositions"}</h2>
             <ul className="space-y-3 pl-5 list-disc mt-4">
               <li>{locale === "es" ? "Estos Términos constituyen el acuerdo completo entre usted y nosotros respecto al uso del sistema de autenticación." : "These Terms constitute the complete agreement between you and us regarding the use of the authentication system."}</li>
               <li>{locale === "es" ? "Si alguna disposición de estos Términos se considera inválida, las demás disposiciones seguirán siendo válidas y aplicables." : "If any provision of these Terms is considered invalid, the remaining provisions will remain valid and enforceable."}</li>
@@ -257,7 +261,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-6">10. {locale === "es" ? "Contacto" : "Contact"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">10. {locale === "es" ? "Contacto" : "Contact"}</h2>
             <p>
               {locale === "es" ? "Si tiene preguntas, inquietudes o necesita asistencia relacionada con estos Términos o nuestro sistema de autenticación, puede contactarnos a través de:" : "If you have questions, concerns, or need assistance related to these Terms or our authentication system, you can contact us through:"}
             </p>
@@ -271,11 +275,11 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
             </p>
           </section>
 
-          <div className="mt-12 p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
-            <p className="text-gray-700 font-medium">
+          <div className="mt-12 p-6 bg-[#FAF8F5] rounded-lg border border-[#E8E4E0] text-center">
+            <p className="text-[#4A4A4A] font-medium">
               {locale === "es" ? "Al registrarse, acceder o utilizar nuestro sistema de autenticación, usted acepta estos Términos de Servicio en su totalidad." : "By registering, accessing or using our authentication system, you accept these Terms of Service in their entirety."}
             </p>
-            <p className="text-gray-600 mt-2">
+            <p className="text-[#6B6459] mt-2">
               {locale === "es" ? "Estos Términos están diseñados específicamente para un sistema de autenticación minimalista que recopila solo información esencial como correo electrónico e imagen de perfil." : "These Terms are specifically designed for a minimal authentication system that collects only essential information such as email and profile picture."}
             </p>
           </div>
