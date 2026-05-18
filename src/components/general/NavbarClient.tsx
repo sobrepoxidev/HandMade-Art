@@ -186,7 +186,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
 
         {/* Search bar — aligned to header max-width */}
         {shouldShowSearchComponents && (
-          <div className="w-full max-w-7xl mx-auto pt-3 px-4">
+          <div className="w-full max-w-7xl mx-auto pt-3 pb-4 px-4">
             <div
               className="relative w-full flex items-center"
               style={{ zIndex: 40, position: 'relative' }}
@@ -200,7 +200,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
           </div>
         )}
 
-        {/* Category nav — editorial, no fixed height (lets the 56px min-h breathe) */}
+        {/* Category nav — editorial, no fixed height (lets the 48px min-h breathe) */}
         {shouldShowSearchComponents && (
           <CategoryCarousel locale={locale} categories={categoryList} />
         )}

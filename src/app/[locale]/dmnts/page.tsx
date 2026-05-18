@@ -1,6 +1,7 @@
 import { buildMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 import Image from "next/image";
+import { Link } from "@/i18n/navigation";
 
 type tParams = Promise<{ locale: string }>;
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
@@ -247,12 +248,12 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
               : "Your support is essential for Handmade Art to continue transforming lives through art and training."}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a 
-              href={`/${locale}/reinsercion-sociolaboral`} 
+            <Link
+              href="/reinsercion-sociolaboral"
               className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
             >
               {isSpanish ? "Conoce nuestro proyecto de reinserción" : "Learn about our reintegration project"}
-            </a>
+            </Link>
             <a 
               href="https://www.instagram.com/handmadeart.store" 
               target="_blank" 

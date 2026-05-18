@@ -1,236 +1,546 @@
 import { buildMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
-import Image from 'next/image';
+import Image from "next/image";
+import { Link } from "@/i18n/navigation";
+import { ArrowRight, Mail, Phone } from "lucide-react";
 
 type tParams = Promise<{ locale: string }>;
+
+const COPY = {
+  es: {
+    eyebrow: "Proyecto de Ley 24870",
+    h1: "Detrás de cada pieza, un oficio que cambia vidas.",
+    sub:
+      "Handmade Art es una empresa de inserción sociolaboral. Cada espejo, cada chorreador, cada talla nace en talleres dentro de centros de rehabilitación, donde personas en proceso de reinserción aprenden un oficio y vuelven a creer en sí mismas.",
+    ctaPrimary: "Conocer las piezas",
+    ctaSecondary: "Escribirnos para alianzas",
+
+    pillarsTitle: "Lo que hacemos, en una página",
+    pillars: [
+      {
+        title: "Talleres dentro del sistema penitenciario",
+        body: "En convenio con el Ministerio de Justicia y Paz formamos a personas privadas de libertad en tallado en madera, resina y acabados artesanales.",
+      },
+      {
+        title: "Comercializamos la obra",
+        body: "Cada pieza que vendés aquí financia las horas de trabajo del artesano. No es una donación: es un comercio justo entre quien crea y quien compra.",
+      },
+      {
+        title: "Acompañamiento al salir",
+        body: "Cuando termina la pena, los participantes se integran a nuestra red de artesanos como proveedores. El oficio se vuelve fuente de ingresos legítima y estable.",
+      },
+    ],
+
+    lawTitle: "Qué propone el Proyecto de Ley 24870",
+    lawBody:
+      "El proyecto crea la figura de Empresa de Inserción Sociolaboral (EISL): organizaciones que producen bienes o servicios con un fin social explícito y un “convenio de inserción” personalizado para cada beneficiario. Handmade Art opera como EISL desde antes de que la figura exista en la ley — apoyamos el proyecto porque legitima el modelo y abre puertas para que más personas puedan empezar de nuevo.",
+    populations: {
+      title: "Poblaciones beneficiarias",
+      items: [
+        "Personas dependientes de sustancias psicoactivas",
+        "Personas en situación de calle",
+        "Personas ex privadas o privadas de libertad en régimen semiinstitucional",
+      ],
+    },
+    benefits: {
+      title: "Lo que habilita la ley",
+      items: [
+        "Financiamiento de Banca para el Desarrollo",
+        "Capacitación gratuita a través del INA",
+        "Beneficios fiscales para empresas participantes",
+        "Reducción del 50% en primas de riesgos del trabajo",
+        "Exoneración arancelaria para equipo de taller",
+        "Certificado de impacto social para donantes",
+      ],
+    },
+
+    artisansTitle: "Quienes hacen las piezas",
+    artisansLead:
+      "Tres de las personas que hoy producen para Handmade Art. No usamos nombres completos ni rostros donde no toca — pero su oficio sí lo firman.",
+    artisans: [
+      {
+        name: "Eduardo",
+        role: "Tallista en madera",
+        body: "Aprendió a tallar dentro del centro. Hoy hace los marcos de espejos con animales selváticos que más se venden.",
+        img: "/reinsercion-sociolaboral/artesano-Eduardo.webp",
+      },
+      {
+        name: "Jonathan",
+        role: "Acabado y barniz",
+        body: "Responsable del color y el pulido final. Cada pieza pasa por sus manos antes de salir del taller.",
+        img: "/reinsercion-sociolaboral/artesano-Jonathan.webp",
+      },
+      {
+        name: "Jorge",
+        role: "Chorreadores y piezas pequeñas",
+        body: "Especialista en chorreadores de café — el oficio costarricense por excelencia. Lleva tres años con nosotros.",
+        img: "/reinsercion-sociolaboral/artesano-Jorge.webp",
+      },
+    ],
+
+    workshopsTitle: "Talleres en marcha",
+    workshops: [
+      {
+        title: "Chorreadores de café",
+        body: "Técnica tradicional costarricense. Madera + tela + estructura. Producto con demanda nacional e internacional.",
+        img: "/reinsercion-sociolaboral/Taller-de-creacion-de-chorreadores-de-cafe.webp",
+      },
+      {
+        title: "Tallado en madera",
+        body: "Marcos para espejos, animales de la fauna costarricense, escenas talladas. La pieza estrella de la marca.",
+        img: "/reinsercion-sociolaboral/Taller-de-detalle-de-madera.webp",
+      },
+      {
+        title: "Marcos y espejos",
+        body: "Ensamble final, espejo cortado a medida, montaje. Coordinación con los talleres de tallado y acabado.",
+        img: "/reinsercion-sociolaboral/Taller-de-marcos-y-espejos.webp",
+      },
+    ],
+
+    partnersTitle: "Con quién trabajamos",
+    partnersBody:
+      "Operamos en alianza con el Ministerio de Justicia y Paz de Costa Rica y con el INA (Instituto Nacional de Aprendizaje), que aporta la certificación técnica de los oficios.",
+
+    closingTitle: "Cómo apoyar",
+    closingBody:
+      "La forma más directa es comprar una pieza. Cada compra paga horas de oficio reales, no una etiqueta. Si tu empresa quiere explorar una alianza — convenio de inserción, padrinazgo de un taller, donación con certificado de impacto — escríbenos.",
+    contactEmail: "info@handmadeart.store",
+    contactPhone: "+506 8423 7555",
+    ctaShop: "Ver el catálogo",
+    ctaContact: "Escribir para alianzas",
+  },
+  en: {
+    eyebrow: "Costa Rica · Law Project 24870",
+    h1: "Behind every piece, a craft that rebuilds lives.",
+    sub:
+      "Handmade Art is a social-and-labor reintegration company. Every mirror, every coffee dripper, every wooden carving is made inside workshops in rehabilitation centers, where people on a path back to society learn a craft and a sense of self.",
+    ctaPrimary: "Browse the pieces",
+    ctaSecondary: "Talk to us about partnerships",
+
+    pillarsTitle: "What we do, in a page",
+    pillars: [
+      {
+        title: "Workshops inside the prison system",
+        body: "Through an agreement with the Costa Rican Ministry of Justice and Peace, we train incarcerated individuals in wood carving, resin and artisanal finishing.",
+      },
+      {
+        title: "We bring the work to market",
+        body: "Every piece you buy here pays the artisan's hours. It is not a donation: it is fair trade between someone who makes and someone who takes home.",
+      },
+      {
+        title: "Support after release",
+        body: "When their sentence ends, participants join our artisan network as suppliers. The craft becomes a legitimate, stable source of income.",
+      },
+    ],
+
+    lawTitle: "What Law Project 24870 proposes",
+    lawBody:
+      "The bill creates the legal figure of Social and Labor Reintegration Company (EISL): organizations that produce goods or services with an explicit social purpose and a personalized 'reintegration agreement' with each beneficiary. Handmade Art has been operating as an EISL before the figure existed in law — we support the bill because it legitimizes the model and opens the door for more people to start over.",
+    populations: {
+      title: "Beneficiary populations",
+      items: [
+        "People recovering from psychoactive substance dependence",
+        "People in situation of homelessness",
+        "Former or current inmates in semi-institutional regimes",
+      ],
+    },
+    benefits: {
+      title: "What the law enables",
+      items: [
+        "Financing through Development Banking",
+        "Free vocational training via INA",
+        "Tax benefits for participating companies",
+        "50% reduction in workplace-risk insurance premiums",
+        "Tariff exemption for workshop equipment",
+        "Social impact certificate for donors",
+      ],
+    },
+
+    artisansTitle: "The people who make the pieces",
+    artisansLead:
+      "Three of the people producing for Handmade Art today. We don't show full names or faces where it isn't ours to show — but their craft, they sign.",
+    artisans: [
+      {
+        name: "Eduardo",
+        role: "Wood carver",
+        body: "Learned to carve inside the rehabilitation center. He now makes the wildlife-framed mirrors that have become the brand's signature.",
+        img: "/reinsercion-sociolaboral/artesano-Eduardo.webp",
+      },
+      {
+        name: "Jonathan",
+        role: "Finish and varnish",
+        body: "Responsible for color and final polish. Every piece passes through his hands before leaving the workshop.",
+        img: "/reinsercion-sociolaboral/artesano-Jonathan.webp",
+      },
+      {
+        name: "Jorge",
+        role: "Coffee drippers and small pieces",
+        body: "Specialist in chorreadores — the quintessential Costa Rican coffee craft. Three years with us.",
+        img: "/reinsercion-sociolaboral/artesano-Jorge.webp",
+      },
+    ],
+
+    workshopsTitle: "Workshops in operation",
+    workshops: [
+      {
+        title: "Coffee drippers (chorreadores)",
+        body: "Traditional Costa Rican technique. Wood, cloth and frame. A product with steady local and international demand.",
+        img: "/reinsercion-sociolaboral/Taller-de-creacion-de-chorreadores-de-cafe.webp",
+      },
+      {
+        title: "Wood carving",
+        body: "Mirror frames, Costa Rican wildlife, carved scenes. The brand's hero product line.",
+        img: "/reinsercion-sociolaboral/Taller-de-detalle-de-madera.webp",
+      },
+      {
+        title: "Frames and mirrors",
+        body: "Final assembly, custom-cut mirror, mounting. Coordinated with the carving and finishing workshops.",
+        img: "/reinsercion-sociolaboral/Taller-de-marcos-y-espejos.webp",
+      },
+    ],
+
+    partnersTitle: "Who we work with",
+    partnersBody:
+      "We operate in partnership with Costa Rica's Ministry of Justice and Peace and with INA (the National Learning Institute), which provides the technical certification of the trades.",
+
+    closingTitle: "How to support",
+    closingBody:
+      "The most direct way is to buy a piece. Every purchase pays real hours of craft, not a label. If your company wants to explore a partnership — reintegration agreement, workshop sponsorship, donation with an impact certificate — get in touch.",
+    contactEmail: "info@handmadeart.store",
+    contactPhone: "+506 8423 7555",
+    ctaShop: "Browse the catalog",
+    ctaContact: "Email us about partnerships",
+  },
+} as const;
+
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const { locale } = await params;
-  const currentLocale = locale === "es" ? "es" : "en";
-
-  const pageTitle = currentLocale === 'es' ? 'Reinserción Sociolaboral | Proyecto de Ley 24870' : 'Social Reintegration | Law Project 24870';
-  const pageDescription = currentLocale === 'es'
-    ? 'Handmade Art apoya el Proyecto de Ley 24870 para la reinserción sociolaboral de personas en situación de vulnerabilidad en Costa Rica'
-    : 'Handmade Art supports Law Project 24870 for the social and labor reintegration of vulnerable populations in Costa Rica';
+  const currentLocale: "es" | "en" = locale === "es" ? "es" : "en";
+  const t = COPY[currentLocale];
 
   return await buildMetadata({
     locale: currentLocale,
-    pathname: `/${locale}/reinsercion-sociolaboral`,
-    title: pageTitle,
-    description: pageDescription,
+    pathname: currentLocale === "es" ? `/${locale}/reinsercion-sociolaboral` : `/${locale}/social-reintegration`,
+    title:
+      currentLocale === "es"
+        ? "Reinserción sociolaboral — el oficio que hay detrás de cada pieza"
+        : "Social reintegration — the craft behind every piece",
+    description: t.sub,
+    image: {
+      url: "/reinsercion-sociolaboral/banner-lg.webp",
+      width: 1200,
+      height: 630,
+      alt:
+        currentLocale === "es"
+          ? "Taller de artesanía en centro de rehabilitación de Costa Rica"
+          : "Artisan workshop in a Costa Rican rehabilitation center",
+    },
   });
 }
 
 export default async function ReinsertionPage({ params }: { params: tParams }) {
   const { locale } = await params;
-  const isSpanish = locale === 'es';
+  const currentLocale: "es" | "en" = locale === "es" ? "es" : "en";
+  const t = COPY[currentLocale];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
-      <div className="container mx-auto px-4 py-8 text-[#2D2D2D]">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="font-display text-3xl md:text-4xl font-medium tracking-[-0.005em] mb-2">
-            {isSpanish ? 'Reinserción Sociolaboral' : 'Social Reintegration'}
-          </h1>
-          <p className="text-xl text-[#C9A962] font-medium">
-            {isSpanish ? 'Proyecto de Ley 24870' : 'Law Project 24870'}
-          </p>
-          <div className="h-1 w-24 bg-[#C9A962] mx-auto mt-4 rounded-full"></div>
+    <main className="bg-[#FAF6EF] text-[#2D2D2D]">
+      {/* HERO — full-bleed, dark, dramatic */}
+      <section className="relative isolate overflow-hidden bg-[#1A1A1A]">
+        <div className="absolute inset-0 -z-10">
+          <Image
+            src="/reinsercion-sociolaboral/banner-lg.webp"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[center_40%]"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A]/90 via-[#1A1A1A]/65 to-[#1A1A1A]/30"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/80 via-transparent to-transparent"
+          />
         </div>
 
-        <section className="mb-12 bg-[#C9A962]/10 p-6 md:p-8 rounded-xl border border-[#C9A962]/30">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-[#2D2D2D]">
-            {isSpanish ? 'Nuestro Apoyo al Proyecto de Ley 24870' : 'Our Support for Law Project 24870'}
-          </h2>
-          <p className="text-lg mb-4 text-[#4A4A4A]">
-            {isSpanish
-              ? 'En Handmade Art, apoyamos encarecidamente el Proyecto de Ley 24870 que crea la figura de Empresa de Inserción Sociolaboral (EISL). Esta iniciativa busca regular un marco jurídico que fomente la integración y formación sociolaboral como tránsito hacia el empleo formal para poblaciones vulnerables.'
-              : 'At Handmade Art, we strongly support Law Project 24870, which creates the concept of Social and Labor Integration Companies (EISL). This initiative seeks to regulate a legal framework that promotes social and labor integration as a transition to formal employment for vulnerable populations.'}
-          </p>
-          <p className="text-lg font-medium text-[#2D2D2D]">
-            {isSpanish
-              ? 'Creemos firmemente que el arte y la artesanía pueden ser poderosas herramientas de transformación social y reinserción laboral.'
-              : 'We firmly believe that art and craftsmanship can be powerful tools for social transformation and labor reintegration.'}
-          </p>
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-6 border-l-4 border-[#C9A962] pl-3">
-            {isSpanish ? '¿Qué es el Proyecto de Ley 24870?' : 'What is Law Project 24870?'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <p className="text-lg mb-4 text-[#4A4A4A]">
-                {isSpanish
-                  ? 'El Proyecto de Ley 24870 crea la figura de Empresa de Inserción Sociolaboral (EISL), organizaciones que producen bienes o servicios con el fin social de insertar a personas en situación de vulnerabilidad mediante un "convenio de inserción" personalizado.'
-                  : 'Law Project 24870 creates the concept of Social and Labor Integration Companies (EISL), organizations that produce goods or services with the social purpose of integrating vulnerable individuals through personalized "integration agreements".'
-                }
-              </p>
-              <p className="text-lg mb-4 text-[#4A4A4A]">
-                {isSpanish ? 'Las poblaciones beneficiarias incluyen:' : 'The beneficiary populations include:'}
-              </p>
-              <ul className="space-y-2 text-lg text-[#4A4A4A]">
-                {[
-                  isSpanish ? 'Personas dependientes de sustancias psicoactivas' : 'People dependent on psychoactive substances',
-                  isSpanish ? 'Personas en situación de calle' : 'Homeless individuals',
-                  isSpanish ? 'Personas ex-privadas o privadas de libertad en régimen semiinstitucional' : 'Former inmates or those in semi-institutional prison regimes'
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-start">
-                    <svg className="w-5 h-5 text-[#C9A962] mr-3 mt-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-[#FAF8F5] p-6 rounded-xl border border-[#E8E4E0]">
-              <h3 className="text-xl font-semibold mb-4 text-[#2D2D2D]">{isSpanish ? 'Beneficios del Proyecto' : 'Project Benefits'}</h3>
-              <ul className="space-y-2 text-[#4A4A4A]">
-                {[
-                  isSpanish ? 'Acceso a financiamiento de Banca para el Desarrollo' : 'Access to Development Banking financing',
-                  isSpanish ? 'Capacitación a través del INA' : 'Training through INA (National Learning Institute)',
-                  isSpanish ? 'Beneficios fiscales para empresas participantes' : 'Tax benefits for participating companies',
-                  isSpanish ? 'Rebaja del 50% en primas de riesgos del trabajo' : '50% reduction in workplace risk insurance premiums',
-                  isSpanish ? 'Exoneración arancelaria para equipos' : 'Tariff exemption for equipment',
-                  isSpanish ? 'Certificado de impacto social para donantes' : 'Social impact certificate for donors'
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-start">
-                    <svg className="w-5 h-5 text-[#4A7C59] mr-3 mt-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
+        <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12 pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-40 lg:pb-28">
+          <div className="max-w-2xl">
+            <p className="font-sans text-[11px] uppercase tracking-[0.22em] text-[#C9A962] mb-5">
+              {t.eyebrow}
+            </p>
+            <h1 className="font-display text-[#F5F1EB] text-[34px] leading-[1.06] sm:text-5xl lg:text-[58px] font-medium tracking-[-0.01em]">
+              {t.h1}
+            </h1>
+            <p className="mt-6 sm:mt-7 text-[#E8E4E0] text-[15px] sm:text-base lg:text-lg leading-relaxed max-w-xl">
+              {t.sub}
+            </p>
+            <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              <Link
+                href="/products"
+                className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-semibold tracking-wide text-[#1A1A1A] bg-[#C9A962] rounded-sm hover:bg-[#A08848] hover:text-[#F5F1EB] transition-colors duration-200 shadow-[0_2px_8px_-4px_rgba(160,136,72,0.45)]"
+              >
+                {t.ctaPrimary}
+              </Link>
+              <a
+                href={`mailto:${t.contactEmail}`}
+                className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-medium text-[#F5F1EB] bg-transparent border border-[#F5F1EB]/30 rounded-sm hover:bg-[#F5F1EB]/10 hover:border-[#F5F1EB]/60 transition-colors duration-200"
+              >
+                {t.ctaSecondary}
+              </a>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="mb-12">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-6 border-l-4 border-[#C9A962] pl-3">
-            {isSpanish ? 'Nuestra Colaboración con el Ministerio de Justicia y Paz' : 'Our Collaboration with the Ministry of Justice and Peace'}
+      {/* PILLARS — what we do in a page */}
+      <section className="py-16 md:py-24 lg:py-28 bg-[#FAF6EF]">
+        <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
+          <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-medium tracking-[-0.005em] text-[#2D2D2D] max-w-2xl mb-12 md:mb-16">
+            {t.pillarsTitle}
           </h2>
-          <p className="text-lg mb-6 text-[#4A4A4A]">
-            {isSpanish
-              ? 'Handmade Art ya colabora activamente con el Ministerio de Justicia y Paz de Costa Rica ofreciendo talleres y programas de capacitación a personas privadas de libertad. A través de estos programas, los participantes aprenden habilidades de artesanía, lo que les brinda una oportunidad de rehabilitación y una fuente de ingresos.'
-              : 'Handmade Art already actively collaborates with the Costa Rican Ministry of Justice and Peace by offering workshops and training programs to incarcerated individuals. Through these programs, participants learn craft skills, providing them with an opportunity for rehabilitation and a source of income.'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-            <Image src="/reinsercion-sociolaboral/Ministerio-de-Justicia y-Paz.webp" alt={isSpanish ? "Ministerio de Justicia y Paz" : "Ministry of Justice and Peace"} className="rounded-xl shadow-lg border border-[#E8E4E0]" width={300} height={250} />
-            <Image src="/og-image.webp" alt={isSpanish ? "Logo de Handmade Art" : "Handmade Art Logo"} className="rounded-xl shadow-lg border border-[#E8E4E0]" width={270} height={250} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
+            {t.pillars.map((p, i) => (
+              <article key={i} className="relative">
+                <span
+                  aria-hidden
+                  className="block font-display text-[#C9A962] text-[42px] leading-none mb-4 tabular-nums"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="font-display text-xl md:text-[22px] font-medium tracking-[-0.005em] text-[#2D2D2D] mb-3">
+                  {p.title}
+                </h3>
+                <p className="text-[15px] leading-relaxed text-[#4A4A4A]">{p.body}</p>
+              </article>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="mb-12">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-6 border-l-4 border-[#C9A962] pl-3">
-            {isSpanish ? 'Nuestros Talleres de Reinserción' : 'Our Reintegration Workshops'}
-          </h2>
-          <p className="text-lg mb-6 text-[#4A4A4A]">
-            {isSpanish
-              ? 'Ofrecemos una variedad de talleres que cubren diferentes técnicas de artesanía, desde el tallado en madera hasta la creación de chorreadores de café. Estos talleres no solo enseñan habilidades prácticas, sino que también fomentan la creatividad, la autoexpresión y el desarrollo de competencias sociolaborales.'
-              : 'We offer a variety of workshops covering different craft techniques, from wood carving to creating traditional Costa Rican coffee makers (chorreadores). These workshops not only teach practical skills but also foster creativity, self-expression, and the development of social and labor competencies.'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-            <div className="bg-[#FAF8F5] rounded-xl shadow-sm overflow-hidden border border-[#E8E4E0] hover:shadow-md hover:border-[#C9A962]/30 transition-all">
-              <Image src="/reinsercion-sociolaboral/Taller-de-creacion-de-chorreadores-de-cafe.webp" alt={isSpanish ? "Taller de creación de chorreadores de café" : "Coffee maker crafting workshop"} className="w-full h-48 object-cover" width={400} height={300} />
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2 text-[#2D2D2D]">{isSpanish ? 'Taller de Chorreadores de Café' : 'Coffee Maker Workshop'}</h3>
-                <p className="text-[#4A4A4A]">{isSpanish
-                  ? 'Enseñamos técnicas tradicionales para la creación de chorreadores de café, un producto con alta demanda en el mercado local e internacional.'
-                  : 'We teach traditional techniques for creating Costa Rican coffee makers, a product with high demand in both local and international markets.'}</p>
-              </div>
+      {/* LAW PROJECT 24870 */}
+      <section className="py-16 md:py-24 lg:py-28 bg-white border-y border-[#E8E4E0]">
+        <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+            <div className="lg:col-span-5">
+              <p className="font-sans text-[11px] uppercase tracking-[0.18em] text-[#A08848] mb-4">
+                {currentLocale === "es" ? "Marco legal" : "Legal framework"}
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#2D2D2D] mb-6">
+                {t.lawTitle}
+              </h2>
+              <p className="text-[15px] md:text-base leading-relaxed text-[#4A4A4A]">
+                {t.lawBody}
+              </p>
             </div>
-            <div className="bg-[#FAF8F5] rounded-xl shadow-sm overflow-hidden border border-[#E8E4E0] hover:shadow-md hover:border-[#C9A962]/30 transition-all">
-              <Image src="/reinsercion-sociolaboral/Taller-de-detalle-de-madera.webp" alt={isSpanish ? "Taller de detalle de madera" : "Wood detailing workshop"} className="w-full h-48 object-cover" width={400} height={300} />
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2 text-[#2D2D2D]">{isSpanish ? 'Taller de Tallado en Madera' : 'Wood Carving Workshop'}</h3>
-                <p className="text-[#4A4A4A]">{isSpanish
-                  ? 'Capacitamos en técnicas de tallado y acabado en madera, permitiendo crear piezas únicas con alto valor artístico y comercial.'
-                  : 'We train in wood carving and finishing techniques, enabling the creation of unique pieces with high artistic and commercial value.'}</p>
+
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-8 lg:gap-10">
+              <div>
+                <h3 className="font-display text-base font-medium text-[#2D2D2D] mb-4 tracking-[-0.005em]">
+                  {t.populations.title}
+                </h3>
+                <ul className="space-y-3">
+                  {t.populations.items.map((item, i) => (
+                    <li key={i} className="flex items-start gap-3 text-[14.5px] text-[#4A4A4A] leading-relaxed">
+                      <span aria-hidden className="text-[#A08848] mt-1.5 leading-none">·</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-            <div className="bg-[#FAF8F5] rounded-xl shadow-sm overflow-hidden border border-[#E8E4E0] hover:shadow-md hover:border-[#C9A962]/30 transition-all">
-              <Image src="/reinsercion-sociolaboral/verq.webp" alt={isSpanish ? "Taller de exhibición" : "Exhibition workshop"} className="w-full h-48 object-cover" width={400} height={300} />
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2 text-[#2D2D2D]">{isSpanish ? 'Exhibición y Comercialización' : 'Exhibition and Marketing'}</h3>
-                <p className="text-[#4A4A4A]">{isSpanish
-                  ? 'Enseñamos habilidades de presentación, marketing y venta de productos artesanales en diferentes canales de comercialización.'
-                  : 'We teach presentation, marketing, and sales skills for artisanal products across different commercialization channels.'}</p>
+              <div>
+                <h3 className="font-display text-base font-medium text-[#2D2D2D] mb-4 tracking-[-0.005em]">
+                  {t.benefits.title}
+                </h3>
+                <ul className="space-y-3">
+                  {t.benefits.items.map((item, i) => (
+                    <li key={i} className="flex items-start gap-3 text-[14.5px] text-[#4A4A4A] leading-relaxed">
+                      <span aria-hidden className="text-[#A08848] mt-1.5 leading-none">·</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="mb-12 bg-[#4A7C59]/10 p-6 md:p-8 rounded-xl border border-[#4A7C59]/30">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-6 text-[#2D2D2D]">
-            {isSpanish ? '¿Cómo Apoyamos la Reinserción Sociolaboral?' : 'How Do We Support Social and Labor Reintegration?'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-xl font-semibold mb-4 text-[#2D2D2D]">{isSpanish ? 'Nuestro Compromiso' : 'Our Commitment'}</h3>
-              <p className="text-lg mb-4 text-[#4A4A4A]">
-                {isSpanish ? 'En Handmade Art nos comprometemos a:' : 'At Handmade Art, we commit to:'}
-              </p>
-              <ul className="space-y-2 text-[#4A4A4A]">
-                {[
-                  isSpanish ? 'Ofrecer capacitación técnica en artesanía' : 'Offer technical training in craftsmanship',
-                  isSpanish ? 'Brindar acompañamiento psicosocial' : 'Provide psychosocial support',
-                  isSpanish ? 'Proporcionar oportunidades de comercialización' : 'Provide marketing opportunities',
-                  isSpanish ? 'Facilitar la inserción laboral en nuestra red de artesanos' : 'Facilitate job placement in our artisan network',
-                  isSpanish ? 'Promover la certificación como EISL una vez aprobada la ley' : 'Promote EISL certification once the law is approved'
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-start">
-                    <svg className="w-5 h-5 text-[#4A7C59] mr-3 mt-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-4 text-[#2D2D2D]">{isSpanish ? 'Resultados Esperados' : 'Expected Results'}</h3>
-              <ul className="space-y-2 text-[#4A4A4A]">
-                {[
-                  isSpanish ? 'Reducción de la reincidencia delictiva' : 'Reduction in criminal recidivism',
-                  isSpanish ? 'Desarrollo de habilidades técnicas y sociales' : 'Development of technical and social skills',
-                  isSpanish ? 'Generación de ingresos sostenibles' : 'Generation of sustainable income',
-                  isSpanish ? 'Reintegración efectiva a la sociedad' : 'Effective reintegration into society',
-                  isSpanish ? 'Preservación de técnicas artesanales tradicionales' : 'Preservation of traditional craft techniques',
-                  isSpanish ? 'Creación de productos con valor cultural y comercial' : 'Creation of products with cultural and commercial value'
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-start">
-                    <svg className="w-5 h-5 text-[#C9A962] mr-3 mt-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-6 border-l-4 border-[#C9A962] pl-3">
-            {isSpanish ? 'Únete a Nuestra Iniciativa' : 'Join Our Initiative'}
-          </h2>
-          <p className="text-lg mb-6 text-[#4A4A4A]">
-            {isSpanish
-              ? 'Si eres una empresa o individuo interesado en apoyar el Proyecto de Ley 24870 y nuestras iniciativas de reinserción sociolaboral a través del arte y la artesanía, contáctanos para explorar formas de colaboración.'
-              : 'If you are a company or individual interested in supporting Law Project 24870 and our social and labor reintegration initiatives through art and crafts, contact us to explore ways to collaborate.'}
-          </p>
-          <div className="bg-[#2D2D2D] p-6 md:p-8 rounded-xl text-center">
-            <h3 className="text-xl font-semibold mb-4 text-[#F5F1EB]">{isSpanish ? 'Contacto para Alianzas' : 'Contact for Partnerships'}</h3>
-            <p className="text-lg text-[#E8E4E0]">
-              {isSpanish
-                ? <>Escríbenos a <a href="mailto:info@handmadeart.store" className="text-[#C9A962] hover:underline">info@handmadeart.store</a> o llámanos al <a href="tel:+50685850000" className="text-[#C9A962] hover:underline">+506 8585-0000</a></>
-                : <>Email us at <a href="mailto:info@handmadeart.store" className="text-[#C9A962] hover:underline">info@handmadeart.store</a> or call us at <a href="tel:+50685850000" className="text-[#C9A962] hover:underline">+506 8585-0000</a></>}
+      {/* ARTISANS — portraits */}
+      <section className="py-16 md:py-24 lg:py-28 bg-[#FAF6EF]">
+        <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
+          <div className="max-w-2xl mb-12 md:mb-16">
+            <p className="font-sans text-[11px] uppercase tracking-[0.18em] text-[#A08848] mb-4">
+              {currentLocale === "es" ? "Detrás de la marca" : "Behind the brand"}
+            </p>
+            <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#2D2D2D] mb-5">
+              {t.artisansTitle}
+            </h2>
+            <p className="text-[15px] md:text-base leading-relaxed text-[#4A4A4A]">
+              {t.artisansLead}
             </p>
           </div>
-        </section>
-      </div>
-    </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+            {t.artisans.map((a) => (
+              <article key={a.name} className="group">
+                <div className="relative aspect-[4/5] mb-5 overflow-hidden bg-[#2D2D2D] rounded-sm">
+                  <Image
+                    src={a.img}
+                    alt={
+                      currentLocale === "es"
+                        ? `Retrato del artesano ${a.name}`
+                        : `Portrait of the artisan ${a.name}`
+                    }
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                  />
+                </div>
+                <h3 className="font-display text-xl font-medium text-[#2D2D2D] tracking-[-0.005em]">
+                  {a.name}
+                </h3>
+                <p className="text-[12px] uppercase tracking-[0.12em] text-[#A08848] mt-1 mb-3">
+                  {a.role}
+                </p>
+                <p className="text-[14.5px] leading-relaxed text-[#4A4A4A]">{a.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* WORKSHOPS */}
+      <section className="py-16 md:py-24 lg:py-28 bg-white border-y border-[#E8E4E0]">
+        <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
+          <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#2D2D2D] max-w-2xl mb-12 md:mb-16">
+            {t.workshopsTitle}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {t.workshops.map((w) => (
+              <article key={w.title} className="bg-[#FAF6EF] border border-[#E8E4E0]/70 rounded-sm overflow-hidden">
+                <div className="relative aspect-[4/3] bg-[#E8E4E0]">
+                  <Image
+                    src={w.img}
+                    alt={w.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-5 md:p-6">
+                  <h3 className="font-display text-lg md:text-xl font-medium tracking-[-0.005em] text-[#2D2D2D] mb-2">
+                    {w.title}
+                  </h3>
+                  <p className="text-[14.5px] leading-relaxed text-[#4A4A4A]">{w.body}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PARTNERS */}
+      <section className="py-16 md:py-20 bg-[#FAF6EF]">
+        <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-7">
+              <p className="font-sans text-[11px] uppercase tracking-[0.18em] text-[#A08848] mb-4">
+                {currentLocale === "es" ? "En alianza con" : "In partnership with"}
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D] mb-5">
+                {t.partnersTitle}
+              </h2>
+              <p className="text-[15px] md:text-base leading-relaxed text-[#4A4A4A] max-w-xl">
+                {t.partnersBody}
+              </p>
+            </div>
+            <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+              <div className="relative aspect-square bg-white border border-[#E8E4E0] rounded-sm overflow-hidden grid place-items-center p-6">
+                <Image
+                  src="/reinsercion-sociolaboral/Ministerio-de-Justicia y-Paz.webp"
+                  alt={
+                    currentLocale === "es"
+                      ? "Ministerio de Justicia y Paz de Costa Rica"
+                      : "Costa Rican Ministry of Justice and Peace"
+                  }
+                  width={220}
+                  height={220}
+                  sizes="(max-width: 1024px) 50vw, 220px"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="relative aspect-square bg-white border border-[#E8E4E0] rounded-sm overflow-hidden grid place-items-center p-6">
+                <Image
+                  src="/reinsercion-sociolaboral/ina-logo.webp"
+                  alt={
+                    currentLocale === "es"
+                      ? "Instituto Nacional de Aprendizaje (INA)"
+                      : "National Learning Institute (INA)"
+                  }
+                  width={220}
+                  height={220}
+                  sizes="(max-width: 1024px) 50vw, 220px"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CLOSING / CTA — dark walnut */}
+      <section className="py-20 md:py-28 bg-[#2D2D2D] text-[#F5F1EB]">
+        <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-3xl md:text-4xl lg:text-[44px] leading-[1.1] font-medium tracking-[-0.01em] mb-6">
+              {t.closingTitle}
+            </h2>
+            <p className="text-[#E8E4E0] text-base md:text-lg leading-relaxed mb-10">
+              {t.closingBody}
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-10">
+              <Link
+                href="/products"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[48px] text-[14px] font-semibold tracking-wide text-[#1A1A1A] bg-[#C9A962] rounded-sm hover:bg-[#D4C4A8] transition-colors duration-200"
+              >
+                {t.ctaShop}
+                <ArrowRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+              </Link>
+              <a
+                href={`mailto:${t.contactEmail}`}
+                className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-medium text-[#F5F1EB] bg-transparent border border-[#F5F1EB]/30 rounded-sm hover:bg-[#F5F1EB]/10 hover:border-[#F5F1EB]/60 transition-colors duration-200"
+              >
+                {t.ctaContact}
+              </a>
+            </div>
+
+            <ul className="flex flex-col sm:flex-row gap-x-8 gap-y-3 text-[14px] text-[#B5AC9D]">
+              <li>
+                <a
+                  href={`mailto:${t.contactEmail}`}
+                  className="inline-flex items-center gap-2 hover:text-[#C9A962] transition-colors"
+                >
+                  <Mail className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  {t.contactEmail}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`tel:${t.contactPhone.replace(/\s/g, "")}`}
+                  className="inline-flex items-center gap-2 hover:text-[#C9A962] transition-colors tabular-nums"
+                >
+                  <Phone className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  {t.contactPhone}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
