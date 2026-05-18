@@ -77,7 +77,7 @@ export default async function About({ params }: { params: tParams }) {
               <span className="inline-block mb-4 rounded-full bg-[#C9A962]/10 px-4 py-1 text-sm font-medium text-[#C9A962] border border-[#C9A962]/30">
                 {isEs ? 'Misión y propósito' : 'Mission & Purpose'}
               </span>
-              <h1 className="mb-4 text-4xl sm:text-5xl font-bold tracking-tight text-[#2D2D2D]">
+              <h1 className="mb-4 font-display text-4xl sm:text-5xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
                 {isEs
                   ? 'Reinserción social a través del trabajo artesanal'
                   : 'Social reintegration through craftsmanship'}
@@ -162,7 +162,7 @@ export default async function About({ params }: { params: tParams }) {
       <section className="py-14 bg-[#FAF8F5]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-[#2D2D2D]">
+            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
               {isEs ? 'Operamos en el CAI Carlos Luis Fallas' : 'Operating at CAI Carlos Luis Fallas'}
             </h2>
             <div className="mt-2 h-1 w-24 bg-[#C9A962] mx-auto rounded-full"></div>
@@ -246,7 +246,7 @@ export default async function About({ params }: { params: tParams }) {
       <section className="py-16 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-[#2D2D2D]">
+            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
               {isEs ? 'Impulsada y patrocinada por SobrePoxi' : 'Powered and sponsored by SobrePoxi'}
             </h2>
             <div className="mt-2 h-1 w-24 bg-[#C9A962] mx-auto rounded-full"></div>
@@ -308,7 +308,7 @@ export default async function About({ params }: { params: tParams }) {
       <section className="py-16 bg-[#FAF8F5]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#2D2D2D]">{isEs ? 'Misión, visión y valores' : 'Mission, vision & values'}</h2>
+            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">{isEs ? 'Misión, visión y valores' : 'Mission, vision & values'}</h2>
             <div className="mt-2 h-1 w-24 bg-[#C9A962] mx-auto rounded-full"></div>
           </div>
 
@@ -352,7 +352,7 @@ export default async function About({ params }: { params: tParams }) {
       <section className="py-16 bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-[#2D2D2D]">
+            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
               {isEs ? 'Miramos hacia adelante' : 'Looking ahead'}
             </h2>
             <div className="mt-2 h-1 w-24 bg-[#C9A962] mx-auto rounded-full"></div>
@@ -430,7 +430,7 @@ export default async function About({ params }: { params: tParams }) {
       {/* CTA */}
       <section className="py-12 bg-[#2D2D2D] text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4 text-[#F5F1EB]">
+          <h2 className="font-display text-3xl font-medium tracking-[-0.005em] mb-4 text-[#F5F1EB]">
             {isEs ? 'Sé parte de la segunda oportunidad' : 'Be part of the second chance'}
           </h2>
           <p className="text-lg mb-8 max-w-3xl mx-auto text-[#E8E4E0]">

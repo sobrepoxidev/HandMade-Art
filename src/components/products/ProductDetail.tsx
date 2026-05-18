@@ -19,7 +19,7 @@ import {
   Check,
   Tag,
 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { notify } from '@/components/ui/notify';
 import { supabase } from '@/lib/supabaseClient';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { useCart } from '@/context/CartContext';
@@ -309,29 +309,38 @@ export default function ProductDetail({
     
     try {
       if (isFavorite) {
-        // Eliminar de favoritos
         const { error } = await supabase
           .from('favorites')
           .delete()
           .eq('user_id', currentSession.user.id)
           .eq('product_id', product.id);
-          
+
         if (error) throw error;
         setIsFavorite(false);
+        notify.success(
+          locale === 'es' ? 'Quitado de favoritos' : 'Removed from favorites'
+        );
       } else {
-        // Añadir a favoritos
         const { error } = await supabase
           .from('favorites')
           .insert({
             user_id: currentSession.user.id,
-            product_id: product.id
+            product_id: product.id,
           });
-          
+
         if (error) throw error;
         setIsFavorite(true);
+        notify.success(
+          locale === 'es' ? 'Guardado en favoritos' : 'Saved to favorites'
+        );
       }
     } catch (err) {
       console.error('Error al actualizar favoritos:', err);
+      notify.error(
+        locale === 'es'
+          ? 'No pudimos actualizar tus favoritos'
+          : "We couldn't update your favorites"
+      );
     }
   };
 
@@ -350,22 +359,7 @@ export default function ProductDetail({
         ? `${productName} · ${quantity} ${quantity === 1 ? 'unidad' : 'unidades'} añadidas al carrito`
         : `${productName} · ${quantity} ${quantity === 1 ? 'unit' : 'units'} added to cart`;
 
-    toast.success(toastMsg, {
-      duration: 2800,
-      style: {
-        background: '#2D2D2D',
-        color: '#F5F1EB',
-        border: '1px solid rgba(201,169,98,0.35)',
-        borderRadius: '4px',
-        padding: '12px 16px',
-        fontSize: '14px',
-        fontWeight: 500,
-      },
-      iconTheme: {
-        primary: '#C9A962',
-        secondary: '#1A1A1A',
-      },
-    });
+    notify.success(toastMsg);
 
     setAnnouncement(
       locale === 'es'
@@ -418,6 +412,9 @@ export default function ProductDetail({
       }
       if (typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(shareData.url);
+        notify.success(
+          locale === 'es' ? 'Enlace copiado al portapapeles' : 'Link copied to clipboard'
+        );
         setAnnouncement(
           locale === 'es' ? 'Enlace copiado al portapapeles.' : 'Link copied to clipboard.'
         );

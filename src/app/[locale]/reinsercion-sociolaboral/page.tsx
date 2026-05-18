@@ -29,7 +29,7 @@ export default async function ReinsertionPage({ params }: { params: tParams }) {
       <div className="container mx-auto px-4 py-8 text-[#2D2D2D]">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+          <h1 className="font-display text-3xl md:text-4xl font-medium tracking-[-0.005em] mb-2">
             {isSpanish ? 'Reinserción Sociolaboral' : 'Social Reintegration'}
           </h1>
           <p className="text-xl text-[#C9A962] font-medium">
