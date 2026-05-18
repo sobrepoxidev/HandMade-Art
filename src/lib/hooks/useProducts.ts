@@ -185,6 +185,9 @@ export function useProducts(
     return () => {
       isMounted = false;
     };
+    // Run only on mount: initialCategories/initialProducts are consumed
+    // once as bootstrap data; refetching when they change is undesirable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return data;

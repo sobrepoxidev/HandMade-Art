@@ -405,13 +405,15 @@ export default function ProductDetail({
       url: typeof window !== 'undefined' ? window.location.href : '',
     };
 
+    if (typeof navigator === 'undefined') return;
+    const nav = navigator;
     try {
-      if (typeof navigator !== 'undefined' && 'share' in navigator) {
-        await navigator.share(shareData);
+      if (typeof nav.share === 'function') {
+        await nav.share(shareData);
         return;
       }
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        await navigator.clipboard.writeText(shareData.url);
+      if (nav.clipboard) {
+        await nav.clipboard.writeText(shareData.url);
         notify.success(
           locale === 'es' ? 'Enlace copiado al portapapeles' : 'Link copied to clipboard'
         );
