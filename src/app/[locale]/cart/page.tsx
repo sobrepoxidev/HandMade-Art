@@ -58,11 +58,10 @@ type DiscountInfo = {
 
 
 /**
- * CartPage – replica sencilla inspirada en la captura aportada.
- * Colores principales:
- *  - Secciones claras   -> #EFE9DB  (bg-[#EFE9DB])
- *  - Secciones acento   -> #E0D5BF  (bg-[#E0D5BF])
- *  - Botones primarios  -> bg-teal-500 / hover:bg-teal-600
+ * CartPage — Handmade Art palette.
+ *  - Surfaces neutras: #FAF8F5 (ivory), #F5F1EB (cream)
+ *  - Acentos: --hm-gold (#C9A962), --hm-gold-dark (#A08848)
+ *  - CTA primario: solid charcoal (#2D2D2D) o solid gold según contexto
  */
 
 export default function CartPage() {

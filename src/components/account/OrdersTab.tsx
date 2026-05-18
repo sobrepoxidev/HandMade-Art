@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { Database, Json } from '@/lib/database.types';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 
 // Type guard para verificar si shipping_address es un objeto válido
 function isShippingAddress(address: Json): address is {
@@ -16,7 +16,7 @@ function isShippingAddress(address: Json): address is {
   postal_code?: string;
   phone: string;
 } {
-  return typeof address === 'object' && address !== null && 
+  return typeof address === 'object' && address !== null &&
          'name' in address && 'address' in address && 'city' in address;
 }
 
@@ -30,6 +30,21 @@ type OrdersTabProps = {
   userId: string;
 };
 
+const STATUS_STYLES: Record<string, string> = {
+  delivered: 'bg-[#4A7C59]/12 text-[#2F5F3E] border-[#4A7C59]/30',
+  shipped: 'bg-[#4A7C59]/12 text-[#2F5F3E] border-[#4A7C59]/30',
+  paid: 'bg-[#4A7C59]/12 text-[#2F5F3E] border-[#4A7C59]/30',
+  processing: 'bg-[#D4A84B]/18 text-[#7A5E18] border-[#D4A84B]/45',
+  pending: 'bg-[#D4A84B]/18 text-[#7A5E18] border-[#D4A84B]/45',
+  cancelled: 'bg-[#C44536]/12 text-[#9F2D24] border-[#C44536]/30',
+  refunded: 'bg-[#C44536]/12 text-[#9F2D24] border-[#C44536]/30',
+};
+
+function statusStyle(status: string | null | undefined) {
+  if (!status) return STATUS_STYLES.processing;
+  return STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.processing;
+}
+
 export default function OrdersTab({ userId }: OrdersTabProps) {
   const t = useTranslations('Account');
   const { supabase } = useSupabase();
@@ -37,13 +52,10 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
-  // Cargar pedidos cuando se monta el componente
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        
-        // Obtener los pedidos del usuario ordenados por fecha (el más reciente primero)
         const { data: ordersData, error: ordersError } = await supabase
           .from('orders')
           .select(`
@@ -55,9 +67,8 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
           `)
           .eq('user_id', userId)
           .order('created_at', { ascending: false });
-        
+
         if (ordersError) throw ordersError;
-        
         setOrders(ordersData || []);
       } catch (error) {
         console.error('Error loading orders:', error);
@@ -65,14 +76,12 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
         setLoading(false);
       }
     };
-    
+
     fetchOrders();
   }, [supabase, userId]);
 
-  // Función para formatear precio
   const formatPrice = (price: number) => `₡${price.toLocaleString()}`;
-  
-  // Función para formatear fecha
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('es-CR', {
@@ -81,173 +90,188 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
       day: 'numeric',
     }).format(date);
   };
-  
-  // Alternar la expansión de un pedido
+
   const toggleOrderExpansion = (orderId: number) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
-  
+
   return (
-    <div className="text-gray-800">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+    <div className="text-[#2D2D2D]">
+      <h2 className="font-display text-xl font-medium tracking-[-0.005em] mb-5">
         {t('orderHistory')}
       </h2>
-      
+
       {loading ? (
-        <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+        <div
+          className="flex flex-col items-center justify-center py-12 gap-2 text-[#6B6459]"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader2 className="h-6 w-6 animate-spin text-[#A08848]" strokeWidth={2} aria-hidden />
+          <span className="text-sm">{t('loading') || 'Cargando…'}</span>
         </div>
       ) : orders.length === 0 ? (
-        <div className="bg-gray-50 rounded-md p-8 text-center border border-gray-200">
-          <p className="text-gray-500">{t('noOrders')}</p>
+        <div className="bg-[#FAF8F5] border border-[#E8E4E0] rounded-md p-10 text-center">
+          <p className="text-[#6B6459] mb-1">{t('noOrders')}</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {orders.map((order) => (
-            <div 
-              key={order.id} 
-              className="border border-gray-200 rounded-md overflow-hidden"
-            >
-              {/* Cabecera del pedido (siempre visible) */}
-              <div 
-                className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 cursor-pointer"
-                onClick={() => toggleOrderExpansion(order.id)}
+        <ul className="space-y-3">
+          {orders.map((order) => {
+            const isOpen = expandedOrderId === order.id;
+            const statusKey = order.shipping_status || 'processing';
+            return (
+              <li
+                key={order.id}
+                className="border border-[#E8E4E0] rounded-md overflow-hidden bg-white"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
-                    <span>{t('orderNumber')}:</span>
-                    <span className="font-medium text-gray-800">#{order.id}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <span>{t('orderDate')}:</span>
-                    <span className="font-medium text-gray-800">
-                      {formatDate(order.created_at)}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4 mt-2 md:mt-0">
-                  <div className="text-right">
-                    <div className="text-sm text-gray-500">{t('total')}:</div>
-                    <div className="font-bold text-gray-800">
-                      {formatPrice(order.total_amount)}
+                <button
+                  type="button"
+                  onClick={() => toggleOrderExpansion(order.id)}
+                  aria-expanded={isOpen}
+                  aria-controls={`order-details-${order.id}`}
+                  className="w-full flex flex-col md:flex-row md:items-center justify-between p-4 bg-[#FAF8F5] hover:bg-[#F0EBE3] transition-colors text-left"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 text-sm text-[#6B6459] mb-1">
+                      <span>{t('orderNumber')}:</span>
+                      <span className="font-medium text-[#2D2D2D] tabular-nums">#{order.id}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-[#6B6459]">
+                      <span>{t('orderDate')}:</span>
+                      <span className="font-medium text-[#2D2D2D]">
+                        {formatDate(order.created_at)}
+                      </span>
                     </div>
                   </div>
-                  
-                  <div className="text-teal-600">
-                    {expandedOrderId === order.id ? (
-                      <ChevronUp className="h-5 w-5" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5" />
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              {/* Detalles del pedido (expandible) */}
-              {expandedOrderId === order.id && (
-                <div className="p-4 border-t border-gray-200">
-                  {/* Estado del pedido */}
-                  <div className="flex items-center gap-2 mb-4 p-2 bg-gray-50 rounded">
-                    <span className="text-sm font-medium">{t('status')}:</span>
-                    <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">
-                      {order.shipping_status || t('processing')}
+
+                  <div className="flex items-center gap-4 mt-3 md:mt-0">
+                    <div className="text-right">
+                      <div className="text-xs uppercase tracking-[0.06em] text-[#6B6459]">
+                        {t('total')}
+                      </div>
+                      <div className="font-display text-lg font-semibold text-[#2D2D2D] tabular-nums">
+                        {formatPrice(order.total_amount)}
+                      </div>
+                    </div>
+
+                    <span className="text-[#A08848]" aria-hidden>
+                      {isOpen ? (
+                        <ChevronUp className="h-5 w-5" strokeWidth={2} />
+                      ) : (
+                        <ChevronDown className="h-5 w-5" strokeWidth={2} />
+                      )}
                     </span>
                   </div>
-                  
-                  {/* Productos del pedido */}
-                  <div className="border rounded-md overflow-hidden mb-4">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {t('product')}
-                          </th>
-                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {t('quantity')}
-                          </th>
-                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {t('price')}
-                          </th>
-                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {t('subtotal')}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {order.order_items.map((item) => (
-                          <tr key={item.id}>
-                            <td className="px-4 py-3 whitespace-nowrap">
-                              <span className="font-medium">{item.product.name || 'Producto'}</span>
-                            </td>
-                            <td className="px-4 py-3 text-right whitespace-nowrap">
-                              {item.quantity}
-                            </td>
-                            <td className="px-4 py-3 text-right whitespace-nowrap">
-                              {formatPrice(item.price)}
-                            </td>
-                            <td className="px-4 py-3 text-right whitespace-nowrap font-medium">
-                              {formatPrice(item.price * item.quantity)}
-                            </td>
+                </button>
+
+                {isOpen && (
+                  <div
+                    id={`order-details-${order.id}`}
+                    className="p-4 border-t border-[#E8E4E0]"
+                  >
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-xs uppercase tracking-[0.06em] text-[#6B6459]">
+                        {t('status')}
+                      </span>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.05em] rounded-sm border ${statusStyle(statusKey)}`}
+                      >
+                        {statusKey || t('processing')}
+                      </span>
+                    </div>
+
+                    <div className="border border-[#E8E4E0] rounded-sm overflow-hidden mb-4">
+                      <table className="min-w-full">
+                        <thead className="bg-[#FAF8F5]">
+                          <tr>
+                            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
+                              {t('product')}
+                            </th>
+                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
+                              {t('quantity')}
+                            </th>
+                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
+                              {t('price')}
+                            </th>
+                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
+                              {t('subtotal')}
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  
-                  {/* Dirección de envío */}
-                  {order.shipping_address && isShippingAddress(order.shipping_address) && (
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-700 mb-2">
-                        {t('shippingAddress')}
-                      </h3>
-                      <div className="bg-gray-50 p-3 rounded-md text-sm">
-                        <p className="font-medium">{order.shipping_address.name}</p>
-                        <p>{order.shipping_address.address}</p>
-                        <p>
-                          {order.shipping_address.city}, {order.shipping_address.state}, {order.shipping_address.country}
-                          {order.shipping_address.postal_code && ` - ${order.shipping_address.postal_code}`}
-                        </p>
-                        <p>{order.shipping_address.phone}</p>
-                      </div>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-[#E8E4E0]/70">
+                          {order.order_items.map((item) => (
+                            <tr key={item.id} className="text-sm">
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <span className="font-medium text-[#2D2D2D]">
+                                  {item.product.name || t('product')}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-right tabular-nums text-[#4A4A4A]">
+                                {item.quantity}
+                              </td>
+                              <td className="px-4 py-3 text-right tabular-nums text-[#4A4A4A]">
+                                {formatPrice(item.price)}
+                              </td>
+                              <td className="px-4 py-3 text-right tabular-nums font-semibold text-[#2D2D2D]">
+                                {formatPrice(item.price * item.quantity)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  )}
-                  
-                  {/* Método de pago */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-700 mb-2">
-                        {t('paymentMethod')}
-                      </h3>
-                      <div className="bg-gray-50 p-3 rounded-md text-sm">
-                        <p className="capitalize">
-                          {order.payment_method === 'paypal' ? 'PayPal' : 'SINPE Móvil'}
-                        </p>
-                        {order.payment_reference && (
-                          <p className="text-gray-500">
-                            {t('reference')}: {order.payment_reference}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Número de seguimiento, si existe */}
-                    {order.tracking_number && (
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-700 mb-2">
-                          {t('trackingInfo')}
+
+                    {order.shipping_address && isShippingAddress(order.shipping_address) && (
+                      <div className="mb-4">
+                        <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#6B6459] mb-2">
+                          {t('shippingAddress')}
                         </h3>
-                        <div className="bg-gray-50 p-3 rounded-md text-sm">
-                          <p>{order.tracking_number}</p>
+                        <div className="bg-[#FAF8F5] p-3 rounded-sm text-sm text-[#4A4A4A] border border-[#E8E4E0]/70">
+                          <p className="font-medium text-[#2D2D2D]">{order.shipping_address.name}</p>
+                          <p>{order.shipping_address.address}</p>
+                          <p>
+                            {order.shipping_address.city}, {order.shipping_address.state}, {order.shipping_address.country}
+                            {order.shipping_address.postal_code && ` · ${order.shipping_address.postal_code}`}
+                          </p>
+                          <p>{order.shipping_address.phone}</p>
                         </div>
                       </div>
                     )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#6B6459] mb-2">
+                          {t('paymentMethod')}
+                        </h3>
+                        <div className="bg-[#FAF8F5] p-3 rounded-sm text-sm text-[#4A4A4A] border border-[#E8E4E0]/70">
+                          <p className="capitalize font-medium text-[#2D2D2D]">
+                            {order.payment_method === 'paypal' ? 'PayPal' : 'SINPE Móvil'}
+                          </p>
+                          {order.payment_reference && (
+                            <p className="text-[#6B6459] text-xs mt-0.5">
+                              {t('reference')}: <span className="tabular-nums">{order.payment_reference}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {order.tracking_number && (
+                        <div>
+                          <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#6B6459] mb-2">
+                            {t('trackingInfo')}
+                          </h3>
+                          <div className="bg-[#FAF8F5] p-3 rounded-sm text-sm text-[#4A4A4A] border border-[#E8E4E0]/70">
+                            <p className="tabular-nums">{order.tracking_number}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       )}
     </div>
   );

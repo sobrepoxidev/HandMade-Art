@@ -2,7 +2,7 @@
 
 import { useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { X, Plus, Minus, Trash2, Send, Loader2, Tag } from 'lucide-react';
+import { X, Plus, Minus, Trash2, Send, Loader2, Tag, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useInterestList } from '@/lib/hooks/useInterestList';
@@ -23,6 +23,12 @@ interface FormData {
   notes: string;
 }
 
+const inputClass =
+  'w-full px-3 py-2.5 border rounded-sm bg-white text-[#2D2D2D] placeholder:text-[#9C9589] ' +
+  'focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 transition-colors';
+
+const labelClass = 'block text-xs uppercase tracking-[0.06em] font-medium text-[#6B6459] mb-1.5';
+
 export function InterestDrawer({ open, onClose, interestList, appliedDiscountCode }: InterestDrawerProps) {
   const discountCode = useDiscountCode();
   const router = useRouter();
@@ -38,7 +44,6 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Limpiar error del campo cuando el usuario empiece a escribir
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
@@ -46,15 +51,12 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
 
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {};
-
     if (!formData.requester_name.trim()) {
       newErrors.requester_name = 'El nombre es obligatorio';
     }
-
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Email inválido';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -79,20 +81,19 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
           description: appliedDiscountCode.description
         } : undefined,
         items: interestList.items.map(item => {
-          // Usar el precio original (dolar_price) para calcular descuento, no el precio ya descontado
           const originalPrice = item.dolar_price || item.price || 0;
-          const discountResult = appliedDiscountCode ? 
+          const discountResult = appliedDiscountCode ?
             discountCode.calculateDiscount(
               originalPrice,
               appliedDiscountCode,
               item.category_id,
-              true // Omitir validación de monto mínimo
+              true
             ) : null;
-          
+
           const hasDiscount = discountResult?.isValid;
           const finalPrice = hasDiscount ? discountResult.finalPrice : originalPrice;
           const discountAmount = hasDiscount ? discountResult.discountAmount : 0;
-          
+
           return {
             product_id: item.product_id,
             quantity: item.qty,
@@ -100,7 +101,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
               name: item.name,
               sku: item.sku,
               image_url: item.main_image_url,
-              dolar_price: originalPrice, // Guardar el precio original
+              dolar_price: originalPrice,
               discounted_price: hasDiscount ? finalPrice : undefined,
               discount_amount: hasDiscount ? discountAmount : undefined,
               has_discount: hasDiscount
@@ -111,16 +112,13 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
 
       const response = await fetch('/api/create-interest-request', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
       const result = await response.json();
 
       if (result.ok) {
-        // Limpiar lista y formulario
         interestList.clearList();
         setFormData({
           requester_name: '',
@@ -129,7 +127,6 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
           phone: '',
           notes: ''
         });
-        // Incrementar el uso del código si se aplicó correctamente
         try {
           if (appliedDiscountCode?.id) {
             await discountCode.incrementUsage(appliedDiscountCode.id);
@@ -137,8 +134,6 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
         } catch (e) {
           console.error('No se pudo incrementar el uso del código:', e);
         }
-        
-        // Cerrar drawer y redirigir
         onClose();
         router.push(`/catalog/gracias?solicitud=${result.request_id}`);
       } else {
@@ -166,10 +161,10 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div className="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] transition-opacity" />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-hidden text-black">
+        <div className="fixed inset-0 overflow-hidden text-[#2D2D2D]">
           <div className="absolute inset-0 overflow-hidden">
             <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full">
               <Transition.Child
@@ -184,96 +179,99 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
                   <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
                     {/* Header */}
-                    <div className="flex items-center justify-between px-4 py-6 bg-gray-50 border-b">
-                      <Dialog.Title className="text-lg font-semibold text-gray-900">
+                    <div className="flex items-center justify-between px-5 py-5 bg-[#FAF8F5] border-b border-[#E8E4E0]">
+                      <Dialog.Title className="font-display text-lg font-medium text-[#2D2D2D] tracking-[-0.005em]">
                         Tu selección ({totalItems} {totalItems === 1 ? 'producto' : 'productos'})
                       </Dialog.Title>
                       <button
                         type="button"
-                        className="rounded-md text-gray-400 hover:text-gray-500"
+                        className="grid place-items-center w-11 h-11 rounded-sm text-[#6B6459] hover:text-[#2D2D2D] hover:bg-[#E8E4E0]/60 transition-colors"
                         onClick={onClose}
+                        aria-label="Cerrar"
                       >
-                        <X className="h-6 w-6 transition-transform text-black font-semibold duration-200 transform hover:scale-110" />
+                        <X className="h-5 w-5" strokeWidth={2} />
                       </button>
                     </div>
 
-                    <div className="flex-1 px-4 py-6">
+                    <div className="flex-1 px-5 py-6">
                       {/* Lista de productos */}
                       {interestList.items.length === 0 ? (
-                        <div className="text-center py-8">
-                          <p className="text-gray-500">No hay productos en tu lista</p>
+                        <div className="text-center py-12">
+                          <p className="text-[#6B6459]">No hay productos en tu lista</p>
                         </div>
                       ) : (
-                        <div className="space-y-4 mb-8">
+                        <div className="space-y-3 mb-8">
                           {interestList.items.map((item) => (
-                            <div key={item.product_id} className="flex items-center gap-3 p-3 border rounded-lg">
+                            <div
+                              key={item.product_id}
+                              className="flex items-center gap-3 p-3 border border-[#E8E4E0] rounded-sm"
+                            >
                               {/* Imagen */}
-                              <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                              <div className="w-16 h-16 bg-[#FAF8F5] rounded-sm overflow-hidden flex-shrink-0 border border-[#E8E4E0]/70">
                                 {item.main_image_url ? (
                                   <Image
                                     src={item.main_image_url}
                                     alt={item.name}
                                     width={64}
                                     height={64}
-                                    className="w-full h-full object-cover"
+                                    sizes="64px"
+                                    className="w-full h-full object-contain p-1"
+                                    loading="lazy"
                                   />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                    📦
+                                  <div className="w-full h-full grid place-items-center text-[#9C9589] text-xs">
+                                    —
                                   </div>
                                 )}
                               </div>
 
                               {/* Info */}
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-gray-900 truncate">{item.name}</h4>
+                                <h4 className="font-medium text-[#2D2D2D] truncate">{item.name}</h4>
                                 {item.sku && (
-                                  <p className="text-sm text-gray-500">SKU: {item.sku}</p>
+                                  <p className="text-xs text-[#6B6459] tabular-nums">SKU: {item.sku}</p>
                                 )}
                                 {item.price && (() => {
-                                  // Usar el precio original (dolar_price) para calcular descuento, no el precio ya descontado
                                   const originalPrice = item.dolar_price || item.price;
-                                  const discountResult = appliedDiscountCode ? 
+                                  const discountResult = appliedDiscountCode ?
                                     discountCode.calculateDiscount(
                                       originalPrice,
                                       appliedDiscountCode,
                                       item.category_id,
-                                      true // Omitir validación de monto mínimo
+                                      true
                                     ) : null;
-                                  
+
                                   const hasDiscount = discountResult?.isValid;
                                   const finalPrice = hasDiscount ? discountResult.finalPrice : item.price;
                                   const discountAmount = hasDiscount ? discountResult.discountAmount : 0;
-                                  
+
                                   return (
-                                    <div className="space-y-1">
+                                    <div className="space-y-1 mt-0.5">
                                       {hasDiscount ? (
                                         <div className="space-y-1">
-                                          {/* Precio con descuento */}
-                                          <div className="flex items-center gap-1">
-                                            <span className="text-green-600 font-bold text-sm">
+                                          <div className="flex items-center gap-1.5 flex-wrap">
+                                            <span className="text-[#A08848] font-semibold text-sm tabular-nums">
                                               ${finalPrice.toFixed(2)} c/u
                                             </span>
-                                            <div className="flex items-center gap-0.5 bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full text-[0.6rem] font-medium">
-                                              <Tag className="h-3 w-3" />
+                                            <span className="inline-flex items-center gap-1 bg-[#C44536]/10 text-[#9F2D24] px-1.5 py-0.5 rounded-sm text-[10px] font-semibold uppercase tracking-[0.04em]">
+                                              <Tag className="h-3 w-3" strokeWidth={2} aria-hidden />
                                               {appliedDiscountCode?.discount_type === 'percentage'
                                                 ? `${appliedDiscountCode.discount_value}% OFF`
                                                 : `$${appliedDiscountCode?.discount_value.toFixed(2)} OFF`
                                               }
-                                            </div>
+                                            </span>
                                           </div>
-                                          {/* Precio original tachado */}
                                           <div className="flex items-center gap-2">
-                                            <span className="text-gray-500 line-through text-xs">
+                                            <span className="text-[#6B6459] line-through text-xs tabular-nums">
                                               ${originalPrice.toFixed(2)}
                                             </span>
-                                            <span className="text-green-600 text-xs font-medium">
+                                            <span className="text-[#2F5F3E] text-xs font-medium tabular-nums">
                                               Ahorras ${discountAmount.toFixed(2)}
                                             </span>
                                           </div>
                                         </div>
                                       ) : (
-                                        <p className="text-sm font-medium text-teal-600">
+                                        <p className="text-sm font-medium text-[#A08848] tabular-nums">
                                           ${item.price.toFixed(2)} c/u
                                         </p>
                                       )}
@@ -283,25 +281,30 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                               </div>
 
                               {/* Controles */}
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1">
                                 <button
                                   onClick={() => interestList.updateQuantity(item.product_id, item.qty - 1)}
-                                  className="p-1 rounded-full hover:bg-gray-100"
+                                  className="grid place-items-center w-9 h-9 rounded-sm text-[#4A4A4A] hover:bg-[#FAF8F5] hover:text-[#2D2D2D] transition-colors"
+                                  aria-label="Disminuir cantidad"
                                 >
-                                  <Minus className="h-4 w-4 text-gray-600" />
+                                  <Minus className="h-4 w-4" strokeWidth={2} aria-hidden />
                                 </button>
-                                <span className="w-8 text-center font-medium">{item.qty}</span>
+                                <span className="min-w-[28px] text-center font-medium text-[#2D2D2D] tabular-nums">
+                                  {item.qty}
+                                </span>
                                 <button
                                   onClick={() => interestList.updateQuantity(item.product_id, item.qty + 1)}
-                                  className="p-1 rounded-full hover:bg-gray-100"
+                                  className="grid place-items-center w-9 h-9 rounded-sm text-[#4A4A4A] hover:bg-[#FAF8F5] hover:text-[#2D2D2D] transition-colors"
+                                  aria-label="Aumentar cantidad"
                                 >
-                                  <Plus className="h-4 w-4 text-gray-600" />
+                                  <Plus className="h-4 w-4" strokeWidth={2} aria-hidden />
                                 </button>
                                 <button
                                   onClick={() => interestList.removeItem(item.product_id)}
-                                  className="p-1 text-red-600 hover:bg-red-50 rounded-full ml-2"
+                                  className="grid place-items-center w-9 h-9 rounded-sm text-[#9F2D24] hover:bg-[#C44536]/10 transition-colors ml-1"
+                                  aria-label={`Quitar ${item.name}`}
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Trash2 className="h-4 w-4" strokeWidth={2} aria-hidden />
                                 </button>
                               </div>
                             </div>
@@ -312,98 +315,120 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                       {/* Formulario */}
                       {interestList.items.length > 0 && (
                         <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                          <h3 className="font-display text-lg font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
                             Solicitar cotización
                           </h3>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Nombre completo *
+                            <label htmlFor="interest-name" className={labelClass}>
+                              Nombre completo <span aria-hidden className="text-[#C44536]">*</span>
+                              <span className="sr-only"> (requerido)</span>
                             </label>
                             <input
+                              id="interest-name"
                               type="text"
                               value={formData.requester_name}
                               onChange={(e) => handleInputChange('requester_name', e.target.value)}
-                              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
-                                errors.requester_name ? 'border-red-300' : 'border-gray-300'
-                              }`}
+                              aria-invalid={!!errors.requester_name}
+                              aria-describedby={errors.requester_name ? 'interest-name-error' : undefined}
+                              className={`${inputClass} ${errors.requester_name ? 'border-[#C44536]/50' : 'border-[#E8E4E0]'}`}
                               placeholder="Tu nombre completo"
                             />
                             {errors.requester_name && (
-                              <p className="text-sm text-red-600 mt-1">{errors.requester_name}</p>
+                              <p
+                                id="interest-name-error"
+                                role="alert"
+                                className="flex items-center gap-1 text-sm text-[#9F2D24] mt-1"
+                              >
+                                <AlertCircle className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                                {errors.requester_name}
+                              </p>
                             )}
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="interest-org" className={labelClass}>
                               Organización
                             </label>
                             <input
+                              id="interest-org"
                               type="text"
                               value={formData.organization}
                               onChange={(e) => handleInputChange('organization', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                              className={`${inputClass} border-[#E8E4E0]`}
                               placeholder="Empresa u organización"
                             />
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="interest-email" className={labelClass}>
                               Email
                             </label>
                             <input
+                              id="interest-email"
                               type="email"
                               value={formData.email}
                               onChange={(e) => handleInputChange('email', e.target.value)}
-                              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
-                                errors.email ? 'border-red-300' : 'border-gray-300'
-                              }`}
+                              aria-invalid={!!errors.email}
+                              aria-describedby={errors.email ? 'interest-email-error' : undefined}
+                              className={`${inputClass} ${errors.email ? 'border-[#C44536]/50' : 'border-[#E8E4E0]'}`}
                               placeholder="tu@email.com"
                             />
                             {errors.email && (
-                              <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                              <p
+                                id="interest-email-error"
+                                role="alert"
+                                className="flex items-center gap-1 text-sm text-[#9F2D24] mt-1"
+                              >
+                                <AlertCircle className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                                {errors.email}
+                              </p>
                             )}
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="interest-phone" className={labelClass}>
                               Teléfono
                             </label>
                             <input
+                              id="interest-phone"
                               type="tel"
                               value={formData.phone}
                               onChange={(e) => handleInputChange('phone', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                              className={`${inputClass} border-[#E8E4E0]`}
                               placeholder="Sin espacios ni guiones"
                             />
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="interest-notes" className={labelClass}>
                               Notas adicionales
                             </label>
                             <textarea
+                              id="interest-notes"
                               value={formData.notes}
                               onChange={(e) => handleInputChange('notes', e.target.value)}
                               rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                              placeholder="Información adicional sobre tu solicitud..."
+                              className={`${inputClass} border-[#E8E4E0] resize-y min-h-[80px]`}
+                              placeholder="Información adicional sobre tu solicitud…"
                             />
                           </div>
 
                           <button
+                            type="button"
                             onClick={handleSubmit}
                             disabled={isSubmitting || interestList.items.length === 0}
-                            className="w-full bg-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                            aria-busy={isSubmitting}
+                            className="inline-flex items-center justify-center w-full min-h-[48px] px-5 py-3 bg-[#2D2D2D] text-[#F5F1EB] font-semibold text-sm tracking-wide rounded-sm hover:bg-[#1A1A1A] disabled:bg-[#E8E4E0] disabled:text-[#9C9589] disabled:cursor-not-allowed transition-colors gap-2"
                           >
                             {isSubmitting ? (
                               <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Enviando...
+                                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} aria-hidden />
+                                Enviando…
                               </>
                             ) : (
                               <>
-                                <Send className="h-4 w-4" />
+                                <Send className="h-4 w-4" strokeWidth={2} aria-hidden />
                                 Enviar solicitud de cotización
                               </>
                             )}
@@ -416,8 +441,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
               </Transition.Child>
             </div>
           </div>
-        </div>
-      </Dialog>
-    </Transition.Root>
-  );
-}
+        </Dialog>
+      </Transition.Root>
+    );
+  }
