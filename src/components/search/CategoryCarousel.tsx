@@ -1,6 +1,6 @@
 // CategoryCarousel.tsx
-// Horizontal scrollable list of product categories
-// Mobile-first, works on desktop too.
+// Editorial category navigation — replaces the old dark-pill chips.
+// Functional (still clearly clickable) but reads like a boutique masthead.
 
 import { use } from "react";
 import Link from "next/link";
@@ -19,7 +19,11 @@ interface Props {
   className?: string;
 }
 
-export default function CategoryCarousel({ locale, categories, className = "" }: Props) {
+export default function CategoryCarousel({
+  locale,
+  categories,
+  className = "",
+}: Props) {
   const cats: Category[] = categories ?? use(getProductCategories(locale));
 
   const displayName = (cat: Category) => {
@@ -31,18 +35,35 @@ export default function CategoryCarousel({ locale, categories, className = "" }:
 
   return (
     <nav
-      aria-label={locale === 'es' ? 'Categorías' : 'Categories'}
-      className={`overflow-x-auto whitespace-nowrap scrollbar-hide max-w-[1500px] my-0 mx-auto w-full ${className}`}
+      aria-label={locale === "es" ? "Categorías" : "Categories"}
+      className={`bg-[#FAF6EF] border-y border-[#E8E4E0] ${className}`}
     >
-      <ul className="flex gap-2 sm:items-center sm:justify-center px-2 sm:px-0">
-        {cats.map((cat, index) => {
+      <ul
+        className="
+          mx-auto max-w-[1500px] w-full
+          flex items-center
+          overflow-x-auto whitespace-nowrap scrollbar-hide snap-x
+          px-3 sm:px-6 lg:px-10
+          divide-x divide-[#E8E4E0]
+          font-display
+        "
+      >
+        {cats.map((cat) => {
           const name = displayName(cat);
           const href = `/search?category=${cat.id}`;
           return (
-            <li key={cat.id} className="flex-shrink-0">
+            <li key={cat.id} className="snap-start flex-shrink-0">
               <Link
                 href={href}
-                className={`inline-flex items-center min-h-[36px] text-sm font-medium text-[#F5F1EB] bg-[#2D2D2D] hover:bg-[#3A3A3A] hover:text-[#C9A962] px-3 py-1 rounded-sm transition-colors border border-[#C9A962]/25 hover:border-[#C9A962]/50 ${index === 0 ? "max-sm:ml-0" : ""} ${index === cats.length - 1 ? "max-sm:mr-0" : ""}`}
+                className="
+                  inline-flex items-center
+                  min-h-[56px] px-4 sm:px-5
+                  text-[14px] tracking-[0.005em]
+                  text-[#2D2D2D] hover:text-[#A08848]
+                  transition-colors duration-200
+                  border-b-2 border-transparent
+                  hover:border-[#C9A962]/40
+                "
               >
                 {name}
               </Link>

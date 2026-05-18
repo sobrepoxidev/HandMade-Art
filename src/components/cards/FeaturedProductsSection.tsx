@@ -34,7 +34,7 @@ const FeaturedProductsSection: React.FC = () => {
   }, [sections.featured]);
 
   return (
-    <section className="my-2 bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
+    <section className="my-2 bg-[#FAF6EF]">
       <div className="w-full px-4 mx-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-display text-2xl font-medium text-[#2D2D2D] tracking-[-0.005em] flex items-center gap-3">

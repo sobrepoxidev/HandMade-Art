@@ -37,7 +37,7 @@ export default function OptimizedNewHome({
       initialSections={initialSections}
       priorityCategoryIds={priorityCategoryIds}
     >
-      <div className="max-w-[1500px] mx-auto relative z-0 bg-gradient-to-b from-[#F5F1EB] via-[#FAF8F5] to-white">
+      <div className="max-w-[1500px] mx-auto relative z-0 bg-[#FAF6EF]">
         <h2 className="sr-only">
           {locale === 'es' ? 'Avisos y propuesta de valor' : 'Notices and value props'}
         </h2>

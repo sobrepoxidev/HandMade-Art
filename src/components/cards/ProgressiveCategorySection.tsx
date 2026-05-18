@@ -112,7 +112,7 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
   }
 
   return (
-    <section className="my-4 bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
+    <section className="my-4 bg-[#FAF6EF]">
       <div className="w-full px-4 mx-auto">
         {/* Bloques por categoría con UI compacta */}
         {orderedCategories.map((categoryId) => {

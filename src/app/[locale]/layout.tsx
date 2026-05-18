@@ -34,7 +34,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FAF8F5" },
+    { media: "(prefers-color-scheme: light)", color: "#FAF6EF" },
     { media: "(prefers-color-scheme: dark)", color: "#2D2D2D" },
   ],
 };
@@ -107,7 +107,7 @@ export default async function LocaleLayout({
   const currentUrl = `https://${currentDomain}`;
 
   return (
-    <html lang={locale} className={`bg-[#FAF8F5] ${fontDisplay.variable} ${fontSans.variable}`}>
+    <html lang={locale} className={`bg-[#FAF6EF] ${fontDisplay.variable} ${fontSans.variable}`}>
       <head>
         {/* Preconnect to critical third-party origins */}
         <link rel="preconnect" href="https://mzeixepwwyowiqgwkopw.supabase.co" />
@@ -123,7 +123,7 @@ export default async function LocaleLayout({
           type="image/svg+xml"
         />
       </head>
-      <body className="antialiased bg-[#FAF8F5]">
+      <body className="antialiased bg-[#FAF6EF]">
         <NextIntlClientProvider locale={locale}>
           <SessionLayout>
             <Navbar locale={locale} />

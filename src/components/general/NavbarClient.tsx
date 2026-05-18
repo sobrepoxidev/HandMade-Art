@@ -194,9 +194,9 @@ export default function NavbarClient({ locale }: { locale: string }) {
           </div>
         )}
 
-        {/* Category carousel */}
+        {/* Category nav — editorial, no fixed height (lets the 56px min-h breathe) */}
         {shouldShowSearchComponents && (
-          <div className="w-full flex justify-center h-9"><CategoryCarousel locale={locale} categories={categoryList} className="py-1 mb-0.5 max-w-6xl" /></div>
+          <CategoryCarousel locale={locale} categories={categoryList} />
         )}
 
         {/* Hidden navigation links */}

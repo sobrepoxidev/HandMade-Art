@@ -80,7 +80,7 @@ export default function HeroSection({ locale }: Props) {
           <div className="mt-7 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <Link
               href="/products"
-              className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-semibold tracking-wide text-[#1A1A1A] bg-[#C9A962] rounded-sm hover:bg-[#D4C4A8] transition-colors duration-200"
+              className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-semibold tracking-wide text-[#1A1A1A] bg-[#C9A962] rounded-sm hover:bg-[#A08848] hover:text-[#F5F1EB] transition-colors duration-200 shadow-[0_2px_8px_-4px_rgba(160,136,72,0.45)]"
             >
               {t.ctaPrimary}
             </Link>
@@ -96,9 +96,9 @@ export default function HeroSection({ locale }: Props) {
 
       <ul className="relative border-t border-[#F5F1EB]/15 bg-[#1A1A1A]/40 backdrop-blur-[2px]">
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-8 lg:px-12 py-4 grid grid-cols-3 gap-2 sm:gap-6">
-          <TrustPill icon={<Hammer className="h-4 w-4" strokeWidth={1.75} />} label={t.trust.hand} />
-          <TrustPill icon={<Leaf className="h-4 w-4" strokeWidth={1.75} />} label={t.trust.eco} />
-          <TrustPill icon={<Heart className="h-4 w-4" strokeWidth={1.75} />} label={t.trust.impact} />
+          <TrustPill icon={<Hammer className="h-4 w-4" strokeWidth={1.5} />} label={t.trust.hand} />
+          <TrustPill icon={<Leaf className="h-4 w-4" strokeWidth={1.5} />} label={t.trust.eco} />
+          <TrustPill icon={<Heart className="h-4 w-4" strokeWidth={1.5} />} label={t.trust.impact} />
         </div>
       </ul>
     </section>

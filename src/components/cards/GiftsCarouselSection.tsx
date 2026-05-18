@@ -132,7 +132,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
   }, [displayProducts]);
 
   return (
-    <section className="px-4 relative overflow-hidden bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
+    <section className="px-4 relative overflow-hidden bg-[#FAF6EF]">
 
       {/* Encabezado con título y enlace Ver más */}
       <div className="flex justify-between items-center mb-1 z-10 relative">

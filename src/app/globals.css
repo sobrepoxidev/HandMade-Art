@@ -1,33 +1,58 @@
 @import "tailwindcss";
 
 :root {
-  /* HandMade Art - Elegant Dark Theme */
-  --background: #FAFAFA;
-  --foreground: #1A1A1A;
+  /* HandMade Art — Rustic-Premium Design System
+   * Source of truth: ./DESIGN.md
+   *
+   * Tokens grouped by role:
+   *   Surface = backgrounds (paper / cream / walnut / charcoal)
+   *   Ink     = text on surface
+   *   Accent  = gold (used sparingly)
+   *   Status  = success / error / warning (+ -dark variants for AA on cream)
+   *   Decor   = terracotta / jade (rare third accents)
+   */
+  --background: #FAF6EF;
+  --foreground: #2D2D2D;
 
-  /* Primary Dark Palette */
-  --hm-charcoal: #2D2D2D;
+  /* Surface — backgrounds */
+  --hm-paper: #FAF6EF;        /* default page surface (warmer than ivory) */
+  --hm-ivory: #FAF8F5;        /* secondary cream */
+  --hm-cream: #F5F1EB;        /* tertiary, for cards on paper */
+  --hm-stone: #E8E4E0;        /* borders, dividers, skeletons */
+  --hm-walnut-light: #8B6B4A; /* earthy mid — decorative */
+  --hm-walnut: #5C4530;       /* deep warm brown — section bg, story */
+  --hm-charcoal: #2D2D2D;     /* primary dark surface */
   --hm-dark: #3A3A3A;
-  --hm-darker: #1A1A1A;
+  --hm-darker: #1A1A1A;       /* hover/active for charcoal */
   --hm-darkest: #0D0D0D;
 
-  /* Accent Colors */
-  --hm-gold: #C9A962;
-  --hm-gold-light: #D4C4A8;
-  --hm-gold-dark: #A08848;
+  /* Ink — text colors */
+  --hm-ink: #2D2D2D;          /* default body on light surfaces */
+  --hm-ink-soft: #4A4A4A;     /* secondary body */
+  --hm-ink-mute: #6B6459;     /* tertiary (PASSES AA on cream — use this, not #9C9589) */
+  --hm-paper-ink: #F5F1EB;    /* body on charcoal/walnut */
+
+  /* Accent — gold */
+  --hm-gold: #C9A962;         /* primary accent */
+  --hm-gold-dark: #A08848;    /* hover + small-text accent (passes AA on cream) */
+  --hm-gold-light: #D4C4A8;   /* subtle ornament, hover on dark */
+
+  /* Status — base + AA-safe -dark variant */
+  --hm-success: #4A7C59;
+  --hm-success-dark: #2F5F3E;
+  --hm-error: #C44536;
+  --hm-error-dark: #9F2D24;
+  --hm-warning: #D4A84B;
+  --hm-warning-dark: #7A5E18;
+
+  /* Decorative third accents — rare, editorial moments only */
+  --hm-terracotta: #A85E3F;   /* not for CTAs */
+  --hm-jade: #5C7459;         /* impact / nature narrative */
+
+  /* Legacy aliases retained for incremental migration. Do not use in new code. */
+  --hm-warm-gray: #9C9589;
   --hm-accent: #B55327;
   --hm-accent-light: #D4714E;
-
-  /* Neutral Tones */
-  --hm-cream: #F5F1EB;
-  --hm-ivory: #FAF8F5;
-  --hm-stone: #E8E4E0;
-  --hm-warm-gray: #9C9589;
-
-  /* Semantic Colors */
-  --hm-success: #4A7C59;
-  --hm-error: #C44536;
-  --hm-warning: #D4A84B;
 }
 
 @theme inline {
@@ -36,20 +61,45 @@
   --font-sans: var(--font-sans-family), 'Helvetica Neue', Arial, sans-serif;
   --font-display: var(--font-display-family), 'Times New Roman', Georgia, serif;
 
-  /* Custom Colors for Tailwind */
+  /* Surface */
+  --color-hm-paper: var(--hm-paper);
+  --color-hm-ivory: var(--hm-ivory);
+  --color-hm-cream: var(--hm-cream);
+  --color-hm-stone: var(--hm-stone);
+  --color-hm-walnut-light: var(--hm-walnut-light);
+  --color-hm-walnut: var(--hm-walnut);
   --color-hm-charcoal: var(--hm-charcoal);
   --color-hm-dark: var(--hm-dark);
   --color-hm-darker: var(--hm-darker);
   --color-hm-darkest: var(--hm-darkest);
+
+  /* Ink */
+  --color-hm-ink: var(--hm-ink);
+  --color-hm-ink-soft: var(--hm-ink-soft);
+  --color-hm-ink-mute: var(--hm-ink-mute);
+  --color-hm-paper-ink: var(--hm-paper-ink);
+
+  /* Accent */
   --color-hm-gold: var(--hm-gold);
-  --color-hm-gold-light: var(--hm-gold-light);
   --color-hm-gold-dark: var(--hm-gold-dark);
+  --color-hm-gold-light: var(--hm-gold-light);
+
+  /* Status */
+  --color-hm-success: var(--hm-success);
+  --color-hm-success-dark: var(--hm-success-dark);
+  --color-hm-error: var(--hm-error);
+  --color-hm-error-dark: var(--hm-error-dark);
+  --color-hm-warning: var(--hm-warning);
+  --color-hm-warning-dark: var(--hm-warning-dark);
+
+  /* Decorative */
+  --color-hm-terracotta: var(--hm-terracotta);
+  --color-hm-jade: var(--hm-jade);
+
+  /* Legacy (do not use in new code) */
+  --color-hm-warm-gray: var(--hm-warm-gray);
   --color-hm-accent: var(--hm-accent);
   --color-hm-accent-light: var(--hm-accent-light);
-  --color-hm-cream: var(--hm-cream);
-  --color-hm-ivory: var(--hm-ivory);
-  --color-hm-stone: var(--hm-stone);
-  --color-hm-warm-gray: var(--hm-warm-gray);
 }
 
 @media (prefers-color-scheme: dark) {
