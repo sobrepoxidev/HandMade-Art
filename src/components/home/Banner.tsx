@@ -150,7 +150,7 @@ const Carousel: React.FC<CarouselProps> = ({ children }) => {
 
   return (
     <div
-      className="relative min-h-[200px] sm:min-h-[220px] lg:min-h-[240px] xl:min-h-[260px] overflow-hidden"
+      className="relative min-h-[280px] sm:min-h-[320px] lg:min-h-[360px] xl:min-h-[400px] overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
