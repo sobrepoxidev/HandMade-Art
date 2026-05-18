@@ -2,20 +2,29 @@
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
-import { getPathname } from "@/i18n/navigation";
-import type { routing } from "@/i18n/routing";
 
 export const runtime = "edge";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Internal route names — these are the keys in routing.pathnames.
-// getPathname() resolves each to the localized URL per locale.
-type InternalPathname = keyof typeof routing.pathnames;
+/**
+ * Filesystem alias routes that resolve to different public paths per
+ * locale. Each entry maps an internal "concept" to its public URL per
+ * locale. The matching files live as separate route folders under
+ * app/[locale]/ (one canonical, one alias that redirects when visited
+ * with the wrong locale).
+ */
+const LOCALIZED_ROUTES: Record<string, { es: string; en: string }> = {
+  reintegration: {
+    es: "/reinsercion-sociolaboral",
+    en: "/social-reintegration",
+  },
+};
 
-const STATIC_ROUTES: InternalPathname[] = [
-  "/",
+/** Static routes that are identical across both locales. */
+const STATIC_ROUTES: string[] = [
+  "",
   "/about",
   "/products",
   "/shipping",
@@ -28,7 +37,6 @@ const STATIC_ROUTES: InternalPathname[] = [
   "/feria-artesanias-terminos",
   "/fiestas-patronales-de-san-ramon",
   "/search",
-  "/reinsercion-sociolaboral",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -47,35 +55,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const now = new Date();
 
-  // Resolve an internal pathname to the localized public URL.
-  // For "/" we want "/${locale}" without trailing slash; for others
-  // we want "/${locale}${localizedPath}".
-  const buildUrl = (
-    domain: string,
-    targetLocale: "es" | "en",
-    internal: InternalPathname
-  ): string => {
-    const localized = getPathname({ href: internal, locale: targetLocale });
-    return `https://${domain}${localized}`;
-  };
-
-  const make = (
-    internal: InternalPathname,
-    isProduct = false
-  ): MetadataRoute.Sitemap[number] => ({
-    url: buildUrl(host, locale, internal),
+  const make = (path: string, isProduct = false): MetadataRoute.Sitemap[number] => ({
+    url: `https://${host}/${locale}${path}`,
     lastModified: now,
     changeFrequency: isProduct ? "weekly" : "monthly",
     priority: isProduct ? 0.8 : 0.6,
     alternates: {
       languages: {
-        [localeTag]: buildUrl(host, locale, internal),
-        [altLocaleTag]: buildUrl(altDomain, altLocale, internal),
+        [localeTag]: `https://${host}/${locale}${path}`,
+        [altLocaleTag]: `https://${altDomain}/${altLocale}${path}`,
       },
     },
   });
 
-  const staticPages: MetadataRoute.Sitemap = STATIC_ROUTES.map((route) => make(route));
+  const staticPages: MetadataRoute.Sitemap = STATIC_ROUTES.map((p) => make(p));
+
+  // Localized routes: each locale gets its own URL, hreflang points
+  // at the other locale's URL.
+  const localizedPages: MetadataRoute.Sitemap = Object.values(LOCALIZED_ROUTES).map(
+    (paths) => ({
+      url: `https://${host}/${locale}${paths[locale]}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      alternates: {
+        languages: {
+          [localeTag]: `https://${host}/${locale}${paths[locale]}`,
+          [altLocaleTag]: `https://${altDomain}/${altLocale}${paths[altLocale]}`,
+        },
+      },
+    })
+  );
 
   // Products
   let productPages: MetadataRoute.Sitemap = [];
@@ -117,5 +127,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Error fetching products for sitemap:", err);
   }
 
-  return [...staticPages, ...productPages];
+  return [...staticPages, ...localizedPages, ...productPages];
 }

@@ -3,56 +3,22 @@ import { defineRouting } from 'next-intl/routing';
 /**
  * i18n routing.
  *
- * `pathnames` maps an internal route name (the folder under app/[locale]/)
- * to the public URL each locale should expose. next-intl's <Link> +
- * useRouter() consume the internal name and render the localized URL
- * automatically per locale.
+ * We intentionally do NOT use the `pathnames` config here, because
+ * enabling it makes <Link>/useRouter()/redirect() type-narrow to the
+ * declared route list. That conflicts with the ~24 dynamic hrefs we
+ * have around the codebase (e.g. `/product/${name}`) which would each
+ * require object-syntax {{ pathname: '/product/[slug]', params: ... }}.
  *
- * Conventions:
- * - Internal name = whatever the folder is under app/[locale]/.
- * - Localized URLs for ES try to read natural in Spanish; EN uses
- *   the English noun. We add an alias only when the page name actually
- *   warrants it (e.g. /reinsercion-sociolaboral is a Spanish-only term;
- *   the English audience deserves /social-reintegration).
+ * Localized URLs (e.g. /en/social-reintegration vs /es/reinsercion-sociolaboral)
+ * are implemented as **route aliases** on the filesystem side:
+ *   - app/[locale]/reinsercion-sociolaboral/page.tsx  (canonical, both locales)
+ *   - app/[locale]/social-reintegration/page.tsx       (alias — redirects ES, serves EN)
  *
- * Backward-compat note: if a URL existed publicly before this config
- * was added, that exact URL must remain in the mapping under its
- * original locale to avoid breaking inbound links. The route file
- * itself doesn't change.
+ * See those files for the redirect / canonical logic.
  */
 export const routing = defineRouting({
   locales: ['es', 'en'],
   defaultLocale: 'es',
   localeDetection: false,
   localePrefix: 'always',
-  pathnames: {
-    '/': '/',
-    '/products': '/products',
-    '/product/[slug]': '/product/[slug]',
-    '/search': '/search',
-    '/cart': '/cart',
-    '/checkout': '/checkout',
-    '/account': '/account',
-    '/login': '/login',
-    '/register': '/register',
-    '/about': '/about',
-    '/contact': '/contact',
-    '/shipping': '/shipping',
-    '/privacy-policies': '/privacy-policies',
-    '/conditions-service': '/conditions-service',
-    '/qr': '/qr',
-    '/admin': '/admin',
-    '/catalog': '/catalog',
-    '/feria-artesanias': '/feria-artesanias',
-    '/feria-artesanias-terminos': '/feria-artesanias-terminos',
-    '/fiestas-patronales-de-san-ramon': '/fiestas-patronales-de-san-ramon',
-    '/dmnts': '/dmnts',
-    '/impact': '/impact',
-    // The hero localized URL — Spanish keeps the technical Spanish-language
-    // legal term; English gets a natural noun phrase.
-    '/reinsercion-sociolaboral': {
-      es: '/reinsercion-sociolaboral',
-      en: '/social-reintegration',
-    },
-  },
 });

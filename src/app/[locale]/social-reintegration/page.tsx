@@ -8,12 +8,13 @@ import ReinsertionPageContent, {
 type tParams = Promise<{ locale: string }>;
 
 /**
- * Canonical for the Spanish-locale social-impact page.
+ * Canonical for the English-locale social-impact page.
  *
- * - /es/reinsercion-sociolaboral -> renders content (canonical for ES)
- * - /en/reinsercion-sociolaboral -> 308 redirect to /en/social-reintegration
+ * - /en/social-reintegration -> renders content (canonical for EN)
+ * - /es/social-reintegration -> 308 redirect to /es/reinsercion-sociolaboral
  *
- * The matching English canonical lives at app/[locale]/social-reintegration/.
+ * The matching Spanish canonical lives at
+ * app/[locale]/reinsercion-sociolaboral/.
  */
 
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
@@ -33,10 +34,14 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
   });
 }
 
-export default async function ReinsertionPage({ params }: { params: tParams }) {
+export default async function SocialReintegrationPage({
+  params,
+}: {
+  params: tParams;
+}) {
   const { locale } = await params;
-  if (locale === "en") {
-    redirect("/en/social-reintegration");
+  if (locale === "es") {
+    redirect("/es/reinsercion-sociolaboral");
   }
-  return <ReinsertionPageContent locale="es" />;
+  return <ReinsertionPageContent locale="en" />;
 }

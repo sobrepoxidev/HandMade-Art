@@ -1,17 +1,17 @@
-import { redirect } from '@/i18n/navigation';
+import { redirect } from 'next/navigation';
 
 type tParams = Promise<{ locale: string }>;
 
 /**
- * Permanent (308) redirect from /impact -> /reinsercion-sociolaboral.
+ * Permanent (308) redirect from /impact -> the locale-correct
+ * social-impact page.
  *
- * CLAUDE.md memory references /impact as the social-impact URL but the
- * page actually lives at the (localized) reintegration route. Using
- * next-intl's redirect lets the destination follow each locale's
- * pathname mapping (/es/reinsercion-sociolaboral vs /en/social-reintegration).
+ * ES locale -> /es/reinsercion-sociolaboral
+ * EN locale -> /en/social-reintegration
  *
- * Next.js triggers a 308 redirect automatically when `redirect()` is
- * called from a server component during render.
+ * Both destinations resolve to the same React component on disk;
+ * the localized path is part of the marketing surface (English
+ * audience deserves an English URL).
  */
 export default async function ImpactRedirectPage({
   params,
@@ -19,5 +19,7 @@ export default async function ImpactRedirectPage({
   params: tParams;
 }) {
   const { locale } = await params;
-  redirect({ href: '/reinsercion-sociolaboral', locale: locale as 'es' | 'en' });
+  const target =
+    locale === 'en' ? '/en/social-reintegration' : '/es/reinsercion-sociolaboral';
+  redirect(target);
 }
