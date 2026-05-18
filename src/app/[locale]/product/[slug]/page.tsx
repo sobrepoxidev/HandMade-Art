@@ -118,9 +118,11 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
       ...md.openGraph,
       type: 'website',
     };
-    // Custom OG product tags as `other` meta tags
+    // Custom OG product tags as `other` meta tags. Cast because Next's
+    // Metadata['other'] union includes deprecated apple-touch-* keys typed
+    // as `never | undefined` which conflict with a plain Record spread.
     md.other = {
-      ...(md.other || {}),
+      ...((md.other ?? {}) as Record<string, string>),
       'product:price:amount': finalPrice.toFixed(2),
       'product:price:currency': 'USD',
       'og:price:amount': finalPrice.toFixed(2),
