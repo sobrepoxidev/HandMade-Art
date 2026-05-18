@@ -443,5 +443,5 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
           </div>
         </Dialog>
       </Transition.Root>
-    );
-  }
+  );
+}
