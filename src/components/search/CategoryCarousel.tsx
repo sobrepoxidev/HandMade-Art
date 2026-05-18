@@ -41,11 +41,11 @@ export default function CategoryCarousel({
     >
       <ul
         className="
-          mx-auto w-full max-w-7xl
+          mx-auto w-full max-w-screen-2xl
           flex items-center
           flex-nowrap overflow-x-auto whitespace-nowrap scrollbar-hide snap-x snap-mandatory
           lg:flex-wrap lg:overflow-visible lg:whitespace-normal lg:justify-center
-          px-3 sm:px-6
+          px-3 sm:px-6 lg:px-4 xl:px-8
           font-display
         "
       >
@@ -58,7 +58,7 @@ export default function CategoryCarousel({
                 href={href}
                 className="
                   inline-flex items-center
-                  min-h-[48px] px-3.5 sm:px-4
+                  min-h-[48px] px-3 sm:px-3.5 lg:px-3
                   text-[14px] tracking-[0.005em]
                   text-[#2D2D2D] hover:text-[#A08848]
                   transition-colors duration-200
