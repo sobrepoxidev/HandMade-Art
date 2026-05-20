@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { v4 as uuidv4 } from 'uuid';
+import { assertAdminRequest } from '@/lib/checkout/security';
 
 // For debugging purposes - remove in production
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -19,6 +20,8 @@ interface CartItem {
 
 export async function POST(request: NextRequest) {
   try {
+    await assertAdminRequest();
+
     const { cartItems, customerInfo, discountInfo, shippingCost, totalAmount, finalAmount, managerNotes, requiresShippingAddress } = await request.json();
 
     if (DEBUG) {

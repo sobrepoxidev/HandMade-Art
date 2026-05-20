@@ -1,5 +1,3 @@
-import { CartItem } from '@/context/CartContext';
-
 interface OrderEmailData {
   orderId: number;
   customerName: string;
@@ -12,11 +10,18 @@ interface OrderEmailData {
     postal_code: string;
     phone: string;
   };
-  items: CartItem[];
+  items: {
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+  }[];
   subtotal: number;
   shipping: number;
   total: number;
+  currency?: 'USD';
   paymentMethod: string;
+  paymentStatus?: 'paid' | 'pending_manual_review';
   discountInfo?: {
     code: string;
     discountAmount: number;
@@ -25,7 +30,14 @@ interface OrderEmailData {
 }
 
 export function generateOrderConfirmationEmail(data: OrderEmailData): string {
-  const formatPrice = (price: number) => `₡${price.toLocaleString()}`;
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      currencyDisplay: 'narrowSymbol',
+      minimumFractionDigits: 2,
+    }).format(price);
+  const isPendingManualReview = data.paymentStatus === 'pending_manual_review';
 
   return `
     <!DOCTYPE html>
@@ -179,7 +191,7 @@ export function generateOrderConfirmationEmail(data: OrderEmailData): string {
       <div class="container">
         <div class="header">
           <img src="https://handmadeart.vercel.app/logo-handmade-art-black.webp" alt="HANDMADE ART Logo" />
-          <h1>¡Gracias por tu compra!</h1>
+          <h1>${isPendingManualReview ? 'Referencia recibida' : '¡Gracias por tu compra!'}</h1>
           <p>Pedido #${data.orderId}</p>
         </div>
 
@@ -210,10 +222,10 @@ export function generateOrderConfirmationEmail(data: OrderEmailData): string {
             <tbody>
               ${data.items.map(item => `
                 <tr>
-                  <td>${item.product.name}</td>
+                  <td>${item.name}</td>
                   <td>${item.quantity}</td>
-                  <td>${formatPrice(item.product.dolar_price || 0)}</td>
-                  <td>${formatPrice((item.product.dolar_price || 0) * item.quantity)}</td>
+                  <td>${formatPrice(item.unitPrice)}</td>
+                  <td>${formatPrice(item.lineTotal)}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -234,10 +246,11 @@ export function generateOrderConfirmationEmail(data: OrderEmailData): string {
           ` : ''}
           <p><strong>Total:</strong> ${formatPrice(data.total)}</p>
           <p><strong>Método de pago:</strong> ${data.paymentMethod === 'paypal' ? 'PayPal' : 'SINPE Móvil'}</p>
+          <p><strong>Estado de pago:</strong> ${isPendingManualReview ? 'Pendiente de revisión manual' : 'Pagado'}</p>
         </div>
 
         <div class="thank-you">
-          <p>¡Gracias por confiar en HANDMADE ART!</p>
+          <p>${isPendingManualReview ? 'Validaremos tu referencia pronto.' : '¡Gracias por confiar en HANDMADE ART!'}</p>
           <p>Recibirás actualizaciones sobre el estado de tu pedido.</p>
         </div>
       </div>

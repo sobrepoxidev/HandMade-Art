@@ -36,8 +36,9 @@ export default function StepTwo({
     setUltimos4,
     total,
     onFinalize,
-    createdOrderId,
-    createOrder,
+    createCheckoutOrder,
+    checkoutToken,
+    checkoutOrderId,
     cart,
     locale,
   }: {
@@ -50,9 +51,10 @@ export default function StepTwo({
     ultimos4: string;
     setUltimos4: (s: string) => void;
     total: number;
-    onFinalize: () => void;
-    createdOrderId: number | null;
-    createOrder: (paymentMethod?: string) => Promise<number | undefined>;
+    onFinalize: () => Promise<void>;
+    checkoutOrderId: number | null;
+    checkoutToken: string | null;
+    createCheckoutOrder: (paymentMethod: "paypal" | "sinpe") => Promise<{ orderId: number; checkoutToken: string } | null>;
     locale: string;
   }) {
     // Estado para la información de descuento
@@ -86,17 +88,8 @@ export default function StepTwo({
           <PaymentOption
             label="PayPal / Tarjeta sin registro"
             selected={paymentMethod === "paypal"}
-            onClick={async () => {
-              setPaymentMethod("paypal");
-              await createOrder("paypal");
-            }}
+            onClick={() => setPaymentMethod("paypal")}
             img={["/paypal.webp", "/tarjeta.webp"]}
-          />
-          <PaymentOption
-            label="Transferencia bancaria"
-            selected={paymentMethod === "transfer"}
-            onClick={() => setPaymentMethod("transfer")}
-            img={["/transfer.webp"]}
           />
         </div>
 
@@ -108,7 +101,9 @@ export default function StepTwo({
           setUltimos4={setUltimos4}
           total={total}
           onFinalize={onFinalize}
-          createdOrderId={createdOrderId}
+          checkoutOrderId={checkoutOrderId}
+          checkoutToken={checkoutToken}
+          createCheckoutOrder={createCheckoutOrder}
           locale={locale}
         />
 

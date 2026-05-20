@@ -1,10 +1,29 @@
 // src/middleware.ts
 import { NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { routing } from "./i18n/routing";
 
 const intlMiddleware = createIntlMiddleware(routing);
+
+function createSupabaseMiddlewareClient(req: NextRequest, res: NextResponse) {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            res.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+}
 
 export async function middleware(req: NextRequest) {
   const { pathname, host } = req.nextUrl;
@@ -47,7 +66,7 @@ export async function middleware(req: NextRequest) {
   /* --- 1. Si es /auth → omite intl, sólo Supabase --- */
   if (pathname.startsWith("/auth")) {
     const res = NextResponse.next();
-    const supabase = createMiddlewareClient({ req, res });
+    const supabase = createSupabaseMiddlewareClient(req, res);
     await supabase.auth.getSession();
     return res;
   }
@@ -68,7 +87,7 @@ export async function middleware(req: NextRequest) {
   res.headers.set("x-host", host);
   for (const [k, v] of intlRes.headers) if (!res.headers.has(k)) res.headers.set(k, v);
 
-  const supabase = createMiddlewareClient({ req, res });
+  const supabase = createSupabaseMiddlewareClient(req, res);
   await supabase.auth.getSession();
   return res;
 }

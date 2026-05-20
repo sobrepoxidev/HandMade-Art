@@ -90,7 +90,7 @@ export default function SearchBar({
     }
 
     performSearch();
-  }, [debouncedQuery, selectedCategory]);
+  }, [debouncedQuery, selectedCategory, locale]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

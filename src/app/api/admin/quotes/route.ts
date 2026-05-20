@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
+import { assertAdminRequest } from '@/lib/checkout/security';
 
 export async function GET(request: NextRequest) {
   try {
+    await assertAdminRequest();
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const search = searchParams.get('search');

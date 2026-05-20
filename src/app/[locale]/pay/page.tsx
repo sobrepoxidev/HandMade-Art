@@ -5,8 +5,7 @@ type tParams = Promise<{ locale: string }>;
 export default async function PayRedirectPage({ params }: { params: tParams }) {
   const { locale } = await params;
   
-  // Redirigir automáticamente a pay/new
-  redirect(`/${locale}/pay/new`);
+  redirect(`/${locale}/cart`);
 }
 
 export async function generateMetadata({ params }: { params: tParams }) {

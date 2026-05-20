@@ -452,6 +452,54 @@ export type Database = {
           },
         ]
       }
+      inventory_reservations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: number
+          order_id: number
+          product_id: number
+          quantity: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: number
+          order_id: number
+          product_id: number
+          quantity: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: number
+          order_id?: number
+          product_id?: number
+          quantity?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_reservations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_reservations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           created_at: string
@@ -582,14 +630,74 @@ export type Database = {
           },
         ]
       }
+      order_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: number
+          idempotency_key: string | null
+          order_id: number
+          provider: string
+          provider_capture_id: string | null
+          provider_order_id: string | null
+          raw_payload: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: number
+          idempotency_key?: string | null
+          order_id: number
+          provider: string
+          provider_capture_id?: string | null
+          provider_order_id?: string | null
+          raw_payload?: Json | null
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: number
+          idempotency_key?: string | null
+          order_id?: number
+          provider?: string
+          provider_capture_id?: string | null
+          provider_order_id?: string | null
+          raw_payload?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           billing_address_id: number | null
           created_at: string
           currency: string
+          checkout_token_expires_at: string | null
+          checkout_token_hash: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
           discount_amount: number
+          expires_at: string | null
           id: number
           notes: string | null
+          paid_at: string | null
           payment_method: string
           payment_reference: string | null
           payment_status: string
@@ -605,6 +713,8 @@ export type Database = {
           shipping_quote_id: string | null
           shipping_service: string | null
           shipping_status: string | null
+          source_quote_id: number | null
+          source_type: string
           total_amount: number
           tracking_number: string | null
           updated_at: string
@@ -614,9 +724,16 @@ export type Database = {
           billing_address_id?: number | null
           created_at?: string
           currency?: string
+          checkout_token_expires_at?: string | null
+          checkout_token_hash?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           discount_amount?: number
+          expires_at?: string | null
           id?: number
           notes?: string | null
+          paid_at?: string | null
           payment_method: string
           payment_reference?: string | null
           payment_status?: string
@@ -632,6 +749,8 @@ export type Database = {
           shipping_quote_id?: string | null
           shipping_service?: string | null
           shipping_status?: string | null
+          source_quote_id?: number | null
+          source_type?: string
           total_amount: number
           tracking_number?: string | null
           updated_at?: string
@@ -641,9 +760,16 @@ export type Database = {
           billing_address_id?: number | null
           created_at?: string
           currency?: string
+          checkout_token_expires_at?: string | null
+          checkout_token_hash?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           discount_amount?: number
+          expires_at?: string | null
           id?: number
           notes?: string | null
+          paid_at?: string | null
           payment_method?: string
           payment_reference?: string | null
           payment_status?: string
@@ -659,6 +785,8 @@ export type Database = {
           shipping_quote_id?: string | null
           shipping_service?: string | null
           shipping_status?: string | null
+          source_quote_id?: number | null
+          source_type?: string
           total_amount?: number
           tracking_number?: string | null
           updated_at?: string
@@ -677,6 +805,13 @@ export type Database = {
             columns: ["shipping_address_id"]
             isOneToOne: false
             referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_source_quote_id_fkey"
+            columns: ["source_quote_id"]
+            isOneToOne: false
+            referencedRelation: "interest_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -1218,7 +1353,27 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      commit_order_inventory: {
+        Args: { p_order_id: number }
+        Returns: undefined
+      }
+      release_expired_inventory_reservations: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      release_order_inventory: {
+        Args: { p_order_id: number }
+        Returns: undefined
+      }
+      reserve_inventory_item: {
+        Args: {
+          p_expires_at: string
+          p_order_id: number
+          p_product_id: number
+          p_quantity: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

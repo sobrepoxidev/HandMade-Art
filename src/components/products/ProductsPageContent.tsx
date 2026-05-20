@@ -110,7 +110,7 @@ export default function ProductsPageContent() {
     }
     
     fetchData();
-  }, []);
+  }, [categoryFilter, locale]);
   
   // Cargar productos con filtros y paginación
   useEffect(() => {
@@ -196,7 +196,7 @@ export default function ProductsPageContent() {
     }
     
     fetchProducts();
-  }, [currentPage, categoryFilter, brandFilter, tagFilter, minPrice, maxPrice, sortBy, stockFilter, featuredOnly]);
+  }, [currentPage, categoryFilter, brandFilter, tagFilter, minPrice, maxPrice, sortBy, stockFilter, featuredOnly, locale]);
   
   // Manejar cambios en filtros
   const handleFilterChange = (params: URLSearchParams) => {

@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Handmade Art
 
-## Getting Started
+Handmade Art is a bilingual e-commerce site for Costa Rican handmade art.
+It serves two domains:
 
-First, run the development server:
+- `handmadeart.store` for English
+- `artehechoamano.com` for Spanish
+
+The store sells handcrafts such as carved wood mirrors, painted frames and
+coffee drippers made by residents in a social reintegration program. The
+project combines commerce, storytelling and localized SEO around that mission.
+
+## Stack
+
+- Next.js 15.5.18 with App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Supabase for auth and data
+- PayPal integration for checkout and payment links
+- `next-intl` for localized routing and messages
+
+## Project Structure
+
+- `src/app/[locale]` - localized app routes for `es` and `en`
+- `src/app/api` - server API routes for PayPal, email, quotes and admin flows
+- `src/components` - reusable UI and commerce components
+- `src/context` - React context providers such as cart and home products
+- `src/i18n` - localized navigation and routing helpers
+- `src/lib` and `src/utils` - Supabase clients and shared utilities
+- `messages` - locale message JSON files
+- `public` - images and static assets
+- `supabase` - Supabase project files
+
+## Local Development
+
+Use Node.js 20 or newer.
+
+Install dependencies from the lockfile:
+
+```bash
+npm ci
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Verification
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Use these commands before handing off changes:
 
-## Learn More
+```bash
+npm run lint
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+The current baseline passes ESLint without warnings and builds successfully.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The app expects local environment variables in `.env.local`. Do not commit
+environment files, production credentials, PayPal secrets or Supabase service
+role keys.
 
-## Deploy on Vercel
+## Important Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Product URLs use the product `name` as the slug. There is no separate slug
+  column.
+- Use `@/i18n/navigation` for localized links.
+- Use `@/lib/supabaseClient` in browser/client code and
+  `@/utils/supabase/server` in server components.
+- Follow `DESIGN.md` before changing visual UI.
+- Do not run Supabase migrations, deploy, commit or push unless explicitly
+  requested.

@@ -6,7 +6,7 @@
 
 ## Project
 
-**Handmade Art** — Next.js 16 + React 19 + TypeScript + Tailwind 4 + Supabase
+**Handmade Art** — Next.js 15.5.18 + React 19 + TypeScript + Tailwind 4 + Supabase
 e-commerce for Costa Rican handmade art. Bi-domain SEO
 (handmadeart.store EN, artehechoamano.com ES). Sells handcraft (carved
 wood mirrors, painted frames, coffee drippers) made by residents in a

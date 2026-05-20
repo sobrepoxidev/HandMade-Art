@@ -23,14 +23,16 @@ interface QuotePaymentPageProps {
 // TEMPORAL: Usando sandbox en producción debido a cuenta restringida
 // TODO: Revertir cuando se resuelva el problema con PayPal Live
 const PAYPAL_CLIENT_ID: string =
-  process.env.NODE_ENV === 'production'
-    ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SB ?? 'sb' // Usando sandbox temporalmente
-    : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? 'sb';
+  process.env.NEXT_PUBLIC_PAYPAL_ENV === 'live'
+    ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE ?? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? 'sb'
+    : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX ?? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? 'sb';
+const PAYPAL_ENVIRONMENT = process.env.NEXT_PUBLIC_PAYPAL_ENV === 'live' ? 'production' : 'sandbox';
 
 export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
+  const [checkoutOrder, setCheckoutOrder] = useState<{ orderId: number; checkoutToken: string } | null>(null);
   const [shippingInfo, setShippingInfo] = useState({
     name: quote.requester_name,
     email: quote.email,
@@ -95,23 +97,39 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
     }
   };
 
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = async (orderId: number, checkoutToken: string) => {
     setPaymentCompleted(true);
     toast.success(locale === 'es' ? 'Pago completado exitosamente' : 'Payment completed successfully');
-    
-    // Enviar correo de confirmación
-    try {
-      await fetch('/api/send-quote-payment-confirmation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          quoteId: quote.id,
-          shippingInfo
-        })
-      });
-    } catch (error) {
-      console.error('Error sending confirmation email:', error);
+    router.push(`/${locale}/order-confirmation?order_id=${orderId}&token=${encodeURIComponent(checkoutToken)}`);
+  };
+
+  const createQuoteCheckoutOrder = async () => {
+    if (checkoutOrder) return checkoutOrder;
+
+    const response = await fetch(`/api/checkout/quotes/${quote.id}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        paymentMethod: 'paypal',
+        shippingAddress: {
+          name: shippingInfo.name || quote.requester_name,
+          address: shippingInfo.address || 'No shipping address required',
+          city: shippingInfo.city || 'N/A',
+          state: shippingInfo.state || 'N/A',
+          country: shippingInfo.country || 'Costa Rica',
+          postal_code: shippingInfo.zipCode || '',
+          phone: shippingInfo.phone || quote.phone || '',
+        },
+      }),
+    });
+    const data = await response.json() as { orderId?: number; checkoutToken?: string; error?: string };
+    if (!response.ok || !data.orderId || !data.checkoutToken) {
+      throw new Error(data.error || 'Could not create quote checkout order');
     }
+
+    const order = { orderId: data.orderId, checkoutToken: data.checkoutToken };
+    setCheckoutOrder(order);
+    return order;
   };
 
   const discountInfo = getDiscountInfo();
@@ -357,9 +375,10 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                       <PayPalScriptProvider
                         options={{
                           clientId: PAYPAL_CLIENT_ID,
+                          currency: 'USD',
                           enableFunding: "paylater,venmo",
                           dataSdkIntegrationSource: "integrationbuilder_sc",
-                          environment: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox',
+                          environment: PAYPAL_ENVIRONMENT,
                         }}
                       >
                         <PayPalButtons
@@ -368,13 +387,10 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                           createOrder={async () => {
                             setLoading(true);
                             try {
-                              const res = await fetch("/api/paypal/create-quote-order", {
+                              const order = await createQuoteCheckoutOrder();
+                              const res = await fetch(`/api/checkout/orders/${order.orderId}/paypal/create?token=${encodeURIComponent(order.checkoutToken)}`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ 
-                                  quoteId: quote.id,
-                                  shippingInfo 
-                                })
                               });
                               const data = await res.json();
                               
@@ -394,19 +410,19 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                           onApprove={async (data) => {
                             setLoading(true);
                             try {
-                              const res = await fetch("/api/paypal/capture-quote-order", {
+                              const order = await createQuoteCheckoutOrder();
+                              const res = await fetch(`/api/checkout/orders/${order.orderId}/paypal/capture`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({
                                   paypalOrderId: data.orderID,
-                                  quoteId: quote.id,
-                                  shippingInfo
+                                  checkoutToken: order.checkoutToken,
                                 })
                               });
                               const result = await res.json();
                               
                               if (result.status === "COMPLETED") {
-                                await handlePaymentSuccess();
+                                await handlePaymentSuccess(order.orderId, order.checkoutToken);
                               } else {
                                 toast.error(locale === 'es' ? 'Error al procesar el pago' : 'Error processing payment');
                               }

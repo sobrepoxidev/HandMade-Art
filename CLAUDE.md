@@ -5,7 +5,7 @@
 
 ## Project
 
-**Handmade Art** — Next.js 16 App Router + React 19 + TypeScript +
+**Handmade Art** — Next.js 15.5.18 App Router + React 19 + TypeScript +
 Tailwind 4 + Supabase. Bi-domain e-commerce: handmadeart.store (EN) /
 artehechoamano.com (ES). Sells handmade Costa Rican art (carved wood
 mirrors, painted frames, coffee drippers) produced by residents in a
@@ -95,14 +95,18 @@ Default to writing/updating the plan at
 
 ## Verification flow
 
-Sandbox blocks `node`/`npm`, so I cannot run TypeScript / lint /
-Lighthouse locally. After pushing:
-1. The user verifies Vercel build is green
-2. Reports back any TS / lint failures with the log block
-3. We fix and re-push
+When the local environment allows it, run:
 
-For visual / a11y verification, the user runs Lighthouse Mobile and
-manual screen-reader tests.
+1. `npm ci`
+2. `npm run lint`
+3. `npm run build`
+
+If local Node/npm execution is blocked, use the Vercel build result as
+the source of truth and fix any TypeScript, lint or build errors from
+that log.
+
+For visual / a11y verification, use Lighthouse Mobile and manual
+screen-reader checks when the change affects UI.
 
 ## Skills available
 

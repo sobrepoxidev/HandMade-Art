@@ -42,6 +42,7 @@ type CartItem = {
 // Using the ShippingAddress from types-db.ts but making all fields required for checkout
 type ShippingAddress = {
   name: string;
+  email: string;
   address: string;
   city: string;
   state: string;
@@ -155,7 +156,7 @@ export default function StepOne({
   const [formData, setFormData] = useState({
     nombre: initialData?.name?.split(' ')[0] || '',
     apellidos: initialData?.name?.split(' ').slice(1).join(' ') || '',
-    email: '',
+    email: initialData?.email || session?.user?.email || '',
     telefono: initialData?.phone || '',
     direccion1: initialData?.address || '',
     direccion2: '',
@@ -173,7 +174,7 @@ export default function StepOne({
       setFormData({
         nombre: nameParts[0] || '',
         apellidos: nameParts.slice(1).join(' ') || '',
-        email: '',
+        email: initialData.email || session?.user?.email || '',
         telefono: initialData.phone || '',
         direccion1: initialData.address || '',
         direccion2: '',
@@ -191,7 +192,7 @@ export default function StepOne({
         setFormData({
           nombre: nameParts[0] || '',
           apellidos: nameParts.slice(1).join(' ') || '',
-          email: '',
+          email: session?.user?.email || '',
           telefono: address.phone || '',
           direccion1: address.address || '',
           direccion2: '',
@@ -202,7 +203,7 @@ export default function StepOne({
         });
       }
     }
-  }, [initialData, userProfile, showAddressOptions]);
+  }, [initialData, session?.user?.email, userProfile, showAddressOptions]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -268,9 +269,9 @@ export default function StepOne({
       if (address && isShippingAddress(address)) {
         const nameParts = address.name?.split(' ') || [''];
         setFormData({
-          nombre: nameParts[0] || '',
-          apellidos: nameParts.slice(1).join(' ') || '',
-          email: '',
+        nombre: nameParts[0] || '',
+        apellidos: nameParts.slice(1).join(' ') || '',
+        email: session?.user?.email || '',
           telefono: address.phone || '',
           direccion1: address.address || '',
           direccion2: '',
@@ -282,9 +283,10 @@ export default function StepOne({
       }
     } else if (updateProfile) {
       // Crear dirección a partir de los datos del formulario
-      const shippingAddress: ShippingAddress = {
-        name: `${formData.nombre} ${formData.apellidos}`.trim(),
-        address: formData.direccion1,
+    const shippingAddress: ShippingAddress = {
+      name: `${formData.nombre} ${formData.apellidos}`.trim(),
+      email: formData.email.trim().toLowerCase(),
+      address: formData.direccion1,
         city: formData.canton,
         state: formData.provincia,
         country: 'Costa Rica',
@@ -315,6 +317,7 @@ export default function StepOne({
     // Construir objeto de dirección para el pedido
     const shippingAddress: ShippingAddress = {
       name: `${formData.nombre} ${formData.apellidos}`.trim(),
+      email: formData.email.trim().toLowerCase(),
       address: formData.direccion1 + (formData.direccion2 ? `, ${formData.direccion2}` : ''),
       city: formData.canton,
       state: formData.provincia,

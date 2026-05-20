@@ -3,11 +3,14 @@ import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { generateQuoteEmailTemplate, generateManagerQuoteNotificationTemplate } from '@/lib/emailTemplates/quoteEmailTemplate';
 import { Database } from '@/lib/database.types';
+import { assertAdminRequest } from '@/lib/checkout/security';
 
 type InterestRequestItem = Database['public']['Tables']['interest_request_items']['Row'];
 
 export async function POST(request: NextRequest) {
   try {
+    await assertAdminRequest();
+
     const body = await request.json();
     const {
       quoteId,

@@ -27,7 +27,9 @@ export default function PaymentForm({
     setUltimos4,
     total,
     onFinalize,
-    createdOrderId,
+    checkoutOrderId,
+    checkoutToken,
+    createCheckoutOrder,
     locale,
 
   }: {
@@ -38,14 +40,16 @@ export default function PaymentForm({
     ultimos4: string;
     setUltimos4: (v: string) => void;
     total: number;
-    onFinalize: () => void;
-    createdOrderId: number | null;
+    onFinalize: () => Promise<void>;
+    checkoutOrderId: number | null;
+    checkoutToken: string | null;
+    createCheckoutOrder: (paymentMethod: "paypal" | "sinpe") => Promise<{ orderId: number; checkoutToken: string } | null>;
     locale: string;
 
 }) {
     const copiarMensaje = () => {
         if (bancoSeleccionado?.permiteSMS) {
-            const mensaje = `PASE 1000 8888-9999`;
+            const mensaje = `PASE ${total.toFixed(2)} 85850000 HM-ART`;
             navigator.clipboard.writeText(mensaje);
             notify.success("Mensaje SINPE copiado al portapapeles");
         }
@@ -61,7 +65,7 @@ export default function PaymentForm({
                 return (
                     <div className="mt-4 bg-[#FAF8F5] border border-[#E8E4E0] rounded-xl p-5 shadow-sm">
                         <p className="text-sm mb-3 text-[#4A4A4A]">
-                            {locale === "es" ? "Monto total" : "Total amount"}: <b className="text-[#C9A962]">₡{total}</b>.
+                            {locale === "es" ? "Monto total" : "Total amount"}: <b className="text-[#C9A962]">${total.toFixed(2)} USD</b>.
                             {" "}{locale === "es" ? "Envia tu pago vía SINPE con la siguiente info:" : "Send your payment via SINPE with the following info:"}
                         </p>
                         <label className="block mb-1.5 text-sm font-medium text-[#2D2D2D]">{locale === "es" ? "Selecciona Banco:" : "Select Bank:"}</label>
@@ -87,7 +91,7 @@ export default function PaymentForm({
                                                 {locale === "es" ? "Enviar SMS a:" : "Send SMS to:"} <b className="text-[#2D2D2D]">{bancoSeleccionado.sms}</b>
                                             </p>
                                             <p className="text-[#4A4A4A]">
-                                                {locale === "es" ? "Mensaje:" : "Message:"}: <b className="text-[#2D2D2D]">PASE {total} 85850000 HM-ART</b>
+                                                {locale === "es" ? "Mensaje:" : "Message:"}: <b className="text-[#2D2D2D]">PASE {total.toFixed(2)} 85850000 HM-ART</b>
                                             </p>
                                         </div>
                                         <button
@@ -115,7 +119,7 @@ export default function PaymentForm({
                             className="w-full p-3 border border-[#E8E4E0] rounded-lg mb-3 text-[#2D2D2D] bg-white focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none transition-colors"
                         />
                         <button
-                            onClick={onFinalize}
+                            onClick={() => void onFinalize()}
                             className="w-full mt-4 bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] text-[#1A1A1A] font-bold py-3.5 rounded-xl shadow-lg transition-all duration-300"
                         >
                             {locale === "es" ? "Confirmar y Finalizar" : "Confirm and Finalize"}
@@ -125,29 +129,14 @@ export default function PaymentForm({
             case "paypal":
                 return (
                     <div className="mt-4 p-5 bg-[#FAF8F5] border border-[#E8E4E0] rounded-xl text-center shadow-sm">
-                        {createdOrderId && (
-                            <PayPalCardMethod
-                                createdOrderId={createdOrderId}
-                                onPaymentSuccess={() => {
-                                    onFinalize();
-                                }}
-                                onPaymentError={(msg) => {
-                                    console.error(msg);
-                                }}
-                            />
-                        )}
-                    </div>
-                );
-            case "transfer":
-                return (
-                    <div className="mt-4 p-5 bg-[#FAF8F5] border border-[#E8E4E0] rounded-xl text-center shadow-sm">
-                        <p className="text-sm md:text-base text-[#4A4A4A]">{locale === "es" ? "Instrucciones para transferencia bancaria." : "Instructions for bank transfer."}</p>
-                    </div>
-                );
-            case "card":
-                return (
-                    <div className="mt-4 p-5 bg-[#FAF8F5] border border-[#E8E4E0] rounded-xl text-center shadow-sm">
-                        <p className="text-sm md:text-base text-[#4A4A4A]">{locale === "es" ? "Formulario de tarjeta de crédito/débito (Stripe, etc.)." : "Credit/debit card form (Stripe, etc.)."}</p>
+                        <PayPalCardMethod
+                            checkoutOrderId={checkoutOrderId}
+                            checkoutToken={checkoutToken}
+                            createCheckoutOrder={createCheckoutOrder}
+                            onPaymentError={(msg) => {
+                                console.error(msg);
+                            }}
+                        />
                     </div>
                 );
             default:

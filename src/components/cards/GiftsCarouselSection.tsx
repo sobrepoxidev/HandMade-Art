@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import { useHomeProductsContext } from '@/context/HomeProductsContext';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
@@ -47,7 +47,9 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
   }, [scrollPosition, maxScrollPosition, hasMoreProducts, loading, loadMoreProducts]);
   
   // Obtener productos de regalo del nuevo contexto
-  const displayProducts = sections.gifts.slice(0, maxGifts);
+  const displayProducts = useMemo(() => {
+    return sections.gifts.slice(0, maxGifts);
+  }, [sections.gifts, maxGifts]);
   
   // Función para obtener el color de la tarjeta basado en el índice
   const getCardColor = (index: number) => {
@@ -55,13 +57,13 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
   };
   
   // Función para actualizar la información de scroll
-  const updateScrollInfo = () => {
+  const updateScrollInfo = useCallback(() => {
     if (!carouselRef.current) return;
     
     const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
     setScrollPosition(scrollLeft);
     setMaxScrollPosition(scrollWidth - clientWidth - 10); // -10 como margen
-  };
+  }, []);
   
   // Función para hacer scroll al elemento anterior
   const scrollToPrev = () => {
@@ -80,13 +82,13 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
   };
   
   // Manejador para el evento de scroll (throttled con rAF)
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (scrollRafIdRef.current !== null) return;
     scrollRafIdRef.current = requestAnimationFrame(() => {
       updateScrollInfo();
       scrollRafIdRef.current = null;
     });
-  };
+  }, [updateScrollInfo]);
   
   // Configuramos el observador de scroll al montar el componente
   useEffect(() => {
@@ -103,7 +105,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
         }
       };
     }
-  }, []);
+  }, [handleScroll, updateScrollInfo]);
   
   // Actualizamos la información de scroll cuando cambian los productos
   useEffect(() => {
@@ -114,7 +116,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
     return () => {
       window.removeEventListener('resize', updateScrollInfo);
     };
-  }, [displayProducts]);
+  }, [displayProducts, updateScrollInfo]);
   
   // Preparar los grupos de productos para móvil (4 productos por tarjeta)
   const productGroups = useMemo(() => {
