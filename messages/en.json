@@ -79,6 +79,14 @@
       "button": "View now"
     }
   },
+  "checkout": {
+    "error": {
+      "discount_exhausted": "This discount code has reached its usage limit.",
+      "out_of_stock": "One or more products are no longer in stock.",
+      "payment_failed": "We could not process the payment. Try again or choose another method.",
+      "unauthorized": "You are not authorized to complete this payment."
+    }
+  },
   "Account": {
     "myAccount": "My Account",
     "personalInfo": "Personal Information",

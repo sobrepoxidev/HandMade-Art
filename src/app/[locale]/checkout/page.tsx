@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import StepOne from "@/components/checkout/StepOne";
 import StepTwo from "@/components/checkout/StepTwo";
 import { notify } from "@/components/ui/notify";
 import { useCart } from "@/context/CartContext";
 import { Database } from "@/lib/database.types";
+import type { CheckoutErrorCode } from "@/lib/checkout/errors";
 
 type PaymentMethod = "sinpe" | "paypal" | "transfer" | "card";
 
@@ -45,9 +46,26 @@ interface CheckoutOrderRef {
   totalAmount: number;
 }
 
+interface CheckoutApiError {
+  error?: string;
+  code?: CheckoutErrorCode;
+}
+
+const CHECKOUT_ERROR_CODES = new Set<string>([
+  "discount_exhausted",
+  "out_of_stock",
+  "payment_failed",
+  "unauthorized",
+]);
+
+function isCheckoutErrorCode(code: string | undefined): code is CheckoutErrorCode {
+  return Boolean(code && CHECKOUT_ERROR_CODES.has(code));
+}
+
 export default function CheckoutWizardPage() {
   const router = useRouter();
   const locale = useLocale();
+  const tCheckoutError = useTranslations("checkout.error");
   const { cart, removeFromCart, clearCart } = useCart();
 
   const [discountInfo, setDiscountInfo] = useState<DiscountInfo | null>(null);
@@ -58,6 +76,7 @@ export default function CheckoutWizardPage() {
   const [ultimos4, setUltimos4] = useState("");
   const [checkoutOrder, setCheckoutOrder] = useState<CheckoutOrderRef | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   useEffect(() => {
     const discountInfoStr = localStorage.getItem("discountInfo");
@@ -90,12 +109,26 @@ export default function CheckoutWizardPage() {
   const validateStep1 = (address: ShippingAddress) => {
     setShippingAddress(address);
     setCheckoutOrder(null);
+    setServerError(null);
     setCurrentStep(2);
+  };
+
+  const getCheckoutErrorMessage = (data: CheckoutApiError, fallback: string) => {
+    if (isCheckoutErrorCode(data.code)) {
+      return tCheckoutError(data.code);
+    }
+
+    return data.error || fallback;
+  };
+
+  const showCheckoutError = (message: string) => {
+    setServerError(message);
+    notify.error(message);
   };
 
   const createCheckoutOrder = async (method: "paypal" | "sinpe") => {
     if (!shippingAddress) {
-      notify.error(locale === "es" ? "Se requiere información de envío." : "Shipping information is required.");
+      showCheckoutError(locale === "es" ? "Se requiere información de envío." : "Shipping information is required.");
       return null;
     }
 
@@ -107,6 +140,7 @@ export default function CheckoutWizardPage() {
     }
 
     setIsProcessing(true);
+    setServerError(null);
     try {
       const response = await fetch("/api/checkout/orders", {
         method: "POST",
@@ -138,11 +172,10 @@ export default function CheckoutWizardPage() {
         orderId?: number;
         checkoutToken?: string;
         totalAmount?: number;
-        error?: string;
-      };
+      } & CheckoutApiError;
 
       if (!response.ok || !data.orderId || !data.checkoutToken) {
-        throw new Error(data.error || "Could not create checkout order");
+        throw new Error(getCheckoutErrorMessage(data, "Could not create checkout order"));
       }
 
       const nextOrder = {
@@ -159,7 +192,7 @@ export default function CheckoutWizardPage() {
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : "Error creating checkout order";
-      notify.error(message);
+      showCheckoutError(message);
       return null;
     } finally {
       setIsProcessing(false);
@@ -168,22 +201,22 @@ export default function CheckoutWizardPage() {
 
   const validateStep2 = async () => {
     if (paymentMethod !== "sinpe" && paymentMethod !== "paypal") {
-      notify.error(locale === "es" ? "Debes seleccionar un método de pago." : "Select a payment method.");
+      showCheckoutError(locale === "es" ? "Debes seleccionar un método de pago." : "Select a payment method.");
       return;
     }
 
     if (paymentMethod === "paypal") {
-      notify.error(locale === "es" ? "Completa el pago con el botón de PayPal." : "Complete payment with the PayPal button.");
+      showCheckoutError(locale === "es" ? "Completa el pago con el botón de PayPal." : "Complete payment with the PayPal button.");
       return;
     }
 
     if (!bancoSeleccionado) {
-      notify.error(locale === "es" ? "Selecciona un banco para SINPE." : "Select a SINPE bank.");
+      showCheckoutError(locale === "es" ? "Selecciona un banco para SINPE." : "Select a SINPE bank.");
       return;
     }
 
     if (!/^\d{4}$/.test(ultimos4)) {
-      notify.error(locale === "es" ? "Ingresa los últimos 4 dígitos del recibo." : "Enter the receipt last 4 digits.");
+      showCheckoutError(locale === "es" ? "Ingresa los últimos 4 dígitos del recibo." : "Enter the receipt last 4 digits.");
       return;
     }
 
@@ -191,6 +224,7 @@ export default function CheckoutWizardPage() {
     if (!order) return;
 
     setIsProcessing(true);
+    setServerError(null);
     try {
       const response = await fetch(`/api/checkout/orders/${order.orderId}/sinpe/reference`, {
         method: "POST",
@@ -201,9 +235,9 @@ export default function CheckoutWizardPage() {
           receiptLast4: ultimos4,
         }),
       });
-      const data = await response.json() as { error?: string };
+      const data = await response.json() as CheckoutApiError;
       if (!response.ok) {
-        throw new Error(data.error || "Could not save SINPE reference");
+        throw new Error(getCheckoutErrorMessage(data, "Could not save SINPE reference"));
       }
 
       clearCart();
@@ -212,7 +246,7 @@ export default function CheckoutWizardPage() {
       localStorage.removeItem("discountInfo");
       router.push(`/${locale}/order-confirmation?order_id=${order.orderId}&token=${encodeURIComponent(order.checkoutToken)}`);
     } catch (error) {
-      notify.error(error instanceof Error ? error.message : "Error finalizing SINPE order");
+      showCheckoutError(error instanceof Error ? error.message : "Error finalizing SINPE order");
     } finally {
       setIsProcessing(false);
     }
@@ -282,6 +316,8 @@ export default function CheckoutWizardPage() {
           checkoutOrderId={checkoutOrder?.orderId ?? null}
           checkoutToken={checkoutOrder?.checkoutToken ?? null}
           createCheckoutOrder={createCheckoutOrder}
+          serverError={serverError}
+          onPaymentError={showCheckoutError}
           locale={locale}
         />
       )}

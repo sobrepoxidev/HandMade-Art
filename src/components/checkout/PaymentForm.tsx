@@ -30,6 +30,8 @@ export default function PaymentForm({
     checkoutOrderId,
     checkoutToken,
     createCheckoutOrder,
+    serverError,
+    onPaymentError,
     locale,
 
   }: {
@@ -44,6 +46,8 @@ export default function PaymentForm({
     checkoutOrderId: number | null;
     checkoutToken: string | null;
     createCheckoutOrder: (paymentMethod: "paypal" | "sinpe") => Promise<{ orderId: number; checkoutToken: string } | null>;
+    serverError: string | null;
+    onPaymentError: (message: string) => void;
     locale: string;
 
 }) {
@@ -63,7 +67,7 @@ export default function PaymentForm({
         switch (paymentMethod) {
             case "sinpe":
                 return (
-                    <div className="mt-4 bg-[#FAF8F5] border border-[#E8E4E0] rounded-xl p-5 shadow-sm">
+                    <div className="mt-4 bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
                         <p className="text-sm mb-3 text-[#4A4A4A]">
                             {locale === "es" ? "Monto total" : "Total amount"}: <b className="text-[#C9A962]">${total.toFixed(2)} USD</b>.
                             {" "}{locale === "es" ? "Envia tu pago vía SINPE con la siguiente info:" : "Send your payment via SINPE with the following info:"}
@@ -72,7 +76,7 @@ export default function PaymentForm({
                         <select
                             value={bancoSeleccionado?.nombre || ""}
                             onChange={handleBancoChange}
-                            className="w-full p-3 border border-[#E8E4E0] rounded-lg mb-3 text-[#2D2D2D] bg-white focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none transition-colors"
+                            className="w-full p-3 border border-[#E8E4E0] rounded-sm mb-3 text-[#2D2D2D] bg-white focus:ring-2 focus:ring-[#A08848]/25 focus:border-[#A08848] outline-none transition-colors"
                         >
                             <option value="">-- {locale === "es" ? "Selecciona Banco" : "Select Bank"} --</option>
                             {bancos.map((b, idx) => (
@@ -83,7 +87,7 @@ export default function PaymentForm({
                         </select>
                         {/* Instrucciones dinámicas */}
                         {bancoSeleccionado && (
-                            <div className="mt-3 p-4 border border-[#C9A962]/30 bg-white rounded-lg text-sm shadow-sm">
+                            <div className="mt-3 p-4 border border-[#C9A962]/30 bg-[#FAF6EF] rounded-sm text-sm shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
                                 {bancoSeleccionado.permiteSMS ? (
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                         <div className="space-y-1">
@@ -96,7 +100,7 @@ export default function PaymentForm({
                                         </div>
                                         <button
                                             onClick={copiarMensaje}
-                                            className="mt-2 sm:mt-0 sm:w-auto text-sm bg-[#4A7C59] hover:bg-[#3D6B4A] text-white font-semibold py-2.5 px-4 rounded-lg transition-colors"
+                                            className="mt-2 sm:mt-0 sm:w-auto text-sm bg-[#4A7C59] hover:bg-[#2F5F3E] text-[#F5F1EB] font-semibold py-2.5 px-4 rounded-sm transition-colors min-h-[44px]"
                                         >
                                             {locale === "es" ? "Copiar Mensaje" : "Copy Message"}
                                         </button>
@@ -116,11 +120,11 @@ export default function PaymentForm({
                             placeholder="1234"
                             value={ultimos4}
                             onChange={(e) => setUltimos4(e.target.value)}
-                            className="w-full p-3 border border-[#E8E4E0] rounded-lg mb-3 text-[#2D2D2D] bg-white focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none transition-colors"
+                            className="w-full p-3 border border-[#E8E4E0] rounded-sm mb-3 text-[#2D2D2D] bg-white focus:ring-2 focus:ring-[#A08848]/25 focus:border-[#A08848] outline-none transition-colors"
                         />
                         <button
                             onClick={() => void onFinalize()}
-                            className="w-full mt-4 bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] text-[#1A1A1A] font-bold py-3.5 rounded-xl shadow-lg transition-all duration-300"
+                            className="w-full mt-4 bg-[#2D2D2D] hover:bg-[#1A1A1A] text-[#F5F1EB] font-semibold py-3.5 px-5 rounded-sm shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] transition-colors duration-300 min-h-[44px]"
                         >
                             {locale === "es" ? "Confirmar y Finalizar" : "Confirm and Finalize"}
                         </button>
@@ -128,21 +132,19 @@ export default function PaymentForm({
                 );
             case "paypal":
                 return (
-                    <div className="mt-4 p-5 bg-[#FAF8F5] border border-[#E8E4E0] rounded-xl text-center shadow-sm">
+                    <div className="mt-4 p-5 bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm text-center shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
                         <PayPalCardMethod
                             checkoutOrderId={checkoutOrderId}
                             checkoutToken={checkoutToken}
                             createCheckoutOrder={createCheckoutOrder}
-                            onPaymentError={(msg) => {
-                                console.error(msg);
-                            }}
+                            onPaymentError={onPaymentError}
                         />
                     </div>
                 );
             default:
                 return (
-                    <div className="mt-4 p-5 bg-[#FAF8F5] border border-[#E8E4E0] rounded-xl text-center shadow-sm">
-                        <p className="text-sm md:text-base text-[#9C9589]">{locale === "es" ? "Aquí se mostrará el formulario de pago" : "Here the payment form will be displayed"}</p>
+                    <div className="mt-4 p-5 bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm text-center shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
+                        <p className="text-sm md:text-base text-[#6B6459]">{locale === "es" ? "Aquí se mostrará el formulario de pago" : "Here the payment form will be displayed"}</p>
                     </div>
                 );
         }
@@ -150,6 +152,15 @@ export default function PaymentForm({
 
     return (
         <section className="text-[#2D2D2D] w-full mt-4">
+            {serverError && (
+                <div
+                    role="alert"
+                    aria-live="polite"
+                    className="mb-4 rounded-sm border border-[#C44536] bg-[#FAF6EF] px-4 py-3 text-sm font-medium text-[#9F2D24]"
+                >
+                    {serverError}
+                </div>
+            )}
             {renderPaymentForm()}
         </section>
     );

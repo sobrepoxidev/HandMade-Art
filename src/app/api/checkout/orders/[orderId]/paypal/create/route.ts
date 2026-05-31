@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { getAuthorizedOrder, getBearerOrQueryToken } from "@/lib/checkout/security";
 import { createPaypalOrder } from "@/lib/checkout/paypal";
+import { CheckoutError, getCheckoutErrorPayload } from "@/lib/checkout/errors";
 
 type Params = Promise<{ orderId: string }>;
 
@@ -16,10 +17,10 @@ export async function POST(request: NextRequest, { params }: { params: Params })
     const token = getBearerOrQueryToken(request);
     const { order, authorized } = await getAuthorizedOrder(id, token);
     if (!authorized || !order) {
-      return NextResponse.json({ error: "Order not found or forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Order not found or forbidden", code: "unauthorized" }, { status: 403 });
     }
 
-    if (order.payment_status !== "pending") {
+    if (order.payment_status !== "pending_payment") {
       return NextResponse.json({ error: "Order is not pending payment" }, { status: 409 });
     }
 
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest, { params }: { params: Params })
       currency: "USD",
     });
 
-    await supabaseServer.from("order_payments").insert({
+    const { error: paymentError } = await supabaseServer.from("order_payments").insert({
       order_id: order.id,
       provider: "paypal",
       provider_order_id: paypalOrder.id,
@@ -57,18 +58,26 @@ export async function POST(request: NextRequest, { params }: { params: Params })
       raw_payload: paypalOrder,
     });
 
-    await supabaseServer
+    if (paymentError) {
+      throw new CheckoutError("payment_failed", paymentError.message);
+    }
+
+    const { error: orderUpdateError } = await supabaseServer
       .from("orders")
       .update({ payment_method: "paypal", payment_reference: paypalOrder.id })
       .eq("id", order.id);
 
+    if (orderUpdateError) {
+      throw new CheckoutError("payment_failed", orderUpdateError.message);
+    }
+
     return NextResponse.json({ paypalOrderId: paypalOrder.id });
   } catch (error) {
     console.error("Error creating PayPal checkout order:", error);
+    const payload = getCheckoutErrorPayload(error, "Failed to create PayPal order");
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to create PayPal order" },
-      { status: 500 },
+      payload.body,
+      { status: payload.status },
     );
   }
 }
-

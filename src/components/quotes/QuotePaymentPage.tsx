@@ -110,6 +110,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        quoteSlug: quote.quote_slug ?? '',
         paymentMethod: 'paypal',
         shippingAddress: {
           name: shippingInfo.name || quote.requester_name,

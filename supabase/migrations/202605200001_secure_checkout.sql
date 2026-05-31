@@ -43,6 +43,17 @@ create unique index if not exists order_payments_provider_order_id_idx
   on public.order_payments(provider, provider_order_id)
   where provider_order_id is not null;
 
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'order_payments_provider_order_id_unique'
+  ) then
+    alter table public.order_payments
+      add constraint order_payments_provider_order_id_unique
+      unique (provider, provider_order_id);
+  end if;
+end $$;
+
 create unique index if not exists order_payments_idempotency_key_idx
   on public.order_payments(idempotency_key)
   where idempotency_key is not null;
@@ -63,6 +74,95 @@ create index if not exists inventory_reservations_order_id_idx
 
 create index if not exists inventory_reservations_product_status_idx
   on public.inventory_reservations(product_id, status);
+
+alter table public.orders enable row level security;
+alter table public.order_items enable row level security;
+alter table public.order_payments enable row level security;
+alter table public.inventory_reservations enable row level security;
+alter table public.discount_codes enable row level security;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'orders' and policyname = 'orders_select_own'
+  ) then
+    create policy orders_select_own
+      on public.orders
+      for select
+      to authenticated
+      using (user_id = auth.uid());
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'order_items' and policyname = 'order_items_select_own_order'
+  ) then
+    create policy order_items_select_own_order
+      on public.order_items
+      for select
+      to authenticated
+      using (
+        exists (
+          select 1
+          from public.orders o
+          where o.id = order_items.order_id
+            and o.user_id = auth.uid()
+        )
+      );
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'order_payments' and policyname = 'order_payments_select_own_order'
+  ) then
+    create policy order_payments_select_own_order
+      on public.order_payments
+      for select
+      to authenticated
+      using (
+        exists (
+          select 1
+          from public.orders o
+          where o.id = order_payments.order_id
+            and o.user_id = auth.uid()
+        )
+      );
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'inventory_reservations' and policyname = 'inventory_reservations_select_own_order'
+  ) then
+    create policy inventory_reservations_select_own_order
+      on public.inventory_reservations
+      for select
+      to authenticated
+      using (
+        exists (
+          select 1
+          from public.orders o
+          where o.id = inventory_reservations.order_id
+            and o.user_id = auth.uid()
+        )
+      );
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'discount_codes' and policyname = 'discount_codes_select_active'
+  ) then
+    create policy discount_codes_select_active
+      on public.discount_codes
+      for select
+      to anon, authenticated
+      using (
+        is_active is true
+        and (valid_from is null or valid_from <= now())
+        and (valid_until is null or valid_until >= now())
+      );
+  end if;
+end $$;
 
 create or replace function public.reserve_inventory_item(
   p_order_id bigint,
@@ -127,10 +227,29 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  reservation_groups integer;
+  updated_groups integer;
 begin
+  select count(*) into reservation_groups
+  from (
+    select product_id
+    from public.inventory_reservations
+    where order_id = p_order_id
+      and status = 'reserved'
+    group by product_id
+  ) reserved_products;
+
+  if reservation_groups = 0 then
+    raise exception using
+      errcode = 'P0001',
+      message = 'OUT_OF_STOCK',
+      detail = 'No reserved inventory exists for this order.';
+  end if;
+
   update public.inventory i
   set reserved = greatest(i.reserved - r.reserved_quantity, 0),
-      quantity = greatest(i.quantity - r.reserved_quantity, 0),
+      quantity = i.quantity - r.reserved_quantity,
       updated_at = now()
   from (
     select product_id, sum(quantity)::integer as reserved_quantity
@@ -139,7 +258,18 @@ begin
       and status = 'reserved'
     group by product_id
   ) r
-  where i.product_id = r.product_id;
+  where i.product_id = r.product_id
+    and i.reserved >= r.reserved_quantity
+    and i.quantity >= r.reserved_quantity;
+
+  get diagnostics updated_groups = row_count;
+
+  if updated_groups <> reservation_groups then
+    raise exception using
+      errcode = 'P0001',
+      message = 'OUT_OF_STOCK',
+      detail = 'Reserved inventory could not be committed because available stock changed.';
+  end if;
 
   update public.inventory_reservations
   set status = 'committed',
@@ -147,6 +277,43 @@ begin
   where order_id = p_order_id
     and status = 'reserved';
 end;
+$$;
+
+create or replace function public.consume_discount_code(
+  p_code text,
+  p_subtotal numeric
+) returns table (
+  code text,
+  discount_type text,
+  discount_value numeric,
+  min_purchase_amount numeric,
+  max_uses integer,
+  current_uses integer,
+  valid_until timestamptz,
+  is_active boolean
+)
+language sql
+security definer
+set search_path = public
+as $$
+  update public.discount_codes
+  set current_uses = coalesce(current_uses, 0) + 1,
+      updated_at = now()
+  where lower(discount_codes.code) = lower(trim(p_code))
+    and is_active is true
+    and (valid_from is null or valid_from <= now())
+    and (valid_until is null or valid_until >= now())
+    and (min_purchase_amount is null or p_subtotal >= min_purchase_amount)
+    and (max_uses is null or coalesce(current_uses, 0) < max_uses)
+  returning
+    discount_codes.code,
+    discount_codes.discount_type,
+    discount_codes.discount_value,
+    discount_codes.min_purchase_amount,
+    discount_codes.max_uses,
+    discount_codes.current_uses,
+    discount_codes.valid_until,
+    discount_codes.is_active;
 $$;
 
 create or replace function public.release_expired_inventory_reservations()
@@ -184,9 +351,11 @@ $$;
 revoke execute on function public.reserve_inventory_item(bigint, bigint, integer, timestamptz) from public, anon, authenticated;
 revoke execute on function public.release_order_inventory(bigint) from public, anon, authenticated;
 revoke execute on function public.commit_order_inventory(bigint) from public, anon, authenticated;
+revoke execute on function public.consume_discount_code(text, numeric) from public, anon, authenticated;
 revoke execute on function public.release_expired_inventory_reservations() from public, anon, authenticated;
 
 grant execute on function public.reserve_inventory_item(bigint, bigint, integer, timestamptz) to service_role;
 grant execute on function public.release_order_inventory(bigint) to service_role;
 grant execute on function public.commit_order_inventory(bigint) to service_role;
+grant execute on function public.consume_discount_code(text, numeric) to service_role;
 grant execute on function public.release_expired_inventory_reservations() to service_role;

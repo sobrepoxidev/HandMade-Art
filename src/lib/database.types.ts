@@ -1357,6 +1357,19 @@ export type Database = {
         Args: { p_order_id: number }
         Returns: undefined
       }
+      consume_discount_code: {
+        Args: { p_code: string; p_subtotal: number }
+        Returns: {
+          code: string
+          current_uses: number
+          discount_type: string
+          discount_value: number
+          is_active: boolean
+          max_uses: number | null
+          min_purchase_amount: number | null
+          valid_until: string | null
+        }[]
+      }
       release_expired_inventory_reservations: {
         Args: Record<PropertyKey, never>
         Returns: number

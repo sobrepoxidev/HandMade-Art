@@ -79,6 +79,14 @@
       "button": "Ver ahora"
     }
   },
+  "checkout": {
+    "error": {
+      "discount_exhausted": "El código de descuento ya alcanzó su límite de uso.",
+      "out_of_stock": "Uno o más productos ya no tienen inventario disponible.",
+      "payment_failed": "No pudimos procesar el pago. Inténtalo de nuevo o elige otro método.",
+      "unauthorized": "No tienes autorización para completar este pago."
+    }
+  },
   "Account": {
     "myAccount": "Mi Cuenta",
     "personalInfo": "Información Personal",

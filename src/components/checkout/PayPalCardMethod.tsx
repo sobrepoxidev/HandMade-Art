@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import type { CheckoutErrorCode } from "@/lib/checkout/errors";
 
 const PAYPAL_CLIENT_ID =
   process.env.NEXT_PUBLIC_PAYPAL_ENV === "live"
@@ -26,6 +27,22 @@ interface PayPalCardMethodProps {
   onPaymentError: (msg: string) => void;
 }
 
+interface CheckoutApiError {
+  error?: string;
+  code?: CheckoutErrorCode;
+}
+
+const CHECKOUT_ERROR_CODES = new Set<string>([
+  "discount_exhausted",
+  "out_of_stock",
+  "payment_failed",
+  "unauthorized",
+]);
+
+function isCheckoutErrorCode(code: string | undefined): code is CheckoutErrorCode {
+  return Boolean(code && CHECKOUT_ERROR_CODES.has(code));
+}
+
 export default function PayPalCardMethod({
   checkoutOrderId,
   checkoutToken,
@@ -39,6 +56,7 @@ export default function PayPalCardMethod({
   );
   const router = useRouter();
   const locale = useLocale();
+  const tCheckoutError = useTranslations("checkout.error");
   const { clearCart } = useCart();
 
   const ensureOrder = async () => {
@@ -55,9 +73,17 @@ export default function PayPalCardMethod({
     return order;
   };
 
+  const getCheckoutErrorMessage = (data: CheckoutApiError, fallback: string) => {
+    if (isCheckoutErrorCode(data.code)) {
+      return tCheckoutError(data.code);
+    }
+
+    return data.error || fallback;
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
-      <div className="mb-3 p-3 bg-[#F5F1EB] rounded-lg text-xs text-[#4A4A4A]">
+      <div className="mb-3 p-3 bg-[#F5F1EB] rounded-sm text-xs text-[#4A4A4A]">
         <p>
           {locale === "es"
             ? "El total se procesa en USD. PayPal puede mostrar opciones de conversión según tu cuenta."
@@ -92,9 +118,9 @@ export default function PayPalCardMethod({
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
               });
-              const data = await response.json() as { paypalOrderId?: string; error?: string };
+              const data = await response.json() as { paypalOrderId?: string } & CheckoutApiError;
               if (!response.ok || !data.paypalOrderId) {
-                throw new Error(data.error || "Failed to create PayPal order");
+                throw new Error(getCheckoutErrorMessage(data, "Failed to create PayPal order"));
               }
               return data.paypalOrderId;
             } catch (error) {
@@ -117,9 +143,9 @@ export default function PayPalCardMethod({
                   checkoutToken: order.checkoutToken,
                 }),
               });
-              const result = await response.json() as { status?: string; error?: string };
+              const result = await response.json() as { status?: string } & CheckoutApiError;
               if (!response.ok || result.status !== "COMPLETED") {
-                throw new Error(result.error || "PayPal capture failed");
+                throw new Error(getCheckoutErrorMessage(result, "PayPal capture failed"));
               }
 
               setRedirecting(true);

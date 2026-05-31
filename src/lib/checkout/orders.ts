@@ -9,6 +9,7 @@ import {
   CheckoutShippingAddress,
 } from "@/lib/checkout/types";
 import { createCheckoutToken } from "@/lib/checkout/security";
+import { CheckoutError } from "@/lib/checkout/errors";
 
 const SHIPPING_AMOUNT_USD = 7;
 const ORDER_EXPIRATION_MINUTES = 30;
@@ -34,8 +35,15 @@ interface DiscountCodeRow {
   min_purchase_amount: number | null;
   max_uses: number | null;
   current_uses: number | null;
+  valid_from: string | null;
   valid_until: string | null;
   is_active: boolean | null;
+}
+
+interface ValidatedDiscount {
+  code: string;
+  discountAmount: number;
+  note: string;
 }
 
 interface CreateCartOrderInput {
@@ -49,6 +57,7 @@ interface CreateCartOrderInput {
 
 interface CreateQuoteOrderInput {
   quoteId: number;
+  quoteSlug: string;
   paymentMethod: CheckoutPaymentMethod;
   shippingAddress: CheckoutShippingAddress;
 }
@@ -112,10 +121,23 @@ function getLinePrice(product: ProductForCheckout) {
   return roundMoney(product.dolar_price * (1 - discount / 100));
 }
 
-async function getValidDiscount(code: string | undefined, subtotal: number) {
+function calculateDiscountAmount(discount: DiscountCodeRow, subtotal: number) {
+  let discountAmount = 0;
+  if (discount.discount_type === "percentage") {
+    discountAmount = subtotal * (discount.discount_value / 100);
+  } else if (discount.discount_type === "fixed") {
+    discountAmount = discount.discount_value;
+  } else if (discount.discount_type === "total_override") {
+    discountAmount = subtotal - discount.discount_value;
+  }
+
+  return roundMoney(Math.max(0, Math.min(discountAmount, subtotal)));
+}
+
+async function validateDiscount(code: string | undefined, subtotal: number): Promise<ValidatedDiscount | null> {
   const normalizedCode = code?.trim().toLowerCase();
   if (!normalizedCode) {
-    return { discountAmount: 0, note: "" };
+    return null;
   }
 
   const { data, error } = await supabaseServer
@@ -131,32 +153,47 @@ async function getValidDiscount(code: string | undefined, subtotal: number) {
 
   const discount = data as DiscountCodeRow;
   const now = Date.now();
+  if (discount.valid_from && new Date(discount.valid_from).getTime() > now) {
+    throw new Error("Discount code is not active yet");
+  }
+
   if (discount.valid_until && new Date(discount.valid_until).getTime() < now) {
     throw new Error("Discount code has expired");
   }
 
   if (discount.max_uses !== null && discount.current_uses !== null && discount.current_uses >= discount.max_uses) {
-    throw new Error("Discount code reached its usage limit");
+    throw new CheckoutError("discount_exhausted", "Discount code reached its usage limit");
   }
 
   if (discount.min_purchase_amount !== null && subtotal < discount.min_purchase_amount) {
     throw new Error("Order subtotal does not meet the discount minimum");
   }
 
-  let discountAmount = 0;
-  if (discount.discount_type === "percentage") {
-    discountAmount = subtotal * (discount.discount_value / 100);
-  } else if (discount.discount_type === "fixed") {
-    discountAmount = discount.discount_value;
-  } else if (discount.discount_type === "total_override") {
-    discountAmount = subtotal - discount.discount_value;
-  }
-
-  discountAmount = roundMoney(Math.max(0, Math.min(discountAmount, subtotal)));
+  const discountAmount = calculateDiscountAmount(discount, subtotal);
   return {
+    code: normalizedCode,
     discountAmount,
     note: `Discount applied: ${discount.code} - $${discountAmount.toFixed(2)}`,
   };
+}
+
+async function consumeDiscount(discount: ValidatedDiscount | null, subtotal: number) {
+  if (!discount) {
+    return;
+  }
+
+  const { data, error } = await supabaseServer.rpc("consume_discount_code", {
+    p_code: discount.code,
+    p_subtotal: subtotal,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data || data.length === 0) {
+    throw new CheckoutError("discount_exhausted", "Discount code reached its usage limit");
+  }
 }
 
 async function reserveInventory(orderId: number, items: { productId: number; quantity: number }[], expiresAt: string) {
@@ -225,7 +262,9 @@ export async function createCartCheckoutOrder(input: CreateCartOrderInput): Prom
 
   subtotal = roundMoney(subtotal);
   const shipping = SHIPPING_AMOUNT_USD;
-  const { discountAmount, note } = await getValidDiscount(input.discount?.code, subtotal);
+  const discount = await validateDiscount(input.discount?.code, subtotal);
+  const discountAmount = discount?.discountAmount ?? 0;
+  const note = discount?.note ?? "";
   const total = roundMoney(subtotal - discountAmount + shipping);
   const { token, hash } = createCheckoutToken();
   const expiresAt = new Date(Date.now() + ORDER_EXPIRATION_MINUTES * 60_000).toISOString();
@@ -239,7 +278,7 @@ export async function createCartCheckoutOrder(input: CreateCartOrderInput): Prom
       customer_phone: customer.phone,
       source_type: "cart",
       payment_method: input.paymentMethod,
-      payment_status: "pending",
+      payment_status: "pending_payment",
       shipping_status: "pending",
       total_amount: total,
       currency: "USD",
@@ -283,6 +322,8 @@ export async function createCartCheckoutOrder(input: CreateCartOrderInput): Prom
     if (itemsError) {
       throw new Error(itemsError.message);
     }
+
+    await consumeDiscount(discount, subtotal);
   } catch (error) {
     await supabaseServer.rpc("release_order_inventory", { p_order_id: order.id });
     await supabaseServer.from("orders").update({ payment_status: "cancelled" }).eq("id", order.id);
@@ -301,15 +342,21 @@ export async function createCartCheckoutOrder(input: CreateCartOrderInput): Prom
 
 export async function createQuoteCheckoutOrder(input: CreateQuoteOrderInput): Promise<CheckoutOrderResponse> {
   const shippingAddress = assertShippingAddress(input.shippingAddress);
+  const quoteSlug = input.quoteSlug.trim();
+  if (!quoteSlug) {
+    throw new CheckoutError("unauthorized", "Quote checkout token is required");
+  }
+
   const { data: quote, error: quoteError } = await supabaseServer
     .from("interest_requests")
     .select("*, interest_request_items(*)")
     .eq("id", input.quoteId)
+    .eq("quote_slug", quoteSlug)
     .eq("status", "sent_to_client")
     .single();
 
   if (quoteError || !quote) {
-    throw new Error("Quote is not available for payment");
+    throw new CheckoutError("unauthorized", "Quote is not available for payment");
   }
 
   const customer = assertCustomer({
@@ -350,7 +397,7 @@ export async function createQuoteCheckoutOrder(input: CreateQuoteOrderInput): Pr
       source_type: "quote",
       source_quote_id: quote.id,
       payment_method: input.paymentMethod,
-      payment_status: "pending",
+      payment_status: "pending_payment",
       shipping_status: "pending",
       total_amount: total,
       currency: "USD",

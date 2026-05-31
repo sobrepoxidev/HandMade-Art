@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCartCheckoutOrder } from "@/lib/checkout/orders";
 import { getSessionUser } from "@/lib/checkout/security";
+import { getCheckoutErrorPayload } from "@/lib/checkout/errors";
 import {
   CheckoutCartItemInput,
   CheckoutCustomer,
@@ -37,10 +38,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(order, { status: 201 });
   } catch (error) {
     console.error("Error creating checkout order:", error);
+    const payload = getCheckoutErrorPayload(error, "Failed to create checkout order");
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to create checkout order" },
-      { status: 400 },
+      payload.body,
+      { status: payload.status },
     );
   }
 }
-

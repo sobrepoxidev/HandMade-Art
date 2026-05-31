@@ -39,6 +39,8 @@ export default function StepTwo({
     createCheckoutOrder,
     checkoutToken,
     checkoutOrderId,
+    serverError,
+    onPaymentError,
     cart,
     locale,
   }: {
@@ -55,6 +57,8 @@ export default function StepTwo({
     checkoutOrderId: number | null;
     checkoutToken: string | null;
     createCheckoutOrder: (paymentMethod: "paypal" | "sinpe") => Promise<{ orderId: number; checkoutToken: string } | null>;
+    serverError: string | null;
+    onPaymentError: (message: string) => void;
     locale: string;
   }) {
     // Estado para la información de descuento
@@ -78,17 +82,21 @@ export default function StepTwo({
       <section className="text-[#2D2D2D] w-full">
         <h2 className="text-xl font-semibold mb-4">{locale == "es" ? "Seleccione un método de pago" : "Select a payment method"}</h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div role="radiogroup" aria-label={locale == "es" ? "Método de pago" : "Payment method"} className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <PaymentOption
+            value="sinpe"
+            name="payment-method"
             label="SINPE Móvil"
             selected={paymentMethod === "sinpe"}
-            onClick={() => setPaymentMethod("sinpe")}
+            onChange={() => setPaymentMethod("sinpe")}
             img={["/sinpe.webp"]}
           />
           <PaymentOption
+            value="paypal"
+            name="payment-method"
             label="PayPal / Tarjeta sin registro"
             selected={paymentMethod === "paypal"}
-            onClick={() => setPaymentMethod("paypal")}
+            onChange={() => setPaymentMethod("paypal")}
             img={["/paypal.webp", "/tarjeta.webp"]}
           />
         </div>
@@ -104,6 +112,8 @@ export default function StepTwo({
           checkoutOrderId={checkoutOrderId}
           checkoutToken={checkoutToken}
           createCheckoutOrder={createCheckoutOrder}
+          serverError={serverError}
+          onPaymentError={onPaymentError}
           locale={locale}
         />
 
@@ -137,25 +147,36 @@ export default function StepTwo({
   }
 /** Botón estilo - HandMade Art brand identity */
 function PaymentOption({
+    value,
+    name,
     label,
     selected,
-    onClick,
+    onChange,
     img,
   }: {
+    value: "sinpe" | "paypal";
+    name: string;
     label: string;
     selected: boolean;
-    onClick: () => void;
+    onChange: () => void;
     img: string[];
   }) {
     return (
-      <div
-        onClick={onClick}
-        className={`cursor-pointer flex flex-col p-3 border-2 rounded-xl text-center justify-end transition-all duration-200 min-h-[120px] ${
+      <label
+        className={`cursor-pointer flex flex-col p-3 border-2 rounded-sm text-center justify-end transition-all duration-200 min-h-[120px] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#A08848] ${
           selected
-            ? "border-[#C9A962] bg-[#FAF8F5] shadow-md ring-2 ring-[#C9A962]/20"
-            : "border-[#E8E4E0] bg-white hover:border-[#C9A962] hover:shadow-sm"
+            ? "border-[#C9A962] bg-[#FAF6EF] shadow-[0_2px_8px_-4px_rgba(160,136,72,0.40)]"
+            : "border-[#E8E4E0] bg-[#FAF6EF] hover:border-[#C9A962]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]"
         }`}
       >
+        <input
+          type="radio"
+          name={name}
+          value={value}
+          checked={selected}
+          onChange={onChange}
+          className="sr-only"
+        />
         <div className="flex items-center justify-center gap-2 flex-1">
           <Image
             src={img[0]}
@@ -174,9 +195,9 @@ function PaymentOption({
             />
           )}
         </div>
-        <div className={`mt-2 text-sm font-semibold leading-tight ${selected ? "text-[#C9A962]" : "text-[#2D2D2D]"}`}>
+        <div className={`mt-2 text-sm font-semibold leading-tight ${selected ? "text-[#A08848]" : "text-[#2D2D2D]"}`}>
           {label}
         </div>
-      </div>
+      </label>
     );
   }

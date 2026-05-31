@@ -318,7 +318,10 @@ export default function StepOne({
     const shippingAddress: ShippingAddress = {
       name: `${formData.nombre} ${formData.apellidos}`.trim(),
       email: formData.email.trim().toLowerCase(),
-      address: formData.direccion1 + (formData.direccion2 ? `, ${formData.direccion2}` : ''),
+      address:
+        formData.direccion1 +
+        (formData.direccion2 ? `, ${formData.direccion2}` : '') +
+        (formData.distrito ? `, ${formData.distrito}` : ''),
       city: formData.canton,
       state: formData.provincia,
       country: 'Costa Rica',
