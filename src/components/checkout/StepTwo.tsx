@@ -80,7 +80,7 @@ export default function StepTwo({
     }, []);    
     return (
       <section className="text-[#2D2D2D] w-full">
-        <h2 className="text-xl font-semibold mb-4">{locale == "es" ? "Seleccione un método de pago" : "Select a payment method"}</h2>
+        <h2 className="mb-4 font-display text-2xl font-medium tracking-[-0.005em]">{locale == "es" ? "Seleccione un método de pago" : "Select a payment method"}</h2>
 
         <div role="radiogroup" aria-label={locale == "es" ? "Método de pago" : "Payment method"} className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <PaymentOption
@@ -118,8 +118,8 @@ export default function StepTwo({
         />
 
         {/* Resumen del pedido */}
-        <div className="mt-6 p-5 bg-white rounded-xl shadow-lg border border-[#E8E4E0]">
-          <h3 className="text-lg font-semibold mb-4 text-[#2D2D2D]">{locale == "es" ? "Resumen del pedido" : "Order summary"}</h3>
+        <div className="mt-6 border border-[#E8E4E0] bg-[#FAF6EF] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
+          <h3 className="mb-4 font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">{locale == "es" ? "Resumen del pedido" : "Order summary"}</h3>
           <div className="space-y-3">
             <div className="flex justify-between text-sm text-[#4A4A4A]">
               <span>{locale == "es" ? "Subtotal" : "Subtotal"}</span>
@@ -127,7 +127,7 @@ export default function StepTwo({
             </div>
             <div className="flex justify-between text-sm text-[#4A4A4A]">
               <span>{locale == "es" ? "Envío" : "Shipping"}</span>
-              <span className="text-[#9C9589]">$7 (₡3.200)</span>
+              <span className="text-[#6B6459]">$7 (₡3.200)</span>
             </div>
             {discountInfo && (
               <div className="flex justify-between text-sm text-[#4A7C59] font-semibold">
@@ -136,7 +136,7 @@ export default function StepTwo({
               </div>
             )}
             <hr className="border-[#E8E4E0] my-2" />
-            <div className="flex justify-between font-bold text-base">
+            <div className="flex justify-between text-base font-semibold">
               <span className="text-[#2D2D2D]">{locale == "es" ? "Total del pedido" : "Order total"}</span>
               <span className="text-[#C9A962]">${total ? total.toFixed(2) : '0.00'}</span>
             </div>

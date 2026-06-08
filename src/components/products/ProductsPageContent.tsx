@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { ChevronDown, ChevronRight, GridIcon, ListIcon } from 'lucide-react';
 import ProductCard from './ProductCard';
@@ -16,8 +16,16 @@ import ViewedProductsHistory from './ViewedProductsHistory';
 type Product = Database['public']['Tables']['products']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
 type MediaItem = { url: string; alt?: string; type?: string };
+type ProductWithInventory = Product & {
+  inventory?: { quantity: number | null }[] | { quantity: number | null } | null;
+};
 
 const PRODUCTS_PER_PAGE = 12;
+
+function getInventoryQuantity(product: ProductWithInventory) {
+  if (Array.isArray(product.inventory)) return product.inventory[0]?.quantity ?? null;
+  return product.inventory?.quantity ?? null;
+}
 
 export default function ProductsPageContent() {
   const router = useRouter();
@@ -28,8 +36,6 @@ export default function ProductsPageContent() {
   // Estados
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [brands, setBrands] = useState<string[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -47,16 +53,14 @@ export default function ProductsPageContent() {
   const sortBy = searchParams.get('sort') || 'name_asc';
   const featuredOnly = searchParams.get('featured') === 'true';
   
-  // Cargar categorías, marcas y etiquetas al inicio
+  // Cargar categorías al inicio
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch categories
        const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
-          .select('*')
+          .select('id, name, name_es, name_en')
           .order(locale === 'es' ? 'name_es' : 'name_en', { ascending: true });
-          console.log('category filter', categoryFilter);
         
         setCategoryName(locale === 'es' ? (categoriesData?.find(c => c.id === Number(categoryFilter))?.name_es || '') : (categoriesData?.find(c => c.id === Number(categoryFilter))?.name_en || ''));  
         if (categoriesError) {
@@ -64,46 +68,6 @@ export default function ProductsPageContent() {
           throw categoriesError;
         }
         setCategories(categoriesData as Category[]);
-        console.log('categoriesData', categoriesData);
-
-        
-        
-        // Fetch unique brands
-        const { data: brandsData, error: brandsError } = await supabase
-          .from('products')
-          .select('brand')
-          .not('brand', 'is', null);
-        
-        if (brandsError) throw brandsError;
-        
-        // Filter unique brands
-        const uniqueBrands = Array.from(
-          new Set(
-            brandsData
-              .map(item => item.brand)
-              .filter(Boolean) as string[]
-          )
-        ).sort();
-        
-        setBrands(uniqueBrands);
-        
-        // Fetch all tags across products
-        const { data: productsWithTags, error: tagsError } = await supabase
-          .from('products')
-          .select('tags')
-          .not('tags', 'is', null);
-          
-        if (tagsError) throw tagsError;
-        
-        // Extract and flatten all tags
-        const allTags = productsWithTags
-          .flatMap(product => product.tags || [])
-          .filter(Boolean);
-          
-        // Get unique tags
-        const uniqueTags = Array.from(new Set(allTags)).sort();
-        setTags(uniqueTags);
-        
       } catch (err) {
         console.error('Error al cargar datos de filtros:', err);
       }
@@ -146,11 +110,11 @@ export default function ProductsPageContent() {
         }
         
         if (minPrice) {
-          query = query.gte('price', minPrice);
+          query = query.gte('dolar_price', minPrice);
         }
         
         if (maxPrice) {
-          query = query.lte('price', maxPrice);
+          query = query.lte('dolar_price', maxPrice);
         }
         
         // Filtrar por disponibilidad en inventario
@@ -167,9 +131,13 @@ export default function ProductsPageContent() {
         
         // Aplicar ordenamiento
         if (sortBy === 'price_asc') {
-          query = query.order('price', { ascending: true });
+          query = query.order('dolar_price', { ascending: true });
         } else if (sortBy === 'price_desc') {
-          query = query.order('price', { ascending: false });
+          query = query.order('dolar_price', { ascending: false });
+        } else if (sortBy === 'name_desc') {
+          query = query.order(locale === 'es' ? 'name_es' : 'name_en', { ascending: false });
+        } else if (sortBy === 'discount') {
+          query = query.order('discount_percentage', { ascending: false, nullsFirst: false });
         } else if (sortBy === 'newest') {
           query = query.order('created_at', { ascending: false });
         } else {
@@ -211,10 +179,10 @@ export default function ProductsPageContent() {
   
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
-      <div className="container mx-auto px-4 py-4">
+    <div className="min-h-screen bg-[#FAF6EF]">
+      <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-8 lg:px-12">
         {/* Breadcrumb */}
-        <div className="mb-2 flex items-center text-sm text-[#9C9589]">
+        <div className="mb-3 flex items-center text-sm text-[#6B6459]">
           <Link href="/" className="hover:text-[#C9A962] transition-colors">{locale === 'es' ? 'Inicio' : 'Home'}</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span className="font-medium text-[#4A4A4A]">{locale === 'es' ? 'Productos' : 'Products'}</span>
@@ -227,24 +195,22 @@ export default function ProductsPageContent() {
         </div>
 
         {/* Encabezado */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-[#2D2D2D] border-l-4 border-[#C9A962] pl-3">
+        <div className="mb-6 max-w-3xl">
+          <h1 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
             {categoryFilter ? `${categoryName}` : locale === 'es' ? 'Todos los Productos' : 'All Products'}
           </h1>
-          <p className="text-[#4A4A4A] text-sm mt-1">
+          <p className="text-[#4A4A4A] text-sm mt-2 leading-relaxed">
             {locale === 'es' ? 'Descubre nuestra colección de productos hechos a mano.' : 'Discover our collection of handmade products.'}
             {totalCount > 0 && ` ${locale === 'es' ? 'Mostrando' : 'Showing'} ${products.length} ${locale === 'es' ? 'de' : 'of'} ${totalCount} ${locale === 'es' ? 'productos' : 'products'}.`}
           </p>
         </div>
       
       {/* Contenido principal */}
-      <div className="flex flex-col md:flex-row gap-2">
+      <div className="flex flex-col gap-5 md:flex-row">
         {/* Barra lateral de filtros */}
         <aside className="md:w-64">
           <ProductFilters
             categories={categories}
-            brands={brands}
-            tags={tags}
             isMobile={true}
             locale={locale}
           />
@@ -252,8 +218,6 @@ export default function ProductsPageContent() {
           <div className="hidden md:block">
             <ProductFilters
               categories={categories}
-              brands={brands}
-              tags={tags}
               isMobile={false}
               locale={locale}
             />
@@ -263,9 +227,9 @@ export default function ProductsPageContent() {
         {/* Lista de productos */}
         <div className="flex-1">
           {/* Barra de control */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-[#E8E4E0]">
+          <div className="mb-4 flex flex-col items-stretch justify-between gap-3 border-b border-[#E8E4E0] pb-4 sm:flex-row sm:items-center">
             {/* Información de resultados */}
-            <div className="text-sm text-[#9C9589]">
+            <div className="text-sm text-[#6B6459]">
               {totalCount > 0 && (
                 <p>
                   {locale === 'es' ? 'Mostrando' : 'Showing'} <span className="font-medium text-[#2D2D2D]">{products.length}</span> de <span className="font-medium text-[#2D2D2D]">{totalCount}</span> {locale === 'es' ? 'productos' : 'products'}
@@ -275,11 +239,11 @@ export default function ProductsPageContent() {
             </div>
 
             {/* Controles */}
-            <div className="flex items-center space-x-4">
+            <div className="flex w-full items-center gap-3 sm:w-auto">
               {/* Selector de ordenamiento */}
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <select
-                  className="appearance-none h-9 pl-3 pr-8 text-sm border border-[#E8E4E0] text-[#2D2D2D] bg-[#FAF8F5] rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C9A962] focus:border-transparent"
+                  className="h-11 w-full appearance-none rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] pl-3 pr-9 text-sm text-[#2D2D2D] cursor-pointer focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 sm:w-auto"
                   value={sortBy}
                   onChange={(e) => {
                     const params = new URLSearchParams(searchParams.toString());
@@ -294,22 +258,21 @@ export default function ProductsPageContent() {
                   <option value="price_desc">{locale === 'es' ? 'Precio: Mayor a menor' : 'Price: Highest to lowest'}</option>
                   <option value="newest">{locale === 'es' ? 'Más recientes' : 'Newest'}</option>
                   <option value="discount">{locale === 'es' ? 'Mayor descuento' : 'Highest discount'}</option>
-                  <option value="popular">{locale === 'es' ? 'Más populares' : 'Most popular'}</option>
                 </select>
                 <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4 text-[#9C9589]" />
               </div>
 
               {/* Cambio de vista (grid/list) */}
-              <div className="hidden md:flex border border-[#E8E4E0] rounded-md overflow-hidden">
+              <div className="hidden overflow-hidden rounded-sm border border-[#E8E4E0] md:flex">
                 <button
-                  className={`p-1.5 ${viewMode === 'grid' ? 'bg-[#2D2D2D] text-[#C9A962]' : 'text-[#9C9589] hover:text-[#C9A962] bg-[#FAF8F5]'}`}
+                  className={`grid h-11 w-11 place-items-center ${viewMode === 'grid' ? 'bg-[#2D2D2D] text-[#C9A962]' : 'text-[#6B6459] hover:text-[#C9A962] bg-[#FAF6EF]'}`}
                   onClick={() => setViewMode('grid')}
                   aria-label="Ver en cuadrícula"
                 >
                   <GridIcon className="h-5 w-5" />
                 </button>
                 <button
-                  className={`p-1.5 ${viewMode === 'list' ? 'bg-[#2D2D2D] text-[#C9A962]' : 'text-[#9C9589] hover:text-[#C9A962] bg-[#FAF8F5]'}`}
+                  className={`grid h-11 w-11 place-items-center ${viewMode === 'list' ? 'bg-[#2D2D2D] text-[#C9A962]' : 'text-[#6B6459] hover:text-[#C9A962] bg-[#FAF6EF]'}`}
                   onClick={() => setViewMode('list')}
                   aria-label="Ver en lista"
                 >
@@ -321,22 +284,31 @@ export default function ProductsPageContent() {
 
           {/* Estado de carga */}
           {loading && (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#C9A962]"></div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="animate-pulse rounded-sm border border-[#E8E4E0] bg-[#FAF6EF]">
+                  <div className="aspect-square bg-[#F5F1EB]" />
+                  <div className="space-y-3 p-4">
+                    <div className="h-4 w-3/4 rounded bg-[#E8E4E0]" />
+                    <div className="h-6 w-1/3 rounded bg-[#E8E4E0]" />
+                    <div className="h-11 rounded bg-[#F5F1EB]" />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
           {/* Mensaje de error */}
           {error && (
-            <div className="bg-[#C44536]/10 border border-[#C44536]/30 rounded-lg p-4 mb-6">
+            <div className="mb-6 rounded-sm border border-[#C44536]/30 bg-[#C44536]/10 p-4">
               <p className="text-[#C44536]">{error}</p>
             </div>
           )}
 
           {/* Sin resultados */}
           {!loading && !error && products.length === 0 && (
-            <div className="bg-[#FAF8F5] rounded-lg border border-[#E8E4E0] p-6 text-center">
-              <h2 className="text-lg font-medium text-[#2D2D2D] mb-2">{locale === 'es' ? 'No se encontraron productos' : 'No products found'}</h2>
+            <div className="rounded-sm border border-[#E8E4E0] bg-[#F5F1EB] p-8 text-center">
+              <h2 className="font-display text-xl font-medium text-[#2D2D2D] mb-2">{locale === 'es' ? 'No se encontraron productos' : 'No products found'}</h2>
               <p className="text-[#4A4A4A] mb-4">
                 {locale === 'es' ? 'No hay productos disponibles con los filtros seleccionados.' : 'No products available with the selected filters.'}
               </p>
@@ -346,7 +318,7 @@ export default function ProductsPageContent() {
                   params.set('page', '1');
                   handleFilterChange(params);
                 }}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-[#1A1A1A] bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C9A962] transition-all"
+                className="inline-flex min-h-[44px] items-center rounded-sm bg-[#2D2D2D] px-5 py-2.5 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
               >
                 {locale === 'es' ? 'Borrar filtros' : 'Clear filters'}
               </button>
@@ -357,7 +329,16 @@ export default function ProductsPageContent() {
           {hasProducts && viewMode === 'grid' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  categoryName={
+                    (locale === 'es'
+                      ? categories.find(cat => cat.id === product.category_id)?.name_es
+                      : categories.find(cat => cat.id === product.category_id)?.name_en) || undefined
+                  }
+                  inventoryQuantity={getInventoryQuantity(product as ProductWithInventory)}
+                />
               ))}
             </div>
           )}
@@ -368,12 +349,12 @@ export default function ProductsPageContent() {
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="flex flex-col sm:flex-row border border-[#E8E4E0] rounded-lg overflow-hidden bg-[#FAF8F5] hover:shadow-lg hover:border-[#C9A962]/30 transition-all"
+                  className="flex flex-col overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[#C9A962]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)] sm:flex-row"
                 >
                   {/* Imagen del producto */}
                   <Link
                     href={`/product/${product.name}`}
-                    className="sm:w-48 h-40 sm:h-auto relative bg-white flex-shrink-0"
+                    className="relative h-40 flex-shrink-0 bg-[#F5F1EB] sm:h-auto sm:w-48"
                   >
                     <div className="absolute inset-0 flex items-center justify-center p-4">
                       <Image
@@ -381,7 +362,7 @@ export default function ProductsPageContent() {
                         alt={product.name || ''}
                         width={150}
                         height={150}
-                        className="object-cover w-full h-full rounded"
+                        className="h-full w-full object-contain"
                         loading="lazy"
                       />
                     </div>
@@ -398,13 +379,13 @@ export default function ProductsPageContent() {
                       </Link>
                       {product.category_id && (
                         <div className="mt-1">
-                          <span className="inline-block px-2 py-0.5 bg-[#2D2D2D] text-[#F5F1EB] text-xs rounded-full border border-[#C9A962]/20">
+                          <span className="inline-block rounded-sm bg-[#2D2D2D] px-2 py-0.5 text-xs text-[#F5F1EB]">
                             {locale === 'es' ? categories.find(cat => cat.id === product.category_id)?.name_es : categories.find(cat => cat.id === product.category_id)?.name_en || 'Categoría'}
                           </span>
                         </div>
                       )}
                       {product.brand && (
-                        <span className="ml-1 inline-block px-2 py-0.5 bg-[#C9A962]/10 text-[#A08848] text-xs rounded-full border border-[#C9A962]/30">
+                          <span className="ml-1 inline-block rounded-sm border border-[#C9A962]/30 bg-[#C9A962]/10 px-2 py-0.5 text-xs text-[#A08848]">
                           {product.brand}
                         </span>
                       )}
@@ -421,7 +402,7 @@ export default function ProductsPageContent() {
                             {product.discount_percentage && product.discount_percentage > 0 ? (
                               <div className="flex flex-col">
                                 <div className="flex items-center gap-2">
-                                  <p className="text-lg font-bold text-[#C9A962]">
+                                  <p className="font-display text-lg font-semibold text-[#2D2D2D]">
                                     ${((Number(product.dolar_price) || 0) * (1 - (Number(product.discount_percentage) || 0) / 100)).toFixed(2)}
                                   </p>
                                   <span className="text-xs font-medium bg-[#B55327]/10 text-[#B55327] px-1.5 py-0.5 rounded border border-[#B55327]/30">
@@ -433,7 +414,7 @@ export default function ProductsPageContent() {
                                 </p>
                               </div>
                             ) : (
-                              <p className="text-lg font-bold text-[#C9A962]">
+                              <p className="font-display text-lg font-semibold text-[#2D2D2D]">
                                 ${(Number(product.dolar_price) || 0).toFixed(2)}
                               </p>
                             )}
@@ -447,7 +428,7 @@ export default function ProductsPageContent() {
 
                       <Link
                         href={`/product/${product.name}`}
-                        className="inline-flex items-center px-3 py-1.5 border border-[#C9A962] text-sm font-medium rounded text-[#C9A962] bg-transparent hover:bg-[#C9A962] hover:text-[#1A1A1A] transition-all"
+                        className="inline-flex min-h-[44px] items-center rounded-sm border border-[#E8E4E0] px-4 py-2 text-sm font-medium text-[#2D2D2D] transition-colors hover:border-[#A08848] hover:text-[#A08848]"
                       >
                         {locale === 'es' ? 'Ver detalles' : 'View details'}
                       </Link>

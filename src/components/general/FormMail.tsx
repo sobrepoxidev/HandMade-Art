@@ -1,28 +1,23 @@
 "use client";
 import { useActionState } from 'react';
 import { handleVacationForm } from "../../actions";
-import { motion, useReducedMotion } from 'framer-motion';
 import { Loader2, Check, AlertCircle } from 'lucide-react';
 import { useLocale } from 'next-intl';
 
 export default function FormMail() {
   const [state, formAction, isPending] = useActionState(handleVacationForm, null);
   const locale = useLocale();
-  const prefersReducedMotion = useReducedMotion();
 
   const inputClass =
-    'w-full p-3 border border-[#E8E4E0] rounded-sm bg-white text-[#2D2D2D] placeholder:text-[#9C9589] ' +
+    'w-full p-3 border border-[#E8E4E0] rounded-sm bg-[#FFFDF9] text-[#2D2D2D] placeholder:text-[#9C9589] ' +
     'focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 ' +
     'transition-colors text-sm md:text-base disabled:opacity-60';
 
   return (
     <div>
-      <motion.form
+      <form
         action={formAction}
         className="space-y-4"
-        initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
-        animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
       >
         <div className="space-y-4 text-start">
           <div>
@@ -100,7 +95,7 @@ export default function FormMail() {
             {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" strokeWidth={2} aria-hidden />
-                <span>{locale === "es" ? "Enviando…" : "Sending…"}</span>
+                <span>{locale === "es" ? "Enviando..." : "Sending..."}</span>
               </>
             ) : state?.success ? (
               <>
@@ -122,7 +117,7 @@ export default function FormMail() {
             </div>
           )}
         </div>
-      </motion.form>
+      </form>
     </div>
   );
 }

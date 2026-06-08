@@ -43,7 +43,7 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
   );
 
   const readonlyField =
-    'bg-[#FAF8F5] border border-[#E8E4E0] p-3 text-[#2D2D2D] rounded-sm';
+    'bg-[#FAF6EF] border border-[#E8E4E0] p-3 text-[#2D2D2D] rounded-sm';
   const labelClass = 'block text-xs uppercase tracking-[0.06em] font-medium text-[#6B6459] mb-1.5';
 
   return (
@@ -53,7 +53,7 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
       </h2>
 
       <div className="space-y-5">
-        {/* Email — no editable */}
+        {/* Email, not editable */}
         <div>
           <label className={labelClass} htmlFor="profile-email">
             {t('email')}
@@ -76,7 +76,7 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
                 id="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="flex-grow p-3 border border-[#E8E4E0] rounded-sm bg-white text-[#2D2D2D] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 transition-colors disabled:opacity-60"
+                className="flex-grow p-3 border border-[#E8E4E0] rounded-sm bg-[#FFFDF9] text-[#2D2D2D] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 transition-colors disabled:opacity-60"
                 disabled={loading}
                 autoFocus
               />
@@ -98,7 +98,7 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
                     setIsEditing(false);
                     setFullName(profile?.full_name || user.user_metadata?.full_name || '');
                   }}
-                  className="inline-flex items-center justify-center min-h-[44px] px-5 py-2 bg-white border border-[#E8E4E0] text-[#2D2D2D] font-medium text-sm rounded-sm hover:border-[#A08848] hover:bg-[#FAF8F5] transition-colors disabled:opacity-60"
+                  className="inline-flex items-center justify-center min-h-[44px] px-5 py-2 bg-[#FFFDF9] border border-[#E8E4E0] text-[#2D2D2D] font-medium text-sm rounded-sm hover:border-[#A08848] hover:bg-[#FAF6EF] transition-colors disabled:opacity-60"
                   disabled={loading}
                 >
                   {t('cancel')}
@@ -127,13 +127,13 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
           <h3 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
             {t('accountInfo')}
           </h3>
-          <div className="bg-[#FAF8F5] border border-[#E8E4E0] p-4 rounded-sm">
+          <div className="bg-[#FAF6EF] border border-[#E8E4E0] p-4 rounded-sm">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.06em] text-[#6B6459] mb-0.5">
                   {t('accountCreated')}
                 </p>
-                <p className="font-medium text-[#2D2D2D]">{createdAt || '—'}</p>
+                <p className="font-medium text-[#2D2D2D]">{createdAt || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.06em] text-[#6B6459] mb-0.5">

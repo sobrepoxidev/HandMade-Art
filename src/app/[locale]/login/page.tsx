@@ -1,294 +1,248 @@
-'use client'
-import React, { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useSupabase } from '@/app/supabase-provider/provider'
-import { Link } from '@/i18n/navigation';
-import { FaEnvelope, FaLock, FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa'
-import { useLocale } from 'next-intl'
-import Image from 'next/image'
+'use client';
 
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
+import { useSupabase } from '@/app/supabase-provider/provider';
+import { useLocale } from 'next-intl';
+
+const LOGO_URL = 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg';
+
+function GoogleIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
+      <path fill="#4285F4" d="M21.6 12.23c0-.78-.07-1.53-.2-2.23H12v4.22h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.9-1.75 2.98-4.33 2.98-7.52Z" />
+      <path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.45l-3.24-2.51c-.9.6-2.04.96-3.38.96-2.6 0-4.8-1.76-5.59-4.12H3.06v2.59A9.99 9.99 0 0 0 12 22Z" />
+      <path fill="#FBBC05" d="M6.41 13.88A6 6 0 0 1 6.1 12c0-.65.11-1.28.31-1.88V7.53H3.06A9.99 9.99 0 0 0 2 12c0 1.61.39 3.13 1.06 4.47l3.35-2.59Z" />
+      <path fill="#EA4335" d="M12 5.98c1.47 0 2.79.5 3.82 1.5l2.87-2.87C16.96 3 14.7 2 12 2a9.99 9.99 0 0 0-8.94 5.53l3.35 2.59C7.2 7.76 9.4 5.98 12 5.98Z" />
+    </svg>
+  );
+}
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { supabase } = useSupabase()
-  const locale = useLocale()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [errorMsg, setErrorMsg] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const [confirmationMsg, setConfirmationMsg] = useState('')
-  const [returnUrl, setReturnUrl] = useState('/')
-
+  const router = useRouter();
+  const { supabase } = useSupabase();
+  const locale = useLocale();
   const searchParams = useSearchParams();
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [confirmationMsg, setConfirmationMsg] = useState('');
+  const [returnUrl, setReturnUrl] = useState('/');
+
   useEffect(() => {
-    setMounted(true)
-
     const returnUrlParam = searchParams.get('returnUrl') || searchParams.get('redirect');
-    if (returnUrlParam) {
-      setReturnUrl(returnUrlParam);
-    }
-  }, [searchParams])
+    if (returnUrlParam) setReturnUrl(returnUrlParam);
+  }, [searchParams]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setErrorMsg('')
-    setLoading(true)
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrorMsg('');
+    setLoading(true);
+
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
       if (error) {
-        if (error.message.includes('rate limit')) {
-          setErrorMsg(locale === 'es'
-            ? 'Has excedido el número de intentos permitidos. Por favor, espera unos minutos antes de intentarlo nuevamente o usa el inicio de sesión con Google.'
-            : 'You have exceeded the allowed number of attempts. Please wait a few minutes before trying again or use Google login.')
-        } else {
-          setErrorMsg(error.message)
-        }
-        setLoading(false)
-      } else {
-        setConfirmationMsg(locale === 'es' ? 'Iniciando sesión...' : 'Logging in...')
-        router.replace(returnUrl)
+        setErrorMsg(error.message.includes('rate limit')
+          ? locale === 'es'
+            ? 'Has excedido el número de intentos permitidos. Espera unos minutos o usa Google.'
+            : 'You have exceeded the allowed attempts. Wait a few minutes or use Google.'
+          : error.message);
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      console.error('Error al iniciar sesión:', err)
+
+      setConfirmationMsg(locale === 'es' ? 'Iniciando sesión...' : 'Logging in...');
+      router.replace(returnUrl);
+    } catch (error) {
+      console.error('Login error:', error);
       setErrorMsg(locale === 'es'
-        ? 'Error inesperado. Intenta de nuevo o usa el inicio de sesión con Google.'
-        : 'Unexpected error. Please try again or use Google login.')
-      setLoading(false)
+        ? 'Error inesperado. Intenta de nuevo o usa Google.'
+        : 'Unexpected error. Try again or use Google.');
+      setLoading(false);
     }
-  }
+  };
 
   const signInWithGoogle = async (url: string) => {
-  setLoading(true);
-  setErrorMsg("");
+    setLoading(true);
+    setErrorMsg('');
 
-  try {
-    // 1) Construimos callback absoluto UNA sola vez
-    const redirectTo = new URL("/auth/callback", window.location.origin);
+    try {
+      const redirectTo = new URL('/auth/callback', window.location.origin);
+      const nextPath = normalizeReturnPath(url || '/', locale);
+      redirectTo.searchParams.set('next', nextPath);
 
-    // 2) Normalizamos la ruta de retorno para que tenga EXACTAMENTE un locale delante
-    //    y no permita dominios externos (open redirect guard).
-    const normalizeNext = (raw: string, locale: string) => {
-      try {
-        // Permite path con o sin query; si viene absoluta, la reducimos a path local
-        const u = new URL(raw, window.location.origin);
-        let path = u.pathname;      // e.g. "/es/producto/123" o "/"
-        const qs = u.search || "";  // e.g. "?a=b"
-
-        // Quitar un locale inicial (es|en) si existe, pero SOLO uno
-        path = path.replace(/^\/(es|en)(?=\/|$)/, "");
-
-        // Asegurar exactamente un locale al inicio
-        // Caso especial: path == "" → raíz del idioma "/es" o "/en"
-        path = `/${locale}${path === "" ? "" : path}`;
-
-        // Colapsar dobles slashes por si acaso
-        path = path.replace(/\/{2,}/g, "/");
-
-        return `${path}${qs}`;
-      } catch {
-        // Si 'raw' venía "rara", forzamos un path seguro local con locale
-        const safe = raw.startsWith("/") ? raw : `/${raw}`;
-        return `/${locale}${safe}`.replace(/\/{2,}/g, "/");
-      }
-    };
-
-    // OJO: 'returnUrl' puede venir como "/es", "/es?x=y", "/producto/1", etc.
-    const nextPath = normalizeNext(url || "/", locale);
-
-    // 3) NUNCA uses encodeURIComponent aquí: searchParams.set YA codifica correctamente.
-    redirectTo.searchParams.set("next", nextPath);
-
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: redirectTo.toString(),
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectTo.toString(),
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
-      },
-    });
+      });
 
-    if (error) throw error;
-    if (data?.url) window.location.href = data.url;
-  } catch (error: unknown) {
-    console.error("Error en inicio de sesión con Google:", error);
-    setErrorMsg(error instanceof Error ? error.message : "Error al iniciar sesión con Google");
-    setLoading(false);
-  }
-};
-
-  if (!mounted) return null
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (error: unknown) {
+      console.error('Google login error:', error);
+      setErrorMsg(error instanceof Error ? error.message : locale === 'es' ? 'Error al iniciar sesión con Google' : 'Google sign-in failed');
+      setLoading(false);
+    }
+  };
 
   return (
-    <section className="relative overflow-hidden min-h-screen bg-gradient-to-br from-[#1A1A1A] via-[#2D2D2D] to-[#3A3A3A] py-8 px-4 sm:px-6 lg:px-8">
-      {/* Decorative Elements */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-[#C9A962]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#B55327]/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-[#C9A962]/3 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2"></div>
-      </div>
+    <main className="bg-[#FAF6EF] px-4 py-6 sm:px-8 lg:px-12 lg:py-10">
+      <div className="mx-auto grid min-h-[calc(100vh-12rem)] max-w-5xl items-start gap-8 py-4 lg:grid-cols-[0.9fr_1.1fr] lg:py-10">
+        <section className="hidden border border-[#E8E4E0] bg-[#2D2D2D] p-8 text-[#F5F1EB] lg:block">
+          <div className="relative mb-8 h-16 w-16">
+            <Image src={LOGO_URL} alt="" fill className="object-contain" />
+          </div>
+          <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-[#C9A962]">
+            {locale === 'es' ? 'Cuenta Handmade Art' : 'Handmade Art account'}
+          </p>
+          <h1 className="font-display text-4xl font-medium leading-tight tracking-[-0.005em]">
+            {locale === 'es' ? 'Vuelve a tu carrito, favoritos y pedidos.' : 'Return to your cart, favorites and orders.'}
+          </h1>
+          <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#D4C4A8]">
+            {locale === 'es'
+              ? 'Compra piezas únicas con una cuenta que conserva tu flujo y acelera el checkout.'
+              : 'Shop one-of-a-kind pieces with an account that keeps your flow and speeds up checkout.'}
+          </p>
+        </section>
 
-      <div className="mx-auto max-w-7xl relative z-10 flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <div className="w-full max-w-md animate-fade-in-up">
-          {/* Card Container */}
-          <div className="bg-[#2D2D2D]/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 sm:p-10 border border-[#C9A962]/20">
-            {/* Logo & Header */}
-            <div className="text-center mb-8">
-              <div className="flex justify-center mb-6">
-                <div className="relative w-20 h-20 bg-[#3A3A3A] rounded-2xl p-3 border border-[#C9A962]/30 shadow-lg">
-                  <Image
-                    src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg"
-                    alt="Handmade Art Logo"
-                    fill
-                    className="object-contain p-2"
-                  />
-                </div>
+        <section className="mx-auto w-full max-w-md border border-[#E8E4E0] bg-[#FAF6EF] p-6 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)] sm:p-8">
+          <div className="mb-7">
+            <div className="mb-5 flex items-center gap-3 lg:hidden">
+              <div className="relative h-11 w-11 bg-[#2D2D2D]">
+                <Image src={LOGO_URL} alt="" fill className="object-contain p-2" />
               </div>
-              <h1 className="text-3xl sm:text-4xl font-light text-[#F5F1EB] mb-2 tracking-wide">
-                {locale === 'es' ? 'Bienvenido' : 'Welcome'}
-              </h1>
-              <p className="text-[#9C9589] text-sm tracking-wide">
-                {locale === 'es' ? 'Ingresa a tu cuenta HandMade Art' : 'Sign in to your HandMade Art account'}
-              </p>
+              <span className="font-display text-xl text-[#2D2D2D]">Handmade <span className="text-[#A08848]">Art</span></span>
+            </div>
+            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+              {locale === 'es' ? 'Iniciar sesión' : 'Sign in'}
+            </h2>
+            <p className="mt-2 text-sm text-[#4A4A4A]">
+              {locale === 'es' ? 'Accede para continuar tu compra.' : 'Access your account to continue shopping.'}
+            </p>
+          </div>
+
+          {confirmationMsg && (
+            <div className="mb-5 rounded-sm border border-[#4A7C59]/30 bg-[#4A7C59]/10 p-3 text-sm font-medium text-[#2F5F3E]">
+              {confirmationMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-[#6B6459]">
+                {locale === 'es' ? 'Correo electrónico' : 'Email'}
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6459]" strokeWidth={1.75} aria-hidden />
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className="h-12 w-full rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] pl-10 pr-3 text-sm text-[#2D2D2D] placeholder:text-[#6B6459] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+                  placeholder={locale === 'es' ? 'tu@email.com' : 'your@email.com'}
+                  required
+                />
+              </div>
             </div>
 
-            {confirmationMsg && (
-              <div className="mb-6 p-4 rounded-xl bg-[#4A7C59]/20 text-[#7CB893] border border-[#4A7C59]/30 text-center">
-                {confirmationMsg}
+            <div>
+              <div className="mb-1.5 flex items-center justify-between gap-3">
+                <label htmlFor="password" className="text-xs font-medium uppercase tracking-[0.06em] text-[#6B6459]">
+                  {locale === 'es' ? 'Contraseña' : 'Password'}
+                </label>
+                <Link href="/forgot-password" className="text-xs font-medium text-[#A08848] hover:text-[#2D2D2D]">
+                  {locale === 'es' ? '¿Olvidaste tu contraseña?' : 'Forgot password?'}
+                </Link>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6459]" strokeWidth={1.75} aria-hidden />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="h-12 w-full rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] pl-10 pr-12 text-sm text-[#2D2D2D] placeholder:text-[#6B6459] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-sm text-[#6B6459] hover:text-[#A08848]"
+                  onClick={() => setShowPassword((value) => !value)}
+                  aria-label={showPassword ? locale === 'es' ? 'Ocultar contraseña' : 'Hide password' : locale === 'es' ? 'Mostrar contraseña' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.75} /> : <Eye className="h-4 w-4" strokeWidth={1.75} />}
+                </button>
+              </div>
+            </div>
+
+            {errorMsg && (
+              <div className="rounded-sm border border-[#C44536]/30 bg-[#C44536]/10 p-3 text-sm text-[#9F2D24]">
+                {errorMsg}
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-[#D4C4A8] mb-2 tracking-wide">
-                  {locale === 'es' ? 'Correo electrónico' : 'Email'}
-                </label>
-                <div className="relative group">
-                  <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9C9589] group-focus-within:text-[#C9A962] transition-colors" />
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-[#1A1A1A]/60 border border-[#C9A962]/20 rounded-xl text-[#F5F1EB] placeholder-[#6B6B6B] focus:border-[#C9A962] focus:ring-2 focus:ring-[#C9A962]/20 transition-all duration-300"
-                    placeholder={locale === 'es' ? 'tu@email.com' : 'your@email.com'}
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label htmlFor="password" className="block text-sm font-medium text-[#D4C4A8] tracking-wide">
-                    {locale === 'es' ? 'Contraseña' : 'Password'}
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs text-[#C9A962] hover:text-[#D4C4A8] transition-colors"
-                  >
-                    {locale === 'es' ? '¿Olvidaste tu contraseña?' : 'Forgot password?'}
-                  </Link>
-                </div>
-                <div className="relative group">
-                  <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9C9589] group-focus-within:text-[#C9A962] transition-colors" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-14 py-3.5 bg-[#1A1A1A]/60 border border-[#C9A962]/20 rounded-xl text-[#F5F1EB] placeholder-[#6B6B6B] focus:border-[#C9A962] focus:ring-2 focus:ring-[#C9A962]/20 transition-all duration-300"
-                    placeholder="••••••••"
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#9C9589] hover:text-[#C9A962] focus:outline-none transition-colors"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                  >
-                    {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" /> }
-                  </button>
-                </div>
-              </div>
-
-              {errorMsg && (
-                <div className="text-[#E57373] text-sm p-4 bg-[#C44536]/10 border border-[#C44536]/30 rounded-xl">
-                  {errorMsg}
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 px-6 bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] text-[#1A1A1A] font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    {locale === 'es' ? 'Iniciando...' : 'Signing in...'}
-                  </span>
-                ) : (
-                  locale === 'es' ? 'Iniciar sesión' : 'Sign in'
-                )}
-              </button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full h-px bg-gradient-to-r from-transparent via-[#C9A962]/30 to-transparent"></div>
-              </div>
-              <div className="relative flex justify-center">
-                <span className="px-4 text-sm text-[#9C9589] bg-[#2D2D2D]">
-                  {locale === 'es' ? 'o continúa con' : 'or continue with'}
-                </span>
-              </div>
-            </div>
-
-            {/* Google Sign In */}
             <button
-              onClick={() => signInWithGoogle(returnUrl)}
-              className="w-full flex items-center justify-center gap-3 py-3.5 px-6 bg-[#1A1A1A]/60 border border-[#C9A962]/20 rounded-xl text-[#F5F1EB] hover:bg-[#1A1A1A] hover:border-[#C9A962]/40 transition-all duration-300"
+              type="submit"
+              disabled={loading}
+              className="inline-flex min-h-[48px] w-full items-center justify-center rounded-sm bg-[#2D2D2D] px-5 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <FaGoogle className="h-5 w-5 text-[#C9A962]" />
-              <span className="font-medium">
-                {locale === 'es' ? 'Continuar con Google' : 'Continue with Google'}
-              </span>
+              {loading ? (locale === 'es' ? 'Iniciando...' : 'Signing in...') : (locale === 'es' ? 'Iniciar sesión' : 'Sign in')}
             </button>
+          </form>
 
-            {/* Register Link */}
-            <div className="text-center mt-8 pt-6 border-t border-[#C9A962]/10">
-              <p className="text-[#9C9589]">
-                {locale === 'es' ? '¿No tienes cuenta?' : "Don't have an account?"}{' '}
-                <Link
-                  href={`/register${returnUrl !== '/' ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`}
-                  className="text-[#C9A962] hover:text-[#D4C4A8] font-medium transition-colors"
-                >
-                  {locale === 'es' ? 'Crear cuenta' : 'Create account'}
-                </Link>
-              </p>
-            </div>
+          <div className="my-6 flex items-center gap-3">
+            <span className="h-px flex-1 bg-[#E8E4E0]" />
+            <span className="text-xs text-[#6B6459]">{locale === 'es' ? 'o' : 'or'}</span>
+            <span className="h-px flex-1 bg-[#E8E4E0]" />
           </div>
 
-          {/* Footer Text */}
-          <p className="text-center mt-6 text-xs text-[#6B6B6B] tracking-wide">
-            {locale === 'es' ? 'Arte costarricense hecho a mano' : 'Costa Rican handmade art'}
+          <button
+            type="button"
+            onClick={() => signInWithGoogle(returnUrl)}
+            className="inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-sm border border-[#E8E4E0] px-5 py-3 text-sm font-semibold text-[#2D2D2D] transition-colors hover:border-[#A08848] hover:bg-[#F5F1EB]"
+          >
+            <GoogleIcon />
+            {locale === 'es' ? 'Continuar con Google' : 'Continue with Google'}
+          </button>
+
+          <p className="mt-6 border-t border-[#E8E4E0] pt-5 text-center text-sm text-[#4A4A4A]">
+            {locale === 'es' ? '¿No tienes cuenta?' : "Don't have an account?"}{' '}
+            <Link
+              href={`/register${returnUrl !== '/' ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`}
+              className="font-semibold text-[#A08848] hover:text-[#2D2D2D]"
+            >
+              {locale === 'es' ? 'Crear cuenta' : 'Create account'}
+            </Link>
           </p>
-        </div>
+        </section>
       </div>
-    </section>
-  )
+    </main>
+  );
+}
+
+function normalizeReturnPath(raw: string, locale: string) {
+  try {
+    const url = new URL(raw, window.location.origin);
+    let path = url.pathname.replace(/^\/(es|en)(?=\/|$)/, '');
+    path = `/${locale}${path === '' ? '' : path}`.replace(/\/{2,}/g, '/');
+    return `${path}${url.search || ''}`;
+  } catch {
+    const safe = raw.startsWith('/') ? raw : `/${raw}`;
+    return `/${locale}${safe}`.replace(/\/{2,}/g, '/');
+  }
 }

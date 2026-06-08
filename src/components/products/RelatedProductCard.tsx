@@ -56,10 +56,10 @@ export default function RelatedProductCard({
 
   return (
     <article
-      className="group relative flex flex-col h-full bg-white border border-[#E8E4E0]/70 rounded-md overflow-hidden
+      className="group relative flex flex-col h-full bg-[#FAF6EF] border border-[#E8E4E0]/70 rounded-sm overflow-hidden
                  transition-[box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
                  hover:border-[#C9A962]/45
-                 hover:shadow-[0_12px_32px_-18px_rgba(45,45,45,0.28),0_2px_6px_-2px_rgba(45,45,45,0.06)]"
+                 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]"
     >
       <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start max-w-[70%]">
         {category && (
@@ -74,7 +74,7 @@ export default function RelatedProductCard({
         )}
         {product.is_featured && (
           <span
-            className="grid place-items-center w-5 h-5 rounded-full bg-[#C9A962] text-[#1A1A1A] shadow-sm"
+            className="grid place-items-center w-5 h-5 rounded-sm bg-[#C9A962] text-[#1A1A1A]"
             aria-label={locale === 'es' ? 'Destacado' : 'Featured'}
             title={locale === 'es' ? 'Destacado' : 'Featured'}
           >
@@ -90,7 +90,7 @@ export default function RelatedProductCard({
       <Link
         href={href}
         prefetch={false}
-        className="block relative aspect-square bg-[#FAF8F5] overflow-hidden ring-1 ring-inset ring-[#E8E4E0]/40"
+        className="block relative aspect-square bg-[#F5F1EB] overflow-hidden ring-1 ring-inset ring-[#E8E4E0]/40"
         aria-label={displayName ?? slug}
       >
         <Image
@@ -153,7 +153,7 @@ export default function RelatedProductCard({
             <Link
               href={href}
               prefetch={false}
-              className="flex-1 inline-flex items-center justify-center px-3 py-2 text-[12px] font-medium text-[#F5F1EB] bg-[#2D2D2D] rounded-sm hover:bg-[#1A1A1A] transition-colors duration-200 tracking-wide"
+                className="flex-1 inline-flex min-h-[40px] items-center justify-center px-3 py-2 text-[12px] font-medium text-[#F5F1EB] bg-[#2D2D2D] rounded-sm hover:bg-[#1A1A1A] transition-colors duration-200 tracking-wide"
             >
               {locale === 'es' ? 'Ver detalles' : 'View details'}
             </Link>

@@ -202,9 +202,9 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
           {productGroups.map((groupProducts, groupIndex) => (
             <div
               key={`group-${groupIndex}`}
-              className="min-w-[260px] flex-shrink-0 snap-start rounded-lg overflow-hidden shadow-sm"
+              className="min-w-[260px] flex-shrink-0 snap-start rounded-sm overflow-hidden shadow-sm"
             >
-              <div className={`${getCardColor(groupIndex)} p-3 h-full flex flex-col rounded-t-lg`}>
+              <div className={`${getCardColor(groupIndex)} p-3 h-full flex flex-col rounded-t-sm`}>
                 <div className="flex items-center mb-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#C9A962] mr-1.5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clipRule="evenodd" />
@@ -215,8 +215,8 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
 
                 <div className="grid grid-cols-2 gap-2 w-full h-full">
                   {groupProducts.map((product, idx) => (
-                    <Link key={`${product.id}-${idx}`} href={`/product/${product.name}`} className="block text-center">
-                      <div className="h-32 flex items-center justify-center bg-white rounded-lg shadow-sm p-1">
+                    <Link key={`${product.id}-${idx}`} href={`/product/${encodeURIComponent(product.name || String(product.id))}`} className="block text-center">
+                      <div className="h-32 flex items-center justify-center bg-[#FAF6EF] rounded-sm shadow-sm p-1">
                         <Image
                           src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
                           alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
@@ -241,8 +241,8 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
         {/* Desktop: productos individuales */}
         <div className="hidden lg:flex w-full space-x-4 px-4">
           {displayProducts.map((product, idx) => (
-            <Link key={`desktop-product-${product.id}-${idx}`} href={`/product/${product.name}`} className="block h-full min-w-[200px] flex-shrink-0 snap-start group">
-              <div className="bg-white border border-[#E8E4E0] rounded-md p-3 hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 h-full flex flex-col group-hover:-translate-y-0.5">
+            <Link key={`desktop-product-${product.id}-${idx}`} href={`/product/${encodeURIComponent(product.name || String(product.id))}`} className="block h-full min-w-[200px] flex-shrink-0 snap-start group">
+              <div className="bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm p-3 hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 h-full flex flex-col group-hover:-translate-y-0.5">
                 <div className="relative overflow-hidden rounded-md mb-3">
                   <div className="aspect-square flex items-center justify-center p-2 bg-[#FAF8F5] rounded-md">
                     <Image

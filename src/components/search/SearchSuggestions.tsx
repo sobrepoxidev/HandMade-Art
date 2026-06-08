@@ -43,7 +43,7 @@ export default function SearchSuggestions({
     borderColor: 'rgba(201, 169, 98, 0.2)',
     backgroundColor: '#2D2D2D',
     boxShadow: '0 10px 25px -3px rgba(0, 0, 0, 0.3)',
-    borderRadius: '0 0 0.75rem 0.75rem',
+    borderRadius: '0 0 0.125rem 0.125rem',
     overflow: 'hidden',
     width: '100%'
   };
@@ -95,11 +95,11 @@ export default function SearchSuggestions({
               {results.slice(0, 5).map((product) => (
                 <li key={product.id} role="option" aria-selected="false" className="border-b border-[#C9A962]/15 last:border-b-0">
                   <Link
-                    href={`/product/${product.name}`}
+                    href={`/product/${encodeURIComponent(product.name || String(product.id))}`}
                     className="flex items-center p-3 hover:bg-[#3A3A3A] transition-colors"
                     onClick={onClose}
                   >
-                    <div className="w-12 h-12 bg-[#3A3A3A] rounded-lg flex-shrink-0 overflow-hidden mr-3 border border-[#C9A962]/10">
+                    <div className="w-12 h-12 bg-[#3A3A3A] rounded-sm flex-shrink-0 overflow-hidden mr-3 border border-[#C9A962]/10">
                       <Image
                         src={product.media?.[0]?.url || '/product-placeholder.png'}
                         alt={product.name || ''}
@@ -112,7 +112,7 @@ export default function SearchSuggestions({
                       <h4 className="font-medium text-[#F5F1EB] truncate">{locale === 'es' ? product.name_es : product.name_en}</h4>
                       <div className="flex items-center">
                         {product.category_name && (
-                          <span className="text-xs bg-[#C9A962]/10 text-[#C9A962] px-1.5 py-0.5 rounded-full mr-2">
+                          <span className="text-xs bg-[#C9A962]/10 text-[#C9A962] px-1.5 py-0.5 rounded-sm mr-2">
                             {product.category_name}
                           </span>
                         )}

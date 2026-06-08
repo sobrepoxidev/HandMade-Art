@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 import CurrencyConverterRow from '../CurrencyConverterRow';
 import {
   ChevronRight,
@@ -27,8 +26,6 @@ import { Database, Json } from '@/lib/database.types';
 import { formatUSD } from '@/lib/formatCurrency';
 
 // Reviews live below the fold and are not critical for first paint.
-// Lazy-load them so framer-motion (used in the gallery) is the only
-// big dependency that ships with the main bundle.
 const ReviewsSection = dynamic(() => import('./ReviewsSection'), {
   ssr: false,
   loading: () => (
@@ -93,7 +90,6 @@ export default function ProductDetail({
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomScale, setZoomScale] = useState(1);
-  const [isDragging, setIsDragging] = useState(false);
   // Pinch state: kept as ref to avoid render thrashing during touchmove (60+ fps).
   const lastTouchDistanceRef = useRef(0);
   // Live announcement for screen readers when something happens (cart add).
@@ -203,7 +199,6 @@ export default function ProductDetail({
   useEffect(() => {
     setIsZoomed(false);
     setZoomScale(1);
-    setIsDragging(false);
     lastTouchDistanceRef.current = 0;
   }, [activeImageIndex]);
 
@@ -226,15 +221,10 @@ export default function ProductDetail({
   }, []);
 
   const handleImageClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (isDragging) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
+    () => {
       toggleZoom();
     },
-    [isDragging, toggleZoom]
+    [toggleZoom]
   );
 
   const handleImageKeyDown = useCallback(
@@ -249,14 +239,6 @@ export default function ProductDetail({
     },
     [isZoomed, toggleZoom]
   );
-
-  const handleDragStart = useCallback(() => {
-    setIsDragging(true);
-  }, []);
-
-  const handleDragEnd = useCallback(() => {
-    setTimeout(() => setIsDragging(false), 200);
-  }, []);
 
   // Pinch helpers — only the final scale lands in React state.
   const getTouchDistance = (touches: TouchList) => {
@@ -444,7 +426,7 @@ export default function ProductDetail({
   if (error || !product) {
     return (
       <main className="container mx-auto px-4 py-12 text-center">
-        <div className="bg-white border border-[#E8E4E0] rounded-md p-8 max-w-md mx-auto">
+        <div className="mx-auto max-w-md rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] p-8">
           <h1 className="font-display text-xl font-medium text-[#2D2D2D] mb-2">
             {error || (locale === 'es' ? 'Producto no encontrado' : 'Product not found')}
           </h1>
@@ -470,7 +452,7 @@ export default function ProductDetail({
     : '/product-placeholder.png';
 
   return (
-    <main className="container mx-auto px-4 py-2 bg-[#FAF8F5]">
+    <main className="mx-auto max-w-screen-2xl bg-[#FAF6EF] px-4 py-4 sm:px-8 lg:px-12">
       {/* Accessible live region for cart / share announcements */}
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
@@ -499,8 +481,8 @@ export default function ProductDetail({
         <div className="w-full md:w-7/12">
           <div className="sticky top-12">
             {/* Main image with zoom */}
-            <div className="relative bg-white aspect-square md:aspect-[4/5] border border-[#E8E4E0] rounded-md overflow-hidden mb-4">
-              <motion.div
+            <div className="relative mb-4 aspect-square overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#F5F1EB] md:aspect-[4/5]">
+              <div
                 className={`relative w-full h-full ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
                 role="button"
                 tabIndex={0}
@@ -512,16 +494,11 @@ export default function ProductDetail({
                 aria-pressed={isZoomed}
                 onClick={handleImageClick}
                 onKeyDown={handleImageKeyDown}
-                drag={isZoomed}
-                dragConstraints={{ left: -250, right: 250, top: -250, bottom: 250 }}
-                dragElastic={0.1}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-                animate={{ scale: zoomScale }}
-                transition={{ type: 'tween', duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 style={{
                   touchAction: isZoomed ? 'none' : 'auto',
                   transformOrigin: 'center center',
+                  transform: `scale(${zoomScale})`,
+                  transition: 'transform 250ms cubic-bezier(0.22, 1, 0.36, 1)',
                   willChange: isZoomed ? 'transform' : 'auto',
                 }}
                 onTouchStart={handleTouchStart}
@@ -543,7 +520,7 @@ export default function ProductDetail({
                   priority
                   draggable={false}
                 />
-              </motion.div>
+              </div>
 
               {/* Single, sober zoom indicator */}
               <div
@@ -577,7 +554,6 @@ export default function ProductDetail({
                         setActiveImageIndex(index);
                         setIsZoomed(false);
                         setZoomScale(1);
-                        setIsDragging(false);
                         lastTouchDistanceRef.current = 0;
                       }}
                       aria-label={

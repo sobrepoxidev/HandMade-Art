@@ -7,12 +7,10 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useSupabase } from "@/app/supabase-provider/provider";
 import { Database } from "@/lib/database.types";
-import { FaCcVisa, FaCcMastercard, FaCcAmex, FaCcDiscover, FaCcPaypal } from "react-icons/fa";
 import { notify } from "@/components/ui/notify";
 import EmptyState from "@/components/ui/EmptyState";
-import { ShoppingBag } from "lucide-react";
+import { CreditCard, ShoppingBag } from "lucide-react";
 import { AlertTriangle, Share2 } from "lucide-react";
-import { GalleryModal } from "@/components/products/ClientComponents";
 import RelatedProductsClient from "@/components/products/RelatedProductsClient";
 import { useLocale } from "next-intl";
 import { formatUSD } from "@/lib/formatCurrency";
@@ -90,11 +88,10 @@ export default function CartPage() {
     };
   }, [session, supabase.auth]);
   
-  console.log("currentSession:", currentSession);
   const userId = currentSession?.user?.id || null;
   const correo = currentSession?.user?.email;
-  console.log("userId:", userId);
-  console.log("correo:", correo);
+  void userId;
+  void correo;
   const { cart, updateQuantity, removeFromCart } = useCart();
 
 
@@ -275,7 +272,7 @@ export default function CartPage() {
   //   }, [cart]);
 
   return (
-    <section className="min-h-screen w-full bg-gradient-to-b from-[#FAF8F5] to-white py-8 px-4 md:px-12 lg:px-24">
+    <section className="min-h-screen w-full bg-[#FAF6EF] py-8 px-4 md:px-12 lg:px-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <h1 className="text-4xl font-semibold mb-4 text-[#2D2D2D]">{locale === 'es' ? 'Carrito de compra' : 'Shopping cart'}</h1>
@@ -287,7 +284,7 @@ export default function CartPage() {
         </div>
 
         {/* Tabla del carrito */}
-        <div className="mt-6 rounded-xl overflow-hidden shadow-lg bg-white border border-[#E8E4E0]">
+        <div className="mt-6 overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
           {/* Encabezado dinámico */}
           <div className="px-4 py-3 bg-[#2D2D2D] text-[#F5F1EB] text-sm font-semibold">
             {cart.length === 1 ? locale === 'es' ? "Tienes 1 artículo en el carrito" : "You have 1 item in your cart" : `${locale === 'es' ? 'Tienes' : 'You have'} ${cart.length} ${locale === 'es' ? 'artículos en el carrito' : 'items in your cart'}`}
@@ -313,7 +310,7 @@ export default function CartPage() {
 
           {cart.map(({ product, quantity }) => (
             <Fragment key={product.id}>
-              <div className="grid grid-cols-12 gap-4 p-4 border-b border-[#E8E4E0] last:border-0 hover:bg-[#FAF8F5]/50 transition-colors">
+              <div className="grid grid-cols-12 gap-4 border-b border-[#E8E4E0] p-4 transition-colors last:border-0 hover:bg-[#F5F1EB]">
                 {/* Imagen */}
                 <div className="col-span-12 sm:col-span-2 flex items-center justify-center">
                   {product.media && Array.isArray(product.media) && product.media[0] && typeof product.media[0] === 'object' && product.media[0] !== null && 'url' in product.media[0] ? (
@@ -322,10 +319,10 @@ export default function CartPage() {
                       alt={product.name ?? "producto"}
                       width={80}
                       height={80}
-                      className="rounded-lg border border-[#E8E4E0]"
+                      className="rounded-sm border border-[#E8E4E0]"
                     />
                   ) : (
-                    <div className="w-20 h-20 bg-[#F5F1EB] rounded-lg" />
+                    <div className="h-20 w-20 rounded-sm bg-[#F5F1EB]" />
                   )}
                 </div>
 
@@ -365,7 +362,7 @@ export default function CartPage() {
                     id={`qty-${product.id}`}
                     value={quantity}
                     onChange={(e) => updateQuantity(product.id, Number(e.target.value))}
-                    className="min-h-[40px] border border-[#E8E4E0] rounded-sm px-3 py-1.5 text-sm text-[#2D2D2D] bg-white focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 transition-colors tabular-nums"
+                    className="min-h-[40px] rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-3 py-1.5 text-sm tabular-nums text-[#2D2D2D] transition-colors focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
                   >
                     {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>
@@ -380,7 +377,7 @@ export default function CartPage() {
                   {product.discount_percentage && product.discount_percentage > 0 ? (
                     <>
                       <span className="font-semibold text-[#C9A962]">
-                        {formatUSD(((product.dolar_price || 0) * (1 - (product.discount_percentage / 100))).toFixed(0))}
+                        {formatUSD((product.dolar_price || 0) * (1 - (product.discount_percentage / 100)))}
                       </span>
                       <span className="text-xs text-[#9C9589] line-through">
                         {formatUSD(product.dolar_price || 0)}
@@ -431,13 +428,13 @@ export default function CartPage() {
         {cart.length > 0 && (
           <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cupón */}
-            <div className="lg:col-span-2 p-6 rounded-xl shadow-lg bg-white border border-[#E8E4E0]">
+            <div className="lg:col-span-2 rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] p-6 shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
               <h2 className="text-lg font-semibold mb-4 text-[#2D2D2D]">{locale === 'es' ? '¿Descuento o promoción?' : 'Discount or promotion?'}</h2>
               <div className="flex flex-col sm:flex-row gap-4">
                 <input
                   type="text"
                   placeholder={locale === 'es' ? 'CÓDIGO DE CUPÓN' : 'DISCOUNT CODE'}
-                  className={`flex-1 border ${discountError ? 'border-[#C44536]' : 'border-[#E8E4E0]'} rounded-lg px-4 py-2.5 text-sm placeholder-[#9C9589] text-[#2D2D2D] focus:border-[#C9A962] focus:ring-1 focus:ring-[#C9A962] transition-colors`}
+                  className={`min-h-[44px] flex-1 rounded-sm border ${discountError ? 'border-[#C44536]' : 'border-[#E8E4E0]'} bg-[#FAF6EF] px-4 py-2.5 text-sm text-[#2D2D2D] placeholder-[#6B6459] transition-colors focus:border-[#A08848] focus:outline-none focus:ring-2 focus:ring-[#A08848]/25`}
                   value={discountCode}
                   onChange={(e) => {
                     setDiscountCode(e.target.value);
@@ -445,7 +442,7 @@ export default function CartPage() {
                   }}
                 />
                 <button
-                  className={`px-6 py-2.5 rounded-lg ${discountInfo ? 'bg-[#C44536] hover:bg-[#A03328]' : 'bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962]'} text-sm font-medium shadow-lg flex items-center justify-center transition-all`}
+                  className={`flex min-h-[44px] items-center justify-center rounded-sm px-6 py-2.5 text-sm font-semibold transition-colors ${discountInfo ? 'bg-[#C44536] text-[#F5F1EB] hover:bg-[#9F2D24]' : 'bg-[#2D2D2D] text-[#F5F1EB] hover:bg-[#1A1A1A]'}`}
                   onClick={async () => {
                     if (discountInfo) {
                       // Si ya hay un descuento aplicado, lo eliminamos
@@ -553,11 +550,11 @@ export default function CartPage() {
                   disabled={isApplyingDiscount}
                 >
                   {isApplyingDiscount ? (
-                    <span className="animate-pulse text-white">{locale === 'es' ? 'Validando...' : 'Validating...'}</span>
+                    <span>{locale === 'es' ? 'Validando...' : 'Validating...'}</span>
                   ) : discountInfo ? (
-                    <span className="text-white font-semibold">{locale === 'es' ? 'ELIMINAR CÓDIGO' : 'REMOVE CODE'}</span>
+                    <span>{locale === 'es' ? 'Eliminar código' : 'Remove code'}</span>
                   ) : (
-                    <span className="text-[#1A1A1A] font-semibold">{locale === 'es' ? 'APLICAR CÓDIGO' : 'APPLY CODE'}</span>
+                    <span>{locale === 'es' ? 'Aplicar código' : 'Apply code'}</span>
                   )}
                 </button>
               </div>
@@ -565,7 +562,7 @@ export default function CartPage() {
                 <p className="text-[#C44536] text-sm mt-2 font-medium">{discountError}</p>
               )}
               {discountInfo && (
-                <div className="mt-3 p-3 bg-[#4A7C59]/10 border border-[#4A7C59]/20 rounded-lg">
+                <div className="mt-3 rounded-sm border border-[#4A7C59]/20 bg-[#4A7C59]/10 p-3">
                   <p className="text-[#4A7C59] text-sm font-semibold">{locale === 'es' ? 'Código aplicado correctamente!' : 'Discount applied successfully!'}</p>
                   {discountInfo.description && (
                     <p className="text-sm text-[#4A7C59]/80 mt-1">{discountInfo.description}</p>
@@ -575,7 +572,7 @@ export default function CartPage() {
             </div>
 
             {/* Resumen */}
-            <div className="p-6 rounded-xl shadow-lg bg-white border border-[#E8E4E0] space-y-4">
+            <div className="space-y-4 rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] p-6 shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
               <h2 className="text-lg font-semibold text-[#2D2D2D] mb-2">{locale === 'es' ? 'Resumen del pedido' : 'Order summary'}</h2>
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm text-[#4A4A4A]">
@@ -593,9 +590,9 @@ export default function CartPage() {
                   </div>
                 )}
                 <hr className="border-[#E8E4E0]" />
-                <div className="flex justify-between font-bold text-base text-[#2D2D2D]">
+                <div className="flex justify-between font-semibold text-base text-[#2D2D2D]">
                   <span>{locale === 'es' ? 'Total del pedido' : 'Total of the order'}</span>
-                  <span className="text-[#C9A962]">{formatUSD(subtotal2)}</span>
+                  <span className="font-display text-xl text-[#2D2D2D]">{formatUSD(subtotal2)}</span>
                 </div>
                 <p className="text-sm text-[#4A4A4A]">{locale === 'es' ? 'Conoce el valor en tu moneda:' : 'Know the value in your currency:'}</p>
                 <CurrencyConverterRow amount={subtotal2} />
@@ -616,21 +613,23 @@ export default function CartPage() {
 
                   router.push('/checkout');
                 }}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] text-[#1A1A1A] font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-sm bg-[#C9A962] px-5 py-3.5 text-sm font-semibold tracking-wide text-[#1A1A1A] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
               >
                 <span>
-                  {currentSession === null ? (locale === 'es' ? 'INICIAR SESIÓN PARA COMPRAR' : 'SIGN IN TO BUY') : (locale === 'es' ? 'COMPRAR' : 'BUY')}
+                  {currentSession === null ? (locale === 'es' ? 'Iniciar sesión para comprar' : 'Sign in to buy') : (locale === 'es' ? 'Comprar' : 'Buy')}
                 </span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </button>
-              <div className="flex justify-center gap-3 mt-4 pt-4 border-t border-[#E8E4E0]">
-                <FaCcVisa className="h-8 w-8 text-[#4A4A4A]" />
-                <FaCcMastercard className="h-8 w-8 text-[#4A4A4A]" />
-                <FaCcAmex className="h-8 w-8 text-[#4A4A4A]" />
-                <FaCcDiscover className="h-8 w-8 text-[#4A4A4A]" />
-                <FaCcPaypal className="h-8 w-8 text-[#4A4A4A]" />
+              <div className="mt-4 flex flex-wrap justify-center gap-2 border-t border-[#E8E4E0] pt-4 text-xs font-medium text-[#6B6459]">
+                <span className="inline-flex items-center gap-1 rounded-sm border border-[#E8E4E0] px-2 py-1">
+                  <CreditCard className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
+                  Visa
+                </span>
+                <span className="rounded-sm border border-[#E8E4E0] px-2 py-1">Mastercard</span>
+                <span className="rounded-sm border border-[#E8E4E0] px-2 py-1">Amex</span>
+                <span className="rounded-sm border border-[#E8E4E0] px-2 py-1">PayPal</span>
               </div>
             </div>
           </div>
@@ -640,7 +639,6 @@ export default function CartPage() {
           locale={locale}
           excludeIds={cart.map((item) => item.product.id)}
         />
-        <GalleryModal />
       </div>
     </section>
   );

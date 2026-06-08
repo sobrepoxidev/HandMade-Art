@@ -1,98 +1,98 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { CheckCircle, ArrowLeft, Mail, Phone } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 
 export default function GraciasPage() {
   const searchParams = useSearchParams();
+  const locale = useLocale();
+  const isEs = locale === 'es';
   const requestId = searchParams.get('solicitud');
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-          {/* Icono de éxito */}
-          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-            <CheckCircle className="h-8 w-8 text-green-600" />
+    <main className="min-h-[72vh] bg-[#FAF6EF] px-4 py-12 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-screen-sm">
+        <section className="border border-[#E8E4E0] bg-[#F5F1EB] p-6 text-center shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] sm:p-10">
+          <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-full bg-[#4A7C59]/12 text-[#4A7C59]">
+            <CheckCircle className="h-8 w-8" strokeWidth={1.75} aria-hidden />
           </div>
 
-          {/* Título */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            ¡Solicitud enviada con éxito!
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            {isEs ? 'Solicitud recibida' : 'Request received'}
+          </p>
+          <h1 className="font-display text-3xl font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D]">
+            {isEs ? 'Tu solicitud fue enviada.' : 'Your request was sent.'}
           </h1>
 
-          {/* Mensaje */}
-          <div className="text-gray-600 mb-6 space-y-3">
+          <div className="mx-auto mt-5 max-w-md space-y-4 text-sm leading-relaxed text-[#4A4A4A]">
             <p>
-              Tu solicitud de cotización ha sido recibida y será procesada por nuestro equipo.
+              {isEs
+                ? 'Recibimos tu solicitud de cotización. Nuestro equipo revisará la pieza y te responderá con una propuesta personalizada.'
+                : 'We received your quote request. Our team will review the piece and reply with a personalized proposal.'}
             </p>
-            
+
             {requestId && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm font-medium text-gray-700">
-                  Número de solicitud:
+              <div className="border border-[#E8E4E0] bg-[#FAF6EF] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6B6459]">
+                  {isEs ? 'Número de solicitud' : 'Request number'}
                 </p>
-                <p className="text-lg font-mono font-bold text-teal-600">
+                <p className="mt-2 font-mono text-xl font-semibold text-[#A08848]">
                   #{requestId}
                 </p>
               </div>
             )}
 
-            <p className="text-sm">
-              Nos pondremos en contacto contigo en las próximas 24-48 horas con una cotización personalizada.
+            <p>
+              {isEs
+                ? 'Te contactaremos en las próximas 24 a 48 horas. Revisa también spam o correo no deseado si no ves nuestra respuesta.'
+                : 'We will contact you within 24 to 48 hours. Also check spam or junk mail if you do not see our reply.'}
             </p>
-            
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-4">
-              <p className="text-sm text-yellow-800">
-                <strong>📧 Importante:</strong> Revisa tu carpeta de spam o correo no deseado, ya que algunos proveedores de correo pueden filtrar nuestros mensajes.
-              </p>
+          </div>
+
+          <div className="my-7 border-y border-[#E8E4E0] py-5">
+            <h2 className="font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+              {isEs ? '¿Tienes alguna pregunta?' : 'Have a question?'}
+            </h2>
+            <div className="mt-4 grid gap-3 text-sm text-[#4A4A4A] sm:grid-cols-2">
+              <a href="mailto:info@handmadeart.store" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm border border-[#E8E4E0] px-3 transition-colors hover:border-[#A08848] hover:text-[#A08848]">
+                <Mail className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                info@handmadeart.store
+              </a>
+              <a href="tel:+50684237555" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm border border-[#E8E4E0] px-3 transition-colors hover:border-[#A08848] hover:text-[#A08848]">
+                <Phone className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                +506 8423 7555
+              </a>
             </div>
           </div>
 
-          {/* Información de contacto */}
-          <div className="bg-teal-50 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-teal-900 mb-3">
-              ¿Tienes alguna pregunta?
-            </h3>
-            <div className="space-y-2 text-sm text-teal-700">
-              <div className="flex items-center justify-center gap-2">
-                <Mail className="h-4 w-4" />
-                <span>info@handmadeart.store</span>
-              </div>
-              <div className="flex items-center justify-center gap-2">
-                <Phone className="h-4 w-4" />
-                <span>+506 8423 7555</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Botones de acción */}
-          <div className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Link
               href="/catalog"
-              className="w-full bg-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+              locale={locale}
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-5 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
             >
-              <ArrowLeft className="h-4 w-4" />
-              Volver al catálogo
+              <ArrowLeft className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              {isEs ? 'Volver al catálogo' : 'Back to catalog'}
             </Link>
-            
+
             <Link
               href="/"
-              className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center"
+              locale={locale}
+              className="inline-flex min-h-[48px] items-center justify-center rounded-sm border border-[#A08848] px-5 py-3 text-sm font-semibold tracking-wide text-[#A08848] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
             >
-              Ir al inicio
+              {isEs ? 'Ir al inicio' : 'Go home'}
             </Link>
           </div>
-        </div>
+        </section>
 
-        {/* Información adicional */}
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>
-            HandMade Art - Artesanías hechas con amor y dedicación en Costa Rica
-          </p>
-        </div>
+        <p className="mt-6 text-center text-sm text-[#6B6459]">
+          {isEs
+            ? 'Handmade Art, artesanía costarricense hecha con oficio y propósito.'
+            : 'Handmade Art, Costa Rican craft made with skill and purpose.'}
+        </p>
       </div>
-    </div>
+    </main>
   );
 }

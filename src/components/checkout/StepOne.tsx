@@ -51,6 +51,12 @@ type ShippingAddress = {
   phone: string;
 };
 
+const panelClass = "border border-[#E8E4E0] bg-[#FAF6EF] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] sm:p-6";
+const labelClass = "block text-xs font-medium uppercase tracking-[0.06em] text-[#6B6459] mb-1.5";
+const inputBaseClass = "w-full rounded-sm border bg-[#FFFDF9] p-3 text-[#2D2D2D] transition-colors placeholder:text-[#6B6459] focus:border-[#A08848] focus:outline-none focus:ring-2 focus:ring-[#A08848]/25";
+const primaryButtonClass = "inline-flex min-h-[48px] items-center justify-center rounded-sm bg-[#2D2D2D] px-6 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]";
+const secondaryButtonClass = "inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#E8E4E0] px-4 py-2.5 text-sm font-semibold text-[#2D2D2D] transition-colors hover:border-[#A08848] hover:bg-[#F5F1EB]";
+
 export default function StepOne({
   cart,
   onContinue,
@@ -171,7 +177,7 @@ export default function StepOne({
     // Si hay datos iniciales, usarlos
     if (initialData) {
       const nameParts = initialData.name.split(' ');
-      setFormData({
+      setFormData((previous) => ({
         nombre: nameParts[0] || '',
         apellidos: nameParts.slice(1).join(' ') || '',
         email: initialData.email || session?.user?.email || '',
@@ -180,16 +186,16 @@ export default function StepOne({
         direccion2: '',
         provincia: initialData.state || '',
         canton: initialData.city || '',
-        distrito: '',
+        distrito: previous.distrito,
         codigoPostal: initialData.postal_code || '',
-      });
+      }));
     }
     // Si no hay datos iniciales pero sí hay perfil con dirección guardada
     else if (userProfile?.shipping_address && !initialData && !showAddressOptions) {
       const address = userProfile.shipping_address;
       if (address && isShippingAddress(address)) {
         const nameParts = address.name?.split(' ') || [''];
-        setFormData({
+        setFormData((previous) => ({
           nombre: nameParts[0] || '',
           apellidos: nameParts.slice(1).join(' ') || '',
           email: session?.user?.email || '',
@@ -198,9 +204,9 @@ export default function StepOne({
           direccion2: '',
           provincia: address.state || '',
           canton: address.city || '',
-          distrito: '',
+          distrito: previous.distrito,
           codigoPostal: address.postal_code || '',
-        });
+        }));
       }
     }
   }, [initialData, session?.user?.email, userProfile, showAddressOptions]);
@@ -355,9 +361,9 @@ export default function StepOne({
     <section className="w-full text-[#2D2D2D]">
       {/* Modal de selección de dirección cuando el usuario acaba de iniciar sesión */}
       {showAddressOptions && userProfile?.shipping_address && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl border border-[#E8E4E0]">
-            <h3 className="text-lg font-semibold text-[#2D2D2D] mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1A1A]/60 p-4">
+          <div className="w-full max-w-md border border-[#E8E4E0] bg-[#FAF6EF] p-6 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+            <h3 className="mb-4 font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
               {locale == "es" ? "Selección de dirección de envío" : "Shipping Address Selection"}
             </h3>
             <p className="mb-4 text-[#4A4A4A]">
@@ -367,21 +373,21 @@ export default function StepOne({
             <div className="space-y-3">
               <button
                 onClick={() => handleAddressSelection(true)}
-                className="w-full bg-gradient-to-r from-[#C9A962] to-[#A08848] text-[#1A1A1A] py-2.5 px-4 rounded-lg hover:from-[#D4C4A8] hover:to-[#C9A962] transition-all font-medium shadow-md"
+                className="inline-flex min-h-[44px] w-full items-center justify-center rounded-sm bg-[#C9A962] px-4 py-2.5 text-sm font-semibold text-[#1A1A1A] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
               >
                 {locale == "es" ? "Usar mi dirección guardada" : "Use my saved address"}
               </button>
 
               <button
                 onClick={() => handleAddressSelection(false)}
-                className="w-full bg-white text-[#2D2D2D] py-2.5 px-4 rounded-lg border border-[#E8E4E0] hover:bg-[#FAF8F5] transition-colors font-medium"
+                className={secondaryButtonClass + " w-full"}
               >
                 {locale == "es" ? "Continuar con la dirección actual" : "Continue with the current address"}
               </button>
 
               <button
                 onClick={() => handleAddressSelection(false, true)}
-                className="w-full bg-white text-[#C9A962] py-2.5 px-4 rounded-lg border border-[#C9A962]/30 hover:bg-[#C9A962]/5 transition-colors font-medium"
+                className="inline-flex min-h-[44px] w-full items-center justify-center rounded-sm border border-[#C9A962]/45 px-4 py-2.5 text-sm font-semibold text-[#A08848] transition-colors hover:bg-[#C9A962]/10"
               >
                 {locale == "es" ? "Usar la dirección actual y actualizarla en mi perfil" : "Use the current address and update it in my profile"}
               </button>
@@ -392,17 +398,17 @@ export default function StepOne({
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left column - Form */}
         <div className="w-full lg:w-2/3">
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-xl p-6 shadow-lg border border-[#E8E4E0]">
+          <form onSubmit={handleSubmit} className={`space-y-6 ${panelClass}`}>
 
             {/* Account section */}
-            <div className="p-2">
+            <div className="border border-[#E8E4E0] bg-[#F5F1EB] p-4">
               <p className="text-[#4A4A4A]">{locale == "es" ? "¿Tiene una cuenta con nosotros? Inicie sesión para acelerar su compra." : "Do you have an account with us? Login to speed up your purchase."}
                 <a href="#" className="text-[#C9A962] font-medium ml-1 hover:text-[#A08848] hover:underline transition-colors">{locale == "es" ? "Entrar" : "Login"}</a>
               </p>
             </div>
 
             {/* Shipping Address header */}
-            <div className="bg-[#2D2D2D] p-4 text-[#F5F1EB] font-medium rounded-lg">
+            <div className="border border-[#F5F1EB]/12 bg-[#2D2D2D] p-4 font-medium text-[#F5F1EB]">
               {locale == "es" ? "Información de envío" : "Shipping Information"}
             </div>
 
@@ -410,7 +416,7 @@ export default function StepOne({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {/* Nombre */}
               <div>
-                <label htmlFor="nombre" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                <label htmlFor="nombre" className={labelClass}>
                   {locale == "es" ? "Nombre" : "Name"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
@@ -419,7 +425,7 @@ export default function StepOne({
                   name="nombre"
                   value={formData.nombre}
                   onChange={handleChange}
-                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.nombre ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
+                  className={`${inputBaseClass} ${errors.nombre ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.nombre ? "true" : "false"}
                 />
                 {errors.nombre && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.nombre}</p>}
@@ -427,7 +433,7 @@ export default function StepOne({
 
               {/* Apellidos */}
               <div>
-                <label htmlFor="apellidos" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                <label htmlFor="apellidos" className={labelClass}>
                   {locale == "es" ? "Apellidos" : "Last name"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
@@ -436,7 +442,7 @@ export default function StepOne({
                   name="apellidos"
                   value={formData.apellidos}
                   onChange={handleChange}
-                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.apellidos ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
+                  className={`${inputBaseClass} ${errors.apellidos ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.apellidos ? "true" : "false"}
                 />
                 {errors.apellidos && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.apellidos}</p>}
@@ -444,7 +450,7 @@ export default function StepOne({
 
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                <label htmlFor="email" className={labelClass}>
                   {locale == "es" ? "Email" : "Email"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
@@ -453,7 +459,7 @@ export default function StepOne({
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.email ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
+                  className={`${inputBaseClass} ${errors.email ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.email ? "true" : "false"}
                 />
                 {errors.email && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.email}</p>}
@@ -461,7 +467,7 @@ export default function StepOne({
 
               {/* Teléfono */}
               <div>
-                <label htmlFor="telefono" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                <label htmlFor="telefono" className={labelClass}>
                   {locale == "es" ? "Teléfono" : "Phone"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
@@ -471,7 +477,7 @@ export default function StepOne({
                   value={formData.telefono}
                   onChange={handleChange}
                   placeholder="8888-8888"
-                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white placeholder-[#9C9589] transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.telefono ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
+                  className={`${inputBaseClass} ${errors.telefono ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.telefono ? "true" : "false"}
                 />
                 {errors.telefono && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.telefono}</p>}
@@ -479,7 +485,7 @@ export default function StepOne({
 
               {/* Dirección 1 */}
               <div className="md:col-span-2">
-                <label htmlFor="direccion1" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                <label htmlFor="direccion1" className={labelClass}>
                   {locale == "es" ? "Dirección" : "Address"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
@@ -488,7 +494,7 @@ export default function StepOne({
                   name="direccion1"
                   value={formData.direccion1}
                   onChange={handleChange}
-                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.direccion1 ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
+                  className={`${inputBaseClass} ${errors.direccion1 ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.direccion1 ? "true" : "false"}
                 />
                 {errors.direccion1 && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.direccion1}</p>}
@@ -496,7 +502,7 @@ export default function StepOne({
 
               {/* Provincia */}
               <div>
-                <label htmlFor="provincia" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                <label htmlFor="provincia" className={labelClass}>
                   {locale == "es" ? "Provincia" : "Province"} <span className="text-[#C44536]">*</span>
                 </label>
                 <select
@@ -504,7 +510,7 @@ export default function StepOne({
                   name="provincia"
                   value={formData.provincia}
                   onChange={handleChange}
-                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.provincia ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
+                  className={`${inputBaseClass} ${errors.provincia ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.provincia ? "true" : "false"}
                 >
                   <option value="" className="text-[#9C9589]">{locale == "es" ? "Seleccionar provincia" : "Select province"}</option>
@@ -519,7 +525,7 @@ export default function StepOne({
 
               {/* Cantón */}
               <div>
-                <label htmlFor="canton" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                <label htmlFor="canton" className={labelClass}>
                   {locale == "es" ? "Cantón" : "Canton"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
@@ -528,7 +534,7 @@ export default function StepOne({
                   name="canton"
                   value={formData.canton}
                   onChange={handleChange}
-                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.canton ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
+                  className={`${inputBaseClass} ${errors.canton ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.canton ? "true" : "false"}
                 />
                 {errors.canton && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.canton}</p>}
@@ -536,7 +542,7 @@ export default function StepOne({
 
               {/* Distrito */}
               <div>
-                <label htmlFor="distrito" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                <label htmlFor="distrito" className={labelClass}>
                   {locale == "es" ? "Distrito" : "District"} <span className="text-[#C44536]">*</span>
                 </label>
                 <input
@@ -545,7 +551,7 @@ export default function StepOne({
                   name="distrito"
                   value={formData.distrito}
                   onChange={handleChange}
-                  className={`w-full p-3 border rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none ${errors.distrito ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
+                  className={`${inputBaseClass} ${errors.distrito ? 'border-[#C44536]' : 'border-[#E8E4E0]'}`}
                   data-error={errors.distrito ? "true" : "false"}
                 />
                 {errors.distrito && <p className="text-[#C44536] text-xs mt-1.5 font-medium">{errors.distrito}</p>}
@@ -553,7 +559,7 @@ export default function StepOne({
 
               {/* Código Postal */}
               <div>
-                <label htmlFor="codigoPostal" className="block text-sm font-medium mb-1.5 text-[#2D2D2D]">
+                <label htmlFor="codigoPostal" className={labelClass}>
                   {locale == "es" ? "Código Postal" : "Postal code"}
                 </label>
                 <input
@@ -562,7 +568,7 @@ export default function StepOne({
                   name="codigoPostal"
                   value={formData.codigoPostal}
                   onChange={handleChange}
-                  className="w-full p-3 border border-[#E8E4E0] rounded-lg text-[#2D2D2D] bg-white transition-colors focus:ring-2 focus:ring-[#C9A962]/30 focus:border-[#C9A962] outline-none"
+                  className={`${inputBaseClass} border-[#E8E4E0]`}
                 />
               </div>
             </div>
@@ -570,7 +576,7 @@ export default function StepOne({
             <div className="flex justify-end mt-6">
               <button
                 type="submit"
-                className="bg-gradient-to-r from-[#C9A962] to-[#A08848] text-[#1A1A1A] px-8 py-3 rounded-lg hover:from-[#D4C4A8] hover:to-[#C9A962] transition-all font-semibold shadow-lg hover:shadow-xl"
+                className={primaryButtonClass}
               >
                 {locale == "es" ? "CONTINUAR" : "CONTINUE"}
               </button>
@@ -580,8 +586,8 @@ export default function StepOne({
 
         {/* Right column - Order summary */}
         <div className="w-full lg:w-1/3">
-          <div className="bg-white rounded-xl p-5 sticky top-4 shadow-lg border border-[#E8E4E0]">
-            <h2 className="text-lg font-semibold mb-4 text-[#2D2D2D]">{locale == "es" ? "Resumen del pedido" : "Order summary"}</h2>
+          <div className="sticky top-4 border border-[#E8E4E0] bg-[#FAF6EF] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
+            <h2 className="mb-4 font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">{locale == "es" ? "Resumen del pedido" : "Order summary"}</h2>
 
             {/* Cart items */}
             <div className="space-y-4 mb-4">
@@ -589,7 +595,7 @@ export default function StepOne({
                 <div key={index} className="flex items-start border-b border-[#E8E4E0] pb-3">
                   <div className="flex-grow">
                     <p className="font-medium text-[#2D2D2D]">{item.product.name || 'Producto'}</p>
-                    <p className="text-sm text-[#9C9589]">{locale == "es" ? "Cantidad" : "Quantity"}: {item.quantity}</p>
+                    <p className="text-sm text-[#6B6459]">{locale == "es" ? "Cantidad" : "Quantity"}: {item.quantity}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-[#C9A962]">
@@ -627,7 +633,7 @@ export default function StepOne({
               </div>
               <div className="flex justify-between text-[#4A4A4A]">
                 <span>{locale == "es" ? "Envío" : "Shipping"}</span>
-                <span className="text-[#9C9589]">$7.00</span>
+                <span className="text-[#6B6459]">$7.00</span>
               </div>
               {discountInfo && (
                 <div className="flex justify-between text-[#4A7C59] font-semibold">
@@ -635,7 +641,7 @@ export default function StepOne({
                   <span>- {formatUSD(discountInfo.discountAmount)}</span>
                 </div>
               )}
-              <div className="flex justify-between font-bold border-t border-[#E8E4E0] pt-3 mt-2">
+              <div className="mt-2 flex justify-between border-t border-[#E8E4E0] pt-3 font-semibold">
                 <span className="text-[#2D2D2D]">{locale == "es" ? "Total del pedido:" : "Total of the order:"}</span>
                 <span className="text-[#C9A962]">
                   {new Intl.NumberFormat('en-US', {

@@ -48,7 +48,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                 <div className="grid grid-cols-2 gap-3 bg-[#2D2D2D]">
                   {displayProducts.map((product, idx) => (
                     <Link key={`${product.id}-${idx}`} href={`/product/${product.name}`} target="_self" className="block group">
-                      <div className="flex flex-col items-center bg-[#FAF8F5] rounded-lg p-2 hover:shadow-md transition-all border border-[#E8E4E0] hover:border-[#C9A962]/30">
+                      <div className="flex flex-col items-center bg-[#FAF6EF] rounded-sm p-2 transition-[box-shadow,border-color,transform] duration-300 border border-[#E8E4E0] hover:border-[#C9A962]/30 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
                         <div className="h-44 flex items-center justify-center mb-1">
                           <Image
                             src={product.media && Array.isArray(product.media) && product.media.length > 0 ?
@@ -59,7 +59,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                             height={100}
                             style={{ objectFit: 'contain', maxHeight: '100%' }}
                             className="group-hover:scale-105 transition-transform"
-                            priority
+                            loading="lazy"
 
                           />
                         </div>
@@ -121,14 +121,14 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
         {/* Desktop Skeleton */}
         <div className="max-lg:hidden grid grid-cols-3 gap-5 mt-4 mb-4 mx-4 pb-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-[#F5F1EB] animate-pulse h-64 rounded-xl"></div>
+            <div key={i} className="bg-[#F5F1EB] animate-pulse h-64 rounded-sm"></div>
           ))}
         </div>
 
         {/* Mobile Skeleton */}
         <div className="lg:hidden grid grid-rows-3 gap-4 mt-4 mb-4 mx-4 pb-6">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-[#F5F1EB] animate-pulse h-64 rounded-xl"></div>
+            <div key={i} className="bg-[#F5F1EB] animate-pulse h-64 rounded-sm"></div>
           ))}
         </div>
       </>
@@ -137,7 +137,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
 
   if (error) {
     return (
-      <div className="text-[#C44536] text-center p-4 bg-[#C44536]/10 rounded-xl mx-4 my-4">
+      <div className="text-[#C44536] text-center p-4 bg-[#C44536]/10 rounded-sm mx-4 my-4 border border-[#C44536]/25">
         <p>{locale === 'es' ? 'Error al cargar categorías': 'Error loading categories'}</p>
         <p className="text-sm opacity-70">{error}</p>
       </div>
@@ -147,7 +147,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
   return (
     <div className="w-full max-h-full h-full">
       {/* Desktop Version */}
-      <div className="grid grid-cols-2 md:grid-cols-3 px-4 gap-4 mb-4 mt-4 max-lg:hidden">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-lg:hidden">
         {desktopCards.map((card, index) => (
           <Card key={index} {...{...card, title: card.title || ''}} />
         ))}
@@ -183,7 +183,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                       <div className="grid grid-cols-2 gap-2 w-full h-full px-1 pt-2.5">
                         {categoryProducts.slice(0, 4).map((product, idx) => (
                           <Link key={idx} href={`/product/${product.name}`} className="block text-center">
-                            <div className="h-44 flex items-center justify-center bg-[#FAF8F5] rounded-lg shadow-sm border border-[#E8E4E0]">
+                            <div className="h-44 flex items-center justify-center bg-[#FAF6EF] rounded-sm shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] border border-[#E8E4E0]">
                               <Image
                                 src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
                                 alt={product.name || ''}
@@ -203,7 +203,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                       </div>
                     ),
                     link: `/products?category=${category!.id}`,
-                    className: `${cardColor} rounded-xl px-3 pt-2 pb-3 shadow-sm border border-[#C9A962]/10`,
+                    className: `${cardColor} rounded-sm px-3 pt-2 pb-3 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] border border-[#C9A962]/10`,
                     start: isFirst,
                     end: isLast
                   };

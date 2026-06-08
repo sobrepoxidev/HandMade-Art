@@ -8,9 +8,9 @@ import { Link } from '@/i18n/navigation';
 import { formatUSD } from '@/lib/formatCurrency';
 import { useInView } from 'react-intersection-observer';
 import { isMediaArray } from '@/lib/home/computeSections';
-import type { Database } from '@/lib/database.types';
+import type { HomeProduct } from '@/lib/home/types';
 
-type Product = Database['public']['Tables']['products']['Row'];
+type Product = HomeProduct;
 
 interface ProgressiveCategorySectionProps {
   productsPerCategory?: number;
@@ -92,7 +92,7 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-3">
                 {[...Array(productsPerCategory)].map((_, j) => (
                   <div key={j} className="bg-[#FAF8F5] rounded-md border border-[#E8E4E0] shadow-sm overflow-hidden h-full flex flex-col">
-                    <div className="relative bg-white aspect-square" />
+                    <div className="relative bg-[#FAF6EF] aspect-square" />
                     <div className="px-2.5 py-2">
                       <div className="h-3.5 bg-[#E8E4E0] rounded w-3/4 mb-1" />
                       <div className="h-3.5 bg-[#E8E4E0] rounded w-1/2" />
@@ -144,11 +144,11 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
                 {list.map((product) => (
                   <Link
                     key={product.id}
-                    href={`/product/${product.name}`}
+                    href={`/product/${encodeURIComponent(product.name || String(product.id))}`}
                     className="group block rounded"
                     aria-label={(locale === 'es' ? product.name_es : product.name_en) || product.name || 'Producto'}
                   >
-                    <div className="bg-white rounded-md border border-[#E8E4E0] hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 group-hover:-translate-y-0.5 overflow-hidden h-full flex flex-col">
+                    <div className="bg-[#FAF6EF] rounded-sm border border-[#E8E4E0] hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 group-hover:-translate-y-0.5 overflow-hidden h-full flex flex-col">
                       <div className="relative bg-[#FAF8F5] aspect-square">
                         <Image
                           src={Array.isArray(product.media) && product.media.length > 0

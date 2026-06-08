@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/metadata";
 type tParams = Promise<{  locale: string }>;
@@ -18,18 +17,18 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 export default async function TerminosCondicionesPage({ params }: { params: tParams }) {
   const { locale } = await params;
   return (
-    <div className="min-h-screen bg-[#FAF8F5] py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-8 border-b border-[#E8E4E0] bg-[#FAF8F5]">
-          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-[-0.005em] text-[#2D2D2D] text-center mb-2">
+    <main className="min-h-screen bg-[#FAF6EF] px-4 py-12 sm:px-6 md:py-16 lg:px-8">
+      <div className="mx-auto max-w-5xl overflow-hidden border border-[#E8E4E0] bg-[#FAF6EF] shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+        <div className="border-b border-[#F5F1EB]/12 bg-[#2D2D2D] px-6 py-8">
+          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-[-0.005em] text-[#F5F1EB] text-center mb-2">
             {locale === "es" ? "Términos y Condiciones" : "Terms and Conditions"}
           </h1>
-          <p className="text-[#6B6459] text-center text-sm">
+          <p className="text-[#B5AC9D] text-center text-sm">
             {locale === "es" ? "Última actualización: 9 de abril de 2025" : "Last updated: April 9, 2025"}
           </p>
         </div>
 
-        <div className="px-6 py-8 prose prose-stone max-w-none text-[#4A4A4A] leading-relaxed">
+        <div className="px-6 py-8 max-w-none text-[#4A4A4A] leading-relaxed sm:px-8 lg:px-10">
           <div className="mb-12">
             <p className="text-lg text-[#2D2D2D]">
               {locale === "es"
@@ -38,8 +37,8 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
             </p>
             <p>
               {locale === "es"
-                ? "Al registrarte, hacer pedidos o usar la cuenta, aceptás estos términos. Si hay algo que no compartís, no podemos prestar el servicio bajo otras condiciones — pero podés escribirnos a info@handmadeart.store si tenés dudas puntuales."
-                : "By registering, placing orders or using your account, you accept these terms. If anything here doesn't work for you, we can't provide the service under different conditions — but feel free to write to info@handmadeart.store with specific questions."}
+                ? "Al registrarte, hacer pedidos o usar la cuenta, aceptás estos términos. Si hay algo que no compartís, no podemos prestar el servicio bajo otras condiciones. Podés escribirnos a info@handmadeart.store si tenés dudas puntuales."
+                : "By registering, placing orders or using your account, you accept these terms. If anything here doesn't work for you, we can't provide the service under different conditions. Feel free to write to info@handmadeart.store with specific questions."}
             </p>
           </div>
 
@@ -267,7 +266,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
             </p>
             <ul className="space-y-3 pl-5 list-disc mt-4">
               <li>{locale === "es" ? "Nuestro formulario de contacto en la página principal." : "Our contact form on the main page."}</li>
-              <li>{locale === "es" ? "Correo electrónico de soporte: soporte@nuestrodominio.com" : "Support email: support@ourdomain.com"}</li>
+              <li>{locale === "es" ? "Correo electrónico de soporte: info@handmadeart.store" : "Support email: info@handmadeart.store"}</li>
               <li>{locale === "es" ? "Sección de ayuda dentro de nuestra plataforma." : "Help section within our platform."}</li>
             </ul>
             <p className="mt-4">
@@ -275,7 +274,7 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
             </p>
           </section>
 
-          <div className="mt-12 p-6 bg-[#FAF8F5] rounded-lg border border-[#E8E4E0] text-center">
+          <div className="mt-12 border border-[#E8E4E0] bg-[#F5F1EB] p-6 text-center">
             <p className="text-[#4A4A4A] font-medium">
               {locale === "es" ? "Al registrarse, acceder o utilizar nuestro sistema de autenticación, usted acepta estos Términos de Servicio en su totalidad." : "By registering, accessing or using our authentication system, you accept these Terms of Service in their entirety."}
             </p>
@@ -285,6 +284,6 @@ export default async function TerminosCondicionesPage({ params }: { params: tPar
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

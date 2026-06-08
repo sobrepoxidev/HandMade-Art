@@ -40,7 +40,7 @@ const COPY = {
 
     lawTitle: "Qué propone el Proyecto de Ley 24870",
     lawBody:
-      "El proyecto crea la figura de Empresa de Inserción Sociolaboral (EISL): organizaciones que producen bienes o servicios con un fin social explícito y un “convenio de inserción” personalizado para cada beneficiario. Handmade Art opera como EISL desde antes de que la figura exista en la ley — apoyamos el proyecto porque legitima el modelo y abre puertas para que más personas puedan empezar de nuevo.",
+      "El proyecto crea la figura de Empresa de Inserción Sociolaboral (EISL): organizaciones que producen bienes o servicios con un fin social explícito y un “convenio de inserción” personalizado para cada beneficiario. Handmade Art opera como EISL desde antes de que la figura exista en la ley. Apoyamos el proyecto porque legitima el modelo y abre puertas para que más personas puedan empezar de nuevo.",
     populations: {
       title: "Poblaciones beneficiarias",
       items: [
@@ -63,7 +63,7 @@ const COPY = {
 
     artisansTitle: "Quienes hacen las piezas",
     artisansLead:
-      "Tres de las personas que hoy producen para Handmade Art. No usamos nombres completos ni rostros donde no toca — pero su oficio sí lo firman.",
+      "Tres de las personas que hoy producen para Handmade Art. No usamos nombres completos ni rostros donde no toca, pero su oficio sí lo firman.",
     artisans: [
       {
         name: "Eduardo",
@@ -80,7 +80,7 @@ const COPY = {
       {
         name: "Jorge",
         role: "Chorreadores y piezas pequeñas",
-        body: "Especialista en chorreadores de café — el oficio costarricense por excelencia. Lleva tres años con nosotros.",
+        body: "Especialista en chorreadores de café, el oficio costarricense por excelencia. Lleva tres años con nosotros.",
         img: "/reinsercion-sociolaboral/artesano-Jorge.webp",
       },
     ],
@@ -110,7 +110,7 @@ const COPY = {
 
     closingTitle: "Cómo apoyar",
     closingBody:
-      "La forma más directa es comprar una pieza. Cada compra paga horas de oficio reales, no una etiqueta. Si tu empresa quiere explorar una alianza — convenio de inserción, padrinazgo de un taller, donación con certificado de impacto — escríbenos.",
+      "La forma más directa es comprar una pieza. Cada compra paga horas de oficio reales, no una etiqueta. Si tu empresa quiere explorar una alianza, convenio de inserción, padrinazgo de un taller o donación con certificado de impacto, escríbenos.",
     contactEmail: "info@handmadeart.store",
     contactPhone: "+506 8423 7555",
     ctaShop: "Ver el catálogo",
@@ -148,7 +148,7 @@ const COPY = {
 
     lawTitle: "What Law Project 24870 proposes",
     lawBody:
-      "The bill creates the legal figure of Social and Labor Reintegration Company (EISL): organizations that produce goods or services with an explicit social purpose and a personalized 'reintegration agreement' with each beneficiary. Handmade Art has been operating as an EISL before the figure existed in law — we support the bill because it legitimizes the model and opens the door for more people to start over.",
+      "The bill creates the legal figure of Social and Labor Reintegration Company (EISL): organizations that produce goods or services with an explicit social purpose and a personalized 'reintegration agreement' with each beneficiary. Handmade Art has been operating as an EISL before the figure existed in law. We support the bill because it legitimizes the model and opens the door for more people to start over.",
     populations: {
       title: "Beneficiary populations",
       items: [
@@ -171,7 +171,7 @@ const COPY = {
 
     artisansTitle: "The people who make the pieces",
     artisansLead:
-      "Three of the people producing for Handmade Art today. We don't show full names or faces where it isn't ours to show — but their craft, they sign.",
+      "Three of the people producing for Handmade Art today. We don't show full names or faces where it isn't ours to show, but their craft, they sign.",
     artisans: [
       {
         name: "Eduardo",
@@ -188,7 +188,7 @@ const COPY = {
       {
         name: "Jorge",
         role: "Coffee drippers and small pieces",
-        body: "Specialist in chorreadores — the quintessential Costa Rican coffee craft. Three years with us.",
+        body: "Specialist in chorreadores, the quintessential Costa Rican coffee craft. Three years with us.",
         img: "/reinsercion-sociolaboral/artesano-Jorge.webp",
       },
     ],
@@ -218,7 +218,7 @@ const COPY = {
 
     closingTitle: "How to support",
     closingBody:
-      "The most direct way is to buy a piece. Every purchase pays real hours of craft, not a label. If your company wants to explore a partnership — reintegration agreement, workshop sponsorship, donation with an impact certificate — get in touch.",
+      "The most direct way is to buy a piece. Every purchase pays real hours of craft, not a label. If your company wants to explore a partnership, reintegration agreement, workshop sponsorship or donation with an impact certificate, get in touch.",
     contactEmail: "info@handmadeart.store",
     contactPhone: "+506 8423 7555",
     ctaShop: "Browse the catalog",
@@ -236,8 +236,8 @@ export function getReinsertionMetadata(locale: "es" | "en") {
   return {
     title:
       locale === "es"
-        ? "Reinserción sociolaboral — el oficio que hay detrás de cada pieza"
-        : "Social reintegration — the craft behind every piece",
+        ? "Reinserción sociolaboral: el oficio que hay detrás de cada pieza"
+        : "Social reintegration: the craft behind every piece",
     description: COPY[locale].sub,
     image: {
       url: "/reinsercion-sociolaboral/banner-lg.webp",
@@ -267,8 +267,7 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
             sizes="100vw"
             className="object-cover object-[center_40%]"
           />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A]/90 via-[#1A1A1A]/65 to-[#1A1A1A]/30" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/80 via-transparent to-transparent" />
+          <div aria-hidden className="absolute inset-0 bg-[#1A1A1A]/72" />
         </div>
 
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12 pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-40 lg:pb-28">
@@ -323,7 +322,7 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
       </section>
 
       {/* LAW PROJECT 24870 */}
-      <section className="py-16 md:py-24 lg:py-28 bg-white border-y border-[#E8E4E0]">
+      <section className="py-16 md:py-24 lg:py-28 bg-[#F5F1EB] border-y border-[#E8E4E0]">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
             <div className="lg:col-span-5">
@@ -411,7 +410,7 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
       </section>
 
       {/* WORKSHOPS */}
-      <section className="py-16 md:py-24 lg:py-28 bg-white border-y border-[#E8E4E0]">
+      <section className="py-16 md:py-24 lg:py-28 bg-[#F5F1EB] border-y border-[#E8E4E0]">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
           <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#2D2D2D] max-w-2xl mb-12 md:mb-16">
             {t.workshopsTitle}
@@ -456,7 +455,7 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
               </p>
             </div>
             <div className="lg:col-span-5 grid grid-cols-2 gap-4">
-              <div className="relative aspect-square bg-white border border-[#E8E4E0] rounded-sm overflow-hidden grid place-items-center p-6">
+              <div className="relative aspect-square bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm overflow-hidden grid place-items-center p-6">
                 <Image
                   src="/reinsercion-sociolaboral/Ministerio-de-Justicia y-Paz.webp"
                   alt={t.ministryAlt}
@@ -466,7 +465,7 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div className="relative aspect-square bg-white border border-[#E8E4E0] rounded-sm overflow-hidden grid place-items-center p-6">
+              <div className="relative aspect-square bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm overflow-hidden grid place-items-center p-6">
                 <Image
                   src="/reinsercion-sociolaboral/ina-logo.webp"
                   alt={t.inaAlt}

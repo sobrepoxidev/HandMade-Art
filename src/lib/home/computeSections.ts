@@ -1,7 +1,7 @@
-import type { Database } from "@/lib/database.types";
+import type { HomeCategory, HomeProduct } from '@/lib/home/types';
 
-export type Product = Database['public']['Tables']['products']['Row'];
-export type Category = Database['public']['Tables']['categories']['Row'];
+export type Product = HomeProduct;
+export type Category = HomeCategory;
 
 export interface HomeSections {
   grid: {

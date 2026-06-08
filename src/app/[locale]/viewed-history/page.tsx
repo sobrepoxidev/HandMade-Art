@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { ChevronRight, Trash2, Clock, AlertCircle } from 'lucide-react';
+import { ChevronRight, Trash2, Clock, AlertCircle, ShoppingBag } from 'lucide-react';
 import { useSupabase } from '@/app/supabase-provider/provider';
 import { getLocalViewedHistory, removeFromHistory, clearViewedHistory, ViewedProduct, syncViewedHistoryWithServer } from '@/lib/viewedHistory';
 import { Session } from '@supabase/supabase-js';
@@ -68,36 +68,50 @@ export default function ViewedHistoryPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="min-h-screen bg-[#FAF6EF] px-4 py-8 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-screen-xl">
       {/* Breadcrumb */}
-      <div className="mb-6 flex items-center text-sm text-gray-500">
-        <Link href="/" className="hover:text-teal-600">{locale == 'es' ? 'Inicio' : 'Home'}</Link>
-        <ChevronRight className="h-4 w-4 mx-1" />
-        <span className="font-medium text-gray-900">{locale == 'es' ? 'Historial de productos vistos' : 'Viewed history'}</span>
+      <div className="mb-6 flex items-center text-sm text-[#6B6459]">
+        <Link href="/" locale={locale} className="transition-colors hover:text-[#A08848]">
+          {locale == 'es' ? 'Inicio' : 'Home'}
+        </Link>
+        <ChevronRight className="mx-1 h-4 w-4" strokeWidth={1.75} aria-hidden />
+        <span className="font-medium text-[#2D2D2D]">
+          {locale == 'es' ? 'Historial de productos vistos' : 'Viewed history'}
+        </span>
       </div>
 
       {/* Encabezado */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <header className="mb-8 max-w-2xl">
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+          {locale == 'es' ? 'Tu recorrido' : 'Your path'}
+        </p>
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D] sm:text-4xl">
           {locale == 'es' ? 'Productos vistos recientemente' : 'Recently viewed products'}
         </h1>
-        <p className="text-gray-600">
-          {locale == 'es' ? 'Aquí puedes ver los últimos productos que has visitado.' : 'Here you can see the last products you have visited.'}
+        <p className="mt-3 text-base leading-relaxed text-[#4A4A4A]">
+          {locale == 'es'
+            ? 'Recupera las piezas que estabas comparando y vuelve al catálogo sin perder el hilo.'
+            : 'Recover the pieces you were comparing and return to the catalog without losing your place.'}
         </p>
-      </div>
+      </header>
 
       {/* Banner para usuarios no autenticados */}
       {!session && (
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6 flex items-center">
-          <AlertCircle className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+        <div className="mb-8 flex flex-col gap-4 border border-[#E8E4E0] bg-[#F5F1EB] p-4 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] sm:flex-row sm:items-center">
+          <AlertCircle className="h-5 w-5 flex-shrink-0 text-[#A08848]" strokeWidth={1.75} aria-hidden />
           <div className="flex-grow">
-            <p className="text-blue-700 text-sm">
-              <strong>{locale == 'es' ? '¿Quieres guardar tu historial?' : 'Do you want to save your history?'}</strong> {locale == 'es' ? 'Inicia sesión para mantener tu historial de productos vistos en todos tus dispositivos.' : 'Sign in to keep your viewed product history on all your devices.'}
+            <p className="text-sm leading-relaxed text-[#4A4A4A]">
+              <strong className="text-[#2D2D2D]">{locale == 'es' ? '¿Quieres guardar tu historial?' : 'Want to keep your history?'}</strong>{' '}
+              {locale == 'es'
+                ? 'Inicia sesión para mantener tus piezas vistas en todos tus dispositivos.'
+                : 'Sign in to keep your viewed pieces across devices.'}
             </p>
           </div>
           <Link 
             href="/login?redirect_to=/viewed-history" 
-            className="ml-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 whitespace-nowrap flex-shrink-0"
+            locale={locale}
+            className="inline-flex min-h-[44px] flex-shrink-0 items-center justify-center rounded-sm bg-[#2D2D2D] px-4 py-2 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
           >
             {locale == 'es' ? 'Iniciar sesión' : 'Sign in'}
           </Link>
@@ -106,45 +120,50 @@ export default function ViewedHistoryPage() {
 
       {/* Contenido principal */}
       {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
+        <div className="flex items-center justify-center py-16" role="status" aria-live="polite">
+          <div className="h-12 w-12 animate-spin rounded-full border-2 border-[#E8E4E0] border-t-[#A08848]"></div>
+          <span className="sr-only">{locale == 'es' ? 'Cargando historial' : 'Loading history'}</span>
         </div>
       ) : history.length > 0 ? (
         <>
           {/* Acciones */}
-          <div className="flex justify-end mb-4">
+          <div className="mb-4 flex justify-end">
             <button 
               onClick={handleClearAll}
-              className="flex items-center text-sm text-red-600 hover:text-red-800 transition"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-sm border border-[#C44536]/35 px-4 py-2 text-sm font-semibold text-[#9F2D24] transition-colors hover:bg-[#C44536]/10"
             >
-              <Trash2 className="h-4 w-4 mr-1" />
+              <Trash2 className="h-4 w-4" strokeWidth={1.75} aria-hidden />
               {locale == 'es' ? 'Limpiar historial' : 'Clear history'}
             </button>
           </div>
 
           {/* Lista de productos */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {history.map((product) => (
-              <div key={`${product.id}-${product.viewedAt.toString()}`} className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition relative group">
+            {history.map((product) => {
+              const productName = locale == 'es' ? product.name_es : product.name_en;
+              const productHref = `/products?id=${product.id}`;
+
+              return (
+              <article key={`${product.id}-${product.viewedAt.toString()}`} className="group relative overflow-hidden border border-[#E8E4E0] bg-[#F5F1EB] transition-colors hover:border-[#C9A962]/55">
                 {/* Botón eliminar */}
                 <button 
                   onClick={() => handleRemove(product.id)}
-                  className="absolute top-2 right-2 bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-sm hover:bg-gray-100"
-                  aria-label="Eliminar del historial"
+                  className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full border border-[#E8E4E0] bg-[#FFFDF9] text-[#6B6459] opacity-100 transition-colors hover:border-[#C44536]/45 hover:text-[#9F2D24] sm:opacity-0 sm:group-hover:opacity-100"
+                  aria-label={locale == 'es' ? 'Eliminar del historial' : 'Remove from history'}
                 >
-                  <Trash2 className="h-4 w-4 text-gray-500" />
+                  <Trash2 className="h-4 w-4" strokeWidth={1.75} aria-hidden />
                 </button>
 
-                <Link href={`/products?id=${product.id}`} className="block">
-                  <div className="relative h-48 overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+                <Link href={productHref} locale={locale} className="block">
+                  <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[#FAF6EF] p-5">
                     <Image
                       src={product.imageUrl}
-                      alt={locale == 'es' ? product.name_es : product.name_en || ''}
-                      width={110}
-                      height={0}
-                      className="object-contain max-h-full w-auto group-hover:scale-105 transition-transform duration-300"
+                      alt={productName || ''}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-contain p-5 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
                     />
-                    <span className="absolute top-3 left-3 bg-teal-50 text-teal-700 text-xs px-2 py-1 rounded-full border border-teal-100">
+                    <span className="absolute left-3 top-3 rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] px-2 py-1 text-xs font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
                       {product.category || 'Artesanía'}
                     </span>
                   </div>
@@ -152,14 +171,16 @@ export default function ViewedHistoryPage() {
 
                 <div className="p-4">
                   <div className="mb-3">
-                    <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">{locale == 'es' ? product.name_es : product.name_en}</h3>
-                    <div className="flex items-center justify-between">
-                      <p className="font-bold text-teal-700">
-                        {product.dolar_price ? `${formatUSD(product.dolar_price)}` : 'Consultar'}
+                    <h2 className="mb-2 line-clamp-2 font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+                      {productName}
+                    </h2>
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="font-semibold text-[#A08848]">
+                        {product.dolar_price ? `${formatUSD(product.dolar_price)}` : locale == 'es' ? 'Consultar' : 'Ask for price'}
                       </p>
                       
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Clock className="h-3 w-3 mr-1" />
+                      <div className="flex items-center text-right text-xs text-[#6B6459]">
+                        <Clock className="mr-1 h-3 w-3" strokeWidth={1.75} aria-hidden />
                         <span title={formatDate(product.viewedAt)}>
                           {formatDate(product.viewedAt)}
                         </span>
@@ -168,37 +189,41 @@ export default function ViewedHistoryPage() {
                   </div>
 
                   <Link 
-                    href={`/products?id=${product.id}`}
-                    className="block w-full text-center py-2 border border-teal-600 text-teal-700 rounded-md hover:bg-teal-50 transition text-sm"
+                    href={productHref}
+                    locale={locale}
+                    className="inline-flex min-h-[44px] w-full items-center justify-center rounded-sm border border-[#A08848] px-4 py-2 text-sm font-semibold text-[#A08848] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
                   >
                     {locale == 'es' ? 'Ver producto' : 'View product'}
                   </Link>
                 </div>
-              </div>
-            ))}
+              </article>
+              );
+            })}
           </div>
         </>
       ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
-          <div className="mb-4">
-            <Image 
-              src="/empty-history.svg" 
-              alt="Historial vacío" 
-              width={180} 
-              height={180} 
-              className="mx-auto opacity-80" 
-            />
+        <div className="border border-[#E8E4E0] bg-[#F5F1EB] px-5 py-12 text-center shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
+          <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full bg-[#C9A962]/18 text-[#A08848]">
+            <ShoppingBag className="h-6 w-6" strokeWidth={1.75} aria-hidden />
           </div>
-          <h2 className="text-xl font-medium text-gray-700 mb-2">{locale == 'es' ? 'No hay productos en tu historial' : 'No products in your history'}</h2>
-          <p className="text-gray-500 mb-6">{locale == 'es' ? 'Explora nuestra tienda y vuelve aquí para ver tu historial de navegación' : 'Explore our store and come back here to see your navigation history'}</p>
+          <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+            {locale == 'es' ? 'No hay productos en tu historial' : 'No products in your history'}
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[#4A4A4A]">
+            {locale == 'es'
+              ? 'Explora la tienda y vuelve aquí para comparar las piezas que viste.'
+              : 'Explore the store and come back here to compare the pieces you viewed.'}
+          </p>
           <Link 
             href="/products" 
-            className="inline-flex items-center justify-center px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition"
+            locale={locale}
+            className="mt-7 inline-flex min-h-[48px] items-center justify-center rounded-sm bg-[#2D2D2D] px-6 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
           >
             {locale == 'es' ? 'Explorar productos' : 'Explore products'}
           </Link>
         </div>
       )}
-    </div>
+      </div>
+    </main>
   );
 }

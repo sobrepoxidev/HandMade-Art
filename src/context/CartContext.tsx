@@ -54,6 +54,15 @@ function decodeCartFromBase64(encoded: string): { id: number; qty: number }[] {
   }
 }
 
+function shouldExposeCartInUrl(pathname: string): boolean {
+  return /\/cart\/?$/.test(pathname);
+}
+
+function buildUrl(pathname: string, params: URLSearchParams): string {
+  const queryString = params.toString();
+  return queryString ? `${pathname}?${queryString}` : pathname;
+}
+
 // Helpers for localStorage persistence
 function saveCartToStorage(cart: CartItem[]): void {
   if (typeof window === 'undefined') return;
@@ -111,16 +120,26 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const params = new URLSearchParams(searchParams.toString());
+    const exposeCartInUrl = shouldExposeCartInUrl(pathname);
+
     if (cart.length > 0) {
-      params.set('cart', encodeCartToBase64(cart));
-      // Also save to localStorage as backup
       saveCartToStorage(cart);
     } else {
-      params.delete('cart');
       clearCartFromStorage();
     }
 
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    if (cart.length > 0 && exposeCartInUrl) {
+      params.set('cart', encodeCartToBase64(cart));
+    } else {
+      params.delete('cart');
+    }
+
+    const nextUrl = buildUrl(pathname, params);
+    const currentUrl = buildUrl(pathname, new URLSearchParams(searchParams.toString()));
+
+    if (nextUrl !== currentUrl) {
+      router.replace(nextUrl, { scroll: false });
+    }
   }, [cart, pathname, router, searchParams, isInitialized]);
 
   // 🎁 Funciones del carrito

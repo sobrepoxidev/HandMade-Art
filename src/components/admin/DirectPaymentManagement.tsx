@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Image from 'next/image';
 import { Search, ShoppingCart, Plus, Minus, Trash2, User, Filter, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import DirectPaymentDiscountModal from './DirectPaymentDiscountModal';
 import { Database } from '@/lib/database.types';
+import { supabase } from '@/lib/supabaseClient';
 
 type Product = Database['public']['Tables']['products']['Row'];
 type MediaItem = { url: string; alt?: string; type?: string };
@@ -35,13 +35,12 @@ interface DirectPaymentManagementProps {
 }
 
 export default function DirectPaymentManagement({ locale }: DirectPaymentManagementProps) {
-  const supabase = createClientComponentClient();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     name: '',
@@ -97,7 +96,7 @@ export default function DirectPaymentManagement({ locale }: DirectPaymentManagem
     loadCategories();
 
     fetchProducts();
-  }, [supabase, locale]);
+  }, [locale]);
 
   // Filter products based on search term and category
   useEffect(() => {

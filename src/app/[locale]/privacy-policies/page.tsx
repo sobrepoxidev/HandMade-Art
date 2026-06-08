@@ -1,7 +1,6 @@
-import React from 'react';
 import { buildMetadata } from '@/lib/metadata';
 import type { Metadata } from "next";
-type tParams = Promise<{ id: string, locale: string }>;
+type tParams = Promise<{ locale: string }>;
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const { locale } = await params;
   const currentLocale = locale === "es" ? "es" : "en";
@@ -17,18 +16,18 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 export default async function PoliticaPrivacidadPage({ params }: { params: tParams }) {
   const { locale } = await params;
   return (
-    <div className="min-h-screen bg-[#FAF8F5] py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-8 border-b border-[#E8E4E0] bg-[#FAF8F5]">
-          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-[-0.005em] text-[#2D2D2D] text-center mb-2">
+    <main className="min-h-screen bg-[#FAF6EF] px-4 py-12 sm:px-6 md:py-16 lg:px-8">
+      <div className="mx-auto max-w-5xl overflow-hidden border border-[#E8E4E0] bg-[#FAF6EF] shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+        <div className="border-b border-[#F5F1EB]/12 bg-[#2D2D2D] px-6 py-8">
+          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-[-0.005em] text-[#F5F1EB] text-center mb-2">
             {locale === "es" ? "Política de Privacidad" : "Privacy policy"}
           </h1>
-          <p className="text-[#6B6459] text-center text-sm">
+          <p className="text-[#B5AC9D] text-center text-sm">
             {locale === "es" ? "Última actualización: 9 de abril de 2025" : "Last updated: April 9, 2025"}
           </p>
         </div>
 
-        <div className="px-6 py-8 prose prose-stone max-w-none text-[#4A4A4A] leading-relaxed">
+        <div className="px-6 py-8 max-w-none text-[#4A4A4A] leading-relaxed sm:px-8 lg:px-10">
           <div className="mb-12">
             <p className="text-lg text-[#2D2D2D]">
               {locale === "es"
@@ -37,8 +36,8 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
             </p>
             <p>
               {locale === "es"
-                ? "Al usar nuestra tienda y cuenta, aceptás las prácticas descritas en este documento. Si algo no te queda claro, escribinos a info@handmadeart.store — no hay letra chica."
-                : "By using our store and account, you accept the practices described here. If anything isn't clear, write to info@handmadeart.store — there's no fine print."}
+                ? "Al usar nuestra tienda y cuenta, aceptás las prácticas descritas en este documento. Si algo no te queda claro, escribinos a info@handmadeart.store. No hay letra chica."
+                : "By using our store and account, you accept the practices described here. If anything isn't clear, write to info@handmadeart.store. There is no fine print."}
             </p>
           </div>
 
@@ -261,14 +260,14 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
             <ul className="space-y-3 pl-5 list-disc mt-4">
               <li>{locale === "es" ? "Correo electrónico: info@handmadeart.store" : "Email: info@handmadeart.store"}</li>
               <li>{locale === "es" ? "Formulario de contacto en nuestra plataforma" : "Contact form on our platform"}</li>
-              <li>{locale === "es" ? "Dirección postal: [Dirección física de la empresa]" : "Postal address: [Physical address of the company]"}</li>
+              <li>{locale === "es" ? "Operación comercial registrada en Costa Rica." : "Commercial operation registered in Costa Rica."}</li>
             </ul>
             <p className="mt-4">
               {locale === "es" ? "Nos comprometemos a responder a cualquier consulta o solicitud dentro de un plazo razonable y, en cualquier caso, dentro de los plazos establecidos por la ley aplicable." : "We commit to responding to any inquiries or requests within a reasonable time frame and, in any case, within the time limits established by applicable law."}
             </p>
           </section>
 
-          <div className="mt-12 p-6 bg-[#FAF8F5] rounded-lg border border-[#E8E4E0] text-center">
+          <div className="mt-12 border border-[#E8E4E0] bg-[#F5F1EB] p-6 text-center">
             <p className="text-[#4A4A4A] font-medium">
               {locale === "es" ? "Al utilizar nuestros servicios, usted reconoce que ha leído y comprendido esta Política de Privacidad." : "By using our services, you acknowledge that you have read and understood this Privacy Policy."}
             </p>
@@ -278,6 +277,6 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

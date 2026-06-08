@@ -3,12 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import StepOne from "@/components/checkout/StepOne";
 import StepTwo from "@/components/checkout/StepTwo";
 import { notify } from "@/components/ui/notify";
 import { useCart } from "@/context/CartContext";
 import { Database } from "@/lib/database.types";
 import type { CheckoutErrorCode } from "@/lib/checkout/errors";
+import { ArrowLeft, PackageOpen, ShoppingBag } from "lucide-react";
 
 type PaymentMethod = "sinpe" | "paypal" | "transfer" | "card";
 
@@ -254,42 +256,72 @@ export default function CheckoutWizardPage() {
 
   if (cart.length === 0) {
     return (
-      <main className="w-full mx-auto px-6 py-14 flex flex-row gap-4 bg-[#FAF8F5] min-h-screen">
-        <button onClick={() => router.back()} className="bg-[#C9A962] p-2 px-4 rounded-lg text-[#1A1A1A] font-medium shadow-md">
-          &larr; {locale === "es" ? "Regresar" : "Go back"}
-        </button>
-        <h1 className="text-2xl font-bold mt-4 text-[#2D2D2D]">{locale === "es" ? "Carrito vacío" : "Empty cart"}</h1>
+      <main className="min-h-[70vh] bg-[#FAF6EF] px-4 py-12 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-screen-md border border-[#E8E4E0] bg-[#F5F1EB] p-6 sm:p-10">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-sm border border-[#E8E4E0] px-4 py-2 text-sm font-semibold text-[#2D2D2D] transition-colors hover:border-[#A08848] hover:bg-[#FAF6EF]"
+          >
+            <ArrowLeft className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+            {locale === "es" ? "Regresar" : "Go back"}
+          </button>
+
+          <div className="mt-12 text-center">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#C9A962]/18 text-[#A08848]">
+              <PackageOpen className="h-6 w-6" strokeWidth={1.5} aria-hidden />
+            </div>
+            <h1 className="mt-5 font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+              {locale === "es" ? "Tu carrito está vacío" : "Your cart is empty"}
+            </h1>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[#4A4A4A]">
+              {locale === "es"
+                ? "El checkout se activa cuando eliges una pieza. Vuelve al catálogo y agrega una obra para continuar."
+                : "Checkout starts after you choose a piece. Return to the catalog and add an artwork to continue."}
+            </p>
+            <Link
+              href="/products"
+              locale={locale}
+              className="mt-7 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-6 py-3 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+            >
+              <ShoppingBag className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              {locale === "es" ? "Ver productos" : "Browse products"}
+            </Link>
+          </div>
+        </div>
       </main>
     );
   }
 
   return (
     <main className="w-full flex flex-col min-h-[67vh] py-4 px-4 md:px-12 lg:px-24 bg-[#FAF8F5]">
-      <header className="flex items-center gap-4 mb-6">
+      <header className="mb-6 grid gap-4 sm:flex sm:items-center">
         {currentStep > 1 ? (
           <button
             onClick={goBack}
             disabled={isProcessing}
-            className="bg-[#2D2D2D] text-[#F5F1EB] px-3 py-1.5 rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium text-sm disabled:opacity-60"
+            className="inline-flex min-h-[44px] w-fit shrink-0 items-center justify-center whitespace-nowrap rounded-sm bg-[#2D2D2D] px-4 py-2 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A] disabled:opacity-60"
           >
             &larr; {locale === "es" ? "Paso anterior" : "Previous step"}
           </button>
         ) : (
           <button
             onClick={() => router.back()}
-            className="bg-[#2D2D2D] text-[#F5F1EB] px-3 py-1.5 rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium text-sm"
+            className="inline-flex min-h-[44px] w-fit shrink-0 items-center justify-center whitespace-nowrap rounded-sm bg-[#2D2D2D] px-4 py-2 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
           >
             &larr; {locale === "es" ? "Regresar" : "Go back"}
           </button>
         )}
-        <h1 className="text-base sm:text-2xl font-bold text-[#2D2D2D]">
-          {currentStep === 1
-            ? locale === "es" ? "Información de entrega" : "Shipping information"
-            : locale === "es" ? "Pago" : "Payment"}
-          <span className="text-[#C9A962] ml-2">
-            ({locale === "es" ? "Paso" : "Step"} {currentStep} {locale === "es" ? "de" : "of"} 2)
-          </span>
-        </h1>
+        <div className="min-w-0">
+          <h1 className="font-display text-2xl font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D] sm:text-3xl">
+            {currentStep === 1
+              ? locale === "es" ? "Información de entrega" : "Shipping information"
+              : locale === "es" ? "Pago" : "Payment"}
+          </h1>
+          <p className="mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-[#A08848]">
+            {locale === "es" ? "Paso" : "Step"} {currentStep} {locale === "es" ? "de" : "of"} 2
+          </p>
+        </div>
       </header>
 
       {currentStep === 1 && (

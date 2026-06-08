@@ -34,7 +34,7 @@ const CarouselArrow = ({ direction, onClick }: CarouselArrowProps) => (
   <button
     onClick={onClick}
     aria-label={direction === "left" ? "Previous" : "Next"}
-    className={`absolute top-1/2 -translate-y-1/2 z-50 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-all duration-200 hidden md:block ${
+    className={`absolute top-1/2 -translate-y-1/2 z-50 bg-[#FAF6EF]/70 hover:bg-[#FAF6EF] rounded-sm p-2 text-[#2D2D2D] shadow-sm transition-all duration-200 hidden md:block ${
       direction === "left" ? "left-2" : "right-2"
     }`}
   >
@@ -48,7 +48,7 @@ const CarouselArrow = ({ direction, onClick }: CarouselArrowProps) => (
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="text-gray-800"
+      className="text-[#2D2D2D]"
     >
       {direction === "left" ? (
         <polyline points="15 18 9 12 15 6" />
@@ -71,7 +71,7 @@ const CarouselIndicators = ({
         onClick={() => onClick(index)}
         aria-label={`Go to slide ${index + 1}`}
         className={`h-2 rounded-full transition-all ${
-          current === index ? "w-6 bg-teal-600" : "w-2 bg-gray-300"
+          current === index ? "w-6 bg-[#C9A962]" : "w-2 bg-[#F5F1EB]/70"
         }`}
       />
     ))}
@@ -201,13 +201,13 @@ const CarouselClient = ({ children }: CarouselProps) => {
       <button
         onClick={togglePause}
         aria-label={isPaused ? "Play" : "Pause"}
-        className="absolute bottom-3 left-3 z-48 bg-gray-400 hover:bg-white/50 rounded-full p-1 sm:p-2 transition-all duration-200"
+        className="absolute bottom-3 left-3 z-48 bg-[#FAF6EF]/70 hover:bg-[#FAF6EF] rounded-sm p-1 sm:p-2 text-[#2D2D2D] shadow-sm transition-all duration-200"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
           width="14" 
           height="14"
-          className="text-gray-800 sm:w-20 sm:h-20"
+          className="text-[#2D2D2D] sm:w-20 sm:h-20"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
@@ -251,7 +251,7 @@ const CarouselClient = ({ children }: CarouselProps) => {
         : children}
 
       {/* Swipe hint */}
-      <div className="absolute bottom-1.5 right-3 text-xs text-white/70 bg-black/10 px-2 py-0.5 rounded md:hidden">
+      <div className="absolute bottom-1.5 right-3 text-xs text-[#F5F1EB]/80 bg-[#2D2D2D]/30 px-2 py-0.5 rounded-sm md:hidden">
         Swipe to navigate
       </div>
     </div>

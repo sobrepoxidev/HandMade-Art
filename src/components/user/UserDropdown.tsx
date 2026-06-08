@@ -69,12 +69,12 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
     <div ref={dropdownRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1 text-sm rounded-lg px-3 py-1.5 text-[#2D2D2D] hover:text-[#C9A962] hover:bg-[#F5F1EB] transition-colors"
+        className="flex min-h-[44px] items-center space-x-1 rounded-sm px-3 py-1.5 text-sm text-[#2D2D2D] hover:text-[#A08848] hover:bg-[#F5F1EB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848] transition-colors"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
         <span className="hidden md:inline font-medium">
-          {currentSession ? `${locale === 'es' ? 'Hola' : 'Hello'}, ${currentSession.user.email?.split('@')[0]}` : locale === 'es' ? 'Cuenta y Listas' : 'Account and Lists'}
+          {currentSession ? `${locale === 'es' ? 'Hola' : 'Hello'}, ${currentSession.user.email?.split('@')[0]}` : locale === 'es' ? 'Cuenta' : 'Account'}
         </span>
         <span className="md:hidden">
           <User className="h-5 w-5" />
@@ -84,7 +84,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
 
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-64 bg-[#2D2D2D] border border-[#C9A962]/20 rounded-xl shadow-2xl overflow-hidden"
+          className="absolute right-0 mt-2 w-64 overflow-hidden rounded-sm border border-[#C9A962]/20 bg-[#2D2D2D] shadow-[0_18px_40px_rgba(45,45,45,0.28)]"
           style={{ zIndex: 9999 }}
         >
           {!currentSession ? (
@@ -97,7 +97,7 @@ export default function UserDropdown({ session, onLogout }: UserDropdownProps) {
                       router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
                       setIsOpen(false);
                     }}
-                    className="block w-full text-center px-4 py-2.5 text-sm font-medium text-[#1A1A1A] bg-gradient-to-r from-[#C9A962] to-[#A08848] hover:from-[#D4C4A8] hover:to-[#C9A962] rounded-lg transition-all shadow-lg"
+                    className="block w-full rounded-sm bg-[#C9A962] px-4 py-2.5 text-center text-sm font-semibold text-[#1A1A1A] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4C4A8]"
                   >
                     {locale === 'es' ? 'Iniciar sesión' : 'Sign in'}
                   </button>

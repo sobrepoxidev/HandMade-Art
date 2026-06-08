@@ -1,16 +1,14 @@
-// src/components/SessionLayout.tsx
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { ReactNode } from 'react';
 
 import SupabaseProvider from '@/app/supabase-provider/provider';
+import { createClient } from '@/utils/supabase/server';
 
 interface Props {
   children: ReactNode;
 }
 
 export default async function SessionLayout({ children }: Props) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
   const {
     data: { session },

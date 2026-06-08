@@ -64,7 +64,7 @@ export default function ViewedProductsHistory() {
             // Fetch the products
             const { data: productsData, error: productsError } = await supabase
               .from('products')
-              .select('*')
+              .select('id, name, name_es, name_en, media, dolar_price, category_id, discount_percentage, is_active, created_at')
               .in('id', productIds);
               
             if (productsError) {
@@ -89,7 +89,7 @@ export default function ViewedProductsHistory() {
             // Fetch the products
             const { data: productsData, error: productsError } = await supabase
               .from('products')
-              .select('*')
+              .select('id, name, name_es, name_en, media, dolar_price, category_id, discount_percentage, is_active, created_at')
               .in('id', productIds);
               
             if (productsError) {
@@ -118,16 +118,16 @@ export default function ViewedProductsHistory() {
   if (loading) {
     return (
       <div className="px-4 py-6">
-        <h2 className="text-xl font-bold mb-4 flex items-center">
+        <h2 className="mb-4 flex items-center font-display text-xl font-medium text-[#2D2D2D]">
           <Clock className="mr-2 h-5 w-5" />
           {locale === 'es' ? 'Vistos recientemente' : 'Recently viewed'}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="bg-gray-200 w-full h-40 rounded-md mb-2"></div>
-              <div className="bg-gray-200 h-4 w-2/3 rounded mb-1"></div>
-              <div className="bg-gray-200 h-4 w-1/2 rounded"></div>
+              <div className="mb-2 h-40 w-full rounded-sm bg-[#E8E4E0]"></div>
+              <div className="mb-1 h-4 w-2/3 rounded bg-[#E8E4E0]"></div>
+              <div className="h-4 w-1/2 rounded bg-[#E8E4E0]"></div>
             </div>
           ))}
         </div>
@@ -138,7 +138,7 @@ export default function ViewedProductsHistory() {
   if (error) {
     return (
       <div className="px-4 py-6">
-        <div className="flex items-center text-red-500 mb-2">
+        <div className="mb-2 flex items-center text-[#9F2D24]">
           <AlertCircle className="h-5 w-5 mr-2" />
           <p>{error}</p>
         </div>
@@ -151,8 +151,8 @@ export default function ViewedProductsHistory() {
   }
   
   return (
-    <div className="px-4 py-6 bg-gray-50 rounded-lg">
-      <h2 className="text-xl font-bold mb-4 flex items-center">
+    <div className="rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-4 py-6">
+      <h2 className="mb-4 flex items-center font-display text-xl font-medium text-[#2D2D2D]">
         <Clock className="mr-2 h-5 w-5" />
         {locale === 'es' ? 'Vistos recientemente' : 'Recently viewed'}
       </h2>
@@ -164,7 +164,7 @@ export default function ViewedProductsHistory() {
             key={product.id}
             className="group"
           >
-            <div className="bg-white border border-gray-200 rounded-md overflow-hidden transition-shadow hover:shadow-md">
+            <div className="overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] transition-[border-color,box-shadow] hover:border-[#C9A962]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
               <div className="h-40 relative">
                 <Image
                   src={(product.media && isMediaArray(product.media) && product.media[0]?.url) || '/product-placeholder.png'}
@@ -175,11 +175,11 @@ export default function ViewedProductsHistory() {
                 />
               </div>
               <div className="p-2">
-                <h3 className="text-sm font-medium text-gray-800 line-clamp-1 group-hover:text-teal-600">
-                  {product.name}
+                <h3 className="line-clamp-1 text-sm font-medium text-[#2D2D2D] group-hover:text-[#A08848]">
+                  {(locale === 'es' ? product.name_es : product.name_en) || product.name}
                 </h3>
-                <p className="text-sm font-semibold text-teal-700">
-                  {product.dolar_price ? `${formatUSD(product.dolar_price)}` : 'Precio a consultar'}
+                <p className="text-sm font-semibold text-[#2D2D2D]">
+                  {product.dolar_price ? `${formatUSD(product.dolar_price)}` : locale === 'es' ? 'Precio a consultar' : 'Price on request'}
                 </p>
               </div>
             </div>

@@ -34,9 +34,9 @@ const FeaturedProductsSection: React.FC = () => {
   }, [sections.featured]);
 
   return (
-    <section className="my-2 bg-[#FAF6EF]">
-      <div className="w-full px-4 mx-auto">
-        <div className="flex justify-between items-center mb-4">
+    <section className="bg-[#FAF6EF] pb-8">
+      <div className="w-full mx-auto">
+        <div className="flex justify-between items-end gap-4 mb-4">
           <h2 className="font-display text-2xl font-medium text-[#2D2D2D] tracking-[-0.005em] flex items-center gap-3">
             <span aria-hidden className="block w-1 h-6 bg-[#C9A962]" />
             {title}
@@ -60,9 +60,9 @@ const FeaturedProductsSection: React.FC = () => {
                 href={`/product/${product.name}`}
                 className="group"
               >
-                <div className="flex flex-col bg-white border border-[#E8E4E0] rounded-md overflow-hidden h-full hover:shadow-[0_12px_32px_-18px_rgba(45,45,45,0.28)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 group-hover:-translate-y-0.5">
+              <div className="flex flex-col bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm overflow-hidden h-full hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 group-hover:-translate-y-0.5">
                   {/* Imagen del producto */}
-                  <div className="relative bg-[#FAF8F5] aspect-square">
+                  <div className="relative bg-[#F5F1EB] aspect-square">
                     <Image
                       src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
                       alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
@@ -105,7 +105,7 @@ const FeaturedProductsSection: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="w-full text-center py-10 text-[#9C9589] bg-[#FAF8F5] border border-[#E8E4E0] rounded-lg">
+          <div className="w-full text-center py-10 text-[#6B6459] bg-[#F5F1EB] border border-[#E8E4E0] rounded-sm">
             {locale === 'es' ? 'No hay productos destacados disponibles.' : 'No featured products available.'}
           </div>
         )}

@@ -58,15 +58,19 @@ export async function searchProducts(
     
     // First, get category ID if a category name is provided
     let categoryId: number | null = null;
-    if (category && category !== 'Todo') {
-      const { data: categoryData } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('name', category)
-        .single();
-        
-      if (categoryData) {
-        categoryId = categoryData.id;
+    if (category && !['Todo', 'Todas', 'All'].includes(category)) {
+      if (/^\d+$/.test(category)) {
+        categoryId = Number(category);
+      } else {
+        const { data: categoryData } = await supabase
+          .from('categories')
+          .select('id')
+          .or(`name.eq.${category},name_es.eq.${category},name_en.eq.${category}`)
+          .single();
+
+        if (categoryData) {
+          categoryId = categoryData.id;
+        }
       }
     }
     

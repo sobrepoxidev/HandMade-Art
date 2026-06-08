@@ -1,9 +1,8 @@
-// src/components/products/PaginationControls.tsx
-'use client'; // Necesita Link y hooks del lado del cliente
+'use client';
 
 import Link from 'next/link';
-import { useSearchParams } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useSearchParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -14,75 +13,53 @@ export default function PaginationControls({
   currentPage,
   totalPages,
 }: PaginationControlsProps) {
-    const searchParams = useSearchParams();
-    const locale = useLocale();
+  const searchParams = useSearchParams();
+  const locale = useLocale();
 
-    console.log("searchParams PaginationControls:", searchParams);
-  // Función para crear la URL de una página específica,
-  // manteniendo los parámetros existentes (como 'category')
   const createPageURL = (pageNumber: number) => {
-    // Clona los parámetros actuales que recibimos del servidor
-
-    const params = new URLSearchParams(searchParams); // Puede necesitar casteo
-    // Establece el nuevo número de página
+    const params = new URLSearchParams(searchParams.toString());
     params.set('page', pageNumber.toString());
-    // Elimina 'id' si existe, ya que probablemente no queramos que persista entre páginas
     params.delete('id');
-    // Devuelve la cadena de query string (ej: "?category=drippers&page=2")
     return `?${params.toString()}`;
   };
 
   const prevPage = currentPage - 1;
   const nextPage = currentPage + 1;
-
-  // Determina si los botones deben estar activos
   const showPrev = currentPage > 1;
   const showNext = currentPage < totalPages;
 
   return (
-    <div className="flex justify-center items-center space-x-4 mt-8 mb-4">
-      {/* Botón Anterior */}
+    <nav
+      className="mt-8 mb-4 flex flex-wrap items-center justify-center gap-3"
+      aria-label={locale === 'es' ? 'Paginación' : 'Pagination'}
+    >
       <Link
-        href={showPrev ? createPageURL(prevPage) : '#'} // Enlace '#' si está deshabilitado
-        passHref
-        legacyBehavior // Útil para envolver elementos que no son <a> o para control fino
+        href={showPrev ? createPageURL(prevPage) : '#'}
+        className={`inline-flex min-h-[44px] items-center rounded-sm border px-4 py-2 text-sm font-medium transition-colors ${
+          showPrev
+            ? 'border-[#E8E4E0] bg-[#FAF6EF] text-[#2D2D2D] hover:border-[#A08848] hover:text-[#A08848]'
+            : 'pointer-events-none border-[#E8E4E0] bg-[#F5F1EB] text-[#6B6459]'
+        }`}
+        aria-disabled={!showPrev}
       >
-        <a
-          className={`px-4 py-2 border rounded transition-colors duration-200 ${
-            !showPrev
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' // Estilos y deshabilita eventos
-              : 'bg-teal-600 text-white hover:bg-teal-700' // Estilos activos
-          }`}
-          aria-disabled={!showPrev} // Accesibilidad
-          // onClick={(e) => !showPrev && e.preventDefault()} // Alternativa a pointer-events-none
-        >
-          {locale === 'es' ? 'Anterior' : 'Previous'}
-        </a>
+        {locale === 'es' ? 'Anterior' : 'Previous'}
       </Link>
 
-      {/* Indicador de Página */}
-      <span className="text-gray-700 font-medium">
+      <span className="text-sm font-medium tabular-nums text-[#4A4A4A]">
         {locale === 'es' ? 'Página' : 'Page'} {currentPage} {locale === 'es' ? 'de' : 'of'} {totalPages}
       </span>
 
-      {/* Botón Siguiente */}
       <Link
         href={showNext ? createPageURL(nextPage) : '#'}
-        passHref
-        legacyBehavior
+        className={`inline-flex min-h-[44px] items-center rounded-sm border px-4 py-2 text-sm font-medium transition-colors ${
+          showNext
+            ? 'border-[#E8E4E0] bg-[#FAF6EF] text-[#2D2D2D] hover:border-[#A08848] hover:text-[#A08848]'
+            : 'pointer-events-none border-[#E8E4E0] bg-[#F5F1EB] text-[#6B6459]'
+        }`}
+        aria-disabled={!showNext}
       >
-         <a
-          className={`px-4 py-2 border rounded transition-colors duration-200 ${
-            !showNext
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none'
-              : 'bg-teal-600 text-white hover:bg-teal-700'
-          }`}
-          aria-disabled={!showNext}
-          // onClick={(e) => !showNext && e.preventDefault()}
-        >
-          {locale === 'es' ? 'Siguiente' : 'Next'}
-        </a>
+        {locale === 'es' ? 'Siguiente' : 'Next'}
       </Link>
-    </div>
+    </nav>
   );
 }

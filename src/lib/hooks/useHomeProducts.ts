@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import type { Database } from "@/lib/database.types";
 import { computeSections, HomeSections } from '@/lib/home/computeSections';
+import { HOME_CATEGORY_COLUMNS, HOME_PRODUCT_COLUMNS, type HomeCategory, type HomeProduct } from '@/lib/home/types';
+import { supabase } from '@/lib/supabaseClient';
 
-export type Product = Database['public']['Tables']['products']['Row'];
-export type Category = Database['public']['Tables']['categories']['Row'];
+export type Product = HomeProduct;
+export type Category = HomeCategory;
 
 // isMediaArray se maneja en computeSections; se elimina duplicado no utilizado
 
@@ -63,9 +63,6 @@ export function useHomeProducts({
   maxGifts = 12,
   maxFeatured = 9
 }: UseHomeProductsProps = {}): HomeProductsData {
-  // Cliente de Supabase
-  const supabase = createClientComponentClient<Database>();
-  
   // Estados para tracking de productos y paginación
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
@@ -97,7 +94,7 @@ export function useHomeProducts({
         if (categoriesData.length === 0) {
           const { data, error: categoriesError } = await supabase
             .from('categories')
-            .select('*')
+            .select(HOME_CATEGORY_COLUMNS)
             .order('name');
             
           if (categoriesError) {
@@ -113,7 +110,7 @@ export function useHomeProducts({
         if (productsData.length === 0) {
           const { data, error: productsError } = await supabase
             .from('products')
-            .select('*')
+            .select(HOME_PRODUCT_COLUMNS)
             .eq('is_active', true)
             .order('created_at', { ascending: false })
             .limit(50);
@@ -134,7 +131,7 @@ export function useHomeProducts({
     };
     
     fetchInitialData();
-  }, [initialCategories, initialProducts, supabase]);
+  }, [initialCategories, initialProducts]);
 
   // Nota: ya no alternamos a datos en vivo para evitar que el grid cambie en CSR.
   // Si se necesitara actualizar el snapshot, hacerlo bajo un evento de usuario explícito.
@@ -146,7 +143,7 @@ export function useHomeProducts({
       
       let query = supabase
         .from('products')
-        .select('*')
+        .select(HOME_PRODUCT_COLUMNS)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
       
@@ -179,7 +176,7 @@ export function useHomeProducts({
       setError(err instanceof Error ? err.message : 'Error desconocido');
       setLoading(false);
     }
-  }, [page, supabase]);
+  }, [page]);
   
   // Calcular secciones de productos de manera determinista
   const sections = useMemo(() => {

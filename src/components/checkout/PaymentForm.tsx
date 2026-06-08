@@ -55,7 +55,7 @@ export default function PaymentForm({
         if (bancoSeleccionado?.permiteSMS) {
             const mensaje = `PASE ${total.toFixed(2)} 85850000 HM-ART`;
             navigator.clipboard.writeText(mensaje);
-            notify.success("Mensaje SINPE copiado al portapapeles");
+            notify.success(locale === "es" ? "Mensaje SINPE copiado al portapapeles" : "SINPE message copied to clipboard");
         }
     };
     const handleBancoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -76,7 +76,7 @@ export default function PaymentForm({
                         <select
                             value={bancoSeleccionado?.nombre || ""}
                             onChange={handleBancoChange}
-                            className="w-full p-3 border border-[#E8E4E0] rounded-sm mb-3 text-[#2D2D2D] bg-white focus:ring-2 focus:ring-[#A08848]/25 focus:border-[#A08848] outline-none transition-colors"
+                            className="w-full p-3 border border-[#E8E4E0] rounded-sm mb-3 text-[#2D2D2D] bg-[#FFFDF9] focus:ring-2 focus:ring-[#A08848]/25 focus:border-[#A08848] outline-none transition-colors"
                         >
                             <option value="">-- {locale === "es" ? "Selecciona Banco" : "Select Bank"} --</option>
                             {bancos.map((b, idx) => (
@@ -107,7 +107,7 @@ export default function PaymentForm({
                                     </div>
                                 ) : (
                                     <p className="text-[#4A4A4A]">
-                                        📱 {locale === "es" ? "Realiza la transferencia desde la app o banca en línea de" : "Make the transfer from the app or online bank of"} <b className="text-[#2D2D2D]">{bancoSeleccionado.nombre}</b>.
+                                        {locale === "es" ? "Realiza la transferencia desde la app o banca en línea de" : "Make the transfer from the app or online bank of"} <b className="text-[#2D2D2D]">{bancoSeleccionado.nombre}</b>.
                                     </p>
                                 )}
                             </div>
@@ -120,7 +120,7 @@ export default function PaymentForm({
                             placeholder="1234"
                             value={ultimos4}
                             onChange={(e) => setUltimos4(e.target.value)}
-                            className="w-full p-3 border border-[#E8E4E0] rounded-sm mb-3 text-[#2D2D2D] bg-white focus:ring-2 focus:ring-[#A08848]/25 focus:border-[#A08848] outline-none transition-colors"
+                            className="w-full p-3 border border-[#E8E4E0] rounded-sm mb-3 text-[#2D2D2D] bg-[#FFFDF9] focus:ring-2 focus:ring-[#A08848]/25 focus:border-[#A08848] outline-none transition-colors"
                         />
                         <button
                             onClick={() => void onFinalize()}

@@ -32,7 +32,7 @@ type AddressTabProps = {
 const labelClass = 'block text-xs uppercase tracking-[0.06em] font-medium text-[#6B6459] mb-1.5';
 
 function inputClass(hasError: boolean) {
-  return `w-full p-3 border rounded-sm bg-white text-[#2D2D2D] placeholder:text-[#9C9589]
+  return `w-full p-3 border rounded-sm bg-[#FFFDF9] text-[#2D2D2D] placeholder:text-[#9C9589]
           focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25
           transition-colors disabled:opacity-60 ${
     hasError ? 'border-[#C44536]/50' : 'border-[#E8E4E0]'

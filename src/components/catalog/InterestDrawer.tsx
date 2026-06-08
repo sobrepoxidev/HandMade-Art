@@ -2,9 +2,10 @@
 
 import { useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { X, Plus, Minus, Trash2, Send, Loader2, Tag, AlertCircle } from 'lucide-react';
+import { X, Plus, Minus, Trash2, Send, Loader2, Tag, AlertCircle, PackageOpen } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 import { useInterestList } from '@/lib/hooks/useInterestList';
 import { useDiscountCode, DiscountCode } from '@/lib/hooks/useDiscountCode';
 
@@ -32,6 +33,7 @@ const labelClass = 'block text-xs uppercase tracking-[0.06em] font-medium text-[
 export function InterestDrawer({ open, onClose, interestList, appliedDiscountCode }: InterestDrawerProps) {
   const discountCode = useDiscountCode();
   const router = useRouter();
+  const locale = useLocale();
   const [formData, setFormData] = useState<FormData>({
     requester_name: '',
     organization: '',
@@ -52,10 +54,10 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {};
     if (!formData.requester_name.trim()) {
-      newErrors.requester_name = 'El nombre es obligatorio';
+      newErrors.requester_name = locale === 'es' ? 'El nombre es obligatorio' : 'Name is required';
     }
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email inválido';
+      newErrors.email = locale === 'es' ? 'Email inválido' : 'Invalid email';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -137,11 +139,11 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
         onClose();
         router.push(`/catalog/gracias?solicitud=${result.request_id}`);
       } else {
-        alert(result.error || 'Error al enviar la solicitud');
+        alert(result.error || (locale === 'es' ? 'Error al enviar la solicitud' : 'Error sending the request'));
       }
     } catch (error) {
       console.error('Error submitting interest request:', error);
-      alert('Error al enviar la solicitud. Por favor, inténtalo de nuevo.');
+      alert(locale === 'es' ? 'Error al enviar la solicitud. Por favor, inténtalo de nuevo.' : 'Error sending the request. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -177,17 +179,17 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                 leaveTo="translate-x-full"
               >
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
-                  <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+                  <div className="flex h-full flex-col overflow-y-scroll bg-[#FAF6EF] shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
                     {/* Header */}
                     <div className="flex items-center justify-between px-5 py-5 bg-[#FAF8F5] border-b border-[#E8E4E0]">
                       <Dialog.Title className="font-display text-lg font-medium text-[#2D2D2D] tracking-[-0.005em]">
-                        Tu selección ({totalItems} {totalItems === 1 ? 'producto' : 'productos'})
+                        {locale === 'es' ? 'Tu selección' : 'Your selection'} ({totalItems} {totalItems === 1 ? (locale === 'es' ? 'producto' : 'product') : (locale === 'es' ? 'productos' : 'products')})
                       </Dialog.Title>
                       <button
                         type="button"
                         className="grid place-items-center w-11 h-11 rounded-sm text-[#6B6459] hover:text-[#2D2D2D] hover:bg-[#E8E4E0]/60 transition-colors"
                         onClick={onClose}
-                        aria-label="Cerrar"
+                        aria-label={locale === 'es' ? 'Cerrar' : 'Close'}
                       >
                         <X className="h-5 w-5" strokeWidth={2} />
                       </button>
@@ -196,8 +198,25 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                     <div className="flex-1 px-5 py-6">
                       {/* Lista de productos */}
                       {interestList.items.length === 0 ? (
-                        <div className="text-center py-12">
-                          <p className="text-[#6B6459]">No hay productos en tu lista</p>
+                        <div className="py-16 text-center">
+                          <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#C9A962]/18 text-[#A08848]">
+                            <PackageOpen className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+                          </div>
+                          <p className="mt-4 font-display text-xl font-medium text-[#2D2D2D]">
+                            {locale === 'es' ? 'Tu lista está vacía' : 'Your list is empty'}
+                          </p>
+                          <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-[#6B6459]">
+                            {locale === 'es'
+                              ? 'Agrega piezas del catálogo para solicitar una cotización revisada.'
+                              : 'Add catalog pieces to request a reviewed quote.'}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={onClose}
+                            className="mt-6 inline-flex min-h-[44px] items-center justify-center rounded-sm bg-[#2D2D2D] px-5 py-2.5 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+                          >
+                            {locale === 'es' ? 'Seguir explorando' : 'Keep browsing'}
+                          </button>
                         </div>
                       ) : (
                         <div className="space-y-3 mb-8">
@@ -251,7 +270,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                                         <div className="space-y-1">
                                           <div className="flex items-center gap-1.5 flex-wrap">
                                             <span className="text-[#A08848] font-semibold text-sm tabular-nums">
-                                              ${finalPrice.toFixed(2)} c/u
+                                          ${finalPrice.toFixed(2)} {locale === 'es' ? 'c/u' : 'each'}
                                             </span>
                                             <span className="inline-flex items-center gap-1 bg-[#C44536]/10 text-[#9F2D24] px-1.5 py-0.5 rounded-sm text-[10px] font-semibold uppercase tracking-[0.04em]">
                                               <Tag className="h-3 w-3" strokeWidth={2} aria-hidden />
@@ -266,13 +285,13 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                                               ${originalPrice.toFixed(2)}
                                             </span>
                                             <span className="text-[#2F5F3E] text-xs font-medium tabular-nums">
-                                              Ahorras ${discountAmount.toFixed(2)}
+                                              {locale === 'es' ? 'Ahorras' : 'You save'} ${discountAmount.toFixed(2)}
                                             </span>
                                           </div>
                                         </div>
                                       ) : (
                                         <p className="text-sm font-medium text-[#A08848] tabular-nums">
-                                          ${item.price.toFixed(2)} c/u
+                                          ${item.price.toFixed(2)} {locale === 'es' ? 'c/u' : 'each'}
                                         </p>
                                       )}
                                     </div>
@@ -285,7 +304,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                                 <button
                                   onClick={() => interestList.updateQuantity(item.product_id, item.qty - 1)}
                                   className="grid place-items-center w-9 h-9 rounded-sm text-[#4A4A4A] hover:bg-[#FAF8F5] hover:text-[#2D2D2D] transition-colors"
-                                  aria-label="Disminuir cantidad"
+                                  aria-label={locale === 'es' ? 'Disminuir cantidad' : 'Decrease quantity'}
                                 >
                                   <Minus className="h-4 w-4" strokeWidth={2} aria-hidden />
                                 </button>
@@ -295,14 +314,14 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                                 <button
                                   onClick={() => interestList.updateQuantity(item.product_id, item.qty + 1)}
                                   className="grid place-items-center w-9 h-9 rounded-sm text-[#4A4A4A] hover:bg-[#FAF8F5] hover:text-[#2D2D2D] transition-colors"
-                                  aria-label="Aumentar cantidad"
+                                  aria-label={locale === 'es' ? 'Aumentar cantidad' : 'Increase quantity'}
                                 >
                                   <Plus className="h-4 w-4" strokeWidth={2} aria-hidden />
                                 </button>
                                 <button
                                   onClick={() => interestList.removeItem(item.product_id)}
                                   className="grid place-items-center w-9 h-9 rounded-sm text-[#9F2D24] hover:bg-[#C44536]/10 transition-colors ml-1"
-                                  aria-label={`Quitar ${item.name}`}
+                                  aria-label={`${locale === 'es' ? 'Quitar' : 'Remove'} ${item.name}`}
                                 >
                                   <Trash2 className="h-4 w-4" strokeWidth={2} aria-hidden />
                                 </button>
@@ -316,13 +335,13 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                       {interestList.items.length > 0 && (
                         <div className="space-y-4">
                           <h3 className="font-display text-lg font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
-                            Solicitar cotización
+                            {locale === 'es' ? 'Solicitar cotización' : 'Request a quote'}
                           </h3>
 
                           <div>
                             <label htmlFor="interest-name" className={labelClass}>
-                              Nombre completo <span aria-hidden className="text-[#C44536]">*</span>
-                              <span className="sr-only"> (requerido)</span>
+                              {locale === 'es' ? 'Nombre completo' : 'Full name'} <span aria-hidden className="text-[#C44536]">*</span>
+                              <span className="sr-only"> {locale === 'es' ? '(requerido)' : '(required)'}</span>
                             </label>
                             <input
                               id="interest-name"
@@ -332,7 +351,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                               aria-invalid={!!errors.requester_name}
                               aria-describedby={errors.requester_name ? 'interest-name-error' : undefined}
                               className={`${inputClass} ${errors.requester_name ? 'border-[#C44536]/50' : 'border-[#E8E4E0]'}`}
-                              placeholder="Tu nombre completo"
+                              placeholder={locale === 'es' ? 'Tu nombre completo' : 'Your full name'}
                             />
                             {errors.requester_name && (
                               <p
@@ -348,7 +367,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
 
                           <div>
                             <label htmlFor="interest-org" className={labelClass}>
-                              Organización
+                              {locale === 'es' ? 'Organización' : 'Organization'}
                             </label>
                             <input
                               id="interest-org"
@@ -356,7 +375,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                               value={formData.organization}
                               onChange={(e) => handleInputChange('organization', e.target.value)}
                               className={`${inputClass} border-[#E8E4E0]`}
-                              placeholder="Empresa u organización"
+                              placeholder={locale === 'es' ? 'Empresa u organización' : 'Company or organization'}
                             />
                           </div>
 
@@ -388,7 +407,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
 
                           <div>
                             <label htmlFor="interest-phone" className={labelClass}>
-                              Teléfono
+                              {locale === 'es' ? 'Teléfono' : 'Phone'}
                             </label>
                             <input
                               id="interest-phone"
@@ -396,13 +415,13 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                               value={formData.phone}
                               onChange={(e) => handleInputChange('phone', e.target.value)}
                               className={`${inputClass} border-[#E8E4E0]`}
-                              placeholder="Sin espacios ni guiones"
+                              placeholder={locale === 'es' ? 'Sin espacios ni guiones' : 'No spaces or dashes'}
                             />
                           </div>
 
                           <div>
                             <label htmlFor="interest-notes" className={labelClass}>
-                              Notas adicionales
+                              {locale === 'es' ? 'Notas adicionales' : 'Additional notes'}
                             </label>
                             <textarea
                               id="interest-notes"
@@ -410,7 +429,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                               onChange={(e) => handleInputChange('notes', e.target.value)}
                               rows={3}
                               className={`${inputClass} border-[#E8E4E0] resize-y min-h-[80px]`}
-                              placeholder="Información adicional sobre tu solicitud…"
+                              placeholder={locale === 'es' ? 'Información adicional sobre tu solicitud...' : 'Additional information about your request...'}
                             />
                           </div>
 
@@ -424,12 +443,12 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                             {isSubmitting ? (
                               <>
                                 <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} aria-hidden />
-                                Enviando…
+                                {locale === 'es' ? 'Enviando...' : 'Sending...'}
                               </>
                             ) : (
                               <>
                                 <Send className="h-4 w-4" strokeWidth={2} aria-hidden />
-                                Enviar solicitud de cotización
+                                {locale === 'es' ? 'Enviar solicitud de cotización' : 'Send quote request'}
                               </>
                             )}
                           </button>

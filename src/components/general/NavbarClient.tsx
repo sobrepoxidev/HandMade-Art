@@ -11,8 +11,8 @@ import { useSupabase } from '@/app/supabase-provider/provider';
 import { useCart } from '@/context/CartContext';
 import UserDropdown from '@/components/user/UserDropdown';
 import SearchBar from '@/components/search/SearchBar';
-import { getCategories } from '@/lib/categories';
 import CategoryCarousel from '@/components/search/CategoryCarousel';
+import type { HomeCategory } from '@/lib/home/types';
 
 type NavLink = {
   name: string;
@@ -20,7 +20,13 @@ type NavLink = {
 };
 
 
-export default function NavbarClient({ locale }: { locale: string }) {
+export default function NavbarClient({
+  locale,
+  initialCategories = [],
+}: {
+  locale: string;
+  initialCategories?: HomeCategory[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const { supabase, session } = useSupabase();
@@ -45,20 +51,9 @@ export default function NavbarClient({ locale }: { locale: string }) {
   const shouldShowSearchComponents = !pathname.includes('/admin') && !pathname.includes('/catalog');
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [categoryList, setCategoryList] = useState<{ id: number, name: string | null, name_es: string | null, name_en: string | null }[]>([]);
+  const [categoryList] = useState<HomeCategory[]>(initialCategories);
   const [showStoreCategories, setShowStoreCategories] = useState(false);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    if (!shouldShowSearchComponents) return;
-
-    const loadCategories = async () => {
-      const categories = await getCategories();
-      setCategoryList(categories);
-    };
-
-    loadCategories();
-  }, [shouldShowSearchComponents]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -133,12 +128,12 @@ export default function NavbarClient({ locale }: { locale: string }) {
       {/* Desktop Navigation */}
       <div className="hidden w-full flex-col lg:flex" style={{ position: 'static' }}>
         {/* Primary Header Row */}
-        <div className="flex w-full max-w-7xl mx-auto items-center justify-between px-4">
+        <div className="flex w-full max-w-screen-2xl mx-auto items-center justify-between gap-5 px-4 py-2 sm:px-8 lg:px-12">
           {/* Left */}
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex h-9 w-9 items-center justify-center text-[#2D2D2D] hover:bg-[#F5F1EB] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962]"
+              className="flex h-11 w-11 items-center justify-center rounded-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962]"
               aria-label={isMenuOpen ? (locale === 'es' ? 'Cerrar menú' : 'Close menu') : (locale === 'es' ? 'Abrir menú' : 'Open menu')}
               aria-expanded={isMenuOpen}
             >
@@ -163,18 +158,32 @@ export default function NavbarClient({ locale }: { locale: string }) {
             </Link>
           </div>
 
+          {shouldShowSearchComponents && (
+            <div
+              className="relative min-w-[360px] flex-1"
+              style={{ zIndex: 40, position: 'relative' }}
+            >
+              <SearchBar
+                variant="navbar"
+                initialCategory={locale === 'es' ? 'Todo' : 'All'}
+                initialCategories={categoryList}
+                locale={locale}
+              />
+            </div>
+          )}
+
           {/* Right */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden shrink-0 lg:flex items-center gap-3">
             <UserDropdown session={currentSession} onLogout={handleLogout} />
             <button
               onClick={handleLanguageChange}
-              className="flex items-center space-x-1.5 text-sm text-[#2D2D2D] hover:text-[#C9A962] transition-colors focus:outline-none px-2 py-1 rounded-lg hover:bg-[#F5F1EB]"
+              className="flex min-h-[44px] items-center space-x-1.5 rounded-sm px-2 py-1 text-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB] hover:text-[#C9A962] focus:outline-none"
             >
               <Globe className="h-4 w-4" />
               <span className="font-medium">{locale === 'es' ? 'ES' : 'EN'}</span>
             </button>
             {shouldShowSearchComponents && (
-              <Link href="/cart" className="relative flex items-center text-[#2D2D2D] hover:text-[#C9A962] transition-colors px-2 py-1 rounded-lg hover:bg-[#F5F1EB]">
+              <Link href="/cart" className="relative flex min-h-[44px] items-center rounded-sm px-2 py-1 text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB] hover:text-[#C9A962]">
                 <ShoppingBag className="h-5 w-5" />
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#C9A962] text-xs font-semibold text-[#1A1A1A] ml-1">
                   {totalItems}
@@ -185,7 +194,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
         </div>
 
         {/* Search bar — aligned to header max-width */}
-        {shouldShowSearchComponents && (
+        {false && shouldShowSearchComponents && (
           <div className="w-full max-w-7xl mx-auto pt-3 pb-4 px-4">
             <div
               className="relative w-full flex items-center"
@@ -270,59 +279,6 @@ export default function NavbarClient({ locale }: { locale: string }) {
         </div>
       </div>
 
-      {/* Mobile Actions - Right Side */}
-      <div className="flex items-center justify-end space-x-0.5 sm:space-x-1 ml-auto lg:hidden" style={{ minWidth: '100px', flexShrink: 0 }}>
-        <div className="hidden md:flex items-center">
-          <UserDropdown session={currentSession} onLogout={handleLogout} />
-        </div>
-
-        <button
-          onClick={handleLanguageChange}
-          className="grid grid-flow-col auto-cols-max items-center gap-1 min-w-[44px] h-11 rounded-sm px-2 text-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB]"
-          aria-label={locale === 'es' ? `Idioma actual: español. Cambiar a inglés.` : `Current language: English. Switch to Spanish.`}
-        >
-          <Globe className="h-4 w-4" strokeWidth={2} aria-hidden />
-          <span className="font-medium">{locale === 'es' ? 'ES' : 'EN'}</span>
-        </button>
-
-        {shouldShowSearchComponents && (
-          <Link
-            href="/cart"
-            className="relative inline-flex items-center gap-1 min-w-[44px] h-11 rounded-sm px-2 text-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB]"
-            aria-label={
-              locale === 'es'
-                ? `Carrito con ${totalItems} ${totalItems === 1 ? 'artículo' : 'artículos'}`
-                : `Cart with ${totalItems} ${totalItems === 1 ? 'item' : 'items'}`
-            }
-          >
-            <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden />
-            <span className="hidden md:inline">{locale === 'es' ? 'Carrito' : 'Cart'}</span>
-            <span
-              className="grid place-items-center h-5 min-w-[20px] px-1 rounded-full bg-[#C9A962] text-xs font-semibold text-[#1A1A1A] tabular-nums"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {totalItems}
-            </span>
-          </Link>
-        )}
-
-        <button
-          ref={menuTriggerRef}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="grid place-items-center w-11 h-11 text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB] rounded-sm"
-          aria-label={isMenuOpen ? (locale === 'es' ? 'Cerrar menú' : 'Close menu') : (locale === 'es' ? 'Abrir menú' : 'Open menu')}
-          aria-expanded={isMenuOpen}
-          aria-controls="mobile-nav-menu"
-        >
-          {isMenuOpen ? (
-            <X className="h-5 w-5" strokeWidth={2} aria-hidden />
-          ) : (
-            <Menu className="h-5 w-5" strokeWidth={2} aria-hidden />
-          )}
-        </button>
-      </div>
-
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div
@@ -330,7 +286,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
           role="dialog"
           aria-modal="true"
           aria-label={locale === 'es' ? 'Menú de navegación' : 'Navigation menu'}
-          className="absolute left-0 right-0 top-full z-50 max-h-[calc(100vh-57px)] overflow-y-auto bg-white shadow-xl w-full lg:fixed lg:top-0 lg:left-0 lg:h-full lg:w-80 lg:max-h-none border-t border-[#E8E4E0]"
+          className="absolute left-0 right-0 top-full z-50 max-h-[calc(100vh-57px)] overflow-y-auto bg-[#FAF6EF] shadow-[0_18px_50px_rgba(92,69,48,0.18)] w-full lg:fixed lg:top-0 lg:left-0 lg:h-full lg:w-80 lg:max-h-none border-t border-[#E8E4E0]"
         >
 
           <button
@@ -359,7 +315,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
             )}
 
             {/* Auth Links */}
-            <div className="mb-4 p-3 bg-[#F5F1EB] rounded-xl">
+            <div className="mb-4 border border-[#E8E4E0] bg-[#F5F1EB] p-3 rounded-sm">
               <div className="flex items-center justify-between">
                 {currentSession ? (
                   <>
@@ -405,7 +361,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
               </div>
             </div>
 
-            <div className="my-4 h-px bg-gradient-to-r from-transparent via-[#C9A962]/30 to-transparent"></div>
+            <div className="my-4 h-px bg-[#C9A962]/30" />
 
             {/* Navigation Links */}
             <div>
@@ -415,7 +371,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
                   <li key={link.path}>
                     <Link
                       href={link.path}
-                      className="block text-sm text-[#2D2D2D] hover:text-[#C9A962] hover:bg-[#F5F1EB] px-3 py-2.5 rounded-lg transition-colors"
+                      className="block text-sm text-[#2D2D2D] hover:text-[#C9A962] hover:bg-[#F5F1EB] px-3 py-2.5 rounded-sm transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {link.name}
@@ -425,7 +381,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
                 <li>
                   <Link
                     href="/contact"
-                    className="block text-sm text-[#2D2D2D] hover:text-[#C9A962] hover:bg-[#F5F1EB] px-3 py-2.5 rounded-lg transition-colors"
+                    className="block text-sm text-[#2D2D2D] hover:text-[#C9A962] hover:bg-[#F5F1EB] px-3 py-2.5 rounded-sm transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {locale === 'es' ? 'Contacto' : 'Contact'}
@@ -436,7 +392,7 @@ export default function NavbarClient({ locale }: { locale: string }) {
                 <li className="mt-3">
                   <div className="mb-1">
                     <button
-                      className="flex items-center justify-between w-full py-2.5 px-3 bg-[#2D2D2D] text-[#F5F1EB] rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors"
+                      className="flex items-center justify-between w-full py-2.5 px-3 bg-[#2D2D2D] text-[#F5F1EB] rounded-sm font-medium text-sm hover:bg-[#3A3A3A] transition-colors"
                       onClick={() => setShowStoreCategories(!showStoreCategories)}
                       aria-expanded={showStoreCategories}
                     >

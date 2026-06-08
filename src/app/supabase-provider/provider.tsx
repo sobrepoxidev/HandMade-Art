@@ -1,8 +1,8 @@
 "use client"
 
 import React from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Session, SupabaseClient } from '@supabase/supabase-js'
+import { supabase as sharedSupabase } from '@/lib/supabaseClient'
 
 type SupabaseContextProps = {
   supabase: SupabaseClient
@@ -18,9 +18,7 @@ export default function SupabaseProvider({
   children: React.ReactNode
   session: Session | null
 }) {
-  const [supabase] = React.useState(() =>
-    createClientComponentClient()
-  )
+  const [supabase] = React.useState(() => sharedSupabase)
   
   const [session, setSession] = React.useState<Session | null>(initialSession)
 

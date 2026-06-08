@@ -25,7 +25,7 @@ const InfiniteProductsLoader: React.FC = () => {
   return (
     <div ref={ref} className={`w-full flex justify-center ${hasMoreProducts ? 'my-8' : 'my-0'}`}>
       {loading && (
-        <div className="flex items-center text-gray-600 text-sm">
+        <div className="flex items-center text-[#5C4530] text-sm">
           <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
@@ -34,7 +34,7 @@ const InfiniteProductsLoader: React.FC = () => {
         </div>
       )}
       {!hasMoreProducts && (
-        <div className="text-gray-400 text-xs">
+        <div className="text-[#9C9589] text-xs">
           {locale === 'es' ? 'No hay más productos' : 'No more products'}
         </div>
       )}

@@ -1,386 +1,444 @@
 'use client';
 
-import React, {
-  useState,
-  useRef,
+import {
   useCallback,
   useEffect,
-  KeyboardEvent,
-  ChangeEvent,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type KeyboardEvent,
 } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
+import { useLocale } from 'next-intl';
 import toast from 'react-hot-toast';
 import {
   CheckCircle,
   Copy,
   Download,
+  Link as LinkIcon,
+  Palette,
+  QrCode,
   Share2,
-  Loader2,
 } from 'lucide-react';
 
+const MAX_URL_LENGTH = 3000;
 
-/**
- * ------------------------------------------------------------------
- * QRGenerator
- * ------------------------------------------------------------------
- * • Pure client-side QR generator built with qrcode.react + Tailwind.
- * • Validates that the URL is http/https, limits length to 3000 chars.
- * • Allows custom foreground / background colours.
- * • Lets the user copy, download (PNG) or share the QR via Web Share
- *   API with a WhatsApp fallback.
- * • Uses React.memo to avoid unnecessary re-renders once generated.
- * ------------------------------------------------------------------
- */
-const QRGenerator: React.FC = React.memo(() => {
-  // ──────────────────────── state ─────────────────────────
+const COPY = {
+  es: {
+    eyebrow: 'Herramienta interna',
+    title: 'Generador de código QR',
+    lead: 'Crea un QR limpio para fichas de producto, pagos, campañas o enlaces de tienda.',
+    urlLabel: 'URL del sitio web',
+    urlPlaceholder: 'https://handmadeart.store/es/products',
+    copyUrl: 'Copiar URL',
+    copied: 'Copiado',
+    fgLabel: 'Color del código',
+    bgLabel: 'Color de fondo',
+    generate: 'Generar código QR',
+    previewTitle: 'Vista previa',
+    previewEmpty: 'Ingresá una URL válida y generá el QR para verlo aquí.',
+    download: 'Descargar PNG',
+    share: 'Compartir',
+    helper: 'Compatible con lectores QR estándar. Para impresión, mantené buen contraste entre código y fondo.',
+    footer: 'El QR se genera en tu navegador. No se envía la URL a un servidor.',
+    errors: {
+      required: 'Ingresá una URL.',
+      invalid: 'Usá una URL válida que empiece con http:// o https://.',
+      tooLong: 'La URL es demasiado larga. Máximo 3000 caracteres.',
+      noCanvas: 'No se pudo generar el código QR.',
+      noFile: 'No se pudo preparar el archivo PNG.',
+    },
+    toast: {
+      copied: 'URL copiada.',
+      downloaded: 'Código QR descargado.',
+      downloadLoading: 'Preparando descarga...',
+      shareTitle: 'Código QR',
+      shareText: 'Escaneá este código QR:',
+    },
+  },
+  en: {
+    eyebrow: 'Internal tool',
+    title: 'QR code generator',
+    lead: 'Create a clean QR for product cards, payments, campaigns or store links.',
+    urlLabel: 'Website URL',
+    urlPlaceholder: 'https://handmadeart.store/en/products',
+    copyUrl: 'Copy URL',
+    copied: 'Copied',
+    fgLabel: 'Code color',
+    bgLabel: 'Background color',
+    generate: 'Generate QR code',
+    previewTitle: 'Preview',
+    previewEmpty: 'Enter a valid URL and generate the QR to see it here.',
+    download: 'Download PNG',
+    share: 'Share',
+    helper: 'Compatible with standard QR readers. For print, keep strong contrast between code and background.',
+    footer: 'The QR is generated in your browser. The URL is not sent to a server.',
+    errors: {
+      required: 'Enter a URL.',
+      invalid: 'Use a valid URL starting with http:// or https://.',
+      tooLong: 'The URL is too long. Maximum 3000 characters.',
+      noCanvas: 'The QR code could not be generated.',
+      noFile: 'The PNG file could not be prepared.',
+    },
+    toast: {
+      copied: 'URL copied.',
+      downloaded: 'QR code downloaded.',
+      downloadLoading: 'Preparing download...',
+      shareTitle: 'QR code',
+      shareText: 'Scan this QR code:',
+    },
+  },
+} as const;
+
+function isValidHttpUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value.trim());
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeForShare(value: string): string {
+  return value.trim().replace(/[\r\n]+/g, '');
+}
+
+export default function QrClient() {
+  const locale = useLocale();
+  const copy = locale === 'es' ? COPY.es : COPY.en;
+
   const [url, setUrl] = useState('');
-  const [fgColor, setFgColor] = useState('#000000');
-  const [bgColor, setBgColor] = useState('#ffffff');
-  const [showQR, setShowQR] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [generatedUrl, setGeneratedUrl] = useState('');
+  const [fgColor, setFgColor] = useState('#1A1A1A');
+  const [bgColor, setBgColor] = useState('#FAF6EF');
   const [isCopied, setIsCopied] = useState(false);
   const [error, setError] = useState('');
-
-  // ──────────────────────── refs ──────────────────────────
   const qrRef = useRef<HTMLDivElement>(null);
 
-  // ─────────────────────── helpers ────────────────────────
-  const isValidUrl = (str: string): boolean => {
-    try {
-      const tmp = new URL(str.trim());
-      return tmp.protocol === 'http:' || tmp.protocol === 'https:';
-    } catch {
-      return false;
-    }
-  };
-
-  // ───────────────────── handlers ─────────────────────────
-  const handleCopyUrl = useCallback(async () => {
-    if (!url) return;
-    try {
-      await navigator.clipboard.writeText(url);
-      setIsCopied(true);
-    } catch (err) {
-      console.error('Failed to copy URL:', err);
-    }
-  }, [url]);
+  const trimmedUrl = url.trim();
+  const characterCount = useMemo(() => trimmedUrl.length, [trimmedUrl]);
+  const hasQr = generatedUrl.length > 0;
 
   useEffect(() => {
     if (!isCopied) return;
-    const timer = setTimeout(() => setIsCopied(false), 2000);
-    return () => clearTimeout(timer);
+    const timer = window.setTimeout(() => setIsCopied(false), 1800);
+    return () => window.clearTimeout(timer);
   }, [isCopied]);
 
-  const handleGenerate = () => {
-    if (!url) {
-      setError('Por favor ingresa una URL');
+  const validateUrl = useCallback(() => {
+    if (!trimmedUrl) return copy.errors.required;
+    if (trimmedUrl.length > MAX_URL_LENGTH) return copy.errors.tooLong;
+    if (!isValidHttpUrl(trimmedUrl)) return copy.errors.invalid;
+    return '';
+  }, [copy.errors.invalid, copy.errors.required, copy.errors.tooLong, trimmedUrl]);
+
+  const handleGenerate = useCallback(() => {
+    const nextError = validateUrl();
+    if (nextError) {
+      setError(nextError);
+      setGeneratedUrl('');
       return;
     }
-    if (!isValidUrl(url)) {
-      setError('Ingresa una URL válida que empiece con http:// o https://');
-      return;
-    }
-    if (url.length > 3000) {
-      setError('La URL es demasiado larga (máx. 3000 caracteres)');
-      return;
-    }
+
     setError('');
-    setIsLoading(true);
-    setTimeout(() => {
-      setShowQR(true);
-      setIsLoading(false);
-    }, 400);
+    setGeneratedUrl(trimmedUrl);
+  }, [trimmedUrl, validateUrl]);
+
+  const handleUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setUrl(event.target.value);
+    setError('');
+    setGeneratedUrl('');
   };
 
+  const handleEnter = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleGenerate();
+    }
+  };
+
+  const handleCopyUrl = useCallback(async () => {
+    if (!trimmedUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(trimmedUrl);
+      setIsCopied(true);
+      toast.success(copy.toast.copied);
+    } catch (err) {
+      console.error('Failed to copy URL:', err);
+    }
+  }, [copy.toast.copied, trimmedUrl]);
+
+  const getQrCanvas = useCallback(() => {
+    return qrRef.current?.querySelector('canvas') ?? null;
+  }, []);
+
   const handleDownload = useCallback(() => {
-    const canvas = qrRef.current?.querySelector('canvas');
+    const canvas = getQrCanvas();
     if (!canvas) {
-      toast.error('No se pudo generar el código QR');
+      toast.error(copy.errors.noCanvas);
       return;
     }
 
-    // Mostrar notificación de carga
-    const toastId = toast.loading('Preparando descarga...');
-  
-    // 1️⃣ Generamos un Blob (más eficiente que toDataURL)
+    const toastId = toast.loading(copy.toast.downloadLoading);
+
     canvas.toBlob((blob) => {
       if (!blob) {
-        toast.error('Error al generar el archivo', { id: toastId });
+        toast.error(copy.errors.noFile, { id: toastId });
         return;
       }
-  
-      const url = URL.createObjectURL(blob);
+
+      const objectUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
-      link.download = `codigo-qr-${Date.now()}.png`;
+      link.href = objectUrl;
+      link.download = `handmade-art-qr-${Date.now()}.png`;
       link.style.display = 'none';
       document.body.appendChild(link);
-  
-      // Disparar el evento de descarga
       link.click();
 
-      // Actualizar notificación a éxito
-      toast.success('¡Código QR descargado!', { 
-        id: toastId,
-        duration: 3000,
-        style: {
-          background: '#10B981',
-          color: '#fff',
-        },
-        icon: '✅',
-      });
-  
-      // Limpieza
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
+      toast.success(copy.toast.downloaded, { id: toastId });
+
+      window.setTimeout(() => {
+        URL.revokeObjectURL(objectUrl);
         link.remove();
       }, 500);
     }, 'image/png');
-  }, []);
+  }, [copy.errors.noCanvas, copy.errors.noFile, copy.toast.downloadLoading, copy.toast.downloaded, getQrCanvas]);
 
-  const handleShare = useCallback(async () => {
-    if (!url || !qrRef.current) return;
-  
-    // 1) Tomar el canvas y pasarlo a Blob PNG
-    const canvas = qrRef.current.querySelector('canvas');
-    if (!canvas) return;
-  
+  const handleShare = useCallback(() => {
+    const canvas = getQrCanvas();
+    if (!canvas || !generatedUrl) {
+      toast.error(copy.errors.noCanvas);
+      return;
+    }
+
     canvas.toBlob(async (blob) => {
-      if (!blob) return;
-  
-      const file = new File([blob], 'qr.png', { type: 'image/png' });
-      const safeUrl = url.replace(/[\r\n]+/g, '');
-  
+      if (!blob) {
+        toast.error(copy.errors.noFile);
+        return;
+      }
+
+      const file = new File([blob], 'handmade-art-qr.png', { type: 'image/png' });
+      const safeUrl = sanitizeForShare(generatedUrl);
       const shareData: ShareData = {
-        title: 'Código QR',
-        text: `Escanea este código QR:\n${safeUrl}`,
+        title: copy.toast.shareTitle,
+        text: `${copy.toast.shareText}\n${safeUrl}`,
         files: [file],
       };
-  
+
       try {
-        // 2) Sólo si el navegador puede compartir archivos
         if (navigator.canShare?.({ files: [file] })) {
           await navigator.share(shareData);
-        } else {
-          // 3) Fallback a texto vía wa.me
-          window.open(
-            `https://wa.me/?text=${encodeURIComponent(safeUrl)}`,
-            '_blank',
-            'noopener,noreferrer'
-          );
+          return;
         }
+
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(safeUrl)}`,
+          '_blank',
+          'noopener,noreferrer'
+        );
       } catch (err) {
-        console.error('Error al compartir:', err);
+        console.error('Error sharing QR:', err);
       }
     }, 'image/png');
-  }, [url]);
+  }, [copy.errors.noCanvas, copy.errors.noFile, copy.toast.shareText, copy.toast.shareTitle, generatedUrl, getQrCanvas]);
 
-  // ──────────────────────── render ────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 lg:p-8">
-      {/* Toaster para notificaciones */}
-      
-      <div className="mx-auto max-w-md rounded-2xl bg-white/90 p-4 shadow-xl backdrop-blur-sm md:max-w-2xl">
-        {/* heading */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-bold text-transparent">
-            Generador de Código QR
+    <main className="min-h-screen bg-[#FAF6EF] text-[#2D2D2D]">
+      <section className="mx-auto grid min-h-[calc(100vh-112px)] max-w-screen-xl gap-8 px-4 py-10 sm:px-8 md:py-14 lg:grid-cols-[0.48fr_0.52fr] lg:px-12">
+        <div className="flex flex-col justify-center">
+          <div className="mb-5 inline-flex w-fit items-center gap-2 border border-[#E8E4E0] bg-[#F5F1EB] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            <QrCode className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+            {copy.eyebrow}
+          </div>
+
+          <h1 className="font-display text-5xl font-medium leading-[0.98] text-[#2D2D2D] md:text-6xl">
+            {copy.title}
           </h1>
-          <p className="text-sm text-gray-600">
-            Crea códigos QR personalizados en segundos
+          <p className="mt-5 max-w-[58ch] text-base leading-relaxed text-[#4A4A4A] md:text-[17px]">
+            {copy.lead}
           </p>
+
+          <div className="mt-8 border border-[#E8E4E0] bg-[#F5F1EB] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <label
+                  htmlFor="qr-url"
+                  className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]"
+                >
+                  {copy.urlLabel}
+                </label>
+                {isCopied && (
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-[#2F5F3E]">
+                    <CheckCircle className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                    {copy.copied}
+                  </span>
+                )}
+              </div>
+
+              <div className="relative">
+                <LinkIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                <input
+                  id="qr-url"
+                  type="url"
+                  value={url}
+                  onChange={handleUrlChange}
+                  onKeyDown={handleEnter}
+                  placeholder={copy.urlPlaceholder}
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? 'qr-url-error' : 'qr-url-help'}
+                  className={`min-h-[48px] w-full rounded-sm border bg-[#FFFDF9] py-3 pl-10 pr-12 text-sm text-[#2D2D2D] outline-none transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] placeholder:text-[#6B6459]/70 focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 ${
+                    error ? 'border-[#C44536]' : 'border-[#E8E4E0] hover:border-[#C9A962]/45'
+                  }`}
+                />
+                {url && (
+                  <button
+                    type="button"
+                    onClick={handleCopyUrl}
+                    aria-label={copy.copyUrl}
+                    className="absolute right-1.5 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-sm text-[#6B6459] transition-colors hover:bg-[#F5F1EB] hover:text-[#A08848] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+                  >
+                    <Copy className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                  </button>
+                )}
+              </div>
+
+              {error ? (
+                <p id="qr-url-error" className="text-sm text-[#9F2D24]">
+                  {error}
+                </p>
+              ) : (
+                <p id="qr-url-help" className="text-xs text-[#6B6459]">
+                  {characterCount}/{MAX_URL_LENGTH}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-5 grid gap-4 border-t border-[#E8E4E0] pt-5 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="qr-fg"
+                  className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]"
+                >
+                  <Palette className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  {copy.fgLabel}
+                </label>
+                <div className="flex min-h-[48px] items-center gap-3 border border-[#E8E4E0] bg-[#FAF6EF] px-3">
+                  <input
+                    id="qr-fg"
+                    type="color"
+                    value={fgColor}
+                    onChange={(event) => setFgColor(event.target.value)}
+                    className="h-9 w-9 cursor-pointer rounded-sm border border-[#E8E4E0] bg-transparent"
+                  />
+                  <span className="text-sm font-medium tabular-nums text-[#2D2D2D]">
+                    {fgColor.toUpperCase()}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="qr-bg"
+                  className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]"
+                >
+                  <Palette className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  {copy.bgLabel}
+                </label>
+                <div className="flex min-h-[48px] items-center gap-3 border border-[#E8E4E0] bg-[#FAF6EF] px-3">
+                  <input
+                    id="qr-bg"
+                    type="color"
+                    value={bgColor}
+                    onChange={(event) => setBgColor(event.target.value)}
+                    className="h-9 w-9 cursor-pointer rounded-sm border border-[#E8E4E0] bg-transparent"
+                  />
+                  <span className="text-sm font-medium tabular-nums text-[#2D2D2D]">
+                    {bgColor.toUpperCase()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGenerate}
+              className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-5 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#1A1A1A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F5F1EB]"
+            >
+              <QrCode className="h-5 w-5" strokeWidth={1.5} aria-hidden />
+              {copy.generate}
+            </button>
+          </div>
         </div>
 
-        <div className="space-y-6">
-          {/* url input */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label
-                htmlFor="url"
-                className="block text-sm font-medium text-gray-700"
-              >
-                URL del sitio web
-              </label>
-              {isCopied && (
-                <span className="inline-flex items-center text-xs text-green-600">
-                  <CheckCircle className="mr-1 h-3.5 w-3.5" />
-                  Copiado
+        <aside className="flex flex-col justify-center">
+          <div className="border border-[#E8E4E0] bg-[#F5F1EB] p-5 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <h2 className="font-display text-2xl font-medium text-[#2D2D2D]">
+                {copy.previewTitle}
+              </h2>
+              {hasQr && (
+                <span className="border border-[#E8E4E0] bg-[#FAF6EF] px-3 py-1 text-xs font-medium tabular-nums text-[#6B6459]">
+                  {generatedUrl.length}
                 </span>
               )}
             </div>
 
-            <div className="relative flex rounded-lg shadow-sm">
-              <input
-                type="text"
-                id="url"
-                value={url}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                  setUrl(e.target.value);
-                  setShowQR(false);
-                }}
-                onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
-                  e.key === 'Enter' && handleGenerate()
-                }
-                placeholder="https://ejemplo.com"
-                aria-invalid={!!error}
-                aria-describedby={error ? 'url-error' : undefined}
-                className={`block w-full flex-1 rounded-lg border p-3 pr-10 text-gray-900 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 sm:text-sm ${
-                  error ? 'border-red-300' : 'border-gray-300 hover:border-blue-300'
-                }`}
-              />
-              {url && (
-                <button
-                  type="button"
-                  onClick={handleCopyUrl}
-                  aria-label="Copiar URL"
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 transition-colors hover:text-blue-600"
-                >
-                  <Copy className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-
-            {error && (
-              <p id="url-error" className="text-sm text-red-600">
-                {error}
-              </p>
-            )}
-          </div>
-
-          {/* colour pickers */}
-          <div className="grid gap-4 rounded-xl bg-gray-50 p-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <label
-                htmlFor="fgColor"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Color del código
-              </label>
-              <div className="flex items-center space-x-3">
-                <input
-                  id="fgColor"
-                  type="color"
-                  value={fgColor}
-                  onChange={(e) => setFgColor(e.target.value)}
-                  aria-label="Seleccionar color del código QR"
-                  className="h-10 w-10 cursor-pointer rounded-lg border border-gray-300"
-                />
-                <span className="text-sm text-gray-700">
-                  {fgColor.toUpperCase()}
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="bgColor"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Color de fondo
-              </label>
-              <div className="flex items-center space-x-3">
-                <input
-                  id="bgColor"
-                  type="color"
-                  value={bgColor}
-                  onChange={(e) => setBgColor(e.target.value)}
-                  aria-label="Seleccionar color de fondo"
-                  className="h-10 w-10 cursor-pointer rounded-lg border border-gray-300"
-                />
-                <span className="text-sm text-gray-700">
-                  {bgColor.toUpperCase()}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* generate button */}
-          <button
-            type="button"
-            onClick={handleGenerate}
-            disabled={isLoading}
-            className={`flex w-full items-center justify-center rounded-md py-3 px-4 text-sm font-medium text-white shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-              isLoading
-                ? 'cursor-not-allowed bg-blue-400'
-                : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generando…
-              </>
-            ) : (
-              'Generar Código QR'
-            )}
-          </button>
-
-          {/* qr preview */}
-          {showQR && (
-            <div className="space-y-6">
-              <div className="relative">
-                <div
-                  ref={qrRef}
-                  className="mx-auto flex justify-center rounded-2xl border border-gray-100 bg-white p-4 shadow-inner transition-all hover:shadow-md"
-                >
+            <div
+              ref={qrRef}
+              className="grid min-h-[340px] place-items-center border border-[#E8E4E0] bg-[#FAF6EF] p-5"
+              aria-live="polite"
+            >
+              {hasQr ? (
+                <div className="w-full max-w-[264px] border border-[#E8E4E0] bg-[#FFFDF9] p-3 sm:p-4">
                   <QRCodeCanvas
-                    value={url}
-                    size={256}
+                    value={generatedUrl}
+                    size={264}
                     level="H"
                     fgColor={fgColor}
                     bgColor={bgColor}
                     includeMargin
-                    imageSettings={{
-                      src: '/images/logo-icon.png',
-                      width: 40,
-                      height: 40,
-                      excavate: true,
-                    }}
+                    style={{ width: '100%', height: 'auto' }}
                   />
                 </div>
-                <div className="absolute -top-3 -right-3 rounded-full bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow-lg">
-                  {url.length} caracteres
+              ) : (
+                <div className="max-w-[30ch] text-center">
+                  <QrCode className="mx-auto h-10 w-10 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  <p className="mt-4 text-sm leading-relaxed text-[#6B6459]">
+                    {copy.previewEmpty}
+                  </p>
                 </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <button
-                  onClick={handleDownload}
-                  onTouchEnd={(e) => {
-                    // Prevent ghost clicks on mobile
-                    e.preventDefault();
-                    handleDownload();
-                  }}
-                  className="group flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 font-medium text-gray-700 transition-all hover:border-blue-300 hover:bg-gray-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2 active:scale-95 active:bg-gray-100"
-                >
-                  <Download className="h-5 w-5" />
-                  <span>Descargar PNG</span>
-                </button>
-                <button
-                  onClick={handleShare}
-                  className="group flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3 font-medium text-white transition-all hover:shadow-lg hover:shadow-green-100 focus:outline-none focus:ring-2 focus:ring-green-200 focus:ring-offset-2"
-                >
-                  <Share2 className="h-5 w-5" />
-                  Compartir
-                </button>
-              </div>
-
-              <p className="mt-4 text-center text-xs text-gray-500">
-                Tu código QR es compatible con cualquier lector estándar.
-              </p>
+              )}
             </div>
-          )}
 
-          <footer className="border-t border-gray-100 pt-6 text-center">
-            <p className="text-xs text-gray-500">
-              Genera códigos QR ilimitados, gratis y sin publicidad.
+            {hasQr && (
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-4 py-2.5 text-sm font-semibold tracking-wide text-[#2D2D2D] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#A08848] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+                >
+                  <Download className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                  {copy.download}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#C9A962] px-4 py-2.5 text-sm font-semibold tracking-wide text-[#1A1A1A] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#A08848] hover:text-[#F5F1EB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+                >
+                  <Share2 className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                  {copy.share}
+                </button>
+              </div>
+            )}
+
+            <p className="mt-5 border-t border-[#E8E4E0] pt-4 text-sm leading-relaxed text-[#4A4A4A]">
+              {copy.helper}
             </p>
-          </footer>
-        </div>
-      </div>
-    </div>
+            <p className="mt-3 text-xs text-[#6B6459]">{copy.footer}</p>
+          </div>
+        </aside>
+      </section>
+    </main>
   );
-});
-
-QRGenerator.displayName = 'QRGenerator';
-export default QRGenerator;
+}

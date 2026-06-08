@@ -59,22 +59,24 @@ export default function OrderConfirmationPage() {
 
   if (error) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="max-w-md text-center bg-white border border-[#E8E4E0] rounded-lg p-6">
-          <h1 className="text-xl font-semibold text-[#2D2D2D]">{locale === "es" ? "No pudimos cargar la orden" : "We could not load the order"}</h1>
-          <p className="mt-2 text-[#4A4A4A]">{error}</p>
-        </div>
-      </div>
+      <main className="flex min-h-[60vh] items-center justify-center bg-[#FAF6EF] px-4 py-12">
+        <section className="max-w-md border border-[#E8E4E0] bg-[#F5F1EB] p-6 text-center shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
+          <h1 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+            {locale === "es" ? "No pudimos cargar la orden" : "We could not load the order"}
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-[#4A4A4A]">{error}</p>
+        </section>
+      </main>
     );
   }
 
   if (!orderDetails) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <h2 className="text-2xl font-semibold text-[#2D2D2D]">
+      <main className="flex min-h-[60vh] items-center justify-center bg-[#FAF6EF] px-4 py-12">
+        <h1 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
           {locale === "es" ? "Cargando detalles del pedido..." : "Loading order details..."}
-        </h2>
-      </div>
+        </h1>
+      </main>
     );
   }
 
@@ -82,14 +84,14 @@ export default function OrderConfirmationPage() {
   const Icon = isManualReview ? Clock : CheckCircle2;
 
   return (
-    <div className="min-h-[60vh] py-16 px-4 sm:px-6 lg:px-8 bg-[#FAF8F5]">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white shadow-lg rounded-lg p-6 border border-[#E8E4E0]">
+    <main className="min-h-[60vh] bg-[#FAF6EF] px-4 py-12 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-3xl">
+        <section className="border border-[#E8E4E0] bg-[#F5F1EB] p-6 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] sm:p-8">
           <div className="text-center mb-8">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#C9A962]/15">
-              <Icon className="h-6 w-6 text-[#C9A962]" />
+              <Icon className="h-6 w-6 text-[#C9A962]" strokeWidth={1.75} aria-hidden />
             </div>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#2D2D2D]">
+            <h1 className="mt-4 font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
               {isManualReview
                 ? locale === "es" ? "Referencia recibida" : "Reference received"
                 : locale === "es" ? "¡Gracias por tu compra!" : "Thank you for your purchase!"}
@@ -133,14 +135,15 @@ export default function OrderConfirmationPage() {
           <div className="mt-8 text-center">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md shadow-sm text-[#1A1A1A] bg-[#C9A962] hover:bg-[#D4C4A8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C9A962]"
+              locale={locale}
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-6 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#A08848]/30"
             >
-              <ShoppingBag className="h-4 w-4" />
+              <ShoppingBag className="h-4 w-4" strokeWidth={1.75} aria-hidden />
               {locale === "es" ? "Continuar comprando" : "Continue shopping"}
             </Link>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

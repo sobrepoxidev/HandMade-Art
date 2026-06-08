@@ -17,8 +17,8 @@ export async function generateMetadata({
     pathname: `/${locale}/shipping`,
     title:
       currentLocale === 'es'
-        ? 'Envíos a todo Costa Rica — tarifas y tiempos'
-        : 'Shipping across Costa Rica — rates & times',
+        ? 'Envíos a todo Costa Rica: tarifas y tiempos'
+        : 'Shipping across Costa Rica: rates and times',
     description:
       currentLocale === 'es'
         ? 'Enviamos tus piezas con Correos de Costa Rica (EMS). Tarifas desde ₡2.100 + IVA. Calculá tu envío.'

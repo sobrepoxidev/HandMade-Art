@@ -9,8 +9,6 @@ type Category = Database['public']['Tables']['categories']['Row'];
 
 interface FilterProps {
   categories: Category[];
-  brands: string[];
-  tags: string[];
   isMobile?: boolean;
   locale: string;
 }
@@ -55,10 +53,12 @@ export default function ProductFilters({
   const filterContent = useMemo(() => (
     <div className="space-y-2">
       {/* Categories Section */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-[#E8E4E0] pb-3">
         <button 
-          className="flex w-full items-center justify-between text-lg font-medium text-gray-900 mb-2"
+          type="button"
+          className="mb-2 flex min-h-[44px] w-full items-center justify-between text-sm font-semibold text-[#2D2D2D]"
           onClick={() => setCategoryOpen(!categoryOpen)}
+          aria-expanded={categoryOpen}
         >
           {locale === 'es' ? 'Categorías' : 'Categories'}
           {categoryOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
@@ -67,9 +67,10 @@ export default function ProductFilters({
         {categoryOpen && (
           <div className="mt-2 space-y-1">
             <button 
+              type="button"
               onClick={() => updateFilters({ category: null })}
-              className={`flex items-center w-full px-2 py-1.5 text-sm rounded-md ${
-                !selectedCategory ? 'bg-teal-50 text-teal-700 font-medium' : 'text-gray-700 hover:bg-gray-50'
+              className={`flex min-h-[40px] w-full items-center rounded-sm px-2 py-1.5 text-sm ${
+                !selectedCategory ? 'bg-[#F5F1EB] text-[#A08848] font-medium' : 'text-[#4A4A4A] hover:bg-[#F5F1EB]'
               }`}
             >
               <span className="flex-1 text-left">{locale === 'es' ? 'Todas las categorías' : 'All categories'}</span>
@@ -78,10 +79,11 @@ export default function ProductFilters({
             
             {categories.map((category) => (
               <button 
+                type="button"
                 key={category.id}
                 onClick={() => updateFilters({ category: String(category.id) })}
-                className={`flex items-center w-full px-2 py-1.5 text-sm rounded-md ${
-                  selectedCategory === String(category.id) ? 'bg-teal-50 text-teal-700 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                className={`flex min-h-[40px] w-full items-center rounded-sm px-2 py-1.5 text-sm ${
+                  selectedCategory === String(category.id) ? 'bg-[#F5F1EB] text-[#A08848] font-medium' : 'text-[#4A4A4A] hover:bg-[#F5F1EB]'
                 }`}
               >
                 <span className="flex-1 text-left">{locale === 'es' ? category.name_es : category.name_en}</span>
@@ -99,21 +101,23 @@ export default function ProductFilters({
     return (
       <div className="md:hidden">
         <button
+          type="button"
           onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-          className="flex items-center justify-center w-full py-2 px-4 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-700"
+          className="flex min-h-[44px] w-full items-center justify-center rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-4 py-2 text-sm font-medium text-[#2D2D2D]"
         >
           <Sliders className="h-4 w-4 mr-2" />
           {locale === 'es' ? 'Filtrar productos' : 'Filter products'}
         </button>
         
         {mobileFiltersOpen && (
-          <div className="fixed inset-0 z-40 overflow-y-auto bg-black bg-opacity-25">
-            <div className="relative bg-white p-4 w-full max-w-lg mx-auto mt-10 rounded-t-lg">
+          <div className="fixed inset-0 z-40 overflow-y-auto bg-[#1A1A1A]/40">
+            <div className="relative mx-auto mt-10 w-full max-w-lg border border-[#E8E4E0] bg-[#FAF6EF] p-4 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium text-gray-900">{locale === 'es' ? 'Filtros' : 'Filters'}</h2>
+                <h2 className="font-display text-xl font-medium text-[#2D2D2D]">{locale === 'es' ? 'Filtros' : 'Filters'}</h2>
                 <button
+                  type="button"
                   onClick={() => setMobileFiltersOpen(false)}
-                  className="text-gray-400 hover:text-gray-500"
+                  className="grid h-11 w-11 place-items-center rounded-sm text-[#2D2D2D] hover:bg-[#F5F1EB]"
                 >
                   <span className="sr-only">{locale === 'es' ? 'Cerrar panel' : 'Close panel'}</span>
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

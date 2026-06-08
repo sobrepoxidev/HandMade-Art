@@ -111,7 +111,7 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
           <span className="text-sm">{t('loading') || 'Cargando…'}</span>
         </div>
       ) : orders.length === 0 ? (
-        <div className="bg-[#FAF8F5] border border-[#E8E4E0] rounded-md p-10 text-center">
+        <div className="border border-[#E8E4E0] bg-[#FAF6EF] p-10 text-center">
           <p className="text-[#6B6459] mb-1">{t('noOrders')}</p>
         </div>
       ) : (
@@ -122,14 +122,14 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
             return (
               <li
                 key={order.id}
-                className="border border-[#E8E4E0] rounded-md overflow-hidden bg-white"
+                className="overflow-hidden border border-[#E8E4E0] bg-[#FFFDF9]"
               >
                 <button
                   type="button"
                   onClick={() => toggleOrderExpansion(order.id)}
                   aria-expanded={isOpen}
                   aria-controls={`order-details-${order.id}`}
-                  className="w-full flex flex-col md:flex-row md:items-center justify-between p-4 bg-[#FAF8F5] hover:bg-[#F0EBE3] transition-colors text-left"
+                  className="w-full flex flex-col md:flex-row md:items-center justify-between p-4 bg-[#FAF6EF] hover:bg-[#F0EBE3] transition-colors text-left"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 text-sm text-[#6B6459] mb-1">
@@ -180,9 +180,9 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
                       </span>
                     </div>
 
-                    <div className="border border-[#E8E4E0] rounded-sm overflow-hidden mb-4">
+                    <div className="mb-4 overflow-hidden rounded-sm border border-[#E8E4E0]">
                       <table className="min-w-full">
-                        <thead className="bg-[#FAF8F5]">
+                        <thead className="bg-[#FAF6EF]">
                           <tr>
                             <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
                               {t('product')}
@@ -198,7 +198,7 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
                             </th>
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-[#E8E4E0]/70">
+                        <tbody className="divide-y divide-[#E8E4E0]/70 bg-[#FFFDF9]">
                           {order.order_items.map((item) => (
                             <tr key={item.id} className="text-sm">
                               <td className="px-4 py-3 whitespace-nowrap">
@@ -226,7 +226,7 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
                         <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#6B6459] mb-2">
                           {t('shippingAddress')}
                         </h3>
-                        <div className="bg-[#FAF8F5] p-3 rounded-sm text-sm text-[#4A4A4A] border border-[#E8E4E0]/70">
+                        <div className="rounded-sm border border-[#E8E4E0]/70 bg-[#FAF6EF] p-3 text-sm text-[#4A4A4A]">
                           <p className="font-medium text-[#2D2D2D]">{order.shipping_address.name}</p>
                           <p>{order.shipping_address.address}</p>
                           <p>
@@ -243,7 +243,7 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
                         <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#6B6459] mb-2">
                           {t('paymentMethod')}
                         </h3>
-                        <div className="bg-[#FAF8F5] p-3 rounded-sm text-sm text-[#4A4A4A] border border-[#E8E4E0]/70">
+                        <div className="rounded-sm border border-[#E8E4E0]/70 bg-[#FAF6EF] p-3 text-sm text-[#4A4A4A]">
                           <p className="capitalize font-medium text-[#2D2D2D]">
                             {order.payment_method === 'paypal' ? 'PayPal' : 'SINPE Móvil'}
                           </p>
@@ -260,7 +260,7 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
                           <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#6B6459] mb-2">
                             {t('trackingInfo')}
                           </h3>
-                          <div className="bg-[#FAF8F5] p-3 rounded-sm text-sm text-[#4A4A4A] border border-[#E8E4E0]/70">
+                          <div className="rounded-sm border border-[#E8E4E0]/70 bg-[#FAF6EF] p-3 text-sm text-[#4A4A4A]">
                             <p className="tabular-nums">{order.tracking_number}</p>
                           </div>
                         </div>

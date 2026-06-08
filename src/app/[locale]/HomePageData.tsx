@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
-import { Database } from '@/lib/database.types';
 import OptimizedNew from '@/components/home/OptimizedNew';
+import HeroSection from '@/components/home/HeroSection';
 import { computeSections } from '@/lib/home/computeSections';
+import { HOME_CATEGORY_COLUMNS, HOME_PRODUCT_COLUMNS, type HomeProduct } from '@/lib/home/types';
 
 /**
  * Server Component que pre-carga datos para la página principal
@@ -22,7 +23,7 @@ export default async function HomePageData({ locale }: {locale: string}) {
   // Pre-cargar las categorías para un renderizado más rápido
   const { data: categories } = await supabase
     .from('categories')
-    .select('*')
+    .select(HOME_CATEGORY_COLUMNS)
     .order('name');
   
   // Preparar la lista de IDs de categorías para la carga inicial
@@ -39,14 +40,14 @@ export default async function HomePageData({ locale }: {locale: string}) {
   }
   
   // Pre-cargar productos para snapshot SSR: aseguramos cobertura suficiente para 6 categorías
-  let initialProducts: Database['public']['Tables']['products']['Row'][] = [];
+  let initialProducts: HomeProduct[] = [];
   
   if (categoryIdsToLoad.length > 0) {
     // Paralelizar: productos base + destacados son independientes
     const [baseRes, featuredRes] = await Promise.all([
       supabase
         .from('products')
-        .select('*')
+        .select(HOME_PRODUCT_COLUMNS)
         .eq('is_active', true)
         .neq('is_featured', true)
         .in('category_id', categoryIdsToLoad)
@@ -54,7 +55,7 @@ export default async function HomePageData({ locale }: {locale: string}) {
         .limit(120),
       supabase
         .from('products')
-        .select('*')
+        .select(HOME_PRODUCT_COLUMNS)
         .eq('is_active', true)
         .eq('is_featured', true)
         .order('created_at', { ascending: false }),
@@ -85,12 +86,19 @@ export default async function HomePageData({ locale }: {locale: string}) {
   
   // Pasar los datos pre-cargados y la configuración al componente cliente
   return (
-    <OptimizedNew 
-      initialCategories={categories || []} 
-      initialProducts={initialProducts} 
-      initialSections={initialSections}
-      priorityCategoryIds={priorityCategoryIds}
-      locale={locale}
-    />
+    <>
+      <HeroSection
+        locale={locale}
+        featuredProducts={initialSections.featured}
+        categories={categories || []}
+      />
+      <OptimizedNew
+        initialCategories={categories || []}
+        initialProducts={initialProducts}
+        initialSections={initialSections}
+        priorityCategoryIds={priorityCategoryIds}
+        locale={locale}
+      />
+    </>
   );
 }

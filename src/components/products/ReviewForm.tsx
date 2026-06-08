@@ -197,7 +197,7 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
           </label>
           <textarea
             id="review-comment"
-            className="w-full p-3 border border-[#E8E4E0] rounded-sm bg-white text-[#2D2D2D] placeholder:text-[#9C9589] resize-y min-h-[96px] focus:border-[#A08848] focus:outline-none"
+            className="w-full p-3 border border-[#E8E4E0] rounded-sm bg-[#FAF6EF] text-[#2D2D2D] placeholder:text-[#9C9589] resize-y min-h-[96px] focus:border-[#A08848] focus:outline-none focus:ring-2 focus:ring-[#A08848]/20"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder={

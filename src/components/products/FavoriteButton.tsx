@@ -60,7 +60,7 @@ export default function FavoriteButton({ productId, initialIsFavorite }: Props) 
           : locale === 'es' ? 'Añadir a favoritos' : 'Add to favorites'
       }
       aria-pressed={isFavorite}
-      className="grid place-items-center w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm border border-[#E8E4E0] shadow-sm text-[#9C9589] hover:text-[#C44536] hover:border-[#C44536]/30 transition-colors disabled:opacity-60"
+      className="grid place-items-center w-9 h-9 rounded-sm bg-[#FAF6EF]/95 backdrop-blur-sm border border-[#E8E4E0] shadow-sm text-[#9C9589] hover:text-[#C44536] hover:border-[#C44536]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF6EF] transition-colors disabled:opacity-60"
     >
       <Heart
         className={`h-4 w-4 transition-all ${isFavorite ? 'fill-[#C44536] text-[#C44536] scale-110' : 'fill-transparent'}`}

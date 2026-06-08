@@ -3,332 +3,351 @@
 import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useLocale } from 'next-intl';
-import { Truck, MapPin, Clock, Package, ChevronDown, ExternalLink } from 'lucide-react';
+import {
+  ArrowRight,
+  Clock,
+  ExternalLink,
+  MapPin,
+  PackageCheck,
+  ShieldCheck,
+  Truck,
+} from 'lucide-react';
 
-type Location = 'gam' | 'rest';
+type Destination = 'gam' | 'rest';
+
+interface ShippingRate {
+  firstKg: number;
+  additionalKg: number;
+  days: string;
+}
+
+interface DestinationCopy {
+  name: string;
+  short: string;
+  description: string;
+}
+
+const SHIPPING_RATES: Record<Destination, ShippingRate> = {
+  gam: { firstKg: 2100, additionalKg: 1200, days: '1-2' },
+  rest: { firstKg: 2850, additionalKg: 1300, days: '2-4' },
+};
+
+const REST_TO_REST_RATE: ShippingRate = {
+  firstKg: 3650,
+  additionalKg: 1500,
+  days: '3-5',
+};
+
+const withTax = (amount: number) => Math.round(amount * 1.13);
+const toUSD = (colones: number) => (colones / 500).toFixed(2);
+const formatCRC = (amount: number) => amount.toLocaleString('es-CR');
 
 export default function ShippingClient() {
   const locale = useLocale();
   const isEs = locale === 'es';
+  const [destination, setDestination] = useState<Destination>('gam');
 
-  const [origin] = useState<Location>('gam'); // HandMade Art ships from GAM
-  const [destination, setDestination] = useState<Location>('gam');
-  const [isOpen, setIsOpen] = useState(false);
+  const currentRate = SHIPPING_RATES[destination];
+  const firstKgWithTax = withTax(currentRate.firstKg);
+  const additionalKgWithTax = withTax(currentRate.additionalKg);
 
-  // Shipping rates (without IVA)
-  const rates = {
-    'gam-gam': { firstKg: 2100, additionalKg: 1200, days: '1-2' },
-    'gam-rest': { firstKg: 2850, additionalKg: 1300, days: '2-4' },
-    'rest-gam': { firstKg: 2850, additionalKg: 1300, days: '2-4' },
-    'rest-rest': { firstKg: 3650, additionalKg: 1500, days: '3-5' },
-  };
-
-  const key = `${origin}-${destination}` as keyof typeof rates;
-  const currentRate = rates[key];
-  const withIVA = Math.round(currentRate.firstKg * 1.13);
-  const additionalWithIVA = Math.round(currentRate.additionalKg * 1.13);
-
-  // Convert to USD (approximate rate)
-  const toUSD = (colones: number) => (colones / 500).toFixed(2);
-
-  const locations = {
+  const destinations: Record<Destination, DestinationCopy> = {
     gam: {
-      name: isEs ? 'Gran Área Metropolitana (GAM)' : 'Greater Metropolitan Area (GAM)',
+      name: isEs ? 'Gran Área Metropolitana' : 'Greater Metropolitan Area',
       short: 'GAM',
       description: isEs
-        ? 'San José, Alajuela, Cartago, Heredia y alrededores'
-        : 'San José, Alajuela, Cartago, Heredia and surroundings'
+        ? 'San José, Alajuela, Cartago, Heredia y alrededores.'
+        : 'San José, Alajuela, Cartago, Heredia and nearby areas.',
     },
     rest: {
-      name: isEs ? 'Resto del País' : 'Rest of Costa Rica',
-      short: isEs ? 'Resto del País' : 'Rest of CR',
+      name: isEs ? 'Resto de Costa Rica' : 'Rest of Costa Rica',
+      short: isEs ? 'Fuera de GAM' : 'Outside GAM',
       description: isEs
-        ? 'Guanacaste, Puntarenas, Limón y zonas rurales'
-        : 'Guanacaste, Puntarenas, Limón and rural areas'
-    }
+        ? 'Guanacaste, Puntarenas, Limón y zonas rurales.'
+        : 'Guanacaste, Puntarenas, Limón and rural areas.',
+    },
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FAF8F5] to-white">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-12 md:py-20 px-4">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#C9A962]/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#B55327]/5 rounded-full blur-2xl -translate-x-1/2 translate-y-1/2"></div>
-        </div>
+  const rateRows = [
+    {
+      label: 'GAM a GAM',
+      rate: SHIPPING_RATES.gam,
+    },
+    {
+      label: isEs ? 'GAM al resto del país' : 'GAM to the rest of CR',
+      rate: SHIPPING_RATES.rest,
+    },
+    {
+      label: isEs ? 'Fuera de GAM a fuera de GAM' : 'Outside GAM to outside GAM',
+      rate: REST_TO_REST_RATE,
+    },
+  ];
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-[#2D2D2D] text-[#F5F1EB] px-4 py-2 rounded-full text-sm mb-6">
-            <Truck className="w-4 h-4 text-[#C9A962]" />
-            <span>{isEs ? 'Envíos a todo Costa Rica' : 'Shipping throughout Costa Rica'}</span>
+  const steps = [
+    {
+      icon: PackageCheck,
+      title: isEs ? 'Pedido confirmado' : 'Order confirmed',
+      body: isEs
+        ? 'Reservamos la pieza y revisamos el peso antes de prepararla.'
+        : 'We reserve the piece and review its weight before preparing it.',
+    },
+    {
+      icon: ShieldCheck,
+      title: isEs ? 'Empaque protegido' : 'Protected packing',
+      body: isEs
+        ? 'Cada artículo se envuelve a mano para proteger talla, barniz y bordes.'
+        : 'Each item is hand-wrapped to protect carving, finish and edges.',
+    },
+    {
+      icon: Truck,
+      title: isEs ? 'Entrega por EMS' : 'EMS delivery',
+      body: isEs
+        ? 'Correos de Costa Rica entrega en la dirección indicada.'
+        : 'Correos de Costa Rica delivers to the address provided.',
+    },
+  ];
+
+  return (
+    <main className="min-h-screen bg-[#FAF6EF] text-[#2D2D2D]">
+      <section className="border-b border-[#E8E4E0]">
+        <div className="mx-auto grid max-w-screen-xl gap-10 px-4 py-12 sm:px-8 md:py-16 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.58fr)] lg:px-12">
+          <div className="flex flex-col justify-center">
+            <div className="mb-5 inline-flex w-fit items-center gap-2 border border-[#E8E4E0] bg-[#F5F1EB] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+              <Truck className="h-4 w-4" aria-hidden />
+              {isEs ? 'Envíos nacionales' : 'National shipping'}
+            </div>
+            <h1 className="max-w-[12ch] font-display text-[clamp(40px,7vw,68px)] font-medium leading-[0.96] tracking-[-0.01em] text-[#2D2D2D]">
+              {isEs ? 'Calculá tu envío.' : 'Calculate shipping.'}
+            </h1>
+            <p className="mt-6 max-w-[58ch] text-base leading-relaxed text-[#4A4A4A] md:text-[17px]">
+              {isEs
+                ? 'Enviamos piezas únicas a todo Costa Rica con Correos de Costa Rica EMS. El costo final se confirma en checkout según peso, dirección y método de entrega.'
+                : 'We ship one-of-a-kind pieces across Costa Rica with Correos de Costa Rica EMS. The final cost is confirmed at checkout based on weight, address and delivery method.'}
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/products"
+                locale={locale}
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#1A1A1A]"
+              >
+                {isEs ? 'Comprar piezas' : 'Shop pieces'}
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+              <Link
+                href="/contact"
+                locale={locale}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#E8E4E0] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#2D2D2D] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#A08848]"
+              >
+                {isEs ? 'Consultar envío' : 'Ask about shipping'}
+              </Link>
+            </div>
           </div>
 
-          <h1 className="font-display text-3xl md:text-5xl font-medium tracking-[-0.005em] text-[#2D2D2D] mb-4">
-            {isEs ? 'Calculá tu envío' : 'Calculate your shipping'}
-          </h1>
-          <p className="text-lg text-[#4A4A4A] max-w-2xl mx-auto">
-            {isEs
-              ? 'Enviamos tus artesanías con amor a cualquier rincón de Costa Rica mediante Correos de Costa Rica (EMS).'
-              : 'We ship your crafts with love anywhere in Costa Rica via Correos de Costa Rica (EMS).'}
-          </p>
-        </div>
-      </section>
-
-      {/* Shipping Calculator */}
-      <section className="px-4 pb-12">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl border border-[#E8E4E0] overflow-hidden">
-            {/* Header */}
-            <div className="bg-[#2D2D2D] px-6 py-4">
-              <h2 className="text-lg font-semibold text-[#F5F1EB] flex items-center gap-2">
-                <Package className="w-5 h-5 text-[#C9A962]" />
-                {isEs ? '¿Cuánto cuesta mi envío?' : 'How much is my shipping?'}
+          <aside className="border border-[#E8E4E0] bg-[#F5F1EB] shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+            <div className="border-b border-[#E8E4E0] bg-[#2D2D2D] px-5 py-4 text-[#F5F1EB]">
+              <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.08em]">
+                <PackageCheck className="h-5 w-5 text-[#C9A962]" aria-hidden />
+                {isEs ? 'Estimador rápido' : 'Quick estimate'}
               </h2>
             </div>
-
-            <div className="p-6 space-y-6">
-              {/* Origin - Fixed */}
+            <div className="space-y-6 p-5">
               <div>
-                <label className="block text-sm font-medium text-[#6B6459] mb-2">
-                  {isEs ? 'Origen (nuestro taller)' : 'Origin (our workshop)'}
-                </label>
-                <div className="flex items-center gap-3 p-4 bg-[#FAF8F5] rounded-xl border border-[#E8E4E0]">
-                  <div className="w-10 h-10 bg-[#C9A962]/20 rounded-full flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-[#C9A962]" />
-                  </div>
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+                  {isEs ? 'Origen' : 'Origin'}
+                </p>
+                <div className="mt-2 flex items-start gap-3 border border-[#E8E4E0] bg-[#FAF6EF] p-4">
+                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#A08848]" aria-hidden />
                   <div>
                     <p className="font-medium text-[#2D2D2D]">San José, GAM</p>
-                    <p className="text-sm text-[#6B6459]">{isEs ? 'Taller HandMade Art' : 'HandMade Art Workshop'}</p>
+                    <p className="text-sm leading-relaxed text-[#6B6459]">
+                      {isEs ? 'Taller Handmade Art.' : 'Handmade Art workshop.'}
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* Destination - Selectable */}
-              <div>
-                <label className="block text-sm font-medium text-[#6B6459] mb-2">
-                  {isEs ? '¿A dónde enviamos?' : 'Where do we ship?'}
-                </label>
-                <div className="relative">
-                  <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="w-full flex items-center justify-between gap-3 p-4 bg-white rounded-xl border-2 border-[#C9A962] hover:border-[#A08848] transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#C9A962]/20 rounded-full flex items-center justify-center">
-                        <Truck className="w-5 h-5 text-[#C9A962]" />
-                      </div>
-                      <div className="text-left">
-                        <p className="font-medium text-[#2D2D2D]">{locations[destination].name}</p>
-                        <p className="text-sm text-[#6B6459]">{locations[destination].description}</p>
-                      </div>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 text-[#C9A962] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                  </button>
+              <fieldset>
+                <legend className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+                  {isEs ? 'Destino' : 'Destination'}
+                </legend>
+                <div className="mt-2 grid gap-3">
+                  {(['gam', 'rest'] as Destination[]).map((item) => {
+                    const selected = destination === item;
 
-                  {isOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-[#E8E4E0] shadow-lg z-10 overflow-hidden">
-                      {(['gam', 'rest'] as Location[]).map((loc) => (
-                        <button
-                          key={loc}
-                          onClick={() => {
-                            setDestination(loc);
-                            setIsOpen(false);
-                          }}
-                          className={`w-full flex items-center gap-3 p-4 hover:bg-[#FAF8F5] transition-colors text-left ${
-                            destination === loc ? 'bg-[#FAF8F5]' : ''
-                          }`}
-                        >
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            destination === loc ? 'bg-[#C9A962] text-white' : 'bg-[#E8E4E0] text-[#6B6459]'
-                          }`}>
-                            <MapPin className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-[#2D2D2D]">{locations[loc].name}</p>
-                            <p className="text-sm text-[#6B6459]">{locations[loc].description}</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                    return (
+                      <label
+                        key={item}
+                        className={`flex cursor-pointer items-start gap-3 border p-4 transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                          selected
+                            ? 'border-[#A08848] bg-[#FAF6EF]'
+                            : 'border-[#E8E4E0] bg-[#F5F1EB] hover:border-[#C9A962]/45'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="shipping-destination"
+                          value={item}
+                          checked={selected}
+                          onChange={() => setDestination(item)}
+                          className="mt-1 h-4 w-4 accent-[#A08848]"
+                        />
+                        <span>
+                          <span className="block font-medium text-[#2D2D2D]">
+                            {destinations[item].name}
+                          </span>
+                          <span className="mt-1 block text-sm leading-relaxed text-[#6B6459]">
+                            {destinations[item].description}
+                          </span>
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
-              </div>
+              </fieldset>
 
-              {/* Result */}
-              <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1EB] rounded-xl p-6 border border-[#E8E4E0]">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                  <div>
-                    <p className="text-sm text-[#6B6459] mb-1">{isEs ? 'Costo de envío (primer kg)' : 'Shipping cost (first kg)'}</p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-[#C9A962]">₡{withIVA.toLocaleString('es-CR')}</span>
-                      <span className="text-lg text-[#6B6459]">≈ ${toUSD(withIVA)}</span>
-                    </div>
-                    <p className="text-xs text-[#6B6459] mt-1">{isEs ? 'IVA incluido' : 'Tax included'}</p>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-[#E8E4E0]">
-                    <Clock className="w-4 h-4 text-[#4A7C59]" />
-                    <span className="text-sm font-medium text-[#2D2D2D]">
+              <div className="border border-[#E8E4E0] bg-[#FAF6EF] p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+                  {isEs ? 'Primer kilogramo' : 'First kilogram'}
+                </p>
+                <div className="mt-2 flex flex-wrap items-end gap-x-3 gap-y-1">
+                  <span className="font-display text-4xl font-semibold tabular-nums text-[#A08848]">
+                    CRC {formatCRC(firstKgWithTax)}
+                  </span>
+                  <span className="pb-1 text-sm text-[#6B6459]">
+                    USD {toUSD(firstKgWithTax)}
+                  </span>
+                </div>
+                <div className="mt-5 grid gap-3 border-t border-[#E8E4E0] pt-4 sm:grid-cols-2">
+                  <div className="flex items-center gap-2 text-sm text-[#4A4A4A]">
+                    <Clock className="h-4 w-4 text-[#2F5F3E]" aria-hidden />
+                    <span>
                       {currentRate.days} {isEs ? 'días hábiles' : 'business days'}
                     </span>
                   </div>
-                </div>
-
-                <div className="pt-4 border-t border-[#E8E4E0]">
                   <p className="text-sm text-[#4A4A4A]">
-                    <span className="font-medium">{isEs ? 'Kg adicional:' : 'Additional kg:'}</span>{' '}
-                    ₡{additionalWithIVA.toLocaleString('es-CR')} (≈ ${toUSD(additionalWithIVA)})
+                    <span className="font-medium text-[#2D2D2D]">
+                      {isEs ? 'Kg adicional:' : 'Additional kg:'}
+                    </span>{' '}
+                    CRC {formatCRC(additionalKgWithTax)}
                   </p>
                 </div>
               </div>
 
-              {/* Note */}
-              <div className="flex items-start gap-3 p-4 bg-[#4A7C59]/10 rounded-xl border border-[#4A7C59]/20">
-                <div className="w-6 h-6 bg-[#4A7C59] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-xs font-bold">i</span>
-                </div>
-                <p className="text-sm text-[#2D2D2D]">
-                  {isEs
-                    ? 'La mayoría de nuestros productos pesan menos de 1kg. El costo exacto se calcula al finalizar tu compra.'
-                    : 'Most of our products weigh less than 1kg. The exact cost is calculated at checkout.'}
-                </p>
-              </div>
+              <p className="border border-[#4A7C59]/25 bg-[#4A7C59]/10 p-4 text-sm leading-relaxed text-[#2D2D2D]">
+                {isEs
+                  ? 'La mayoría de piezas pesa menos de 1 kg. Si comprás varias obras, el checkout agrupa el peso para calcular el envío correcto.'
+                  : 'Most pieces weigh under 1 kg. If you buy several works, checkout groups the weight to calculate the correct shipping.'}
+              </p>
             </div>
-          </div>
+          </aside>
         </div>
       </section>
 
-      {/* Delivery Info Cards */}
-      <section className="px-4 pb-12">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] text-center mb-8">
-            {isEs ? '¿Cómo funciona?' : 'How does it work?'}
+      <section className="mx-auto grid max-w-screen-xl gap-10 px-4 py-16 sm:px-8 lg:grid-cols-[0.45fr_0.55fr] lg:px-12">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            {isEs ? 'Proceso de entrega' : 'Delivery process'}
+          </p>
+          <h2 className="mt-3 max-w-[12ch] font-display text-[clamp(28px,4vw,42px)] font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D]">
+            {isEs ? 'Listo para llegar bien.' : 'Packed to arrive well.'}
           </h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Step 1 */}
-            <div className="bg-white rounded-xl p-6 border border-[#E8E4E0] shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-[#C9A962]/20 rounded-xl flex items-center justify-center mb-4">
-                <span className="text-xl font-bold text-[#C9A962]">1</span>
-              </div>
-              <h3 className="font-semibold text-[#2D2D2D] mb-2">
-                {isEs ? 'Hacé tu pedido' : 'Place your order'}
-              </h3>
-              <p className="text-sm text-[#4A4A4A]">
-                {isEs
-                  ? 'Elegí tus artesanías favoritas y completá tu compra en línea.'
-                  : 'Choose your favorite crafts and complete your purchase online.'}
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-white rounded-xl p-6 border border-[#E8E4E0] shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-[#C9A962]/20 rounded-xl flex items-center justify-center mb-4">
-                <span className="text-xl font-bold text-[#C9A962]">2</span>
-              </div>
-              <h3 className="font-semibold text-[#2D2D2D] mb-2">
-                {isEs ? 'Empacamos con cuidado' : 'We pack with care'}
-              </h3>
-              <p className="text-sm text-[#4A4A4A]">
-                {isEs
-                  ? 'Cada artesanía es empacada a mano para protegerla durante el envío.'
-                  : 'Each craft is hand-packed to protect it during shipping.'}
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-white rounded-xl p-6 border border-[#E8E4E0] shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-[#C9A962]/20 rounded-xl flex items-center justify-center mb-4">
-                <span className="text-xl font-bold text-[#C9A962]">3</span>
-              </div>
-              <h3 className="font-semibold text-[#2D2D2D] mb-2">
-                {isEs ? 'Recibí en tu puerta' : 'Receive at your door'}
-              </h3>
-              <p className="text-sm text-[#4A4A4A]">
-                {isEs
-                  ? 'Correos de Costa Rica te entrega directamente en tu domicilio.'
-                  : 'Correos de Costa Rica delivers directly to your home.'}
-              </p>
-            </div>
-          </div>
+            return (
+              <article
+                key={step.title}
+                className="border border-[#E8E4E0] bg-[#FAF6EF] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]"
+              >
+                <div className="mb-5 flex items-center justify-between">
+                  <Icon className="h-5 w-5 text-[#A08848]" aria-hidden />
+                  <span className="font-display text-2xl font-medium text-[#C9A962]">
+                    {index + 1}
+                  </span>
+                </div>
+                <h3 className="font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-[#4A4A4A]">{step.body}</p>
+              </article>
+            );
+          })}
         </div>
       </section>
 
-      {/* Quick Reference Table */}
-      <section className="px-4 pb-12">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-xl border border-[#E8E4E0] overflow-hidden">
-            <div className="bg-[#FAF8F5] px-6 py-4 border-b border-[#E8E4E0]">
-              <h3 className="font-semibold text-[#2D2D2D]">
-                {isEs ? 'Resumen de tarifas' : 'Rate summary'}
-              </h3>
-            </div>
-            <div className="divide-y divide-[#E8E4E0]">
-              <div className="flex items-center justify-between px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-[#2D2D2D]">GAM → GAM</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-semibold text-[#C9A962]">₡{Math.round(2100 * 1.13).toLocaleString('es-CR')}</span>
-                  <span className="text-sm text-[#6B6459] ml-2">1-2 {isEs ? 'días' : 'days'}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-[#2D2D2D]">GAM → {isEs ? 'Resto del país' : 'Rest of CR'}</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-semibold text-[#C9A962]">₡{Math.round(2850 * 1.13).toLocaleString('es-CR')}</span>
-                  <span className="text-sm text-[#6B6459] ml-2">2-4 {isEs ? 'días' : 'days'}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-6 py-4 bg-[#FAF8F5]">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-[#2D2D2D]">{isEs ? 'Resto → Resto' : 'Rest → Rest'}</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-semibold text-[#C9A962]">₡{Math.round(3650 * 1.13).toLocaleString('es-CR')}</span>
-                  <span className="text-sm text-[#6B6459] ml-2">3-5 {isEs ? 'días' : 'days'}</span>
-                </div>
-              </div>
-            </div>
-            <div className="px-6 py-4 bg-[#FAF8F5] border-t border-[#E8E4E0]">
-              <p className="text-xs text-[#6B6459]">
-                {isEs ? '* Precios con IVA incluido. Primer kilogramo.' : '* Prices include tax. First kilogram.'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* More Info */}
-      <section className="px-4 pb-16">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-[#2D2D2D] rounded-xl p-6 text-center">
-            <p className="text-[#F5F1EB] mb-4">
-              {isEs
-                ? 'Utilizamos el servicio EMS de Correos de Costa Rica para garantizar la entrega segura de tus artesanías.'
-                : 'We use the EMS service from Correos de Costa Rica to ensure safe delivery of your crafts.'}
+      <section className="border-y border-[#E8E4E0] bg-[#F5F1EB]">
+        <div className="mx-auto grid max-w-screen-xl gap-8 px-4 py-16 sm:px-8 lg:grid-cols-[0.38fr_0.62fr] lg:px-12">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+              {isEs ? 'Tarifas EMS' : 'EMS rates'}
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link
-                href="https://correos.go.cr/servicio-ems/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#C9A962] text-[#1A1A1A] px-4 py-2 rounded-lg font-medium text-sm hover:bg-[#D4C4A8] transition-colors"
-              >
-                {isEs ? 'Sitio oficial de Correos' : 'Official Correos site'}
-                <ExternalLink className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 bg-transparent border border-[#C9A962] text-[#C9A962] px-4 py-2 rounded-lg font-medium text-sm hover:bg-[#C9A962] hover:text-[#1A1A1A] transition-colors"
-              >
-                {isEs ? '¿Preguntas? Contáctanos' : 'Questions? Contact us'}
-              </Link>
+            <h2 className="mt-3 font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+              {isEs ? 'Referencia rapida' : 'Quick reference'}
+            </h2>
+            <p className="mt-4 max-w-[44ch] text-sm leading-relaxed text-[#4A4A4A]">
+              {isEs
+                ? 'Precios con IVA incluido para el primer kilogramo. El checkout confirma la tarifa exacta antes de pagar.'
+                : 'Prices include tax for the first kilogram. Checkout confirms the exact rate before payment.'}
+            </p>
+          </div>
+          <div className="overflow-hidden border border-[#E8E4E0] bg-[#FAF6EF]">
+            <div className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-[#E8E4E0] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+              <span>{isEs ? 'Ruta' : 'Route'}</span>
+              <span>{isEs ? 'Costo' : 'Cost'}</span>
+              <span>{isEs ? 'Tiempo' : 'Time'}</span>
             </div>
+            {rateRows.map((row) => (
+              <div
+                key={row.label}
+                className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-[#E8E4E0] px-4 py-4 text-sm last:border-b-0"
+              >
+                <span className="font-medium text-[#2D2D2D]">{row.label}</span>
+                <span className="font-display font-semibold tabular-nums text-[#A08848]">
+                  CRC {formatCRC(withTax(row.rate.firstKg))}
+                </span>
+                <span className="text-[#6B6459]">
+                  {row.rate.days} {isEs ? 'días' : 'days'}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
-    </div>
+
+      <section className="px-4 py-16 sm:px-8 lg:px-12">
+        <div className="mx-auto flex max-w-screen-xl flex-col items-start justify-between gap-6 border border-[#F5F1EB]/12 bg-[#1A1A1A] p-6 text-[#F5F1EB] md:flex-row md:items-center md:p-8">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#C9A962]">
+              EMS Correos de Costa Rica
+            </p>
+            <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-[#B5AC9D]">
+              {isEs
+                ? 'Usamos un operador nacional conocido para cuidar la entrega y dar seguimiento cuando la pieza sale del taller.'
+                : 'We use a known national carrier to protect delivery and provide tracking once the piece leaves the workshop.'}
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <Link
+              href="https://correos.go.cr/servicio-ems/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#C9A962] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#1A1A1A] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#A08848] hover:text-[#F5F1EB]"
+            >
+              {isEs ? 'Ver Correos EMS' : 'View Correos EMS'}
+              <ExternalLink className="h-4 w-4" aria-hidden />
+            </Link>
+            <Link
+              href="/contact"
+              locale={locale}
+              className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#F5F1EB]/30 px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F5F1EB]/10"
+            >
+              {isEs ? 'Hablar con nosotros' : 'Talk to us'}
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

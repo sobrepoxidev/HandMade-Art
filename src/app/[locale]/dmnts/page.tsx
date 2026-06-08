@@ -2,269 +2,286 @@ import { buildMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { ArrowRight, Handshake, ShoppingBag, Tv, Users } from "lucide-react";
 
 type tParams = Promise<{ locale: string }>;
+
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const { locale } = await params;
   const currentLocale = locale === "es" ? "es" : "en";
-  
-  const pageTitle = currentLocale === 'es' ? 'Handmade Art en DMNTS Edición 8 | Emprendimiento Social' : 'Handmade Art in DMNTS Edition 8 | Social Entrepreneurship';
-  const pageDescription = currentLocale === 'es' 
-    ? 'Handmade Art participa en DMNTS Edición 8 para impulsar el Proyecto de Ley 24870 sobre reinserción sociolaboral en Costa Rica'
-    : 'Handmade Art participates in DMNTS Edition 8 to promote Law Project 24870 on social and labor reintegration in Costa Rica';
 
   return await buildMetadata({
     locale: currentLocale,
     pathname: `/${locale}/dmnts`,
-    title: pageTitle,
-    description: pageDescription,
+    title:
+      currentLocale === "es"
+        ? "Handmade Art en DMNTS Edición 8"
+        : "Handmade Art in DMNTS Edition 8",
+    description:
+      currentLocale === "es"
+        ? "Handmade Art participa en DMNTS Edición 8 para impulsar el Proyecto de Ley 24870 sobre reinserción sociolaboral en Costa Rica."
+        : "Handmade Art participates in DMNTS Edition 8 to promote Law Project 24870 on social and labor reintegration in Costa Rica.",
+    image: {
+      url: "/dmnts/banner.webp",
+      width: 1200,
+      height: 630,
+      alt:
+        currentLocale === "es"
+          ? "Handmade Art en DMNTS Edición 8"
+          : "Handmade Art in DMNTS Edition 8",
+    },
   });
 }
 
 export default async function DMNTSPage({ params }: { params: tParams }) {
   const { locale } = await params;
-  const isSpanish = locale === 'es';
+  const isEs = locale === "es";
+
+  const pillars = [
+    {
+      title: isEs ? "Visibilidad nacional" : "National visibility",
+      body: isEs
+        ? "DMNTS abre una vitrina para explicar por qué la reinserción sociolaboral necesita mercado, alianzas y continuidad."
+        : "DMNTS gives us a stage to explain why social reintegration needs market access, alliances and continuity.",
+    },
+    {
+      title: isEs ? "Modelo sostenible" : "Sustainable model",
+      body: isEs
+        ? "Presentamos una tienda real: piezas comprables, horas de oficio pagadas y talleres que pueden crecer."
+        : "We present a real store: pieces people can buy, paid craft hours and workshops that can grow.",
+    },
+    {
+      title: isEs ? "Proyecto de Ley 24870" : "Law Project 24870",
+      body: isEs
+        ? "La participación ayuda a poner sobre la mesa la figura de Empresa de Inserción Sociolaboral en Costa Rica."
+        : "The participation helps bring Costa Rica's Social and Labor Reintegration Company model into the public conversation.",
+    },
+  ];
+
+  const supportCards = [
+    {
+      icon: Tv,
+      title: isEs ? "Ver el programa" : "Watch the program",
+      body: isEs
+        ? "Seguí nuestra participación en DMNTS y compartí el caso cuando salga al aire."
+        : "Follow our DMNTS participation and share the case when it airs.",
+    },
+    {
+      icon: ShoppingBag,
+      title: isEs ? "Comprar una pieza" : "Buy a piece",
+      body: isEs
+        ? "Cada compra paga trabajo real y demuestra que el modelo puede sostenerse con comercio justo."
+        : "Every purchase pays real work and proves the model can stand on fair trade.",
+    },
+    {
+      icon: Handshake,
+      title: isEs ? "Abrir una alianza" : "Open a partnership",
+      body: isEs
+        ? "Empresas e instituciones pueden apoyar talleres, formación o certificaciones de impacto."
+        : "Companies and institutions can support workshops, training or impact certifications.",
+    },
+  ];
 
   return (
-    <div className="container mx-auto px-4 py-8 text-gray-800">
-      <div className="max-w-4xl mx-auto">
-        {/* Banner principal */}
-        <div className="relative w-full h-64 md:h-80 lg:h-96 mb-8 rounded-xl overflow-hidden">
-          <Image 
-            src="/dmnts/banner.webp" 
-            alt={isSpanish ? "Handmade Art en DMNTS Edición 8" : "Handmade Art in DMNTS Edition 8"}
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
-            <div className="p-6 text-white">
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                {isSpanish ? "Handmade Art en DMNTS" : "Handmade Art in DMNTS"}
-              </h1>
-              <p className="text-lg md:text-xl">
-                {isSpanish ? "Edición 8 - Teletica" : "Edition 8 - Teletica"}
-              </p>
+    <main className="bg-[#FAF6EF] text-[#2D2D2D]">
+      <section className="relative isolate min-h-[calc(100vh-112px)] overflow-hidden bg-[#1A1A1A]">
+        <Image
+          src="/dmnts/banner.webp"
+          alt={isEs ? "Handmade Art en DMNTS Edición 8" : "Handmade Art in DMNTS Edition 8"}
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
+        <div aria-hidden className="absolute inset-0 bg-[#1A1A1A]/68" />
+        <div className="relative z-10 mx-auto flex min-h-[calc(100vh-112px)] max-w-screen-xl items-end px-4 py-14 sm:px-8 md:py-20 lg:px-12">
+          <div className="max-w-3xl text-[#F5F1EB]">
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#C9A962]">
+              {isEs ? "DMNTS Edición 8 · Teletica" : "DMNTS Edition 8 · Teletica"}
+            </p>
+            <h1 className="font-display text-[clamp(42px,7vw,72px)] font-medium leading-[0.95] tracking-[-0.01em]">
+              {isEs
+                ? "Una vitrina nacional para una segunda oportunidad."
+                : "A national stage for a second chance."}
+            </h1>
+            <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-[#F5F1EB]/88 md:text-[17px]">
+              {isEs
+                ? "Handmade Art participa en DMNTS para impulsar el Proyecto de Ley 24870 y mostrar que la reinserción sociolaboral puede sostenerse con piezas artesanales vendidas en serio."
+                : "Handmade Art participates in DMNTS to promote Law Project 24870 and show that social reintegration can be sustained through serious commerce in handmade pieces."}
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/products"
+                locale={locale}
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#C9A962] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#1A1A1A] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#A08848] hover:text-[#F5F1EB]"
+              >
+                {isEs ? "Ver piezas" : "Browse pieces"}
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+              <Link
+                href={isEs ? "/reinsercion-sociolaboral" : "/social-reintegration"}
+                locale={locale}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#F5F1EB]/30 px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F5F1EB]/10"
+              >
+                {isEs ? "Conocer el proyecto" : "Learn about the project"}
+              </Link>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Introducción */}
-        <section className="mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-blue-700">
-            {isSpanish ? "Nuestra participación en DMNTS" : "Our participation in DMNTS"}
-          </h2>
-          <p className="text-lg mb-4">
-            {isSpanish 
-              ? "Handmade Art ha sido seleccionado para participar en la octava edición de DMNTS, el programa de emprendimiento más importante de Costa Rica transmitido por Teletica. Esta plataforma nos brinda la oportunidad de dar visibilidad a nuestro proyecto de reinserción sociolaboral y buscar alianzas estratégicas para impulsar el Proyecto de Ley 24870." 
-              : "Handmade Art has been selected to participate in the eighth edition of DMNTS, Costa Rica's most important entrepreneurship program broadcast by Teletica. This platform gives us the opportunity to give visibility to our social reintegration project and seek strategic alliances to promote Law Project 24870."}
+      <section className="mx-auto grid max-w-screen-xl gap-10 px-4 py-16 sm:px-8 md:py-24 lg:grid-cols-[0.42fr_0.58fr] lg:px-12">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            {isEs ? "Por qué participamos" : "Why we participate"}
           </p>
-          <p className="text-lg">
-            {isSpanish 
-              ? "Con más de 120 emprendimientos inscritos en esta edición, estamos orgullosos de formar parte de los proyectos seleccionados para mostrar nuestro impacto social y modelo de negocio sostenible." 
-              : "With more than 120 ventures registered in this edition, we are proud to be among the projects selected to showcase our social impact and sustainable business model."}
+          <h2 className="mt-3 font-display text-[clamp(30px,4vw,46px)] font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D]">
+            {isEs ? "No vamos a contar una idea. Vamos a mostrar una tienda viva." : "We are not pitching an idea. We are showing a working store."}
+          </h2>
+        </div>
+        <div className="space-y-5 text-base leading-relaxed text-[#4A4A4A] md:text-[17px]">
+          <p>
+            {isEs
+              ? "Con más de 120 emprendimientos inscritos, DMNTS pone a Handmade Art frente a audiencias, mentores y aliados que pueden acelerar el trabajo que ya ocurre dentro de los talleres."
+              : "With more than 120 ventures registered, DMNTS puts Handmade Art in front of audiences, mentors and partners who can accelerate the work already happening inside the workshops."}
           </p>
-        </section>
-
-        {/* Por qué participamos */}
-        <section className="mb-12 bg-blue-50 p-6 rounded-xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-blue-700">
-            {isSpanish ? "¿Por qué participamos?" : "Why are we participating?"}
-          </h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-xl font-semibold mb-2 text-blue-600">
-                {isSpanish ? "Visibilidad para el Proyecto de Ley 24870" : "Visibility for Law Project 24870"}
-              </h3>
-              <p className="mb-4">
-                {isSpanish 
-                  ? "DMNTS nos ofrece una plataforma nacional para dar a conocer la importancia del Proyecto de Ley 24870 sobre reinserción sociolaboral de personas en situación de vulnerabilidad." 
-                  : "DMNTS offers us a national platform to raise awareness about the importance of Law Project 24870 on social and labor reintegration of people in vulnerable situations."}
-              </p>
-              <h3 className="text-xl font-semibold mb-2 text-blue-600">
-                {isSpanish ? "Formación y mentoría" : "Training and mentoring"}
-              </h3>
-              <p>
-                {isSpanish 
-                  ? "El programa nos brinda acceso a formación estratégica y mentoría de expertos que nos ayudarán a fortalecer nuestro modelo de negocio y maximizar nuestro impacto social." 
-                  : "The program gives us access to strategic training and expert mentoring that will help us strengthen our business model and maximize our social impact."}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-2 text-blue-600">
-                {isSpanish ? "Alianzas estratégicas" : "Strategic alliances"}
-              </h3>
-              <p className="mb-4">
-                {isSpanish 
-                  ? "Buscamos establecer alianzas con actores clave del ecosistema emprendedor y social de Costa Rica para ampliar el alcance de nuestros programas de reinserción." 
-                  : "We seek to establish alliances with key players in Costa Rica's entrepreneurial and social ecosystem to expand the reach of our reintegration programs."}
-              </p>
-              <h3 className="text-xl font-semibold mb-2 text-blue-600">
-                {isSpanish ? "Inversión para crecer" : "Investment to grow"}
-              </h3>
-              <p>
-                {isSpanish 
-                  ? "DMNTS ha impulsado inversiones por más de $550,000 en emprendimientos. Buscamos atraer inversión para expandir nuestros talleres de capacitación y crear más oportunidades laborales." 
-                  : "DMNTS has driven investments of more than $550,000 in ventures. We seek to attract investment to expand our training workshops and create more job opportunities."}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Nuestro proyecto */}
-        <section className="mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-blue-700">
-            {isSpanish ? "Nuestro proyecto en DMNTS" : "Our project in DMNTS"}
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-white p-5 rounded-lg shadow-md">
-              <div className="text-3xl mb-2 text-blue-600">1</div>
-              <h3 className="text-xl font-semibold mb-2">
-                {isSpanish ? "Modelo de negocio sostenible" : "Sustainable business model"}
-              </h3>
-              <p>
-                {isSpanish 
-                  ? "Presentamos un modelo que combina la venta de artesanías de alta calidad con programas de capacitación y reinserción social." 
-                  : "We present a model that combines the sale of high-quality handicrafts with training and social reintegration programs."}
-              </p>
-            </div>
-            <div className="bg-white p-5 rounded-lg shadow-md">
-              <div className="text-3xl mb-2 text-blue-600">2</div>
-              <h3 className="text-xl font-semibold mb-2">
-                {isSpanish ? "Impacto social medible" : "Measurable social impact"}
-              </h3>
-              <p>
-                {isSpanish 
-                  ? "Demostramos cómo nuestros talleres han impactado positivamente en la vida de personas en situación de vulnerabilidad." 
-                  : "We demonstrate how our workshops have positively impacted the lives of people in vulnerable situations."}
-              </p>
-            </div>
-            <div className="bg-white p-5 rounded-lg shadow-md">
-              <div className="text-3xl mb-2 text-blue-600">3</div>
-              <h3 className="text-xl font-semibold mb-2">
-                {isSpanish ? "Escalabilidad del proyecto" : "Project scalability"}
-              </h3>
-              <p>
-                {isSpanish 
-                  ? "Presentamos nuestra visión para expandir el modelo a más comunidades y beneficiar a más personas en todo el país." 
-                  : "We present our vision to expand the model to more communities and benefit more people throughout the country."}
-              </p>
-            </div>
-          </div>
-          <div className="relative w-full h-64 rounded-xl overflow-hidden">
-            <Image 
-              src="/dmnts/proyecto.webp" 
-              alt={isSpanish ? "Proyecto Handmade Art en DMNTS" : "Handmade Art Project in DMNTS"}
-              fill
-              className="object-cover"
-            />
-          </div>
-        </section>
-
-        {/* Por qué queremos ganar */}
-        <section className="mb-12 bg-blue-50 p-6 rounded-xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-blue-700">
-            {isSpanish ? "¿Por qué queremos ganar?" : "Why do we want to win?"}
-          </h2>
-          <p className="text-lg mb-4">
-            {isSpanish 
-              ? "Ganar DMNTS significaría mucho más que un reconocimiento para Handmade Art. Representaría una victoria para todas las personas en situación de vulnerabilidad que buscan una segunda oportunidad a través de la reinserción sociolaboral." 
-              : "Winning DMNTS would mean much more than recognition for Handmade Art. It would represent a victory for all people in vulnerable situations who are seeking a second chance through social and labor reintegration."}
+          <p>
+            {isEs
+              ? "La meta no es solo ganar exposición. Es demostrar que la reinserción sociolaboral puede tener una ruta comercial clara: piezas premium, clientes reales y un sistema que paga horas de oficio."
+              : "The goal is not exposure alone. It is to prove that social reintegration can have a clear commercial path: premium pieces, real customers and a system that pays craft hours."}
           </p>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white p-5 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold mb-2 text-blue-600">
-                {isSpanish ? "Impulso al Proyecto de Ley 24870" : "Boost to Law Project 24870"}
-              </h3>
-              <p>
-                {isSpanish 
-                  ? "El reconocimiento nos ayudaría a generar mayor apoyo político y social para la aprobación del Proyecto de Ley 24870, fundamental para institucionalizar los programas de reinserción." 
-                  : "The recognition would help us generate greater political and social support for the approval of Law Project 24870, essential to institutionalize reintegration programs."}
-              </p>
-            </div>
-            <div className="bg-white p-5 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold mb-2 text-blue-600">
-                {isSpanish ? "Expansión de talleres" : "Workshop expansion"}
-              </h3>
-              <p>
-                {isSpanish 
-                  ? "Los recursos obtenidos nos permitirían expandir nuestros talleres de capacitación a más centros penitenciarios y comunidades vulnerables en todo Costa Rica." 
-                  : "The resources obtained would allow us to expand our training workshops to more prisons and vulnerable communities throughout Costa Rica."}
-              </p>
-            </div>
-          </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Cómo apoyarnos */}
-        <section className="mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-blue-700">
-            {isSpanish ? "¿Cómo puedes apoyarnos?" : "How can you support us?"}
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white p-5 rounded-lg shadow-md text-center">
-              <div className="text-4xl mb-3">📺</div>
-              <h3 className="text-xl font-semibold mb-2">
-                {isSpanish ? "Míranos en TD+2" : "Watch us on TD+2"}
+      <section className="border-y border-[#E8E4E0] bg-[#F5F1EB]">
+        <div className="mx-auto grid max-w-screen-xl gap-4 px-4 py-16 sm:px-8 md:grid-cols-3 md:py-20 lg:px-12">
+          {pillars.map((item, index) => (
+            <article
+              key={item.title}
+              className="border border-[#E8E4E0] bg-[#FAF6EF] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]"
+            >
+              <span className="font-display text-3xl font-medium text-[#C9A962]">
+                {index + 1}
+              </span>
+              <h3 className="mt-6 font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+                {item.title}
               </h3>
-              <p>
-                {isSpanish 
-                  ? "Sintoniza DMNTS todos los jueves a las 8:00 p.m. por TD+2 y apoya nuestro proyecto con tu voto." 
-                  : "Tune in to DMNTS every Thursday at 8:00 p.m. on TD+2 and support our project with your vote."}
-              </p>
-            </div>
-            <div className="bg-white p-5 rounded-lg shadow-md text-center">
-              <div className="text-4xl mb-3">📱</div>
-              <h3 className="text-xl font-semibold mb-2">
-                {isSpanish ? "Síguenos en redes" : "Follow us on social media"}
-              </h3>
-              <p>
-                {isSpanish 
-                  ? "Sigue nuestras redes sociales y las de @dementescr para estar al tanto de nuestro progreso y compartir nuestro mensaje." 
-                  : "Follow our social media and @dementescr to stay updated on our progress and share our message."}
-              </p>
-            </div>
-            <div className="bg-white p-5 rounded-lg shadow-md text-center">
-              <div className="text-4xl mb-3">🤝</div>
-              <h3 className="text-xl font-semibold mb-2">
-                {isSpanish ? "Forma alianzas" : "Form alliances"}
-              </h3>
-              <p>
-                {isSpanish 
-                  ? "Si representas una empresa o institución, contáctanos para explorar posibles alianzas que impulsen la reinserción sociolaboral." 
-                  : "If you represent a company or institution, contact us to explore possible alliances that promote social and labor reintegration."}
-              </p>
-            </div>
-          </div>
-        </section>
+              <p className="mt-3 text-sm leading-relaxed text-[#4A4A4A]">{item.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
-        {/* Llamado a la acción */}
-        <section className="bg-blue-600 text-white p-8 rounded-xl text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            {isSpanish ? "Juntos podemos hacer la diferencia" : "Together we can make a difference"}
-          </h2>
-          <p className="text-lg mb-6">
-            {isSpanish 
-              ? "Tu apoyo es fundamental para que Handmade Art pueda seguir transformando vidas a través del arte y la capacitación." 
-              : "Your support is essential for Handmade Art to continue transforming lives through art and training."}
+      <section className="mx-auto grid max-w-screen-xl gap-10 px-4 py-16 sm:px-8 md:py-24 lg:grid-cols-[0.52fr_0.48fr] lg:px-12">
+        <div className="relative aspect-[4/3] overflow-hidden border border-[#E8E4E0] bg-[#F5F1EB]">
+          <Image
+            src="/dmnts/proyecto.webp"
+            alt={isEs ? "Proyecto Handmade Art presentado en DMNTS" : "Handmade Art project presented in DMNTS"}
+            fill
+            className="object-cover"
+            sizes="(min-width: 1024px) 52vw, 100vw"
+          />
+        </div>
+        <div className="flex flex-col justify-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            {isEs ? "Qué presentamos" : "What we present"}
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <h2 className="mt-3 font-display text-[clamp(30px,4vw,46px)] font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D]">
+            {isEs ? "Producto, impacto y escalabilidad en una misma mesa." : "Product, impact and scale at the same table."}
+          </h2>
+          <ul className="mt-6 space-y-4 text-sm leading-relaxed text-[#4A4A4A] md:text-base">
+            <li>
+              <span className="font-medium text-[#2D2D2D]">
+                {isEs ? "Modelo comercial:" : "Commercial model:"}
+              </span>{" "}
+              {isEs
+                ? "venta de artesanías de alta calidad con historia verificable y stock real."
+                : "sale of high-quality handmade pieces with verifiable story and real stock."}
+            </li>
+            <li>
+              <span className="font-medium text-[#2D2D2D]">
+                {isEs ? "Impacto social:" : "Social impact:"}
+              </span>{" "}
+              {isEs
+                ? "talleres que convierten formación en ingresos legítimos para personas en reinserción."
+                : "workshops that turn training into legitimate income for people rebuilding their path."}
+            </li>
+            <li>
+              <span className="font-medium text-[#2D2D2D]">
+                {isEs ? "Crecimiento:" : "Growth:"}
+              </span>{" "}
+              {isEs
+                ? "alianzas para abrir más talleres, certificar oficios y llevar las piezas a más compradores."
+                : "partnerships to open more workshops, certify trades and bring the pieces to more buyers."}
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="bg-[#1A1A1A] text-[#F5F1EB]">
+        <div className="mx-auto grid max-w-screen-xl gap-10 px-4 py-16 sm:px-8 md:py-20 lg:grid-cols-[0.35fr_0.65fr] lg:px-12">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#C9A962]">
+              {isEs ? "Cómo apoyar" : "How to support"}
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-medium tracking-[-0.005em]">
+              {isEs ? "Tres acciones concretas." : "Three concrete actions."}
+            </h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {supportCards.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <article key={item.title} className="border border-[#F5F1EB]/12 p-5">
+                  <Icon className="h-5 w-5 text-[#C9A962]" strokeWidth={1.5} aria-hidden />
+                  <h3 className="mt-5 font-display text-xl font-medium tracking-[-0.005em]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-[#B5AC9D]">{item.body}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-16 sm:px-8 md:py-24 lg:px-12">
+        <div className="mx-auto flex max-w-screen-xl flex-col items-start justify-between gap-6 border border-[#E8E4E0] bg-[#F5F1EB] p-6 md:flex-row md:items-center md:p-8">
+          <div className="max-w-2xl">
+            <div className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+              <Users className="h-4 w-4" aria-hidden />
+              {isEs ? "Reinserción sociolaboral" : "Social reintegration"}
+            </div>
+            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+              {isEs ? "La mejor forma de apoyar es que la pieza encuentre casa." : "The best support is for the piece to find a home."}
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-[#4A4A4A] md:text-base">
+              {isEs
+                ? "Comprar, compartir o abrir una alianza empuja el mismo objetivo: más horas de taller, más oficio y más rutas de regreso."
+                : "Buying, sharing or opening a partnership pushes the same goal: more workshop hours, more craft and more routes back."}
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <Link
-              href="/reinsercion-sociolaboral"
-              className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+              href="/products"
+              locale={locale}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#1A1A1A]"
             >
-              {isSpanish ? "Conoce nuestro proyecto de reinserción" : "Learn about our reintegration project"}
+              {isEs ? "Comprar piezas" : "Shop pieces"}
+              <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
-            <a 
-              href="https://www.instagram.com/handmadeart.store" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors"
+            <a
+              href="https://www.instagram.com/handmadeart.store"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#E8E4E0] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#2D2D2D] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#A08848]"
             >
-              {isSpanish ? "Síguenos en Instagram" : "Follow us on Instagram"}
+              {isEs ? "Seguir en Instagram" : "Follow on Instagram"}
             </a>
           </div>
-        </section>
-      </div>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }

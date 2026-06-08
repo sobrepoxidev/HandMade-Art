@@ -3,9 +3,7 @@
 // Desktop (≥ lg): wraps into multiple rows if needed — no hidden horizontal scroll.
 // Mobile (< lg): horizontal snap scroll (works naturally with touch).
 
-import { use } from "react";
 import Link from "next/link";
-import { getProductCategories } from "@/lib/search";
 
 interface Category {
   id: number;
@@ -16,7 +14,7 @@ interface Category {
 
 interface Props {
   locale: string;
-  categories?: Category[];
+  categories: Category[];
   className?: string;
 }
 
@@ -25,7 +23,7 @@ export default function CategoryCarousel({
   categories,
   className = "",
 }: Props) {
-  const cats: Category[] = categories ?? use(getProductCategories(locale));
+  const cats = categories;
 
   const displayName = (cat: Category) => {
     if (locale === "es") return cat.name_es ?? cat.name ?? "";

@@ -90,7 +90,7 @@ export default function AddToCartButton({
       <button
         type="button"
         disabled
-        className="w-full rounded-lg bg-gray-200 text-gray-500 py-2.5 flex items-center justify-center gap-2 font-medium cursor-not-allowed"
+        className="w-full rounded-sm bg-[#F5F1EB] text-[#9C9589] py-2.5 flex items-center justify-center gap-2 font-medium cursor-not-allowed border border-[#E8E4E0]"
       >
         <div className="animate-pulse">
           {locale === 'es' ? 'Cargando...' : 'Loading...'}
@@ -110,7 +110,7 @@ export default function AddToCartButton({
         )}`} 
         target='_blank' 
         rel="noopener noreferrer" 
-        className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-teal-600 border border-teal-600 rounded-md hover:bg-teal-50 transition-colors"
+        className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-[#A08848] border border-[#C9A962] rounded-sm hover:bg-[#F5F1EB] transition-colors"
         onClick={(e) => e.stopPropagation()}
       >
         {locale === 'es' ? 'Consultar disponibilidad' : 'Check availability'}
@@ -127,7 +127,7 @@ export default function AddToCartButton({
       type="button"
       onClick={handleAddToCart}
       disabled={isLoading}
-      className="w-full rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-2.5 flex items-center justify-center gap-2 transition font-medium"
+      className="w-full rounded-sm bg-[#2D2D2D] hover:bg-[#3A3A3A] text-[#F5F1EB] py-2.5 flex items-center justify-center gap-2 transition font-medium border border-[#2D2D2D]"
     >
       <ShoppingCartIcon className="h-4 w-4" />
       {isLoading ? 

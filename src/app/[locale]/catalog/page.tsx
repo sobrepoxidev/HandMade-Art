@@ -1,1545 +1,707 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useInterestList } from '@/lib/hooks/useInterestList';
-import { useDiscountCode } from '@/lib/hooks/useDiscountCode';
-import { CategoryChips } from '@/components/catalog/CategoryChips';
-import { InterestDrawer } from '@/components/catalog/InterestDrawer';
-import CurrencyConverterRow from '@/components/CurrencyConverterRow';
-import { 
-  Loader2, 
-  Tag, 
-  X, 
-  Check, 
-  Search, 
-  Filter, 
-  Grid3X3, 
-  List, 
-  Heart, 
-  Share2, 
-  Star, 
-  Eye, 
-  ShoppingCart,
-  GitCompare,
-  Zap,
-  TrendingUp,
-  ChevronDown,
-  ChevronUp,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-  Facebook,
-  Twitter,
-  MessageCircle,
-  Copy,
-  Plus,
-  Minus
-} from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { Link } from '@/i18n/navigation';
-import { formatUSD } from '@/lib/formatCurrency';
 import { useLocale } from 'next-intl';
-import { Database } from '@/lib/database.types';
+import { Link } from '@/i18n/navigation';
+import {
+  Check,
+  Grid3X3,
+  List,
+  Minus,
+  PackageOpen,
+  Plus,
+  Search,
+  Send,
+  ShoppingBag,
+  SlidersHorizontal,
+  Tag,
+  X,
+} from 'lucide-react';
+import { InterestDrawer } from '@/components/catalog/InterestDrawer';
+import { useDiscountCode, type DiscountCode } from '@/lib/hooks/useDiscountCode';
+import { useInterestList } from '@/lib/hooks/useInterestList';
+import { supabase } from '@/lib/supabaseClient';
+import { formatUSD } from '@/lib/formatCurrency';
+import type { Database } from '@/lib/database.types';
 
-// Extender el tipo de product_card_view con campos adicionales
 type ProductCardView = Database['public']['Views']['product_card_view']['Row'];
+type CategoryRow = Database['public']['Tables']['categories']['Row'];
+type ViewMode = 'grid' | 'list';
+type SortOption = 'name' | 'price_asc' | 'price_desc' | 'newest';
 
-type ProductsRow = Database['public']['Tables']['products']['Row'];
-type ProductDetails = Pick<ProductsRow, 'id' | 'media' | 'name_es' | 'name_en'>;
-
-type MediaItem = {
-  url: string;
-  type?: 'image' | 'video' | string | null;
-  caption?: string | null;
-};
-
-interface Product extends ProductCardView {
-  id: number; // Asegurar que id no sea null
-  name: string; // Asegurar que name no sea null
-  name_es: string; // Asegurar que name_es no sea null
-  name_en: string; // Asegurar que name_en no sea null
-  media?: MediaItem[];
-  is_featured?: boolean;
-  rating?: number;
-  review_count?: number;
-}
-
-// Helpers de tipo para parsear media (Json) sin usar any
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function normalizeMedia(value: unknown): MediaItem[] {
-  if (!Array.isArray(value)) return [];
-  const result: MediaItem[] = [];
-  for (const entry of value) {
-    if (typeof entry === 'string') {
-      result.push({ url: entry, type: 'image' });
-      continue;
-    }
-    if (isRecord(entry) && typeof entry['url'] === 'string') {
-      const url = entry['url'] as string;
-      const type = typeof entry['type'] === 'string' ? (entry['type'] as string) : 'image';
-      const caption = typeof entry['caption'] === 'string' ? (entry['caption'] as string) : null;
-      result.push({ url, type, caption });
-    }
-  }
-  return result;
-}
-
-interface Category {
+interface CatalogProduct extends ProductCardView {
   id: number;
   name: string;
 }
 
-type ViewMode = 'grid' | 'list';
-type SortOption = 'name' | 'price_asc' | 'price_desc' | 'rating' | 'newest';
+interface CatalogCategory {
+  id: number;
+  name: string;
+  name_en: string | null;
+  name_es: string | null;
+}
+
+interface PriceDetails {
+  originalPrice: number;
+  finalPrice: number;
+  discountAmount: number;
+}
+
+const PRODUCT_COLUMNS = [
+  'id',
+  'name',
+  'description',
+  'category_id',
+  'sku',
+  'brand',
+  'dolar_price',
+  'discount_percentage',
+  'weight_kg',
+  'length_cm',
+  'width_cm',
+  'height_cm',
+  'main_image_url',
+].join(',');
+
+function isCatalogProduct(row: ProductCardView): row is CatalogProduct {
+  return typeof row.id === 'number' && typeof row.name === 'string' && row.name.trim().length > 0;
+}
+
+function getCategoryName(category: CatalogCategory | undefined, locale: string) {
+  if (!category) return '';
+  return (locale === 'es' ? category.name_es : category.name_en) || category.name;
+}
+
+function getPriceDetails(product: CatalogProduct, appliedCode: DiscountCode | null, calculateDiscount: ReturnType<typeof useDiscountCode>['calculateDiscount']): PriceDetails {
+  const originalPrice = product.dolar_price ?? 0;
+  const codeDiscount = appliedCode
+    ? calculateDiscount(originalPrice, appliedCode, product.category_id ?? undefined, true)
+    : null;
+
+  if (codeDiscount?.isValid && codeDiscount.discountAmount > 0) {
+    return {
+      originalPrice,
+      finalPrice: codeDiscount.finalPrice,
+      discountAmount: codeDiscount.discountAmount,
+    };
+  }
+
+  if (product.discount_percentage && product.discount_percentage > 0) {
+    const discountAmount = originalPrice * (product.discount_percentage / 100);
+    return {
+      originalPrice,
+      finalPrice: Math.max(0, originalPrice - discountAmount),
+      discountAmount,
+    };
+  }
+
+  return {
+    originalPrice,
+    finalPrice: originalPrice,
+    discountAmount: 0,
+  };
+}
 
 export default function CatalogPage() {
   const locale = useLocale();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [discountCodeInput, setDiscountCodeInput] = useState('');
-  const [showDiscountSuccess, setShowDiscountSuccess] = useState(false);
-  const [discountError, setDiscountError] = useState('');
-  
-  // Nuevas funcionalidades
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [sortBy, setSortBy] = useState<SortOption>('name');
-  const [showFilters, setShowFilters] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [wishlist, setWishlist] = useState<number[]>([]);
-  const [comparisonList, setComparisonList] = useState<number[]>([]);
-  const [showComparison, setShowComparison] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [showShareModal, setShowShareModal] = useState<Product | null>(null);
-  const [quickMediaIndex, setQuickMediaIndex] = useState(0);
-  
-  
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const interestList = useInterestList();
   const discountCode = useDiscountCode();
 
-  // Normalizador de marcas para evitar duplicados por espacios/caso
-  const normalizeBrand = (b: string) => b.trim().replace(/\s+/g, ' ').toLowerCase();
+  const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const [categories, setCategories] = useState<CatalogCategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('name');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [discountCodeInput, setDiscountCodeInput] = useState('');
+  const [discountError, setDiscountError] = useState('');
+  const [discountSuccess, setDiscountSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Cargar categorías
   useEffect(() => {
-    async function loadCategories() {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('id, name_es, name')
-        .order('name_es');
-
-      if (error) {
-        console.error('Error loading categories:', error);
-        return;
-      }
-
-      const formattedCategories = data.map(cat => ({
-        id: cat.id,
-        name: cat.name_es || cat.name || ''
-      }));
-
-      setCategories(formattedCategories);
-    }
-
-    loadCategories();
-  }, []);
-
-  // Cargar productos con datos extendidos
-  useEffect(() => {
-    async function loadProducts() {
+    async function loadCatalogData() {
       setLoading(true);
-      
-      let query = supabase
-        .from('product_card_view')
-        .select('*')
-        .order('name');
 
-      if (selectedCategory) {
-        query = query.eq('category_id', selectedCategory);
+      const [categoryResponse, productResponse] = await Promise.all([
+        supabase
+          .from('categories')
+          .select('id, name, name_es, name_en')
+          .order(locale === 'es' ? 'name_es' : 'name_en', { ascending: true }),
+        supabase
+          .from('product_card_view')
+          .select(PRODUCT_COLUMNS)
+          .order('name', { ascending: true }),
+      ]);
+
+      if (!categoryResponse.error && categoryResponse.data) {
+        setCategories((categoryResponse.data as CategoryRow[]).map((category) => ({
+          id: category.id,
+          name: category.name,
+          name_en: category.name_en,
+          name_es: category.name_es,
+        })));
       }
 
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error loading products:', error);
-        setLoading(false);
-        return;
+      if (!productResponse.error && productResponse.data) {
+        setProducts((productResponse.data as unknown as ProductCardView[]).filter(isCatalogProduct));
       }
 
-      // Simular datos de rating y reseñas (en producción vendrían de la DB)
-      let enhancedProducts: Product[] = (data || [])
-        .filter((product): product is NonNullable<typeof product> & { id: number; name: string } =>
-          product !== null &&
-          typeof product.id === 'number' &&
-          typeof product.name === 'string'
-        )
-        .map(product => ({
-          ...product,
-          // Completar temporalmente name_es y name_en; se sobreescriben con datos reales más abajo
-          name_es: product.name ?? '',
-          name_en: product.name ?? '',
-          rating: Math.random() * 2 + 3, // Rating entre 3-5
-          review_count: Math.floor(Math.random() * 50) + 1,
-          media: product.main_image_url ? [{ url: product.main_image_url, type: 'image' }] : []
-        }));
-
-      // Traer media real desde products y fusionar
-      try {
-        const ids = enhancedProducts.map(p => p.id);
-        if (ids.length > 0) {
-          const { data: mediaRows, error: mediaError } = await supabase
-            .from('products')
-            .select('id, media, name_es, name_en')
-            .in('id', ids);
-
-          if (mediaError) {
-            console.error('Error loading media for products:', mediaError);
-          } else if (mediaRows) {
-            const detailsById = new Map<number, { media?: MediaItem[]; name_es: string | null; name_en: string | null }>();
-            for (const row of mediaRows as ProductDetails[]) {
-              const items = normalizeMedia(row.media as unknown);
-              detailsById.set(row.id, {
-                media: items.length > 0 ? items : undefined,
-                name_es: row.name_es,
-                name_en: row.name_en,
-              });
-            }
-
-            enhancedProducts = enhancedProducts.map(p => {
-              const details = detailsById.get(p.id);
-              if (!details) return p;
-              return {
-                ...p,
-                media: details.media ?? p.media,
-                name_es: details.name_es ?? p.name_es ?? p.name,
-                name_en: details.name_en ?? p.name_en ?? p.name,
-              };
-            });
-          }
-        }
-      } catch (e) {
-        console.error('Unexpected error while merging media:', e);
-      }
-
-      setProducts(enhancedProducts);
-      
-      // Calcular rango de precios
-      const prices = enhancedProducts
-        .map(p => p.dolar_price)
-        .filter(p => p !== null) as number[];
-      if (prices.length > 0) {
-        setPriceRange([Math.min(...prices), Math.max(...prices)]);
-      }
-      
       setLoading(false);
     }
 
-    loadProducts();
-  }, [selectedCategory]);
+    loadCatalogData();
+  }, [locale]);
 
-  // Búsqueda inteligente con autocompletado
-  useEffect(() => {
-    if (searchQuery.length > 2) {
-      const suggestions = products
-        .filter(p => 
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase()))
-        )
-        .map(p => p.name)
-        .slice(0, 5);
-      
-      setSearchSuggestions(suggestions);
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
-    }
-  }, [searchQuery, products]);
+  const categoryById = useMemo(() => {
+    return new Map(categories.map((category) => [category.id, category]));
+  }, [categories]);
 
-  // Conjunto normalizado de marcas seleccionadas
-  const selectedBrandsNormalized = useMemo(() => new Set(selectedBrands.map(b => normalizeBrand(b))), [selectedBrands]);
-
-  // Productos filtrados y ordenados
   const filteredProducts = useMemo(() => {
-    const filtered = products.filter(product => {
-      // Filtro de búsqueda
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matchesSearch = 
-          product.name.toLowerCase().includes(query) ||
-          (product.description && product.description.toLowerCase().includes(query)) ||
-          (product.brand && product.brand.toLowerCase().includes(query));
-        if (!matchesSearch) return false;
-      }
+    const normalizedQuery = searchQuery.trim().toLowerCase();
 
-      // Filtro de precio
-      if (product.dolar_price) {
-        if (product.dolar_price < priceRange[0] || product.dolar_price > priceRange[1]) {
-          return false;
-        }
-      }
+    const nextProducts = products.filter((product) => {
+      if (selectedCategory && product.category_id !== selectedCategory) return false;
 
-      // Filtro de marcas (normalizado, ignora espacios/caso)
-      if (selectedBrandsNormalized.size > 0) {
-        const brandKey = product.brand ? normalizeBrand(product.brand) : '';
-        if (!selectedBrandsNormalized.has(brandKey)) return false;
-      }
+      if (!normalizedQuery) return true;
 
-      return true;
+      const searchable = [
+        product.name,
+        product.description,
+        product.brand,
+        product.sku,
+        getCategoryName(categoryById.get(product.category_id ?? -1), locale),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      return searchable.includes(normalizedQuery);
     });
 
-    // Ordenamiento
-    switch (sortBy) {
-      case 'price_asc':
-        filtered.sort((a, b) => (a.dolar_price || 0) - (b.dolar_price || 0));
-        break;
-      case 'price_desc':
-        filtered.sort((a, b) => (b.dolar_price || 0) - (a.dolar_price || 0));
-        break;
-      case 'rating':
-        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        break;
-      case 'newest':
-        filtered.sort((a, b) => b.id - a.id);
-        break;
-      default:
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-    }
+    return [...nextProducts].sort((a, b) => {
+      if (sortBy === 'price_asc') return (a.dolar_price ?? 0) - (b.dolar_price ?? 0);
+      if (sortBy === 'price_desc') return (b.dolar_price ?? 0) - (a.dolar_price ?? 0);
+      if (sortBy === 'newest') return b.id - a.id;
+      return a.name.localeCompare(b.name);
+    });
+  }, [categoryById, locale, products, searchQuery, selectedCategory, sortBy]);
 
-    return filtered;
-  }, [products, searchQuery, priceRange, selectedBrandsNormalized, sortBy]);
-
-  // Obtener marcas únicas (ignorando espacios/caso)
-  const availableBrands = useMemo(() => {
-    const brands = products
-      .map(p => p.brand)
-      .filter(Boolean) as string[];
-    const seen = new Set<string>();
-    const list: string[] = [];
-    for (const b of brands) {
-      const key = normalizeBrand(b);
-      if (!seen.has(key)) {
-        seen.add(key);
-        list.push(b.trim().replace(/\s+/g, ' '));
-      }
-    }
-    return list.sort();
-  }, [products]);
-
-  const handleCategoryChange = (categoryId: number | null) => {
-    setSelectedCategory(categoryId);
-  };
+  const discountCategoryIds = discountCode.appliedCode?.apply_to_all_categories
+    ? []
+    : discountCode.appliedCode?.categories || [];
+  const totalItems = interestList.getTotalItems();
+  const selectedCategoryName = selectedCategory
+    ? getCategoryName(categoryById.get(selectedCategory), locale)
+    : locale === 'es' ? 'Todas las categorías' : 'All categories';
 
   const handleApplyDiscountCode = async () => {
     if (!discountCodeInput.trim()) return;
-    
+
     setDiscountError('');
+    setDiscountSuccess(false);
+
     const result = await discountCode.applyCode(discountCodeInput.trim());
-    
+
     if (result.isValid) {
-      setShowDiscountSuccess(true);
       setDiscountCodeInput('');
-      setTimeout(() => setShowDiscountSuccess(false), 6500);
-    } else {
-      setDiscountError(result.errorMessage || 'Código inválido');
+      setDiscountSuccess(true);
+      return;
     }
-  };
 
-  const handleRemoveDiscountCode = () => {
-    discountCode.removeCode();
-    setDiscountError('');
-    setShowDiscountSuccess(false);
-  };
-
-  const handleCalculateDiscount = (productPrice: number, categoryId: number | null) => {
-    if (!discountCode.appliedCode) return null;
-    
-    const result = discountCode.calculateDiscount(
-      productPrice,
-      discountCode.appliedCode,
-      categoryId || undefined,
-      true
-    );
-    
-    if (!result.isValid) return null;
-    
-    return {
-      discountedPrice: result.finalPrice,
-      discountAmount: result.discountAmount
-    };
-  };
-
-  const toggleWishlist = (productId: number) => {
-    setWishlist(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
+    setDiscountError(
+      result.errorMessage || (locale === 'es' ? 'Código inválido o expirado.' : 'Invalid or expired code.')
     );
   };
 
-  const toggleComparison = (productId: number) => {
-    setComparisonList(prev => {
-      if (prev.includes(productId)) {
-        return prev.filter(id => id !== productId);
-      } else if (prev.length < 3) {
-        return [...prev, productId];
-      }
-      return prev;
-    });
-  };
-
-  const handleQuickView = (product: Product) => {
-    setQuickViewProduct(product);
-    setZoomLevel(1);
-    setQuickMediaIndex(0);
-  };
-
-  const handleShare = (product: Product) => {
-    setShowShareModal(product);
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
-  const totalItems = interestList.getTotalItems();
-
-  // Media para modal de Vista Rápida
-  const quickMediaItems: MediaItem[] = useMemo(() => {
-    if (!quickViewProduct) return [];
-    const items = Array.isArray(quickViewProduct.media) ? quickViewProduct.media : [];
-    if (items.length > 0) return items;
-    if (quickViewProduct.main_image_url) return [{ url: quickViewProduct.main_image_url, type: 'image' }];
-    return [{ url: '/placeholder-image.png', type: 'image' }];
-  }, [quickViewProduct]);
-
-  // Componente de tarjeta de producto mejorada
-  const ProductCard = ({ product }: { product: Product }) => {
-    const [imageError, setImageError] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    const [activeMediaIndex, setActiveMediaIndex] = useState(0);
-    
-    const isInList = interestList.isInList(product.id);
-    const currentItem = interestList.getItem(product.id);
-    const currentQty = currentItem?.qty || 0;
-    const isInWishlist = wishlist.includes(product.id);
-    const isInComparison = comparisonList.includes(product.id);
-
-    const originalPrice = product.dolar_price || 0;
-    const discountInfo = handleCalculateDiscount(originalPrice, product.category_id);
-    const finalPrice = discountInfo?.discountedPrice || originalPrice;
-
-    const mediaItems: MediaItem[] = useMemo(() => {
-      const items = Array.isArray(product.media) ? product.media : [];
-      if (items.length > 0) return items;
-      if (product.main_image_url) return [{ url: product.main_image_url, type: 'image' }];
-      return [{ url: '/placeholder-image.png', type: 'image' }];
-    }, [product.media, product.main_image_url]);
-
-    useEffect(() => {
-      setActiveMediaIndex(0);
-      setImageError(false);
-    }, [product.id]);
-
-    return (
-      <motion.div
-        layout
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        whileHover={{ y: -5 }}
-        className={`bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl ${
-          viewMode === 'list' ? 'flex' : 'flex flex-col'
-        }`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {/* Imagen del producto */}
-        <div className={`relative bg-gray-50 ${
-          viewMode === 'list' ? 'w-48 h-48' : 'aspect-square'
-        }`}>
-          <Image
-            src={imageError ? '/placeholder-image.png' : (mediaItems[activeMediaIndex]?.url || '/placeholder-image.png')}
-            alt={product.name}
-            fill
-            className="object-contain transition-transform duration-300"
-            onError={() => setImageError(true)}
-            sizes={viewMode === 'list' ? '(max-width: 768px) 12rem, 12rem' : '(max-width: 768px) 100vw, 33vw'}
-            priority={false}
-          />
-
-          {mediaItems.length > 1 && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-              {mediaItems.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Ir a la imagen ${i + 1}`}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveMediaIndex(i); setImageError(false); }}
-                  className={`w-2.5 h-2.5 rounded-full border border-white/70 transition-colors ${
-                    i === activeMediaIndex ? 'bg-teal-500' : 'bg-white/70 hover:bg-white'
-                  }`}
-                />
-              ))}
-            </div>
-          )}
-          
-          {/* Badges */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {product.is_featured && (
-              <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                ⭐ Destacado
-              </span>
-            )}
-            {discountInfo && (
-              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                -{Math.round(((originalPrice - finalPrice) / originalPrice) * 100)}%
-              </span>
-            )}
-          </div>
-
-          {/* Acciones rápidas */}
-          <AnimatePresence>
-            {isHovered && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute top-2 right-2 flex flex-col gap-2"
-              >
-                <button
-                  onClick={() => toggleWishlist(product.id)}
-                  className={`p-2 rounded-full transition-colors ${
-                    isInWishlist 
-                      ? 'bg-red-500 text-white' 
-                      : 'bg-white/80 text-gray-700 hover:bg-red-500 hover:text-white'
-                  }`}
-                >
-                  <Heart className="w-4 h-4" fill={isInWishlist ? 'currentColor' : 'none'} />
-                </button>
-                <button
-                  onClick={() => handleQuickView(product)}
-                  className="p-2 bg-white/80 text-gray-700 rounded-full hover:bg-blue-500 hover:text-white transition-colors"
-                >
-                  <Eye className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => toggleComparison(product.id)}
-                  disabled={comparisonList.length >= 3 && !isInComparison}
-                  className={`p-2 rounded-full transition-colors ${
-                    isInComparison 
-                      ? 'bg-blue-500 text-white' 
-                      : 'bg-white/80 text-gray-700 hover:bg-blue-500 hover:text-white disabled:opacity-50'
-                  }`}
-                >
-                  <GitCompare className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleShare(product)}
-                  className="p-2 bg-white/80 text-gray-700 rounded-full hover:bg-green-500 hover:text-white transition-colors"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Vista rápida en hover */}
-          <AnimatePresence>
-            {isHovered && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="absolute bottom-2 left-2 right-2"
-              >
-                <button
-                  onClick={() => handleQuickView(product)}
-                  className="w-full bg-black/80 text-white py-1 px-1 rounded-lg text-sm font-medium hover:bg-black transition-colors"
-                >
-                  Vista Rápida
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Miniaturas del carrusel (visibles en grid) */}
-        {viewMode === 'grid' && mediaItems.length > 1 && (
-          <div className="mt-2 px-2 flex gap-2 overflow-x-auto">
-            {mediaItems.map((m, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveMediaIndex(i); setImageError(false); }}
-                className={`relative flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border transition ${
-                  i === activeMediaIndex ? 'border-teal-500 ring-2 ring-teal-200' : 'border-gray-200 hover:border-gray-300'
-                }`}
-                aria-label={`Mostrar imagen ${i + 1}`}
-              >
-                <Image
-                  src={m.url}
-                  alt={`Miniatura ${i + 1} de ${product.name}`}
-                  fill
-                  className="object-cover"
-                  sizes="48px"
-                />
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Información del producto */}
-        <div className={`p-4 ${viewMode === 'list' ? 'flex-1' : ''}`}>
-          <div className="flex items-center gap-2 mb-2">
-            {product.rating && (
-              <div className="flex items-center gap-1">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-3 h-3 ${
-                        i < Math.floor(product.rating!)
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-xs text-gray-700">
-                  ({product.review_count})
-                </span>
-              </div>
-            )}
-          </div>
-
-          <Link href={`/product/${product.name}`}>
-            <h3 className="font-semibold text-gray-900 mb-2 hover:text-teal-600 transition-colors line-clamp-2">
-              {locale === 'es' ? product.name_es : product.name_en}
-            </h3>
-          </Link>
-
-          {product.brand && (
-            <p className="text-sm text-gray-700 mb-2">{product.brand}</p>
-          )}
-
-          {viewMode === 'list' && product.description && (
-            <p className="text-sm text-gray-700 mb-3 line-clamp-2">
-              {product.description}
-            </p>
-          )}
-
-          {/* Precio y conversor */}
-          <div className="space-y-2">
-            {product.dolar_price ? (
-              <div className="flex items-center justify-between">
-                <div>
-                  {discountInfo ? (
-                    <div className="space-y-1 pr-0.5">
-                      <p className="text-lg font-bold text-teal-700">
-                        {formatUSD(finalPrice)}
-                      </p>
-                      <p className="text-sm text-gray-700 line-through">
-                        {formatUSD(originalPrice)}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-lg font-bold text-teal-700 pr-0.5">  
-                      {formatUSD(originalPrice)}
-                    </p>
-                  )}
-                </div>
-                <CurrencyConverterRow amount={finalPrice} />
-              </div>
-            ) : (
-              <p className="text-sm font-medium text-gray-700">
-                Precio a consultar
-              </p>
-            )}
-          </div>
-
-          {/* Controles de cantidad */}
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => interestList.updateQuantity(product.id, Math.max(0, currentQty - 1))}
-                disabled={currentQty === 0}
-                className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 transition-colors"
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-              <span className="w-8 text-center font-medium">{currentQty}</span>
-              <button
-                onClick={() => {
-                  if (!isInList || currentQty === 0) {
-                    // Agregar el producto a la lista con los datos necesarios para cotización
-                    interestList.addItem({
-                      product_id: product.id,
-                      name: product.name,
-                      sku: product.sku ?? undefined,
-                      main_image_url: product.main_image_url ?? product.media?.[0]?.url,
-                      // Guardamos el precio en dólares original; el descuento se calcula al enviar
-                      dolar_price: product.dolar_price ?? undefined,
-                      price: product.dolar_price ?? undefined,
-                      discount_percentage: product.discount_percentage ?? undefined,
-                      category_id: product.category_id ?? undefined,
-                    });
-                  } else {
-                    interestList.updateQuantity(product.id, currentQty + 1);
-                  }
-                }}
-                className="p-1 rounded-full bg-teal-100 hover:bg-teal-200 text-teal-600 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-
-            {isInList && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="flex items-center gap-1 text-teal-600 text-sm font-medium"
-              >
-                <Check className="w-4 h-4" />
-                En lista
-              </motion.div>
-            )}
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
+  const filterPanel = (
+    <CatalogFilters
+      locale={locale}
+      categories={categories}
+      selectedCategory={selectedCategory}
+      selectedCategoryName={selectedCategoryName}
+      discountCategoryIds={discountCategoryIds}
+      hasGlobalDiscount={Boolean(discountCode.appliedCode?.apply_to_all_categories)}
+      onSelectCategory={(categoryId) => {
+        setSelectedCategory(categoryId);
+        setShowMobileFilters(false);
+      }}
+    />
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-black">
-      {/* Header mejorado */}
-      <div className="bg-white shadow-sm border-b border-gray-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
-          >
+    <main className="min-h-screen overflow-x-hidden bg-[#FAF6EF] text-[#2D2D2D]">
+      <section className="border-b border-[#E8E4E0] bg-[#F5F1EB]">
+        <div className="mx-auto max-w-screen-2xl px-4 py-10 sm:px-8 lg:px-12 lg:py-14">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 flex items-center gap-3">
-                <Zap className="text-teal-600" />
-                {locale === 'es' ? 'Catálogo de Productos' : 'Product Catalog'}
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+                {locale === 'es' ? 'Catálogo de cotización' : 'Quote catalog'}
+              </p>
+              <h1 className="mt-3 font-display text-[clamp(34px,5vw,54px)] font-medium leading-[0.98] tracking-[-0.01em] text-[#2D2D2D]">
+                {locale === 'es' ? 'Elige piezas para una solicitud personalizada.' : 'Choose pieces for a personalized request.'}
               </h1>
-              <p className="text-gray-700 mt-2">
-                {locale === 'es' ? 'Descubre una amplia variedad de productos únicos' : 'Discover a wide variety of unique products'}
+              <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[#4A4A4A]">
+                {locale === 'es'
+                  ? 'Arma una lista de interés con piezas disponibles, cantidades y notas. Te responderemos con una cotización revisada.'
+                  : 'Build an interest list with available pieces, quantities and notes. We will reply with a reviewed quote.'}
               </p>
             </div>
 
-            {/* Búsqueda inteligente */}
-            <div className="relative flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <div className="border border-[#E8E4E0] bg-[#FAF6EF] p-4">
+              <label htmlFor="catalog-discount" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+                <Tag className="h-4 w-4 text-[#A08848]" strokeWidth={1.75} aria-hidden />
+                {locale === 'es' ? 'Código de descuento' : 'Discount code'}
+              </label>
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar productos..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 text-black rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                />
-              </div>
-
-              {/* Sugerencias de búsqueda */}
-              <AnimatePresence>
-                {showSuggestions && searchSuggestions.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 mt-1"
-                  >
-                    {searchSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          setSearchQuery(suggestion);
-                          setShowSuggestions(false);
-                        }}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Código de descuento mejorado */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          {!discountCode.appliedCode ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col sm:flex-row gap-3 items-start sm:items-center"
-            >
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <Tag className="h-4 w-4 text-teal-500" />
-                <span>¿Tienes un código de descuento?</span>
-              </div>
-              <div className="flex gap-2 flex-1 max-w-md">
-                <input
-                  type="text"
+                  id="catalog-discount"
                   value={discountCodeInput}
-                  onChange={(e) => setDiscountCodeInput(e.target.value.toUpperCase())}
-                  placeholder="Ingresa tu código"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring- text-black focus:ring-teal-500 focus:border-transparent transition-all"
-                  onKeyPress={(e) => e.key === 'Enter' && handleApplyDiscountCode()}
+                  onChange={(event) => {
+                    setDiscountCodeInput(event.target.value);
+                    setDiscountError('');
+                    setDiscountSuccess(false);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') handleApplyDiscountCode();
+                  }}
+                  className="h-11 min-w-0 flex-1 rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-3 text-sm text-[#2D2D2D] placeholder:text-[#6B6459] focus:border-[#A08848] focus:outline-none focus:ring-2 focus:ring-[#A08848]/25"
+                  placeholder={locale === 'es' ? 'Ingresa tu código' : 'Enter your code'}
                 />
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
+                  type="button"
                   onClick={handleApplyDiscountCode}
-                  disabled={!discountCodeInput.trim() || discountCode.loading}
-                  className="px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 disabled:opacity-50 transition-colors"
+                  disabled={discountCode.loading || !discountCodeInput.trim()}
+                  className="inline-flex min-h-[44px] w-full items-center justify-center rounded-sm bg-[#2D2D2D] px-4 py-2 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A] disabled:bg-[#E8E4E0] disabled:text-[#6B6459] sm:w-auto"
                 >
-                  {discountCode.loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    'Aplicar'
-                  )}
-                </motion.button>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3"
-            >
-              <div className="flex items-center gap-2">
-                <Check className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-sm font-medium text-green-800">
-                    Código aplicado: {discountCode.appliedCode.code}
-                  </p>
-                  <p className="text-xs text-green-600">
-                    {discountCode.appliedCode.discount_type === 'percentage'
-                      ? `${discountCode.appliedCode.discount_value}% de descuento`
-                      : `$${discountCode.appliedCode.discount_value.toFixed(2)} USD de descuento`
-                    }
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={handleRemoveDiscountCode}
-                className="text-green-600 hover:text-green-800 transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </motion.div>
-          )}
-          
-          {/* Mensajes de error y éxito */}
-          <AnimatePresence>
-            {discountError && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2"
-              >
-                {discountError}
-              </motion.div>
-            )}
-            
-            {showDiscountSuccess && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mt-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg p-2"
-              >
-                ¡Código aplicado correctamente! Los descuentos se mostrarán en los productos aplicables.
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Categorías mejoradas */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <CategoryChips
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange}
-            discountCategories={discountCode.appliedCode?.categories || []}
-            hasDiscountForAll={discountCode.appliedCode?.apply_to_all_categories || false}
-          />
-        </div>
-      </div>
-
-      {/* Barra de herramientas */}
-      <div className="bg-white shadow-sm text-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Controles de vista y filtros */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                  showFilters 
-                    ? 'bg-teal-50 border-teal-200 text-teal-700' 
-                    : 'border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                <Filter className="w-4 h-4" />
-                Filtros
-                {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-
-              <div className="flex items-center gap-2 border border-gray-300 rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded transition-colors ${
-                    viewMode === 'grid' ? 'bg-teal-100 text-teal-600' : 'hover:bg-gray-100'
-                  }`}
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded transition-colors ${
-                    viewMode === 'list' ? 'bg-teal-100 text-teal-600' : 'hover:bg-gray-100'
-                  }`}
-                >
-                  <List className="w-4 h-4" />
+                  {discountCode.loading ? (locale === 'es' ? 'Aplicando' : 'Applying') : locale === 'es' ? 'Aplicar' : 'Apply'}
                 </button>
               </div>
-            </div>
-
-            {/* Ordenamiento y estadísticas */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <TrendingUp className="w-4 h-4" />
-                <span>{filteredProducts.length} productos</span>
-              </div>
-
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              >
-                <option value="name">{locale === 'es' ? 'Nombre A-Z' : 'Name A-Z'}</option>
-                <option value="price_asc">{locale === 'es' ? 'Precio: Menor a Mayor' : 'Price: Low to High'}</option>
-                <option value="price_desc">{locale === 'es' ? 'Precio: Mayor a Menor' : 'Price: High to Low'}</option>
-                <option value="rating">{locale === 'es' ? 'Mejor Valorados' : 'Best Rated'}</option>
-                <option value="newest">{locale === 'es' ? 'Más Recientes' : 'Newest'}</option>
-              </select>
-
-              {/* Comparador */}
-              {comparisonList.length > 0 && (
-                <motion.button
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  onClick={() => setShowComparison(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <GitCompare className="w-4 h-4" />
-                  {locale === 'es' ? `Comparar (${comparisonList.length})` : `Compare (${comparisonList.length})`}
-                </motion.button>
+              {discountSuccess && discountCode.appliedCode && (
+                <p className="mt-2 flex items-center gap-1 text-sm font-medium text-[#2F5F3E]">
+                  <Check className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                  {locale === 'es' ? `Código ${discountCode.appliedCode.code} aplicado.` : `Code ${discountCode.appliedCode.code} applied.`}
+                </p>
+              )}
+              {discountError && (
+                <p className="mt-2 text-sm font-medium text-[#9F2D24]">{discountError}</p>
               )}
             </div>
           </div>
-
-          {/* Panel de filtros expandible */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="mt-4 pt-4 border-t border-gray-200"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Filtro de precio */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {locale === 'es' ? 'Rango de Precio' : 'Price Range'}
-                    </label>
-                    <div className="space-y-2">
-                      <input
-                        type="range"
-                        min="0"
-                        max="1000"
-                        value={priceRange[1]}
-                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between text-sm text-gray-700">
-                        <span>${priceRange[0]}</span>
-                        <span>${priceRange[1]}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Filtro de marcas */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {locale === 'es' ? 'Marcas' : 'Brands'}
-                    </label>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                      {availableBrands.map(brand => (
-                        <label key={brand} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedBrandsNormalized.has(normalizeBrand(brand))}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                if (!selectedBrandsNormalized.has(normalizeBrand(brand))) {
-                                  setSelectedBrands([...selectedBrands, brand.trim().replace(/\s+/g, ' ')]);
-                                }
-                              } else {
-                                const key = normalizeBrand(brand);
-                                setSelectedBrands(selectedBrands.filter(b => normalizeBrand(b) !== key));
-                              }
-                            }}
-                            className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-700">{brand}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Acciones rápidas */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {locale === 'es' ? 'Acciones Rápidas' : 'Quick Actions'}
-                    </label>
-                    <div className="space-y-2">
-                      <button
-                        onClick={() => {
-                          setSearchQuery('');
-                          setPriceRange([0, 1000]);
-                          setSelectedBrands([]);
-                          setSelectedCategory(null);
-                        }}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        {locale === 'es' ? 'Limpiar Filtros' : 'Clear Filters'}
-                      </button>
-                      <button
-                        onClick={() => setShowFilters(false)}
-                        className="w-full px-3 py-2 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-                      >
-                        {locale === 'es' ? 'Aplicar Filtros' : 'Apply Filters'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
-      </div>
+      </section>
 
-      {/* Grid de productos */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            >
-              <Loader2 className="h-8 w-8 text-teal-600" />
-            </motion.div>
-            <span className="ml-2 text-gray-700">Cargando productos...</span>
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
-            <div className="text-6xl mb-4">🔍</div>
-            <p className="text-gray-700 text-lg mb-4">
-              {locale === 'es' ? 'No se encontraron productos que coincidan con tus criterios' : 'No products found matching your criteria'}
-            </p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setPriceRange([0, 1000]);
-                setSelectedBrands([]);
-                setSelectedCategory(null);
-              }}
-              className="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-            >
-              {locale === 'es' ? 'Limpiar Filtros' : 'Clear Filters'}
-            </button>
-          </motion.div>
-        ) : (
-          <motion.div
-            layout
-            className={`grid gap-6 ${
-              viewMode === 'grid' 
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                : 'grid-cols-1'
-            }`}
-          >
-            <AnimatePresence>
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        )}
-      </div>
+      <section className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-8 lg:px-12">
+        <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <aside className="hidden lg:block">
+            {filterPanel}
+          </aside>
 
-      {/* Modal de vista rápida */}
-      <AnimatePresence>
-        {quickViewProduct && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            onClick={() => { setQuickViewProduct(null); setZoomLevel(1); }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Vista Rápida</h2>
-                  <button
-                    onClick={() => { setQuickViewProduct(null); setZoomLevel(1); }}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
+          <div className="min-w-0">
+            <div className="mb-5 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto]">
+              <label className="relative block">
+                <span className="sr-only">{locale === 'es' ? 'Buscar productos' : 'Search products'}</span>
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6459]" strokeWidth={1.75} aria-hidden />
+                <input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  className="h-12 w-full rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] pl-10 pr-3 text-sm text-[#2D2D2D] placeholder:text-[#6B6459] focus:border-[#A08848] focus:outline-none focus:ring-2 focus:ring-[#A08848]/25"
+                  placeholder={locale === 'es' ? 'Buscar por pieza, material o SKU' : 'Search by piece, material or SKU'}
+                />
+              </label>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Carrusel de imágenes */}
-                  <div className="space-y-4">
-                    <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                      <Image
-                        src={quickMediaItems[quickMediaIndex]?.url || '/placeholder-image.png'}
-                        alt={quickViewProduct.name}
-                        fill
-                        className="object-contain"
-                        style={{ transform: `scale(${zoomLevel})` }}
-                      />
+              <button
+                type="button"
+                onClick={() => setShowMobileFilters(true)}
+                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm border border-[#E8E4E0] px-4 py-2 text-sm font-semibold text-[#2D2D2D] transition-colors hover:border-[#A08848] lg:hidden"
+              >
+                <SlidersHorizontal className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                {locale === 'es' ? 'Filtros' : 'Filters'}
+              </button>
 
-                      {quickMediaItems.length > 1 && (
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                          {quickMediaItems.map((_, i) => (
-                            <button
-                              key={i}
-                              type="button"
-                              aria-label={`Ir a la imagen ${i + 1}`}
-                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickMediaIndex(i); }}
-                              className={`w-2.5 h-2.5 rounded-full border border-white/70 transition-colors ${
-                                i === quickMediaIndex ? 'bg-teal-500' : 'bg-white/70 hover:bg-white'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      )}
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as SortOption)}
+                className="h-12 rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-3 text-sm text-[#2D2D2D] focus:border-[#A08848] focus:outline-none focus:ring-2 focus:ring-[#A08848]/25"
+                aria-label={locale === 'es' ? 'Ordenar productos' : 'Sort products'}
+              >
+                <option value="name">{locale === 'es' ? 'Nombre A-Z' : 'Name A-Z'}</option>
+                <option value="price_asc">{locale === 'es' ? 'Precio menor' : 'Lowest price'}</option>
+                <option value="price_desc">{locale === 'es' ? 'Precio mayor' : 'Highest price'}</option>
+                <option value="newest">{locale === 'es' ? 'Más recientes' : 'Newest'}</option>
+              </select>
 
-                      {/* Controles de zoom */}
-                      <div className="absolute top-4 right-4 flex flex-col gap-2">
-                        <button
-                          onClick={() => setZoomLevel(Math.min(3, zoomLevel + 0.5))}
-                          className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors"
-                        >
-                          <ZoomIn className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setZoomLevel(Math.max(1, zoomLevel - 0.5))}
-                          className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors"
-                        >
-                          <ZoomOut className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setZoomLevel(1)}
-                          className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {quickMediaItems.length > 1 && (
-                      <div className="px-1 flex gap-2 overflow-x-auto">
-                        {quickMediaItems.map((m, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickMediaIndex(i); setZoomLevel(1); }}
-                            className={`relative flex-shrink-0 w-14 h-14 rounded-md overflow-hidden border transition ${
-                              i === quickMediaIndex ? 'border-teal-500 ring-2 ring-teal-200' : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                            aria-label={`Mostrar imagen ${i + 1}`}
-                          >
-                            <Image src={m.url} alt={`Miniatura ${i + 1} de ${quickViewProduct.name}`} fill className="object-cover" sizes="56px" />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Información del producto */}
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                        {quickViewProduct.name}
-                      </h3>
-                      {quickViewProduct.brand && (
-                        <p className="text-gray-700">{quickViewProduct.brand}</p>
-                      )}
-                    </div>
-
-                    {quickViewProduct.rating && (
-                      <div className="flex items-center gap-2">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-5 h-5 ${
-                                i < Math.floor(quickViewProduct.rating!)
-                                  ? 'text-yellow-400 fill-current'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-sm text-gray-700">
-                          ({quickViewProduct.review_count} reseñas)
-                        </span>
-                      </div>
-                    )}
-
-                    {quickViewProduct.description && (
-                      <p className="text-gray-700">{quickViewProduct.description}</p>
-                    )}
-
-                    {/* Precio y conversor */}
-                    {quickViewProduct.dolar_price && (
-                      <div className="space-y-3">
-                        <div className="text-3xl font-bold text-teal-700">
-                          {formatUSD(quickViewProduct.dolar_price)}
-                        </div>
-                        <CurrencyConverterRow amount={quickViewProduct.dolar_price} />
-                      </div>
-                    )}
-
-                    {/* Acciones */}
-                    <div className="flex gap-3">
-                      <Link
-                        href={`/product/${quickViewProduct.id}`}
-                        className="flex-1 bg-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-teal-700 transition-colors text-center"
-                      >
-                        {locale === 'es' ? 'Ver Detalles' : 'View Details'}
-                      </Link>
-                      <button
-                        onClick={() => toggleWishlist(quickViewProduct.id)}
-                        className={`p-3 rounded-lg border transition-colors ${
-                          wishlist.includes(quickViewProduct.id)
-                            ? 'bg-red-50 border-red-200 text-red-600'
-                            : 'border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        <Heart className="w-5 h-5" fill={wishlist.includes(quickViewProduct.id) ? 'currentColor' : 'none'} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Modal de compartir */}
-      <AnimatePresence>
-        {showShareModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            onClick={() => setShowShareModal(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl max-w-md w-full p-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900">
-                  {locale === 'es' ? 'Compartir Producto' : 'Share Product'}
-                </h3>
+              <div className="inline-flex h-12 rounded-sm border border-[#E8E4E0]">
                 <button
-                  onClick={() => setShowShareModal(null)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  aria-pressed={viewMode === 'grid'}
+                  className={`grid h-full w-12 place-items-center transition-colors ${viewMode === 'grid' ? 'bg-[#2D2D2D] text-[#F5F1EB]' : 'text-[#6B6459] hover:bg-[#F5F1EB]'}`}
+                  aria-label={locale === 'es' ? 'Vista de cuadrícula' : 'Grid view'}
                 >
-                  <X className="w-5 h-5" />
+                  <Grid3X3 className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  aria-pressed={viewMode === 'list'}
+                  className={`grid h-full w-12 place-items-center transition-colors ${viewMode === 'list' ? 'bg-[#2D2D2D] text-[#F5F1EB]' : 'text-[#6B6459] hover:bg-[#F5F1EB]'}`}
+                  aria-label={locale === 'es' ? 'Vista de lista' : 'List view'}
+                >
+                  <List className="h-4 w-4" strokeWidth={1.75} aria-hidden />
                 </button>
               </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 border rounded-lg">
-                  <Image
-                    src={showShareModal.main_image_url || '/placeholder-image.png'}
-                    alt={showShareModal.name}
-                    width={60}
-                    height={60}
-                    className="rounded-lg object-cover"
-                  />
-                  <div>
-                    <h4 className="font-medium text-gray-900">{showShareModal.name}</h4>
-                    {showShareModal.dolar_price && (
-                      <p className="text-teal-600 font-bold">
-                        {formatUSD(showShareModal.dolar_price)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => {
-                      const url = `${window.location.origin}/product/${showShareModal.id}`;
-                      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-                    }}
-                    className="flex items-center justify-center gap-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <Facebook className="w-5 h-5" />
-                    Facebook
-                  </button>
-                  <button
-                    onClick={() => {
-                      const url = `${window.location.origin}/product/${showShareModal.id}`;
-                      const text = `¡Mira este producto: ${showShareModal.name}!`;
-                      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-                    }}
-                    className="flex items-center justify-center gap-2 p-3 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors"
-                  >
-                    <Twitter className="w-5 h-5" />
-                    Twitter
-                  </button>
-                  <button
-                    onClick={() => {
-                      const url = `${window.location.origin}/product/${showShareModal.id}`;
-                      const text = `¡Mira este producto: ${showShareModal.name}! ${url}`;
-                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-                    }}
-                    className="flex items-center justify-center gap-2 p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    WhatsApp
-                  </button>
-                  <button
-                    onClick={() => {
-                      const url = `${window.location.origin}/product/${showShareModal.id}`;
-                      copyToClipboard(url);
-                    }}
-                    className="flex items-center justify-center gap-2 p-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    <Copy className="w-5 h-5" />
-                    {locale === 'es' ? 'Copiar' : 'Copy'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Modal de comparación */}
-      <AnimatePresence>
-        {showComparison && comparisonList.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            onClick={() => setShowComparison(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Comparar Productos</h2>
-                  <button
-                    onClick={() => setShowComparison(false)}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {comparisonList.map(productId => {
-                    const product = products.find(p => p.id === productId);
-                    if (!product) return null;
-
-                    return (
-                      <div key={product.id} className="border rounded-lg p-4">
-                        <div className="relative aspect-square bg-gray-100 rounded-lg mb-4">
-                          <Image
-                            src={product.main_image_url || '/placeholder-image.png'}
-                            alt={locale === 'es' ? product.name : `${product.name} image`}
-                            fill
-                            className="object-cover rounded-lg"
-                          />
-                          <button
-                            onClick={() => toggleComparison(product.id)}
-                            className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-50"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-
-                        <h3 className="font-bold text-gray-900 mb-2">{product.name}</h3>
-                        
-                        {product.brand && (
-                          <p className="text-sm text-gray-700 mb-2">{product.brand}</p>
-                        )}
-
-                        {product.rating && (
-                          <div className="flex items-center gap-1 mb-2">
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < Math.floor(product.rating!)
-                                      ? 'text-yellow-400 fill-current'
-                                      : 'text-gray-300'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-xs text-gray-700">
-                              ({product.review_count})
-                            </span>
-                          </div>
-                        )}
-
-                        {product.dolar_price && (
-                          <div className="text-xl font-bold text-teal-700 mb-4">
-                            {formatUSD(product.dolar_price)}
-                          </div>
-                        )}
-
-                        <div className="space-y-2 text-sm">
-                          {product.weight_kg && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-700">Peso:</span>
-                              <span>{product.weight_kg} kg</span>
-                            </div>
-                          )}
-                          {product.length_cm && product.width_cm && product.height_cm && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-700">
-                                {locale === 'es' ? 'Dimensiones:' : 'Dimensions:'}
-                              </span>
-                              <span>{product.length_cm}×{product.width_cm}×{product.height_cm} cm</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <Link
-                          href={`/product/${product.name}`}
-                          className="block w-full mt-4 bg-teal-600 text-white py-2 px-4 rounded-lg text-center hover:bg-teal-700 transition-colors"
-                        >
-                          {locale === 'es' ? 'Ver Detalles' : 'View Details'}
-                        </Link>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Barra inferior sticky */}
-      <AnimatePresence>
-        {totalItems > 0 && (
-          <motion.div
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            exit={{ y: 100 }}
-            className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40"
-          >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="text-sm text-gray-700">
-                    {totalItems} {totalItems === 1 ? locale === 'es' ? 'producto' : 'product' : locale === 'es' ? 'productos' : 'products'} selected
-                  </div>
-                  {wishlist.length > 0 && (
-                    <div className="flex items-center gap-1 text-sm text-red-600">
-                      <Heart className="w-4 h-4" fill="currentColor" />
-                      {wishlist.length} en wishlist
-                    </div>
-                  )}
-                </div>
-                
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setDrawerOpen(true)}
-                  className="bg-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-teal-700 transition-colors flex items-center gap-2"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  {locale === 'es' ? 'Ver Selección' : 'View Selection'}
-                </motion.button>
-              </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Drawer de selección */}
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-y border-[#E8E4E0] py-3">
+              <p className="text-sm text-[#4A4A4A]">
+                {loading
+                  ? locale === 'es' ? 'Cargando piezas...' : 'Loading pieces...'
+                  : `${filteredProducts.length} ${locale === 'es' ? 'de' : 'of'} ${products.length} ${locale === 'es' ? 'piezas' : 'pieces'}`}
+              </p>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(true)}
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#C9A962] px-4 py-2 text-sm font-semibold text-[#1A1A1A] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
+              >
+                <ShoppingBag className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                {locale === 'es' ? 'Lista' : 'List'} ({totalItems})
+              </button>
+            </div>
+
+            {loading ? (
+              <div className={viewMode === 'grid' ? 'grid gap-5 sm:grid-cols-2 xl:grid-cols-3' : 'space-y-4'}>
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="animate-pulse border border-[#E8E4E0] bg-[#FAF6EF]">
+                    <div className="aspect-square bg-[#F5F1EB]" />
+                    <div className="space-y-3 p-4">
+                      <div className="h-4 w-2/3 bg-[#E8E4E0]" />
+                      <div className="h-6 w-1/3 bg-[#E8E4E0]" />
+                      <div className="h-11 bg-[#F5F1EB]" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <div className={viewMode === 'grid' ? 'grid gap-5 sm:grid-cols-2 xl:grid-cols-3' : 'space-y-4'}>
+                {filteredProducts.map((product) => (
+                  <CatalogProductCard
+                    key={product.id}
+                    product={product}
+                    locale={locale}
+                    viewMode={viewMode}
+                    categoryName={getCategoryName(categoryById.get(product.category_id ?? -1), locale)}
+                    interestList={interestList}
+                    appliedCode={discountCode.appliedCode}
+                    calculateDiscount={discountCode.calculateDiscount}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="border border-[#E8E4E0] bg-[#F5F1EB] px-6 py-14 text-center">
+                <PackageOpen className="mx-auto h-7 w-7 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                <h2 className="mt-4 font-display text-2xl font-medium text-[#2D2D2D]">
+                  {locale === 'es' ? 'No hay piezas con esos filtros' : 'No pieces match those filters'}
+                </h2>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#4A4A4A]">
+                  {locale === 'es'
+                    ? 'Limpia la búsqueda o cambia de categoría para seguir explorando.'
+                    : 'Clear the search or switch category to keep browsing.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory(null);
+                  }}
+                  className="mt-6 inline-flex min-h-[44px] items-center rounded-sm border border-[#E8E4E0] px-5 py-2.5 text-sm font-semibold text-[#2D2D2D] transition-colors hover:border-[#A08848]"
+                >
+                  {locale === 'es' ? 'Limpiar filtros' : 'Clear filters'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-50 bg-[#1A1A1A]/45 lg:hidden">
+          <div className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto border border-[#E8E4E0] bg-[#FAF6EF] p-4 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-display text-xl font-medium text-[#2D2D2D]">
+                {locale === 'es' ? 'Filtros' : 'Filters'}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowMobileFilters(false)}
+                className="grid h-11 w-11 place-items-center rounded-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB]"
+                aria-label={locale === 'es' ? 'Cerrar filtros' : 'Close filters'}
+              >
+                <X className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+              </button>
+            </div>
+            {filterPanel}
+          </div>
+        </div>
+      )}
+
+      {totalItems > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E8E4E0] bg-[#FAF6EF]/96 px-4 py-3 shadow-[0_-12px_36px_-18px_rgba(61,46,32,0.30)] backdrop-blur-sm">
+          <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3">
+            <p className="text-sm font-medium text-[#2D2D2D]">
+              {totalItems} {totalItems === 1 ? (locale === 'es' ? 'pieza seleccionada' : 'piece selected') : (locale === 'es' ? 'piezas seleccionadas' : 'pieces selected')}
+            </p>
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-4 py-2 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+            >
+              <Send className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              {locale === 'es' ? 'Solicitar' : 'Request quote'}
+            </button>
+          </div>
+        </div>
+      )}
+
       <InterestDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         interestList={interestList}
         appliedDiscountCode={discountCode.appliedCode}
       />
-
-      {/* Espaciado para la barra inferior */}
       {totalItems > 0 && <div className="h-20" />}
+    </main>
+  );
+}
+
+function CatalogFilters({
+  locale,
+  categories,
+  selectedCategory,
+  selectedCategoryName,
+  discountCategoryIds,
+  hasGlobalDiscount,
+  onSelectCategory,
+}: {
+  locale: string;
+  categories: CatalogCategory[];
+  selectedCategory: number | null;
+  selectedCategoryName: string;
+  discountCategoryIds: number[];
+  hasGlobalDiscount: boolean;
+  onSelectCategory: (categoryId: number | null) => void;
+}) {
+  return (
+    <div className="border border-[#E8E4E0] bg-[#FAF6EF] p-4 lg:sticky lg:top-24">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-display text-xl font-medium text-[#2D2D2D]">
+            {locale === 'es' ? 'Categorias' : 'Categories'}
+          </h2>
+          <p className="mt-1 text-xs text-[#6B6459]">{selectedCategoryName}</p>
+        </div>
+        {(hasGlobalDiscount || discountCategoryIds.length > 0) && (
+          <span className="rounded-sm border border-[#C9A962]/45 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#A08848]">
+            {locale === 'es' ? 'Oferta' : 'Offer'}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4 space-y-1 border-t border-[#E8E4E0] pt-4">
+        <button
+          type="button"
+          onClick={() => onSelectCategory(null)}
+          className={`flex min-h-[42px] w-full items-center justify-between rounded-sm px-3 text-left text-sm transition-colors ${selectedCategory === null ? 'bg-[#F5F1EB] font-semibold text-[#A08848]' : 'text-[#4A4A4A] hover:bg-[#F5F1EB]'}`}
+        >
+          {locale === 'es' ? 'Todas las categorías' : 'All categories'}
+          {selectedCategory === null && <Check className="h-4 w-4" strokeWidth={1.75} aria-hidden />}
+        </button>
+        {categories.map((category) => {
+          const isSelected = selectedCategory === category.id;
+          const hasDiscount = hasGlobalDiscount || discountCategoryIds.includes(category.id);
+
+          return (
+            <button
+              key={category.id}
+              type="button"
+              onClick={() => onSelectCategory(category.id)}
+              className={`flex min-h-[42px] w-full items-center justify-between gap-3 rounded-sm px-3 text-left text-sm transition-colors ${isSelected ? 'bg-[#F5F1EB] font-semibold text-[#A08848]' : 'text-[#4A4A4A] hover:bg-[#F5F1EB]'}`}
+            >
+              <span>{getCategoryName(category, locale)}</span>
+              <span className="flex items-center gap-2">
+                {hasDiscount && <Tag className="h-3.5 w-3.5 text-[#A08848]" strokeWidth={1.75} aria-hidden />}
+                {isSelected && <Check className="h-4 w-4" strokeWidth={1.75} aria-hidden />}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
+  );
+}
+
+function CatalogProductCard({
+  product,
+  locale,
+  viewMode,
+  categoryName,
+  interestList,
+  appliedCode,
+  calculateDiscount,
+}: {
+  product: CatalogProduct;
+  locale: string;
+  viewMode: ViewMode;
+  categoryName: string;
+  interestList: ReturnType<typeof useInterestList>;
+  appliedCode: DiscountCode | null;
+  calculateDiscount: ReturnType<typeof useDiscountCode>['calculateDiscount'];
+}) {
+  const [imageError, setImageError] = useState(false);
+  const currentItem = interestList.getItem(product.id);
+  const price = getPriceDetails(product, appliedCode, calculateDiscount);
+  const hasDiscount = price.discountAmount > 0;
+  const productHref = `/product/${encodeURIComponent(product.name)}`;
+  const dimensions = [product.length_cm, product.width_cm, product.height_cm].every(Boolean)
+    ? `${product.length_cm} x ${product.width_cm} x ${product.height_cm} cm`
+    : null;
+
+  const addToList = () => {
+    interestList.addItem({
+      product_id: product.id,
+      name: product.name,
+      sku: product.sku || undefined,
+      main_image_url: product.main_image_url || undefined,
+      price: price.finalPrice,
+      dolar_price: product.dolar_price || 0,
+      discount_percentage: product.discount_percentage || undefined,
+      category_id: product.category_id || undefined,
+    });
+  };
+
+  return (
+    <article className={`group border border-[#E8E4E0] bg-[#FAF6EF] transition-[border-color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-[#C9A962]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)] ${viewMode === 'list' ? 'md:flex' : ''}`}>
+      <Link
+        href={productHref}
+        className={`relative block bg-[#F5F1EB] ${viewMode === 'list' ? 'md:w-64 md:shrink-0' : ''}`}
+        aria-label={product.name}
+      >
+        <div className="relative aspect-square">
+          <Image
+            src={imageError ? '/placeholder-image.png' : product.main_image_url || '/placeholder-image.png'}
+            alt={product.name}
+            fill
+            className="object-contain p-5 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
+            sizes={viewMode === 'list' ? '(max-width: 768px) 100vw, 16rem' : '(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw'}
+            onError={() => setImageError(true)}
+          />
+        </div>
+        {categoryName && (
+          <span className="absolute left-3 top-3 rounded-sm bg-[#2D2D2D] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#F5F1EB]">
+            {categoryName}
+          </span>
+        )}
+      </Link>
+
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex-1">
+          <Link href={productHref} className="block">
+            <h3 className="font-display text-xl font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D] transition-colors group-hover:text-[#A08848]">
+              {product.name}
+            </h3>
+          </Link>
+          {product.description && (
+            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#4A4A4A]">
+              {product.description}
+            </p>
+          )}
+
+          <dl className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#6B6459]">
+            {product.sku && (
+              <div>
+                <dt className="sr-only">SKU</dt>
+                <dd className="tabular-nums">SKU {product.sku}</dd>
+              </div>
+            )}
+            {dimensions && (
+              <div>
+                <dt className="sr-only">{locale === 'es' ? 'Dimensiones' : 'Dimensions'}</dt>
+                <dd>{dimensions}</dd>
+              </div>
+            )}
+            {product.weight_kg && (
+              <div>
+                <dt className="sr-only">{locale === 'es' ? 'Peso' : 'Weight'}</dt>
+                <dd>{product.weight_kg} kg</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+
+        <div className="mt-5">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              {hasDiscount && (
+                <p className="text-xs text-[#6B6459] line-through tabular-nums">
+                  {formatUSD(price.originalPrice)}
+                </p>
+              )}
+              <p className="font-display text-2xl font-semibold tabular-nums text-[#2D2D2D]">
+                {formatUSD(price.finalPrice)}
+              </p>
+            </div>
+            {hasDiscount && (
+              <span className="rounded-sm border border-[#C9A962]/45 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#A08848]">
+                {locale === 'es' ? 'Descuento' : 'Discount'}
+              </span>
+            )}
+          </div>
+
+          <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+            {currentItem ? (
+              <div className="flex min-h-[44px] items-center justify-between rounded-sm border border-[#E8E4E0] px-2">
+                <button
+                  type="button"
+                  onClick={() => interestList.updateQuantity(product.id, currentItem.qty - 1)}
+                  className="grid h-10 w-10 place-items-center rounded-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB]"
+                  aria-label={locale === 'es' ? 'Reducir cantidad' : 'Decrease quantity'}
+                >
+                  <Minus className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                </button>
+                <span className="text-sm font-semibold tabular-nums text-[#2D2D2D]">
+                  {currentItem.qty}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => interestList.updateQuantity(product.id, currentItem.qty + 1)}
+                  className="grid h-10 w-10 place-items-center rounded-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB]"
+                  aria-label={locale === 'es' ? 'Aumentar cantidad' : 'Increase quantity'}
+                >
+                  <Plus className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={addToList}
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-4 py-2 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+              >
+                <Plus className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                {locale === 'es' ? 'Agregar' : 'Add'}
+              </button>
+            )}
+
+            <Link
+              href={productHref}
+              className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#E8E4E0] px-4 py-2 text-sm font-semibold text-[#2D2D2D] transition-colors hover:border-[#A08848]"
+            >
+              {locale === 'es' ? 'Ver' : 'View'}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </article>
   );
 }

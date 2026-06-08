@@ -189,9 +189,12 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-white to-[#F5F1EB]">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <h1 className="font-display text-2xl md:text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D] mb-6 border-l-2 border-[#C9A962] pl-4">
+    <main className="min-h-screen bg-[#FAF6EF] px-4 py-8 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-screen-lg">
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+          Handmade Art
+        </p>
+        <h1 className="mb-6 font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D] md:text-4xl">
           {t('myAccount')}
         </h1>
 
@@ -203,28 +206,28 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-3 mb-8 bg-[#FAF8F5] border border-[#E8E4E0] rounded-lg p-1">
+          <TabsList className="mb-8 grid grid-cols-3 rounded-sm border border-[#E8E4E0] bg-[#F5F1EB] p-1">
             <TabsTrigger
               value="profile"
-              className="text-[0.7rem] sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-4 truncate text-[#4A4A4A] data-[state=active]:bg-[#2D2D2D] data-[state=active]:text-[#C9A962] rounded-md transition-all"
+              className="truncate rounded-sm px-1 py-2 text-[0.7rem] text-[#4A4A4A] transition-colors data-[state=active]:bg-[#2D2D2D] data-[state=active]:text-[#C9A962] sm:px-2 sm:text-sm md:px-4 md:text-base"
             >
               {t('personalInfo')}
             </TabsTrigger>
             <TabsTrigger
               value="address"
-              className="text-[0.7rem] sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-4 truncate text-[#4A4A4A] data-[state=active]:bg-[#2D2D2D] data-[state=active]:text-[#C9A962] rounded-md transition-all"
+              className="truncate rounded-sm px-1 py-2 text-[0.7rem] text-[#4A4A4A] transition-colors data-[state=active]:bg-[#2D2D2D] data-[state=active]:text-[#C9A962] sm:px-2 sm:text-sm md:px-4 md:text-base"
             >
               {t('shippingAddress')}
             </TabsTrigger>
             <TabsTrigger
               value="orders"
-              className="text-[0.7rem] sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-4 truncate text-[#4A4A4A] data-[state=active]:bg-[#2D2D2D] data-[state=active]:text-[#C9A962] rounded-md transition-all"
+              className="truncate rounded-sm px-1 py-2 text-[0.7rem] text-[#4A4A4A] transition-colors data-[state=active]:bg-[#2D2D2D] data-[state=active]:text-[#C9A962] sm:px-2 sm:text-sm md:px-4 md:text-base"
             >
               {t('orderHistory')}
             </TabsTrigger>
           </TabsList>
 
-          <div className="bg-[#FAF8F5] p-4 md:p-6 rounded-lg shadow-sm border border-[#E8E4E0]">
+          <div className="border border-[#E8E4E0] bg-[#F5F1EB] p-4 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] md:p-6">
             <TabsContent value="profile">
               <ProfileTab
                 user={user}
@@ -248,6 +251,6 @@ export default function AccountClient({ user, initialProfile }: AccountClientPro
           </div>
         </Tabs>
       </div>
-    </div>
+    </main>
   );
 }

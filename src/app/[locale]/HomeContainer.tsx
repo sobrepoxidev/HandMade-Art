@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import HomePageData from './HomePageData';
-import HeroSection from '@/components/home/HeroSection';
 import { Link } from '@/i18n/navigation';
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 
@@ -10,9 +9,8 @@ import ScrollToTopButton from "@/components/ScrollToTopButton";
  */
 export default function HomeContainer({locale}: {locale: string}) {
   return (
-    <div className="bg-gradient-to-b from-[#FAF8F5] to-white min-h-screen">
+    <div className="bg-[#FAF6EF] min-h-screen">
       <main className="mx-auto">
-        <HeroSection locale={locale} />
         <Suspense fallback={<LoadingState />}>
           <HomePageData locale={locale} />
         </Suspense>
@@ -43,7 +41,7 @@ export default function HomeContainer({locale}: {locale: string}) {
  */
 function LoadingState() {
   return (
-    <div className="max-w-[1500px] mx-auto relative z-0 bg-gradient-to-b from-[#FAF8F5] via-[#F5F1EB] to-white">
+    <div className="max-w-[1500px] mx-auto relative z-0 bg-[#FAF6EF]">
       {/* Skeleton del banner secundario */}
       <div className="w-full h-[220px] bg-[#F5F1EB] animate-pulse" />
 

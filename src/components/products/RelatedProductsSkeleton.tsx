@@ -5,7 +5,7 @@ type Props = {
 
 export default function RelatedProductsSkeleton({ title, count = 8 }: Props) {
   return (
-    <section className="mt-12 rounded-xl overflow-hidden border border-[#E8E4E0] bg-[#FAF8F5]">
+    <section className="mt-12 overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF]">
       <header className="px-5 py-3 bg-[#2D2D2D] text-[#C9A962] text-sm font-semibold tracking-wide border-b border-[#C9A962]/20">
         {title}
       </header>
@@ -13,7 +13,7 @@ export default function RelatedProductsSkeleton({ title, count = 8 }: Props) {
         {Array.from({ length: count }).map((_, i) => (
           <div
             key={i}
-            className="bg-white border border-[#E8E4E0] rounded-lg overflow-hidden flex flex-col"
+            className="flex flex-col overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF]"
           >
             <div className="aspect-square bg-[#F0EBE3] animate-pulse" />
             <div className="p-4 flex flex-col gap-3">

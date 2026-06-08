@@ -10,6 +10,7 @@ interface SearchBarProps {
   variant: 'navbar' | 'standalone' | 'mobile';
   initialQuery?: string;
   initialCategory?: string;
+  initialCategories?: Category[];
   onClose?: () => void;
   className?: string;
   locale: string;
@@ -21,6 +22,7 @@ export default function SearchBar({
   variant,
   initialQuery = '',
   initialCategory = 'Todo',
+  initialCategories = [],
   onClose,
   className = '',
   locale
@@ -34,20 +36,22 @@ export default function SearchBar({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
 
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (initialCategories.length > 0) return;
+
     async function fetchCategories() {
       const categoryList = await getProductCategories(locale);
       setCategories(categoryList);
     }
 
     fetchCategories();
-  }, [locale]);
+  }, [initialCategories.length, locale]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -279,7 +283,7 @@ export default function SearchBar({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setShowSuggestions(true)}
-          className={`flex-1 h-11 px-4 py-2 text-sm text-[#2D2D2D] bg-white border border-[#E8E4E0] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 placeholder-[#9C9589] transition-colors ${
+          className={`flex-1 h-11 px-4 py-2 text-sm text-[#2D2D2D] bg-[#FAF6EF] border border-[#E8E4E0] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 placeholder-[#6B6459] transition-colors ${
             isMobile ? 'w-full' : isNavbar ? 'w-full' : 'w-96'
           }`}
           ref={inputRef}

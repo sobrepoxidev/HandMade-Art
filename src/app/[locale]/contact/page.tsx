@@ -17,12 +17,12 @@ export async function generateMetadata({
     pathname: `/${locale}/contact`,
     title:
       currentLocale === 'es'
-        ? 'Contacto — escribinos o llamanos'
-        : 'Contact us — write or call',
+        ? 'Contacto, escribinos o llamanos'
+        : 'Contact us, write or call',
     description:
       currentLocale === 'es'
-        ? 'Hablá con Handmade Art: WhatsApp, teléfono o formulario. Te respondemos en 24–48 horas.'
-        : "Reach Handmade Art via WhatsApp, phone or contact form. We reply within 24–48 hours.",
+        ? 'Hablá con Handmade Art: WhatsApp, teléfono o formulario. Te respondemos en 24 a 48 horas.'
+        : "Reach Handmade Art via WhatsApp, phone or contact form. We reply within 24 to 48 hours.",
     image: {
       url: '/home/artesano.webp',
       width: 1200,
