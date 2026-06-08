@@ -1,468 +1,824 @@
 'use client';
 
-import { useState } from 'react';
-import { Database } from '@/lib/database.types';
-import { X, Save, ChevronDown, ChevronUp } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
 import Image from 'next/image';
-import { Json } from '@/lib/database.types';
+import { toast } from 'react-hot-toast';
+import {
+  AlertCircle,
+  Archive,
+  ArrowDown,
+  ArrowUp,
+  Image as ImageIcon,
+  Plus,
+  Save,
+  Trash2,
+  Upload,
+  X,
+} from 'lucide-react';
+import { Database } from '@/lib/database.types';
+import type { AdminMediaItem, AdminProduct, AdminProductPayload } from '@/lib/admin/products';
 
-type Product = Database['public']['Tables']['products']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
 
 interface ProductEditorProps {
   locale: string;
-  product: Product;
+  product: AdminProduct | null;
   categories: Category[];
-  onSave: (updates: Partial<Product>) => Promise<{ success: boolean; error?: string }>;
+  onSave: (payload: AdminProductPayload, productId?: number) => Promise<{ success: boolean; error?: string }>;
   onCancel: () => void;
 }
 
-export default function ProductEditor({ locale, product, categories, onSave, onCancel }: ProductEditorProps) {
-  // Type guard to check if media is an array of media items
-  const isMediaArray = (media: Json): media is Array<{url: string; type?: string; alt?: string}> => {
-    return Array.isArray(media) && media.every(item => 
-      typeof item === 'object' && 
-      item !== null && 
-      'url' in item && 
-      typeof (item as {url: unknown}).url === 'string'
+interface ProductFormState {
+  brand: string;
+  categoryId: string;
+  colonPrice: string;
+  countryOfOrigin: string;
+  customsDescriptionEn: string;
+  dangerousGoods: boolean;
+  description: string;
+  descriptionEn: string;
+  discountPercentage: string;
+  dolarPrice: string;
+  heightCm: string;
+  hsCode: string;
+  inventoryQuantity: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  lengthCm: string;
+  media: AdminMediaItem[];
+  name: string;
+  nameEn: string;
+  nameEs: string;
+  sku: string;
+  specificationsText: string;
+  tagsText: string;
+  weightKg: string;
+  widthCm: string;
+}
+
+interface FieldProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: 'text' | 'number' | 'url';
+  placeholder?: string;
+  min?: string;
+  max?: string;
+  step?: string;
+  required?: boolean;
+}
+
+interface TextAreaProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  rows?: number;
+}
+
+interface ToggleProps {
+  id: string;
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}
+
+const INPUT_CLASS =
+  'min-h-[44px] w-full rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] px-3 py-2.5 text-sm text-[#2D2D2D] outline-none transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] placeholder:text-[#6B6459]/70 focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25';
+
+const LABEL_CLASS = 'mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-[#6B6459]';
+const MEDIA_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm,video/quicktime';
+
+function isMediaArray(value: unknown): value is AdminMediaItem[] {
+  return Array.isArray(value) && value.every((item) => {
+    return (
+      typeof item === 'object' &&
+      item !== null &&
+      'url' in item &&
+      typeof (item as { url?: unknown }).url === 'string'
     );
+  });
+}
+
+function numberToField(value: number | null | undefined) {
+  return value === null || value === undefined ? '' : String(value);
+}
+
+function productToForm(product: AdminProduct | null): ProductFormState {
+  const media = product?.media && isMediaArray(product.media) ? product.media : [];
+  const specifications =
+    product?.specifications && typeof product.specifications === 'object'
+      ? JSON.stringify(product.specifications, null, 2)
+      : '';
+
+  return {
+    brand: product?.brand || 'Handmade Art',
+    categoryId: product?.category_id ? String(product.category_id) : '',
+    colonPrice: numberToField(product?.colon_price),
+    countryOfOrigin: product?.country_of_origin || 'Costa Rica',
+    customsDescriptionEn: product?.customs_description_en || '',
+    dangerousGoods: product?.dangerous_goods ?? false,
+    description: product?.description || '',
+    descriptionEn: product?.description_en || '',
+    discountPercentage: numberToField(product?.discount_percentage),
+    dolarPrice: numberToField(product?.dolar_price),
+    heightCm: numberToField(product?.height_cm),
+    hsCode: product?.hs_code || '',
+    inventoryQuantity: numberToField(product?.inventory_quantity ?? 0),
+    isActive: product?.is_active ?? true,
+    isFeatured: product?.is_featured ?? false,
+    lengthCm: numberToField(product?.length_cm),
+    media,
+    name: product?.name || product?.name_en || product?.name_es || '',
+    nameEn: product?.name_en || product?.name || '',
+    nameEs: product?.name_es || product?.name || '',
+    sku: product?.sku || '',
+    specificationsText: specifications,
+    tagsText: Array.isArray(product?.tags) ? product.tags.join(', ') : '',
+    weightKg: numberToField(product?.weight_kg),
+    widthCm: numberToField(product?.width_cm),
+  };
+}
+
+function toNumberOrNull(value: string) {
+  const cleaned = value.trim();
+  if (!cleaned) return null;
+  return Number(cleaned);
+}
+
+function Field({
+  id,
+  label,
+  value,
+  onChange,
+  type = 'text',
+  placeholder,
+  min,
+  max,
+  step,
+  required = false,
+}: FieldProps) {
+  return (
+    <div>
+      <label htmlFor={id} className={LABEL_CLASS}>
+        {label}
+        {required && <span aria-hidden="true"> *</span>}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        min={min}
+        max={max}
+        step={step}
+        required={required}
+        className={INPUT_CLASS}
+      />
+    </div>
+  );
+}
+
+function TextArea({ id, label, value, onChange, placeholder, rows = 4 }: TextAreaProps) {
+  return (
+    <div>
+      <label htmlFor={id} className={LABEL_CLASS}>
+        {label}
+      </label>
+      <textarea
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        rows={rows}
+        className={`${INPUT_CLASS} min-h-[112px] resize-y leading-relaxed`}
+      />
+    </div>
+  );
+}
+
+function Toggle({ id, label, description, checked, onChange }: ToggleProps) {
+  return (
+    <label
+      htmlFor={id}
+      className="flex min-h-[58px] cursor-pointer items-center justify-between gap-4 rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] px-4 py-3"
+    >
+      <span>
+        <span className="block text-sm font-semibold text-[#2D2D2D]">{label}</span>
+        <span className="mt-1 block text-xs leading-relaxed text-[#6B6459]">{description}</span>
+      </span>
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-5 w-5 rounded-sm border-[#E8E4E0] accent-[#2D2D2D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+      />
+    </label>
+  );
+}
+
+export default function ProductEditor({ locale, product, categories, onSave, onCancel }: ProductEditorProps) {
+  const isEs = locale === 'es';
+  const isEditing = Boolean(product);
+  const [form, setForm] = useState<ProductFormState>(() => productToForm(product));
+  const [saving, setSaving] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState<number | 'new' | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const copy = useMemo(() => ({
+    title: isEditing
+      ? isEs ? 'Editar producto' : 'Edit product'
+      : isEs ? 'Nuevo producto' : 'New product',
+    subtitle: isEs
+      ? 'Gestioná el contenido completo que usa la tienda pública: ficha, SEO básico, precios, media, stock y estado.'
+      : 'Manage the full content used by the storefront: listing data, basic SEO, prices, media, stock and status.',
+    save: isEditing
+      ? isEs ? 'Guardar producto' : 'Save product'
+      : isEs ? 'Crear producto' : 'Create product',
+    saving: isEs ? 'Guardando...' : 'Saving...',
+    cancel: isEs ? 'Cerrar' : 'Close',
+  }), [isEditing, isEs]);
+
+  const primaryImage = form.media[0]?.url || '';
+
+  const setField = <K extends keyof ProductFormState>(key: K, value: ProductFormState[K]) => {
+    setForm((current) => ({ ...current, [key]: value }));
   };
 
-  // Campos que ya se pueden editar directamente en las tarjetas
-  // - price: se puede editar en la tarjeta con guardado inmediato
-  // - is_active: se puede activar/desactivar en la tarjeta con guardado inmediato
-  // - discount_percentage: se puede editar en la tarjeta con guardado inmediato
+  const setMediaItem = (index: number, patch: Partial<AdminMediaItem>) => {
+    setForm((current) => ({
+      ...current,
+      media: current.media.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item),
+    }));
+  };
 
-  // En el editor modal, nos enfocamos en campos que no se pueden editar fácilmente en las tarjetas
-  // y opciones más avanzadas
-  const [price, setPrice] = useState<number | null>(product.colon_price);
-  const [usdPrice, setUsdPrice] = useState<number | null>(product.dolar_price);
-  const [nameEs, setNameEs] = useState<string | null>(product.name_es || product.name);
-  const [nameEn, setNameEn] = useState<string | null>(product.name || product.name_es);
-  const [weight_kg, setWeightKg] = useState<number | null>(product.weight_kg);
-  const [length_cm, setLengthCm] = useState<number | null>(product.length_cm);
-  const [width_cm, setWidthCm] = useState<number | null>(product.width_cm);
-  const [height_cm, setHeightCm] = useState<number | null>(product.height_cm);
-  const [isActive, setIsActive] = useState<boolean | null>(product.is_active);
-  const [discountPercentage, setDiscountPercentage] = useState<number | null>(product.discount_percentage);
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [categoryId, setCategoryId] = useState<number | null>(product.category_id || 0);
+  const addMediaItem = () => {
+    setForm((current) => ({
+      ...current,
+      media: [
+        ...current.media,
+        {
+          url: '',
+          type: 'image',
+          alt: current.nameEs || current.nameEn || current.name || undefined,
+        },
+      ],
+    }));
+  };
 
-  // Manejar el guardado de cambios
-  const handleSave = async () => {
+  const removeMediaItem = (index: number) => {
+    setForm((current) => ({
+      ...current,
+      media: current.media.filter((_, itemIndex) => itemIndex !== index),
+    }));
+  };
+
+  const moveMediaItem = (index: number, direction: -1 | 1) => {
+    setForm((current) => {
+      const nextIndex = index + direction;
+      if (nextIndex < 0 || nextIndex >= current.media.length) return current;
+      const media = [...current.media];
+      const [item] = media.splice(index, 1);
+      media.splice(nextIndex, 0, item);
+      return { ...current, media };
+    });
+  };
+
+  const uploadMediaFile = async (file: File, index?: number) => {
+    const target = typeof index === 'number' ? index : 'new';
+    setUploadingMedia(target);
+    setError(null);
+
     try {
-      setSaving(true);
-      setError(null);
+      const formData = new FormData();
+      formData.append('file', file);
 
-      const updates: Partial<Product> = {};
+      const response = await fetch('/api/admin/product-media', {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: formData,
+      });
+      const payload = await response.json() as { url?: string; type?: 'image' | 'video'; error?: string };
 
-      // Solo incluir campos que han cambiado
-      if (price !== product.colon_price) updates.colon_price = price;
-      if (usdPrice !== product.dolar_price) updates.dolar_price = usdPrice;
-      if (nameEs !== (product.name_es || product.name)) {
-        updates.name = nameEs;
-        updates.name_es = nameEs;
-      }
-      if (nameEn !== (product.name || product.name_es)) {
-        updates.name = nameEn;
-        updates.name_en = nameEn;
-      }
-      if (isActive !== product.is_active) updates.is_active = isActive;
-      if (discountPercentage !== product.discount_percentage) updates.discount_percentage = discountPercentage;
-
-      if (weight_kg !== product.weight_kg) updates.weight_kg = weight_kg ?? undefined;
-      if (length_cm !== product.length_cm) updates.length_cm = length_cm ?? undefined;
-      if (width_cm !== product.width_cm) updates.width_cm = width_cm ?? undefined;
-      if (height_cm !== product.height_cm) updates.height_cm = height_cm ?? undefined;
-      if (categoryId !== product.category_id) updates.category_id = categoryId;
-
-      // Si no hay cambios, mostrar mensaje y salir
-      if (Object.keys(updates).length === 0) {
-        toast(locale === 'es' ? 'No se han realizado cambios' : 'No changes made', {
-          icon: '🔔',
-          style: {
-            background: '#3498db',
-            color: '#fff'
-          }
-        });
-        return;
+      if (!response.ok || !payload.url) {
+        throw new Error(payload.error || (isEs ? 'No se pudo subir el archivo.' : 'Media file could not be uploaded.'));
       }
 
-      // Validar datos antes de guardar
-      if (updates.colon_price !== undefined && updates.colon_price !== null) {
-        const priceNum = Number(updates.colon_price);
-        if (isNaN(priceNum) || priceNum < 0) {
-          throw new Error(locale === 'es' ? 'El precio debe ser un número válido mayor o igual a 0' : 'The price must be a valid number greater than or equal to 0');
-        }
-        updates.colon_price = priceNum;
-      }
+      const nextItem: AdminMediaItem = {
+        url: payload.url,
+        type: payload.type === 'video' ? 'video' : 'image',
+        alt: form.nameEs || form.nameEn || form.name || undefined,
+      };
 
-      if (categoryId !== 0) {
-        updates.category_id = categoryId;
-      }
-
-      if (updates.dolar_price !== undefined && updates.dolar_price !== null) {
-        const usdNum = Number(updates.dolar_price);
-        if (isNaN(usdNum) || usdNum < 0) {
-          throw new Error(locale === 'es' ? 'El precio en USD debe ser un número válido mayor o igual a 0' : 'USD price must be a valid number greater than or equal to 0');
-        }
-        updates.dolar_price = usdNum;
-      }
-
-      if (updates.weight_kg !== undefined && updates.weight_kg !== null) {
-        const weightNum = Number(updates.weight_kg);
-        if (isNaN(weightNum) || weightNum < 0) {
-          throw new Error(locale === 'es' ? 'El peso debe ser un número válido mayor o igual a 0' : 'The weight must be a valid number greater than or equal to 0');
-        }
-        updates.weight_kg = weightNum;
-      }
-
-      if (updates.length_cm !== undefined && updates.length_cm !== null) {
-        const lengthNum = Number(updates.length_cm);
-        if (isNaN(lengthNum) || lengthNum < 0) {
-          throw new Error(locale === 'es' ? 'La longitud debe ser un número válido mayor o igual a 0' : 'The length must be a valid number greater than or equal to 0');
-        }
-        updates.length_cm = lengthNum;
-      }
-
-      if (updates.width_cm !== undefined && updates.width_cm !== null) {
-        const widthNum = Number(updates.width_cm);
-        if (isNaN(widthNum) || widthNum < 0) {
-          throw new Error(locale === 'es' ? 'El ancho debe ser un número válido mayor o igual a 0' : 'The width must be a valid number greater than or equal to 0');
-        }
-        updates.width_cm = widthNum;
-      }
-
-      if (updates.height_cm !== undefined && updates.height_cm !== null) {
-        const heightNum = Number(updates.height_cm);
-        if (isNaN(heightNum) || heightNum < 0) {
-          throw new Error(locale === 'es' ? 'La altura debe ser un número válido mayor o igual a 0' : 'The height must be a valid number greater than or equal to 0');
-        }
-        updates.height_cm = heightNum;
-      }
-
-      if (updates.discount_percentage !== undefined && updates.discount_percentage !== null) {
-        const discountNum = Number(updates.discount_percentage);
-        if (isNaN(discountNum) || discountNum < 0 || discountNum > 100) {
-          throw new Error(locale === 'es' ? 'El descuento debe ser un número entre 0 y 100' : 'The discount must be a number between 0 and 100');
-        }
-        updates.discount_percentage = discountNum;
-      }
-
-      const result = await onSave(updates);
-
-      if (result.success) {
-        // El toast se mostrará desde el componente AdminDashboard
-        // Cerrar el modal después de un breve retraso
-        setTimeout(() => {
-          onCancel();
-        }, 500);
+      if (typeof index === 'number') {
+        setMediaItem(index, nextItem);
       } else {
-        toast.error(result.error || (locale === 'es' ? 'Error al guardar los cambios' : 'Error saving changes'));
-        setError(result.error || (locale === 'es' ? 'Error al guardar los cambios' : 'Error saving changes'));
+        setForm((current) => ({
+          ...current,
+          media: [...current.media, nextItem],
+        }));
       }
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : (locale === 'es' ? 'Error al guardar los cambios' : 'Error saving changes');
-      toast.error(errorMsg);
-      setError(errorMsg);
+
+      toast.success(isEs ? 'Archivo subido.' : 'Media uploaded.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : isEs ? 'No se pudo subir el archivo.' : 'Media file could not be uploaded.';
+      setError(message);
+      toast.error(message);
+    } finally {
+      setUploadingMedia(null);
+    }
+  };
+
+  const handleNewMediaUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    void uploadMediaFile(file);
+  };
+
+  const handleReplaceMediaUpload = (index: number, event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    void uploadMediaFile(file, index);
+  };
+
+  const buildPayload = (): AdminProductPayload => {
+    const canonicalName = form.name.trim() || form.nameEn.trim() || form.nameEs.trim();
+    if (!canonicalName) {
+      throw new Error(isEs ? 'El nombre para URL es obligatorio.' : 'The URL name is required.');
+    }
+
+    if (/[/?#]/.test(canonicalName)) {
+      throw new Error(isEs ? 'El nombre para URL no puede incluir /, ? ni #.' : 'The URL name cannot include /, ? or #.');
+    }
+
+    let specifications = null;
+    if (form.specificationsText.trim()) {
+      try {
+        specifications = JSON.parse(form.specificationsText);
+      } catch {
+        throw new Error(isEs ? 'El JSON de especificaciones no es válido.' : 'The specifications JSON is invalid.');
+      }
+    }
+
+    return {
+      brand: form.brand,
+      category_id: form.categoryId ? Number(form.categoryId) : null,
+      colon_price: toNumberOrNull(form.colonPrice),
+      country_of_origin: form.countryOfOrigin,
+      customs_description_en: form.customsDescriptionEn,
+      dangerous_goods: form.dangerousGoods,
+      description: form.description,
+      description_en: form.descriptionEn,
+      discount_percentage: toNumberOrNull(form.discountPercentage),
+      dolar_price: toNumberOrNull(form.dolarPrice),
+      height_cm: toNumberOrNull(form.heightCm),
+      hs_code: form.hsCode,
+      inventory_quantity: toNumberOrNull(form.inventoryQuantity),
+      is_active: form.isActive,
+      is_featured: form.isFeatured,
+      length_cm: toNumberOrNull(form.lengthCm),
+      media: form.media.filter((item) => item.url.trim().length > 0),
+      name: canonicalName,
+      name_en: form.nameEn,
+      name_es: form.nameEs,
+      sku: form.sku,
+      specifications,
+      tags: form.tagsText
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+      weight_kg: toNumberOrNull(form.weightKg),
+      width_cm: toNumberOrNull(form.widthCm),
+    };
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSaving(true);
+    setError(null);
+
+    try {
+      const payload = buildPayload();
+      const result = await onSave(payload, product?.id);
+      if (!result.success) {
+        throw new Error(result.error || (isEs ? 'No se pudo guardar el producto.' : 'Product could not be saved.'));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : isEs ? 'No se pudo guardar el producto.' : 'Product could not be saved.');
     } finally {
       setSaving(false);
     }
   };
 
+  const handleCategoryChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setField('categoryId', event.target.value);
+  };
+
   return (
-    <div className="px-1">
-      <div className="flex justify-between items-center mb-0.5">
-        <h2 className="text-xl font-bold">{locale === 'es' ? 'Editar Producto' : 'Edit Product'}</h2>
-        <button
-          onClick={onCancel}
-          className="p-2 rounded-full hover:bg-gray-100"
-          aria-label="Cerrar"
-        >
-          <X className="h-7 w-7 text-black bg-gray-400 rounded-lg" />
-        </button>
+    <form onSubmit={handleSubmit} className="bg-[#FAF6EF] text-[#2D2D2D]">
+      <div className="sticky top-0 z-20 border-b border-[#E8E4E0] bg-[#FAF6EF]/95 px-4 py-4 backdrop-blur-sm sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-screen-2xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+              {isEs ? 'CMS de productos' : 'Product CMS'}
+            </p>
+            <h2 className="mt-1 font-display text-2xl font-medium text-[#2D2D2D] md:text-3xl">
+              {copy.title}
+            </h2>
+            <p className="mt-2 max-w-[72ch] text-sm leading-relaxed text-[#4A4A4A]">{copy.subtitle}</p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm border border-[#E8E4E0] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#2D2D2D] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#A08848] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+            >
+              <X className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+              {copy.cancel}
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+            >
+              <Save className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+              {saving ? copy.saving : copy.save}
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Mensajes de error o éxito */}
-      {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-          <p>{error}</p>
-        </div>
-      )}
+      <div className="mx-auto grid max-w-screen-2xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8">
+        <div className="space-y-6">
+          {error && (
+            <div className="flex gap-3 border border-[#C44536] bg-[#FFFDF9] p-4 text-sm text-[#9F2D24]" role="alert">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.5} aria-hidden />
+              <p>{error}</p>
+            </div>
+          )}
 
-      <div className="space-y-1">
-        {/* Imagen del producto */}
-        <div className="flex justify-center mb-0">
-          <div className="w-full max-w-xs h-36 py-1 bg-gray-200 rounded-lg overflow-hidden">
-            {product.media && isMediaArray(product.media) && product.media.length > 0 && product.media[0].url ? (
-              <Image
-                src={product.media[0].url}
-                alt={product.name || 'Producto'}
-                className="w-full h-full object-contain"
-                width={300}
-                height={300}
-                priority
+          <section className="border border-[#E8E4E0] bg-[#F5F1EB] p-4 sm:p-5">
+            <h3 className="font-display text-xl font-medium text-[#2D2D2D]">
+              {isEs ? 'Ficha pública' : 'Public listing'}
+            </h3>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <Field
+                id="product-name"
+                label={isEs ? 'Nombre para URL' : 'URL name'}
+                value={form.name}
+                onChange={(value) => setField('name', value)}
+                placeholder="Espejo tallado jaguar"
+                required
               />
-            ) : (
-              <div className="flex items-center justify-center h-full bg-gray-200 text-gray-400">
-                <span>{locale === 'es' ? 'Sin imagen' : 'No image'}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Información principal del producto */}
-        <div className="bg-gray-50 p-1 rounded-lg">
-          <div className="mb-1 text-[0.7rem] text-gray-500">
-            ID: {product.id} {product.sku && `• SKU: ${product.sku}`}
-          </div>
-
-          {/* Nombre del producto - No editable en tarjetas */}
-          <div className="mb-1">
-            <label htmlFor="nameEs" className="block text-sm font-semibold text-gray-700">
-              {locale === 'es' ? 'Nombre ESPAÑOL' : 'SPANISH name'}
-            </label>
-            <input
-              type="text"
-              id="nameEs"
-              className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              value={nameEs || ''}
-              onChange={(e) => setNameEs(e.target.value || null)}
-              placeholder="Nombre en ESPAÑOL"
-            />
-
-          </div>
-          <div className="mb-1">
-            <label htmlFor="nameEn" className="block text-sm font-semibold text-gray-700">
-              {locale === 'es' ? 'Nombre INGLÉS' : 'ENGLISH name'}
-            </label>
-            <input
-              type="text"
-              id="nameEn"
-              className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              value={nameEn || ''}
-              onChange={(e) => setNameEn(e.target.value || null)}
-              placeholder="Nombre en ENGLISH"
-            />
-
-          </div>
-
-          {/* Sección de campos que también se pueden editar en las tarjetas */}
-          {/* Precio CRC */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="mb-1">
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                {locale === 'es' ? 'Precio (₡)' : 'Price (₡)'}
-              </label>
-              <input
-                type="number"
-                id="price"
-                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                value={price === null ? '' : price}
-                onChange={(e) => setPrice(e.target.value ? parseFloat(e.target.value) : null)}
-                min="0"
-                step="100"
-                placeholder="0"
+              <Field
+                id="product-sku"
+                label="SKU"
+                value={form.sku}
+                onChange={(value) => setField('sku', value)}
+                placeholder="HM-0001"
+              />
+              <Field
+                id="product-name-es"
+                label={isEs ? 'Nombre en español' : 'Spanish name'}
+                value={form.nameEs}
+                onChange={(value) => setField('nameEs', value)}
+                required
+              />
+              <Field
+                id="product-name-en"
+                label={isEs ? 'Nombre en inglés' : 'English name'}
+                value={form.nameEn}
+                onChange={(value) => setField('nameEn', value)}
+                required
               />
             </div>
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <TextArea
+                id="product-description-es"
+                label={isEs ? 'Descripción en español' : 'Spanish description'}
+                value={form.description}
+                onChange={(value) => setField('description', value)}
+              />
+              <TextArea
+                id="product-description-en"
+                label={isEs ? 'Descripción en inglés' : 'English description'}
+                value={form.descriptionEn}
+                onChange={(value) => setField('descriptionEn', value)}
+              />
+            </div>
+          </section>
 
-            {/* Precio USD */}
-            <div className="mb-2">
-              <label htmlFor="usdPrice" className="block text-sm font-medium text-gray-700 mb-1">
-                {locale === 'es' ? 'Precio (US$)' : 'Price (US$)'}
-              </label>
-              <input
+          <section className="border border-[#E8E4E0] bg-[#F5F1EB] p-4 sm:p-5">
+            <h3 className="font-display text-xl font-medium text-[#2D2D2D]">
+              {isEs ? 'Comercio e inventario' : 'Commerce and inventory'}
+            </h3>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Field
+                id="product-usd"
+                label={isEs ? 'Precio USD' : 'USD price'}
+                value={form.dolarPrice}
+                onChange={(value) => setField('dolarPrice', value)}
                 type="number"
-                id="usdPrice"
-                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                value={usdPrice === null ? '' : usdPrice}
-                onChange={(e) => setUsdPrice(e.target.value ? parseFloat(e.target.value) : null)}
                 min="0"
                 step="0.01"
-                placeholder="0"
               />
-            </div>
-          </div>
-
-
-
-          {/* Descuento */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="mb-2">
-              <label htmlFor="discountPercentage" className="block text-sm font-medium text-gray-700 mb-1">
-                {locale === 'es' ? 'Descuento (%)' : 'Discount (%)'}
-              </label>
-              <input
+              <Field
+                id="product-crc"
+                label={isEs ? 'Precio CRC' : 'CRC price'}
+                value={form.colonPrice}
+                onChange={(value) => setField('colonPrice', value)}
                 type="number"
-                id="discountPercentage"
-                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                value={discountPercentage === null ? '' : discountPercentage}
-                onChange={(e) => setDiscountPercentage(e.target.value ? parseFloat(e.target.value) : null)}
+                min="0"
+                step="100"
+              />
+              <Field
+                id="product-discount"
+                label={isEs ? 'Descuento %' : 'Discount %'}
+                value={form.discountPercentage}
+                onChange={(value) => setField('discountPercentage', value)}
+                type="number"
                 min="0"
                 max="100"
                 step="0.1"
-                placeholder="Sin descuento"
+              />
+              <Field
+                id="product-inventory"
+                label={isEs ? 'Inventario disponible' : 'Available inventory'}
+                value={form.inventoryQuantity}
+                onChange={(value) => setField('inventoryQuantity', value)}
+                type="number"
+                min="0"
+                step="1"
               />
             </div>
-            {/* Estado activo */}
-            <div className="mb-2">
-              <div className="flex items-center justify-center pt-6">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  className="h-4 w-4 py-1 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-                  checked={isActive === true}
-                  onChange={(e) => setIsActive(e.target.checked)}
-                />
-                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-800 font-semibold">
-                  {locale === 'es' ? 'Producto activo' : 'Product active'}
-                </label>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <Toggle
+                id="product-active"
+                label={isEs ? 'Publicado' : 'Published'}
+                description={isEs ? 'Visible en la tienda y disponible para compra.' : 'Visible in the storefront and available for purchase.'}
+                checked={form.isActive}
+                onChange={(checked) => setField('isActive', checked)}
+              />
+              <Toggle
+                id="product-featured"
+                label={isEs ? 'Destacado' : 'Featured'}
+                description={isEs ? 'Puede aparecer en módulos destacados de la página principal.' : 'Can appear in featured storefront modules.'}
+                checked={form.isFeatured}
+                onChange={(checked) => setField('isFeatured', checked)}
+              />
+            </div>
+          </section>
+
+          <section className="border border-[#E8E4E0] bg-[#F5F1EB] p-4 sm:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="font-display text-xl font-medium text-[#2D2D2D]">
+                  {isEs ? 'Imágenes y videos' : 'Images and videos'}
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed text-[#6B6459]">
+                  {isEs ? 'La primera imagen será la principal en catálogo y producto.' : 'The first image is used as the main catalog and product image.'}
+                </p>
               </div>
-            </div>
-          </div>
-          {/* Peso */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="mb-1">
-              <label htmlFor="weight_kg" className="block text-sm font-medium text-gray-700 mb-1">
-                {locale === 'es' ? 'Peso (kg)' : 'Weight (kg)'}
+              <button
+                type="button"
+                onClick={addMediaItem}
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm border border-[#E8E4E0] px-4 py-2.5 text-sm font-semibold tracking-wide text-[#2D2D2D] transition hover:border-[#A08848] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+              >
+                <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                {isEs ? 'Agregar media' : 'Add media'}
+              </button>
+              <label className="inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-4 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition hover:bg-[#1A1A1A] focus-within:ring-2 focus-within:ring-[#A08848]">
+                <Upload className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                {uploadingMedia === 'new'
+                  ? isEs ? 'Subiendo...' : 'Uploading...'
+                  : isEs ? 'Subir archivo' : 'Upload file'}
+                <input
+                  type="file"
+                  accept={MEDIA_ACCEPT}
+                  onChange={handleNewMediaUpload}
+                  disabled={uploadingMedia !== null}
+                  className="sr-only"
+                />
               </label>
-              <input
-                type="number"
-                id="weight_kg"
-                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                value={weight_kg === null ? '' : weight_kg}
-                onChange={(e) => setWeightKg(e.target.value ? parseFloat(e.target.value) : null)}
-                min="0"
-                step="0.1"
-                placeholder="0"
-              />
-            </div>
-            <div className="mb-1">
-              <label htmlFor="length_cm" className="block text-sm font-medium text-gray-700 mb-1">
-                {locale === 'es' ? 'Longitud (cm)' : 'Length (cm)'}
-              </label>
-              <input
-                type="number"
-                id="length_cm"
-                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                value={length_cm === null ? '' : length_cm}
-                onChange={(e) => setLengthCm(e.target.value ? parseFloat(e.target.value) : null)}
-                min="0"
-                step="0.1"
-                placeholder="0"
-              />
-            </div>
-            <div className="mb-1">
-              <label htmlFor="width_cm" className="block text-sm font-medium text-gray-700 mb-1">
-                {locale === 'es' ? 'Ancho (cm)' : 'Width (cm)'}
-              </label>
-              <input
-                type="number"
-                id="width_cm"
-                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                value={width_cm === null ? '' : width_cm}
-                onChange={(e) => setWidthCm(e.target.value ? parseFloat(e.target.value) : null)}
-                min="0"
-                step="0.1"
-                placeholder="0"
-              />
-            </div>
-            <div className="mb-1">
-              <label htmlFor="height_cm" className="block text-sm font-medium text-gray-700 mb-1">
-                {locale === 'es' ? 'Altura (cm)' : 'Height (cm)'}
-              </label>
-              <input
-                type="number"
-                id="height_cm"
-                className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                value={height_cm === null ? '' : height_cm}
-                onChange={(e) => setHeightCm(e.target.value ? parseFloat(e.target.value) : null)}
-                min="0"
-                step="0.1"
-                placeholder="0"
-              />
             </div>
 
+            <div className="mt-5 space-y-4">
+              {form.media.length === 0 && (
+                <div className="flex min-h-[120px] flex-col items-center justify-center border border-dashed border-[#E8E4E0] bg-[#FAF6EF] p-5 text-center">
+                  <ImageIcon className="h-6 w-6 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  <p className="mt-3 text-sm text-[#6B6459]">
+                    {isEs ? 'Agregá URLs de imágenes o videos para publicar el producto.' : 'Add image or video URLs to publish this product.'}
+                  </p>
+                </div>
+              )}
 
-          </div>
+              {form.media.map((item, index) => (
+                <div key={`${item.url}-${index}`} className="grid gap-3 border border-[#E8E4E0] bg-[#FAF6EF] p-3 lg:grid-cols-[96px_1fr_auto]">
+                  <div className="relative flex h-24 items-center justify-center overflow-hidden border border-[#E8E4E0] bg-[#FFFDF9]">
+                    {item.url ? (
+                      <Image src={item.url} alt={item.alt || form.nameEs || 'Product media'} fill sizes="96px" className="object-contain" unoptimized />
+                    ) : (
+                      <ImageIcon className="h-6 w-6 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                    )}
+                  </div>
 
+                  <div className="grid gap-3 md:grid-cols-[1fr_140px]">
+                    <Field
+                      id={`media-url-${index}`}
+                      label={isEs ? `URL media ${index + 1}` : `Media URL ${index + 1}`}
+                      value={item.url}
+                      onChange={(value) => setMediaItem(index, { url: value })}
+                      type="url"
+                      placeholder="https://..."
+                    />
+                    <div>
+                      <label htmlFor={`media-type-${index}`} className={LABEL_CLASS}>
+                        {isEs ? 'Tipo' : 'Type'}
+                      </label>
+                      <select
+                        id={`media-type-${index}`}
+                        value={item.type}
+                        onChange={(event) => setMediaItem(index, { type: event.target.value === 'video' ? 'video' : 'image' })}
+                        className={INPUT_CLASS}
+                      >
+                        <option value="image">{isEs ? 'Imagen' : 'Image'}</option>
+                        <option value="video">{isEs ? 'Video' : 'Video'}</option>
+                      </select>
+                    </div>
+                    <Field
+                      id={`media-alt-${index}`}
+                      label={isEs ? 'Texto alternativo' : 'Alt text'}
+                      value={item.alt || ''}
+                      onChange={(value) => setMediaItem(index, { alt: value })}
+                    />
+                    <Field
+                      id={`media-caption-${index}`}
+                      label={isEs ? 'Nota interna/caption' : 'Internal caption'}
+                      value={item.caption || ''}
+                      onChange={(value) => setMediaItem(index, { caption: value })}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 lg:flex-col">
+                    <label className="grid h-10 w-10 cursor-pointer place-items-center rounded-sm border border-[#E8E4E0] text-[#2D2D2D] focus-within:ring-2 focus-within:ring-[#A08848]">
+                      <span className="sr-only">{isEs ? 'Reemplazar por archivo' : 'Replace with file'}</span>
+                      <Upload className={`h-4 w-4 ${uploadingMedia === index ? 'animate-pulse' : ''}`} strokeWidth={1.5} aria-hidden />
+                      <input
+                        type="file"
+                        accept={MEDIA_ACCEPT}
+                        onChange={(event) => handleReplaceMediaUpload(index, event)}
+                        disabled={uploadingMedia !== null}
+                        className="sr-only"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => moveMediaItem(index, -1)}
+                      disabled={index === 0}
+                      aria-label={isEs ? 'Subir media' : 'Move media up'}
+                      className="grid h-10 w-10 place-items-center rounded-sm border border-[#E8E4E0] text-[#2D2D2D] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+                    >
+                      <ArrowUp className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveMediaItem(index, 1)}
+                      disabled={index === form.media.length - 1}
+                      aria-label={isEs ? 'Bajar media' : 'Move media down'}
+                      className="grid h-10 w-10 place-items-center rounded-sm border border-[#E8E4E0] text-[#2D2D2D] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+                    >
+                      <ArrowDown className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeMediaItem(index)}
+                      aria-label={isEs ? 'Eliminar media' : 'Remove media'}
+                      className="grid h-10 w-10 place-items-center rounded-sm border border-[#C44536] text-[#9F2D24] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+                    >
+                      <Trash2 className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="border border-[#E8E4E0] bg-[#F5F1EB] p-4 sm:p-5">
+            <h3 className="font-display text-xl font-medium text-[#2D2D2D]">
+              {isEs ? 'Logística y atributos' : 'Logistics and attributes'}
+            </h3>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Field id="weight-kg" label={isEs ? 'Peso kg' : 'Weight kg'} value={form.weightKg} onChange={(value) => setField('weightKg', value)} type="number" min="0" step="0.01" />
+              <Field id="length-cm" label={isEs ? 'Largo cm' : 'Length cm'} value={form.lengthCm} onChange={(value) => setField('lengthCm', value)} type="number" min="0" step="0.1" />
+              <Field id="width-cm" label={isEs ? 'Ancho cm' : 'Width cm'} value={form.widthCm} onChange={(value) => setField('widthCm', value)} type="number" min="0" step="0.1" />
+              <Field id="height-cm" label={isEs ? 'Alto cm' : 'Height cm'} value={form.heightCm} onChange={(value) => setField('heightCm', value)} type="number" min="0" step="0.1" />
+              <Field id="brand" label={isEs ? 'Marca/taller' : 'Brand/workshop'} value={form.brand} onChange={(value) => setField('brand', value)} />
+              <Field id="origin" label={isEs ? 'País de origen' : 'Country of origin'} value={form.countryOfOrigin} onChange={(value) => setField('countryOfOrigin', value)} />
+              <Field id="hs-code" label="HS code" value={form.hsCode} onChange={(value) => setField('hsCode', value)} />
+              <Field id="tags" label={isEs ? 'Tags, separados por coma' : 'Tags, comma separated'} value={form.tagsText} onChange={(value) => setField('tagsText', value)} />
+            </div>
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <TextArea
+                id="customs-description"
+                label={isEs ? 'Descripción aduanal en inglés' : 'Customs description in English'}
+                value={form.customsDescriptionEn}
+                onChange={(value) => setField('customsDescriptionEn', value)}
+                rows={3}
+              />
+              <TextArea
+                id="specifications-json"
+                label={isEs ? 'Especificaciones JSON' : 'Specifications JSON'}
+                value={form.specificationsText}
+                onChange={(value) => setField('specificationsText', value)}
+                placeholder='{"material":"wood"}'
+                rows={3}
+              />
+            </div>
+            <div className="mt-4">
+              <Toggle
+                id="dangerous-goods"
+                label={isEs ? 'Mercancía peligrosa' : 'Dangerous goods'}
+                description={isEs ? 'Marcar solo si el envío requiere tratamiento especial.' : 'Use only when shipping requires special handling.'}
+                checked={form.dangerousGoods}
+                onChange={(checked) => setField('dangerousGoods', checked)}
+              />
+            </div>
+          </section>
         </div>
 
-        {/* Opciones avanzadas (colapsables) */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <button
-            className="w-full flex justify-between items-center px-4 py-2 bg-gray-50 hover:bg-gray-100 focus:outline-none"
-            onClick={() => setShowAdvanced(!showAdvanced)}
-          >
-            <span className="font-medium">{locale === 'es' ? 'Opciones avanzadas' : 'Advanced options'}</span>
-            {showAdvanced ? (
-              <ChevronUp className="h-5 w-5 text-gray-500" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-gray-500" />
-            )}
-          </button>
+        <aside className="lg:sticky lg:top-[112px] lg:self-start">
+          <div className="border border-[#E8E4E0] bg-[#F5F1EB] p-4 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+            <div className="relative aspect-square overflow-hidden border border-[#E8E4E0] bg-[#FFFDF9]">
+              {primaryImage ? (
+                <Image src={primaryImage} alt={form.nameEs || form.nameEn || 'Product preview'} fill sizes="360px" className="object-contain" unoptimized />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center text-center text-[#6B6459]">
+                  <ImageIcon className="h-8 w-8 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  <p className="mt-3 text-sm">{isEs ? 'Sin imagen principal' : 'No main image'}</p>
+                </div>
+              )}
+            </div>
 
-          {showAdvanced && (
-            <div className="p-4 bg-white">
-
-
-              {/* Aquí se pueden agregar más campos como categoría, especificaciones, etc. */}
-              <div className="mb-1">
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                  {locale === 'es' ? 'Categoría' : 'Category'}
+            <div className="mt-4 space-y-3">
+              <div>
+                <label htmlFor="category" className={LABEL_CLASS}>
+                  {isEs ? 'Categoría' : 'Category'}
                 </label>
-                <select
-                  id="category"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                  value={categoryId || ''}
-                  onChange={(e) => setCategoryId(e.target.value ? parseInt(e.target.value) : 0)}
-
-                >
-                  <option value="">{locale === 'es' ? 'Sin categoría' : 'No category'}</option>
+                <select id="category" value={form.categoryId} onChange={handleCategoryChange} className={INPUT_CLASS}>
+                  <option value="">{isEs ? 'Sin categoría' : 'No category'}</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
-                      {category.name_es}
+                      {(isEs ? category.name_es : category.name_en) || category.name}
                     </option>
                   ))}
                 </select>
-
               </div>
-            </div>
-          )}
-        </div>
 
-        {/* Botones de acción */}
-        <div className="flex justify-end space-x-4 mt-6">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-          >
-            {locale === 'es' ? 'Cancelar' : 'Cancel'}
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 flex items-center"
-          >
-            {saving ? (
-              <>
-                <span className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-                {locale === 'es' ? 'Guardando...' : 'Saving...'}
-              </>
-            ) : (
-              <>
-                <Save className="h-5 w-5 mr-2" />
-                {locale === 'es' ? 'Guardar cambios' : 'Save changes'}
-              </>
-            )}
-          </button>
-        </div>
+              <div className="border border-[#E8E4E0] bg-[#FAF6EF] p-3">
+                <p className="text-xs uppercase tracking-[0.08em] text-[#6B6459]">
+                  {isEs ? 'Vista de publicación' : 'Publishing view'}
+                </p>
+                <h4 className="mt-2 font-display text-xl font-medium text-[#2D2D2D]">
+                  {isEs ? form.nameEs || form.name : form.nameEn || form.name}
+                </h4>
+                <p className="mt-2 text-sm leading-relaxed text-[#4A4A4A]">
+                  {(isEs ? form.description : form.descriptionEn) || (isEs ? 'Sin descripción todavía.' : 'No description yet.')}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                  <span className="border border-[#E8E4E0] px-2 py-1 text-[#6B6459]">
+                    {form.isActive ? (isEs ? 'Publicado' : 'Published') : (isEs ? 'Archivado' : 'Archived')}
+                  </span>
+                  {form.isFeatured && (
+                    <span className="border border-[#C9A962]/45 px-2 py-1 text-[#A08848]">
+                      {isEs ? 'Destacado' : 'Featured'}
+                    </span>
+                  )}
+                  <span className="border border-[#E8E4E0] px-2 py-1 text-[#6B6459]">
+                    {form.inventoryQuantity || 0} {isEs ? 'en stock' : 'in stock'}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setField('isActive', false)}
+                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-sm border border-[#E8E4E0] px-4 py-2.5 text-sm font-semibold tracking-wide text-[#2D2D2D] transition hover:border-[#A08848] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+              >
+                <Archive className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                {isEs ? 'Marcar como archivado' : 'Mark as archived'}
+              </button>
+            </div>
+          </div>
+        </aside>
       </div>
-    </div>
+    </form>
   );
 }

@@ -1,649 +1,682 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSupabase } from '@/app/supabase-provider/provider';
-import { Database, Json } from '@/lib/database.types';
-import ProductEditor from './ProductEditor';
-import { Search, Filter, RefreshCw, Menu, Check, X, Edit } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
+import {
+  AlertCircle,
+  Archive,
+  Boxes,
+  CheckCircle,
+  Copy,
+  EyeOff,
+  Grid3X3,
+  Image as ImageIcon,
+  List,
+  Package,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Search,
+  Star,
+  Trash2,
+} from 'lucide-react';
+import { Database } from '@/lib/database.types';
+import ProductEditor from './ProductEditor';
+import type { AdminMediaItem, AdminProduct, AdminProductPayload } from '@/lib/admin/products';
 
-type Product = Database['public']['Tables']['products']['Row'];
+type Category = Database['public']['Tables']['categories']['Row'];
+type ViewMode = 'grid' | 'list';
+type StatusFilter = 'all' | 'active' | 'inactive' | 'featured' | 'out_of_stock';
 
-// Type guard para verificar si media es un array válido con objetos que tienen url
-const isMediaArray = (media: Json): media is Array<{ url: string; type?: string; alt?: string }> => {
-  return Array.isArray(media) && media.every(item => 
-    typeof item === 'object' && 
-    item !== null && 
-    'url' in item && 
-    typeof item.url === 'string'
-  );
-};
+interface AdminProductsResponse {
+  products: AdminProduct[];
+  categories: Category[];
+  error?: string;
+}
 
-// Función para formatear la fecha de modificación en formato costarricense
-const formatModifiedDate = (dateString: string): string => {
-  // Ajustar la zona horaria a Costa Rica (UTC-6)
-  const now = new Date();
-  const modifiedDate = new Date(dateString);
+interface ProductActionResult {
+  success: boolean;
+  error?: string;
+}
 
-  // Ajustar a la zona horaria de Costa Rica (UTC-6)
-  const options: Intl.DateTimeFormatOptions = {
-    timeZone: 'America/Costa_Rica',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
+const PLACEHOLDER_IMAGE = 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp';
+
+function isMediaArray(value: unknown): value is AdminMediaItem[] {
+  return Array.isArray(value) && value.every((item) => {
+    return (
+      typeof item === 'object' &&
+      item !== null &&
+      'url' in item &&
+      typeof (item as { url?: unknown }).url === 'string'
+    );
+  });
+}
+
+function getMedia(product: AdminProduct) {
+  return product.media && isMediaArray(product.media) ? product.media : [];
+}
+
+function getMainImage(product: AdminProduct) {
+  return getMedia(product)[0]?.url || PLACEHOLDER_IMAGE;
+}
+
+function getDisplayName(product: AdminProduct, locale: string) {
+  if (locale === 'es') return product.name_es || product.name_en || product.name || `Producto #${product.id}`;
+  return product.name_en || product.name_es || product.name || `Product #${product.id}`;
+}
+
+function formatUsd(value: number | null) {
+  if (value === null || value === undefined) return 'US$0.00';
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+}
+
+function productToPayload(product: AdminProduct, overrides: Partial<AdminProductPayload> = {}): AdminProductPayload {
+  return {
+    brand: product.brand,
+    category_id: product.category_id,
+    colon_price: product.colon_price,
+    country_of_origin: product.country_of_origin,
+    customs_description_en: product.customs_description_en,
+    dangerous_goods: product.dangerous_goods,
+    description: product.description,
+    description_en: product.description_en,
+    discount_percentage: product.discount_percentage,
+    dolar_price: product.dolar_price,
+    height_cm: product.height_cm,
+    hs_code: product.hs_code,
+    inventory_quantity: product.inventory_quantity,
+    is_active: product.is_active,
+    is_featured: product.is_featured,
+    length_cm: product.length_cm,
+    media: getMedia(product),
+    name: product.name,
+    name_en: product.name_en,
+    name_es: product.name_es,
+    sku: product.sku,
+    specifications: product.specifications,
+    tags: product.tags,
+    weight_kg: product.weight_kg,
+    width_cm: product.width_cm,
+    ...overrides,
   };
+}
 
-  const timeFormatter = new Intl.DateTimeFormat('es-CR', options);
-  const timeString = timeFormatter.format(modifiedDate).toLowerCase();
-
-  // Calcular diferencia en días
-  const diffInMs = now.getTime() - modifiedDate.getTime();
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-  const diffInWeeks = Math.floor(diffInDays / 7);
-
-  // Para fechas de hoy
-  if (diffInDays === 0) {
-    return `Hoy a las ${timeString}`;
-  }
-  // Para ayer
-  else if (diffInDays === 1) {
-    return `Ayer a las ${timeString}`;
-  }
-  // Últimos 7 días (mostrar día de la semana)
-  else if (diffInDays < 7) {
-    const dayFormatter = new Intl.DateTimeFormat('es-CR', {
-      weekday: 'long',
-      timeZone: 'America/Costa_Rica'
-    });
-    const dayName = dayFormatter.format(modifiedDate);
-    return `El ${dayName.charAt(0).toUpperCase() + dayName.slice(1)} a las ${timeString}`;
-  }
-  // Hace 1 semana
-  else if (diffInWeeks === 1) {
-    return 'La semana pasada';
-  }
-  // Hace 2-3 semanas
-  else if (diffInWeeks < 4) {
-    return `Hace ${diffInWeeks} semana${diffInWeeks > 1 ? 's' : ''}`;
-  }
-  // Hace 1 mes o más
-  else {
-    const diffInMonths = Math.floor(diffInDays / 30);
-    if (diffInMonths === 1) {
-      return 'Hace 1 mes';
-    } else if (diffInMonths < 12) {
-      return `Hace ${diffInMonths} meses`;
-    } else {
-      // Para más de un año
-      const diffInYears = Math.floor(diffInMonths / 12);
-      return `Hace ${diffInYears} año${diffInYears > 1 ? 's' : ''}`;
-    }
-  }
-};
+function StatTile({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number; 'aria-hidden'?: boolean }>;
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="border border-[#E8E4E0] bg-[#F5F1EB] p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-medium uppercase tracking-[0.08em] text-[#6B6459]">{label}</p>
+        <Icon className="h-5 w-5 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+      </div>
+      <p className="mt-3 font-display text-3xl font-medium tabular-nums text-[#2D2D2D]">{value}</p>
+    </div>
+  );
+}
 
 export default function AdminDashboard({ locale }: { locale: string }) {
-  const { supabase } = useSupabase();
-  const [products, setProducts] = useState<Product[]>([]);
+  const isEs = locale === 'es';
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
-  const [categories, setCategories] = useState<Database['public']['Tables']['categories']['Row'][]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showProductMenu, setShowProductMenu] = useState<number | null>(null); // Para controlar el menú de opciones
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [editorProduct, setEditorProduct] = useState<AdminProduct | null | undefined>(undefined);
+  const [busyProductId, setBusyProductId] = useState<number | null>(null);
 
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-
-  // Función para cargar productos
-  const fetchProducts = useCallback(async () => {
     try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('id', { ascending: true });
+      const response = await fetch('/api/admin/products', { credentials: 'same-origin' });
+      const payload = await response.json() as AdminProductsResponse;
 
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      console.error('Error al cargar productos:', err);
+      if (!response.ok) {
+        throw new Error(payload.error || (isEs ? 'No se pudo cargar el CMS.' : 'CMS data could not be loaded.'));
+      }
+
+      setProducts(payload.products || []);
+      setCategories(payload.categories || []);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : isEs ? 'No se pudo cargar el CMS.' : 'CMS data could not be loaded.';
+      setError(message);
     } finally {
       setLoading(false);
     }
-  }, [supabase, setLoading, setProducts, setError]);
+  }, [isEs]);
 
-  // Función para cargar categorías
-  const fetchCategories = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name_es', { ascending: true });
-
-      if (error) throw error;
-      setCategories(data || []);
-    } catch (err: unknown) {
-      console.error('Error al cargar categorías:', err);
-    }
-  }, [supabase, setCategories]);
-
-  // Cargar productos y categorías
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, [fetchProducts, fetchCategories]);
+    void loadProducts();
+  }, [loadProducts]);
 
-  // Cerrar el menú al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      // Verificar si el clic fue fuera del menú
-      const menuButton = document.querySelector(`button[aria-controls="product-menu-${showProductMenu}"]`);
-      const menuElement = document.getElementById(`product-menu-${showProductMenu}`);
+  const categoryById = useMemo(() => {
+    return new Map(categories.map((category) => [category.id, category]));
+  }, [categories]);
 
-      if (showProductMenu !== null &&
-        menuButton &&
-        menuElement &&
-        !menuButton.contains(event.target as Node) &&
-        !menuElement.contains(event.target as Node)) {
-        setShowProductMenu(null);
-      }
-    };
+  const stats = useMemo(() => {
+    const active = products.filter((product) => product.is_active).length;
+    const featured = products.filter((product) => product.is_featured).length;
+    const outOfStock = products.filter((product) => product.inventory_quantity <= 0).length;
+    return { active, featured, outOfStock, total: products.length };
+  }, [products]);
 
-    document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [showProductMenu]);
-
-  // Filtrar productos según búsqueda y categoría
   const filteredProducts = useMemo(() => {
-    return products.filter(product => {
-      const matchesSearch =
-        !searchTerm ||
-        (product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (product.name_es && product.name_es.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (product.sku && product.sku.toLowerCase().includes(searchTerm.toLowerCase()));
+    const query = searchTerm.trim().toLowerCase();
 
-      const matchesCategory = !categoryFilter || product.category_id === categoryFilter;
+    return products.filter((product) => {
+      const category = product.category_id ? categoryById.get(product.category_id) : null;
+      const searchable = [
+        product.name,
+        product.name_es,
+        product.name_en,
+        product.sku,
+        category?.name,
+        category?.name_es,
+        category?.name_en,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-      return matchesSearch && matchesCategory;
+      const matchesSearch = !query || searchable.includes(query);
+      const matchesCategory = !categoryFilter || product.category_id === Number(categoryFilter);
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'active' && Boolean(product.is_active)) ||
+        (statusFilter === 'inactive' && !product.is_active) ||
+        (statusFilter === 'featured' && Boolean(product.is_featured)) ||
+        (statusFilter === 'out_of_stock' && product.inventory_quantity <= 0);
+
+      return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [products, searchTerm, categoryFilter]);
+  }, [categoryById, categoryFilter, products, searchTerm, statusFilter]);
 
-  // Actualizar un producto
-  const updateProduct = useCallback(async (productId: number, updates: Partial<Product>) => {
+  const saveProduct = useCallback(async (payload: AdminProductPayload, productId?: number): Promise<ProductActionResult> => {
+    const endpoint = productId ? `/api/admin/products/${productId}` : '/api/admin/products';
+    const method = productId ? 'PATCH' : 'POST';
+
     try {
-      setLoading(true);
+      const response = await fetch(endpoint, {
+        method,
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json() as { product?: AdminProduct; error?: string };
 
-      // Validar los datos antes de actualizar
-      if (updates.colon_price !== undefined) {
-        const price = Number(updates.colon_price);
-        if (isNaN(price) || price < 0) {
-          throw new Error(locale === 'es' ? 'El precio debe ser un número válido mayor o igual a 0' : 'The price must be a valid number greater than or equal to 0');
+      if (!response.ok || !data.product) {
+        throw new Error(data.error || (isEs ? 'No se pudo guardar el producto.' : 'Product could not be saved.'));
+      }
+
+      setProducts((current) => {
+        if (productId) {
+          return current.map((product) => product.id === productId ? data.product as AdminProduct : product);
         }
-        updates.colon_price = price;
-      }
-
-      if (updates.dolar_price !== undefined) {
-        const usd = Number(updates.dolar_price);
-        if (isNaN(usd) || usd < 0) {
-          throw new Error(locale === 'es' ? 'El precio USD debe ser un número válido mayor o igual a 0' : 'USD price must be a valid number greater than or equal to 0');
-        }
-        updates.dolar_price = usd;
-      }
-
-      if (updates.discount_percentage !== undefined) {
-        const discount = Number(updates.discount_percentage);
-        if (isNaN(discount) || discount < 0 || discount > 100) {
-          throw new Error(locale === 'es' ? 'El descuento debe ser un número entre 0 y 100' : 'The discount must be a number between 0 and 100');
-        }
-        updates.discount_percentage = discount;
-      }
-
-      const { error } = await supabase
-        .from('products')
-        .update(updates)
-        .eq('id', productId);
-
-      if (error) throw error;
-
-      // Actualizar el producto en el estado local
-      setProducts(products.map(p =>
-        p.id === productId ? { ...p, ...updates } : p
-      ));
-
-      // Si estamos editando este producto, actualizar también el producto seleccionado
-      if (selectedProduct && selectedProduct.id === productId) {
-        setSelectedProduct({ ...selectedProduct, ...updates });
-      }
-
-      // Mostrar notificación de éxito según el tipo de actualización
-      if (updates.colon_price !== undefined) {
-        toast.success(
-          <div className="flex flex-col">
-            <span className="font-medium">{locale === 'es' ? 'Precio actualizado' : 'Price updated'}</span>
-            <span className="text-sm">{locale === 'es' ? 'Nuevo precio: ₡' : 'New price: ₡'}{updates.colon_price}</span>
-          </div>,
-          { duration: 3000 }
-        );
-      } else if (updates.dolar_price !== undefined) {
-        toast.success(
-          <div className="flex flex-col">
-            <span className="font-medium">{locale === 'es' ? 'Precio USD actualizado' : 'USD price updated'}</span>
-            <span className="text-sm">{locale === 'es' ? 'Nuevo precio: $' : 'New price: $'}{updates.dolar_price}</span>
-          </div>,
-          { duration: 3000 }
-        );
-      } else if (updates.is_active !== undefined) {
-        toast.success(
-          <div className="flex flex-col">
-            <span className="font-medium">{locale === 'es' ? 'Estado actualizado' : 'Status updated'}</span>
-            <span className="text-sm">{locale === 'es' ? (updates.is_active ? 'Producto activado' : 'Producto desactivado') : (updates.is_active ? 'Product activated' : 'Product deactivated')}</span>
-          </div>,
-          { duration: 3000 }
-        );
-      } else if (updates.discount_percentage !== undefined) {
-        toast.success(
-          <div className="flex flex-col">
-            <span className="font-medium">{locale === 'es' ? 'Descuento actualizado' : 'Discount updated'}</span>
-            <span className="text-sm">
-              {updates.discount_percentage > 0
-                ? locale === 'es' ? `Descuento: ${updates.discount_percentage}%` : `Discount: ${updates.discount_percentage}%`
-                : locale === 'es' ? 'Descuento removido' : 'Discount removed'}
-            </span>
-          </div>,
-          { duration: 3000 }
-        );
-      } else {
-        toast.success(locale === 'es' ? 'Producto actualizado correctamente' : 'Product updated successfully');
-      }
-
+        return [data.product as AdminProduct, ...current];
+      });
+      setEditorProduct(undefined);
+      toast.success(isEs ? 'Producto guardado.' : 'Product saved.');
       return { success: true };
-    } catch (err: unknown) {
-      console.error('Error al actualizar producto:', err);
-      const errorMessage = err instanceof Error ? err.message : 'No se pudo actualizar el producto';
-      toast.error(`Error: ${errorMessage}`);
-      return { success: false, error: errorMessage };
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : isEs ? 'No se pudo guardar el producto.' : 'Product could not be saved.';
+      toast.error(message);
+      return { success: false, error: message };
     }
-  }, [supabase, products, selectedProduct, setLoading, setProducts, setSelectedProduct, locale]);
+  }, [isEs]);
+
+  const quickUpdate = async (product: AdminProduct, overrides: Partial<AdminProductPayload>) => {
+    setBusyProductId(product.id);
+    await saveProduct(productToPayload(product, overrides), product.id);
+    setBusyProductId(null);
+  };
+
+  const duplicateProduct = async (product: AdminProduct) => {
+    const sourceName = product.name || getDisplayName(product, locale);
+    const copySuffix = Date.now().toString().slice(-5);
+    const payload = productToPayload(product, {
+      is_active: false,
+      is_featured: false,
+      name: `${sourceName}-copy-${copySuffix}`,
+      name_en: `${product.name_en || sourceName} copy`,
+      name_es: `${product.name_es || sourceName} copia`,
+      sku: product.sku ? `${product.sku}-COPY` : null,
+    });
+
+    setBusyProductId(product.id);
+    await saveProduct(payload);
+    setBusyProductId(null);
+  };
+
+  const archiveProduct = async (product: AdminProduct) => {
+    const confirmed = window.confirm(
+      isEs
+        ? `¿Archivar "${getDisplayName(product, locale)}"? Se ocultará de la tienda, pero se conserva el historial.`
+        : `Archive "${getDisplayName(product, locale)}"? It will be hidden from the storefront but history is preserved.`
+    );
+    if (!confirmed) return;
+
+    setBusyProductId(product.id);
+    try {
+      const response = await fetch(`/api/admin/products/${product.id}?mode=archive`, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+      });
+      const data = await response.json() as { product?: AdminProduct; error?: string };
+
+      if (!response.ok || !data.product) {
+        throw new Error(data.error || (isEs ? 'No se pudo archivar el producto.' : 'Product could not be archived.'));
+      }
+
+      setProducts((current) => current.map((item) => item.id === product.id ? data.product as AdminProduct : item));
+      toast.success(isEs ? 'Producto archivado.' : 'Product archived.');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : isEs ? 'No se pudo archivar.' : 'Could not archive.');
+    } finally {
+      setBusyProductId(null);
+    }
+  };
+
+  const deleteProduct = async (product: AdminProduct) => {
+    const productName = product.name || getDisplayName(product, locale);
+    const typed = window.prompt(
+      isEs
+        ? `Borrado definitivo. Escribí exactamente "${productName}" para confirmar.`
+        : `Permanent delete. Type exactly "${productName}" to confirm.`
+    );
+
+    if (typed !== productName) return;
+
+    setBusyProductId(product.id);
+    try {
+      const response = await fetch(`/api/admin/products/${product.id}?mode=hard`, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+      });
+      const data = await response.json() as { deleted?: boolean; error?: string };
+
+      if (!response.ok || !data.deleted) {
+        throw new Error(
+          data.error ||
+          (isEs
+            ? 'No se pudo borrar. Si tiene historial de compra o cotización, archivá el producto.'
+            : 'Could not delete. If it has order or quote history, archive the product instead.')
+        );
+      }
+
+      setProducts((current) => current.filter((item) => item.id !== product.id));
+      toast.success(isEs ? 'Producto borrado.' : 'Product deleted.');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : isEs ? 'No se pudo borrar.' : 'Could not delete.');
+    } finally {
+      setBusyProductId(null);
+    }
+  };
+
+  if (editorProduct !== undefined) {
+    return (
+      <ProductEditor
+        locale={locale}
+        product={editorProduct}
+        categories={categories}
+        onSave={saveProduct}
+        onCancel={() => setEditorProduct(undefined)}
+      />
+    );
+  }
 
   return (
-    <div className="container mx-auto px-2 py-0.5 text-gray-800">
-      <h1 className="text-2xl font-bold mb-0.5">{locale === 'es' ? 'Admin de Productos' : 'Products admin'}</h1>
-
-
-      {/* Barra de herramientas */}
-      <div className="bg-white rounded-lg shadow-md p-1 mb-1">
-        {/* Búsqueda y filtro en la misma fila */}
-        <div className="flex flex-row gap-2 md:gap-4 mb-2">
-          {/* Búsqueda */}
-          <div className="relative flex-grow">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder={locale === 'es' ? 'Buscar por nombre...' : 'Search by name...'}
-              className="block w-full pl-10 pr-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label="Buscar productos"
-            />
+    <main className="min-h-screen bg-[#FAF6EF] px-4 py-8 text-[#2D2D2D] sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-screen-2xl">
+        <header className="flex flex-col gap-5 border-b border-[#E8E4E0] pb-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+              {isEs ? 'Administración' : 'Administration'}
+            </p>
+            <h1 className="mt-2 font-display text-4xl font-medium text-[#2D2D2D] md:text-5xl">
+              {isEs ? 'CMS de productos' : 'Product CMS'}
+            </h1>
+            <p className="mt-3 max-w-[70ch] text-sm leading-relaxed text-[#4A4A4A] md:text-base">
+              {isEs
+                ? 'Crear, editar, publicar, archivar y borrar productos desde un solo lugar. Los cambios impactan catálogo, búsqueda, detalle de producto, carrito e inventario.'
+                : 'Create, edit, publish, archive and delete products from one place. Changes affect catalog, search, product detail, cart and inventory.'}
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setEditorProduct(null)}
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#1A1A1A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+          >
+            <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+            {isEs ? 'Nuevo producto' : 'New product'}
+          </button>
+        </header>
 
-          {/* Filtro de categoría */}
-          <div className="relative w-12 md:w-64">
-            <div className="absolute inset-y-0 left-3 p-1 flex items-center justify-center pointer-events-none">
-              <Filter className="h-5 w-5 text-gray-400" />
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label={isEs ? 'Resumen de productos' : 'Products summary'}>
+          <StatTile icon={Package} label={isEs ? 'Productos' : 'Products'} value={stats.total} />
+          <StatTile icon={CheckCircle} label={isEs ? 'Publicados' : 'Published'} value={stats.active} />
+          <StatTile icon={Star} label={isEs ? 'Destacados' : 'Featured'} value={stats.featured} />
+          <StatTile icon={Boxes} label={isEs ? 'Sin stock' : 'Out of stock'} value={stats.outOfStock} />
+        </section>
+
+        <section className="mt-6 border border-[#E8E4E0] bg-[#F5F1EB] p-4">
+          <div className="grid gap-3 lg:grid-cols-[1fr_220px_220px_auto]">
+            <div>
+              <label htmlFor="product-search" className="sr-only">
+                {isEs ? 'Buscar productos' : 'Search products'}
+              </label>
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                <input
+                  id="product-search"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder={isEs ? 'Buscar por nombre, SKU o categoría...' : 'Search by name, SKU or category...'}
+                  className="min-h-[44px] w-full rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] py-2.5 pl-10 pr-3 text-sm text-[#2D2D2D] outline-none placeholder:text-[#6B6459]/70 focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+                />
+              </div>
             </div>
+
             <select
-              className="block w-full pl-10 pr-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none md:appearance-auto"
-              value={categoryFilter || ''}
-              onChange={(e) => setCategoryFilter(e.target.value ? parseInt(e.target.value) : null)}
-              aria-label="Filtrar por categoría"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+              className="min-h-[44px] rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] px-3 py-2.5 text-sm text-[#2D2D2D] outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+              aria-label={isEs ? 'Filtrar por estado' : 'Filter by status'}
             >
-              <option value=""></option>
+              <option value="all">{isEs ? 'Todos los estados' : 'All statuses'}</option>
+              <option value="active">{isEs ? 'Publicados' : 'Published'}</option>
+              <option value="inactive">{isEs ? 'Archivados' : 'Archived'}</option>
+              <option value="featured">{isEs ? 'Destacados' : 'Featured'}</option>
+              <option value="out_of_stock">{isEs ? 'Sin stock' : 'Out of stock'}</option>
+            </select>
+
+            <select
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+              className="min-h-[44px] rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] px-3 py-2.5 text-sm text-[#2D2D2D] outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+              aria-label={isEs ? 'Filtrar por categoría' : 'Filter by category'}
+            >
+              <option value="">{isEs ? 'Todas las categorías' : 'All categories'}</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {locale === 'es' ? category.name_es : category.name_en}
+                  {(isEs ? category.name_es : category.name_en) || category.name}
                 </option>
               ))}
             </select>
-          </div>
-        </div>
 
-        {/* Botón de actualizar y selector de vista en fila separada */}
-        <div className="flex flex-col md:flex-row gap-2 md:gap-4">
-          {/* Botón de actualizar */}
-          <button
-            onClick={() => fetchProducts()}
-            className="flex items-center justify-center px-3 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-            disabled={loading}
-          >
-            <RefreshCw className={`h-5 w-5 mr-1 ${loading ? 'animate-spin' : ''}`} />
-            {locale === 'es' ? 'Actualizar' : 'Update'}
-          </button>
-
-          {/* Selector de vista */}
-          <div className="flex items-center space-x-2 ml-auto">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded ${viewMode === 'grid' ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-600'}`}
-              aria-label="Ver en cuadrícula"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded ${viewMode === 'list' ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-600'}`}
-              aria-label="Ver en lista"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Estado de carga o error */}
-      {loading && !selectedProduct && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-600 mb-2"></div>
-          <p className="text-gray-600">{locale === 'es' ? 'Cargando productos...' : 'Loading products...'}</p>
-        </div>
-      )}
-
-      {error && !selectedProduct && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-          <p className="font-bold">{locale === 'es' ? 'Error' : 'Error'}</p>
-          <p>{error}</p>
-        </div>
-      )}
-
-      {/* Vista del editor de producto */}
-      {selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white shadow-xl w-full max-w-full max-h-full h-full overflow-y-auto">
-            <ProductEditor
-              locale={locale}
-              product={selectedProduct}
-              categories={categories}
-              onSave={async (updates) => {
-                const result = await updateProduct(selectedProduct.id, updates);
-                if (result.success) {
-                  setSelectedProduct(null);
-                }
-                return result;
-              }}
-              onCancel={() => setSelectedProduct(null)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Lista de productos */}
-      {!loading && filteredProducts.length === 0 && (
-        <div className="text-center py-6 bg-gray-50 rounded-lg">
-          <p className="text-gray-600">{locale === 'es' ? 'No se encontraron productos' : 'No products found'}</p>
-        </div>
-      )}
-
-      {filteredProducts.length > 0 && (
-        <div className={viewMode === 'grid'
-          ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-          : "flex flex-col space-y-3"
-        }>
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className={`bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg ${viewMode === 'grid' ? 'transform hover:-translate-y-1' : 'flex flex-col md:flex-row'
-                }`}
-            >
-              {viewMode === 'grid' ? (
-                // Vista de cuadrícula
-                <div className="cursor-pointer" onClick={() => setSelectedProduct(product)}>
-                  <div className="h-36 sm:h-56 relative">
-                    <div className="h-full w-full flex items-center justify-center bg-teal-50 p-4"
-
-                    >
-                      {product.media && isMediaArray(product.media) && product.media.length > 0 && product.media[0].url ? (
-                        <Image
-                          src={product.media[0].url}
-                          alt={product.name || 'Producto'}
-                          className="w-full h-full object-contain"
-                          width={300}
-                          height={300}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full bg-gray-200 text-gray-400">
-                          <span>{locale === 'es' ? 'Sin imagen' : 'No image'}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <div className="flex justify-between items-start mb-0.5">
-                      <h3 className="text-sm font-medium text-gray-900 line-clamp-none">
-                        {locale === 'es' ? `${product.name_es || product.name}` : `${product.name_en || product.name}`}
-
-                      </h3>
-                      {product.is_active ? (
-                        <span className="inline-block px-2 py-1 text-[0.65rem] font-semibold rounded-full bg-green-100 text-green-800">
-                          {locale === 'es' ? 'Activo' : 'Active'}
-                        </span>
-                      ) : (
-                        <span className="inline-block px-1 py-1 text-[0.65rem] font-semibold rounded-full bg-red-100 text-red-800">
-
-                          {locale === 'es' ? 'Inactivo' : 'Inactive'}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="mt-2 flex flex-col">
-                      <div className="flex items-center">
-                        <div className="flex-grow flex items-center">
-                          <div className="flex flex-col space-y-2">
-                            {/* Primera fila: Precio y estado */}
-                            <div className="flex flex-wrap items-center gap-2">
-                              <div className="flex items-center">
-                                <div className="flex items-center border border-gray-300 rounded-l overflow-hidden">
-                                  <span className="px-2 py-1.5 bg-gray-50 text-teal-700 font-bold border-r border-gray-300">$</span>
-                                  <input
-                                    type="number"
-                                    className="w-24 px-2 py-1.5 text-md font-bold text-teal-700 border-none transition-colors focus:outline-none focus:ring-0"
-                                    value={product.dolar_price || ''}
-                                    onChange={(e) => {
-                                      const newPrice = e.target.value ? parseFloat(e.target.value) : null;
-                                      setProducts(products.map(p =>
-                                        p.id === product.id ? { ...p, dolar_price: newPrice } : p
-                                      ));
-                                    }}
-                                    min="0"
-                                    step="100"
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                </div>
-                                <button
-                                  className="px-3 py-2 ml-1 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-r transition-colors duration-200 flex items-center justify-center"
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    if (product.dolar_price !== null) {
-                                      const loadingToast = toast.loading(`${locale === 'es' ? 'Actualizando precio...' : 'Updating price...'}`);
-                                      await updateProduct(product.id, { dolar_price: product.dolar_price });
-                                      toast.dismiss(loadingToast);
-                                    }
-                                  }}
-                                  title={locale === 'es' ? 'Actualizar precio' : 'Update price'}
-                                >
-                                  <RefreshCw className="h-4 w-4 mr-2" />
-                                  <span>{locale === 'es' ? 'Aplicar precio' : 'Apply price'}</span>
-                                </button>
-                              </div>
-
-                              {/* Menú de opciones */}
-                              <div className="relative">
-                                <button
-                                  className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowProductMenu(showProductMenu === product.id ? null : product.id);
-                                  }}
-                                  title={locale === 'es' ? 'Más opciones' : 'More options'}
-                                >
-                                  <Menu className="h-7 w-7 text-black" />
-                                </button>
-
-                                {showProductMenu === product.id && (
-                                  <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
-                                    {/* Botón para activar/desactivar producto */}
-                                    <button
-                                      className={`w-full text-left px-4 py-2 text-sm flex items-center ${product.is_active ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`}
-                                      onClick={async (e) => {
-                                        e.stopPropagation();
-                                        const loadingToast = toast.loading(`${product.is_active ? (locale === 'es' ? 'Desactivando' : 'Deactivating') : (locale === 'es' ? 'Activando' : 'Activating')} producto...`);
-                                        await updateProduct(product.id, { is_active: !product.is_active });
-                                        toast.dismiss(loadingToast);
-                                        setShowProductMenu(null);
-                                      }}
-                                    >
-                                      {product.is_active ? (
-                                        <>
-                                          <X className="h-4 w-4 mr-2" />
-                                          {locale === 'es' ? 'Desactivar producto' : 'Deactivate product'}
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Check className="h-4 w-4 mr-2" />
-                                          {locale === 'es' ? 'Activar producto' : 'Activate product'}
-                                        </>
-                                      )}
-                                    </button>
-
-                                    {/* Botón para editar producto completo */}
-                                    <button
-                                      className="w-full text-left px-4 py-2 text-sm flex items-center text-blue-600 hover:bg-blue-50"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedProduct(product);
-                                        setShowProductMenu(null);
-                                      }}
-                                    >
-                                      <Edit className="h-4 w-4 mr-2" />
-                                      {locale === 'es' ? 'Editar producto' : 'Edit product'}
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Segunda fila: Control de descuento */}
-                            <div className="flex items-center">
-                              <div className="flex items-center border border-gray-300 rounded-l overflow-hidden">
-                                <input
-                                  type="number"
-                                  className="w-16 px-2 py-1.5 text-sm font-medium text-gray-700 border-none focus:outline-none focus:ring-0"
-
-                                  value={product.discount_percentage || ''}
-                                  onChange={(e) => {
-                                    const newDiscount = e.target.value ? parseFloat(e.target.value) : null;
-                                    setProducts(products.map(p =>
-                                      p.id === product.id ? { ...p, discount_percentage: newDiscount } : p
-                                    ));
-                                  }}
-                                  min="0"
-                                  max="100"
-                                  step="1"
-                                  placeholder="0"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                                <span className="px-2 py-1.5 bg-gray-50 text-gray-700 font-medium border-l border-gray-300">%</span>
-                              </div>
-                              <button
-                                className="px-3 py-2 ml-1 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-r transition-colors duration-200 flex items-center justify-center"
-                                onClick={async (e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                  const loadingToast = toast.loading('Actualizando descuento...');
-                                  await updateProduct(product.id, { discount_percentage: product.discount_percentage });
-                                  toast.dismiss(loadingToast);
-                                }}
-                                title="Actualizar descuento"
-                              >
-                                <span>{locale === 'es' ? 'Aplicar descuento' : 'Apply discount'}</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    {product.sku && (
-                      <div className="mt-0.5 pl-0.5 text-[0.6rem] text-gray-500">
-                        SKU: {product.sku}
-                      </div>
-                    )}
-
-                    {product.category_id && (
-                      <div className="mt-0.5">
-                        <span className="inline-block px-2 py-0.5 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-100">
-                          {locale === 'es' ? categories.find(cat => cat.id === product.category_id)?.name_es || 'Categoría' : categories.find(cat => cat.id === product.category_id)?.name_en || 'Category'}
-
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="mt-2 text-center text-xs text-gray-500">
-                      {locale === 'es' ? 'Última modificación' : 'Last modification'}: {product.modified_at ? formatModifiedDate(product.modified_at) : 'No disponible'}
-                    </div>
-                    <div className="mt-1 text-center text-[0.6rem] text-gray-400 italic">
-
-                      {locale === 'es' ? 'Click para más opciones de edición' : 'Click for more editing options'}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                // Vista de lista mejorada
-                <div className="flex items-start p-3 gap-3 w-full cursor-pointer hover:bg-gray-50" onClick={() => setSelectedProduct(product)}>
-                  {/* Imagen del producto */}
-                  <div className="relative w-16 h-16 flex-shrink-0">
-                    {product.media && isMediaArray(product.media) && product.media.length > 0 && product.media[0].url ? (
-                      <Image
-                        src={product.media[0].url}
-                        alt={product.name || 'Producto'}
-                        className="w-full h-full object-contain bg-gray-50 rounded"
-                        width={64}
-                        height={64}
-                        priority={false}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full bg-gray-200 text-gray-400 rounded">
-                        <span className="text-xs">{locale === 'es' ? 'Sin imagen' : 'No image'}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Nombre del producto */}
-                  <div className="flex-grow min-w-0 py-1">
-                    <h3 className="text-base font-medium text-gray-900 leading-relaxed break-words">
-                      {product.name_es || product.name || `Producto #${product.id}`}
-                    </h3>
-                  </div>
-                </div>
-              )}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => void loadProducts()}
+                disabled={loading}
+                className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-sm border border-[#E8E4E0] px-4 py-2.5 text-sm font-semibold tracking-wide text-[#2D2D2D] transition hover:border-[#A08848] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} strokeWidth={1.5} aria-hidden />
+                {isEs ? 'Actualizar' : 'Refresh'}
+              </button>
+              <div className="flex border border-[#E8E4E0] bg-[#FFFDF9]">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  aria-label={isEs ? 'Vista de cuadrícula' : 'Grid view'}
+                  aria-pressed={viewMode === 'grid'}
+                  className={`grid h-11 w-11 place-items-center ${viewMode === 'grid' ? 'bg-[#2D2D2D] text-[#F5F1EB]' : 'text-[#6B6459]'}`}
+                >
+                  <Grid3X3 className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  aria-label={isEs ? 'Vista de lista' : 'List view'}
+                  aria-pressed={viewMode === 'list'}
+                  className={`grid h-11 w-11 place-items-center ${viewMode === 'list' ? 'bg-[#2D2D2D] text-[#F5F1EB]' : 'text-[#6B6459]'}`}
+                >
+                  <List className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                </button>
+              </div>
             </div>
-          ))}
+          </div>
+        </section>
+
+        {error && (
+          <div className="mt-6 flex gap-3 border border-[#C44536] bg-[#FFFDF9] p-4 text-sm text-[#9F2D24]" role="alert">
+            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.5} aria-hidden />
+            <p>{error}</p>
+          </div>
+        )}
+
+        {loading && (
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-busy="true">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className="h-[360px] animate-pulse border border-[#E8E4E0] bg-[#F5F1EB]" />
+            ))}
+          </div>
+        )}
+
+        {!loading && filteredProducts.length === 0 && (
+          <div className="mt-6 flex min-h-[260px] flex-col items-center justify-center border border-dashed border-[#E8E4E0] bg-[#F5F1EB] p-8 text-center">
+            <Package className="h-8 w-8 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+            <h2 className="mt-4 font-display text-2xl font-medium text-[#2D2D2D]">
+              {isEs ? 'No hay productos para este filtro' : 'No products match this filter'}
+            </h2>
+            <p className="mt-2 max-w-[48ch] text-sm leading-relaxed text-[#6B6459]">
+              {isEs ? 'Probá limpiar búsqueda o crear un producto nuevo.' : 'Try clearing search or create a new product.'}
+            </p>
+          </div>
+        )}
+
+        {!loading && filteredProducts.length > 0 && (
+          <section
+            className={
+              viewMode === 'grid'
+                ? 'mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4'
+                : 'mt-6 space-y-3'
+            }
+          >
+            {filteredProducts.map((product) => {
+              const category = product.category_id ? categoryById.get(product.category_id) : null;
+              const displayName = getDisplayName(product, locale);
+              const busy = busyProductId === product.id;
+              const statusLabel = product.is_active ? (isEs ? 'Publicado' : 'Published') : (isEs ? 'Archivado' : 'Archived');
+              const stockLabel = product.inventory_quantity <= 0
+                ? isEs ? 'Sin stock' : 'Out of stock'
+                : `${product.inventory_quantity} ${isEs ? 'en stock' : 'in stock'}`;
+
+              if (viewMode === 'list') {
+                return (
+                  <article key={product.id} className="grid gap-4 border border-[#E8E4E0] bg-[#F5F1EB] p-3 md:grid-cols-[88px_1fr_auto] md:items-center">
+                    <ProductThumb src={getMainImage(product)} alt={displayName} size="small" />
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="font-display text-xl font-medium text-[#2D2D2D]">{displayName}</h2>
+                        {product.is_featured && <StatusBadge tone="gold" label={isEs ? 'Destacado' : 'Featured'} />}
+                        <StatusBadge tone={product.is_active ? 'success' : 'muted'} label={statusLabel} />
+                      </div>
+                      <p className="mt-1 text-sm text-[#6B6459]">
+                        {product.sku ? `SKU ${product.sku}` : isEs ? 'Sin SKU' : 'No SKU'} · {(isEs ? category?.name_es : category?.name_en) || category?.name || (isEs ? 'Sin categoría' : 'No category')}
+                      </p>
+                    </div>
+                    <ProductActions
+                      busy={busy}
+                      isEs={isEs}
+                      onArchive={() => void archiveProduct(product)}
+                      onDelete={() => void deleteProduct(product)}
+                      onDuplicate={() => void duplicateProduct(product)}
+                      onEdit={() => setEditorProduct(product)}
+                      onToggleActive={() => void quickUpdate(product, { is_active: !product.is_active })}
+                      onToggleFeatured={() => void quickUpdate(product, { is_featured: !product.is_featured })}
+                      product={product}
+                    />
+                  </article>
+                );
+              }
+
+              return (
+                <article key={product.id} className="group flex min-h-[420px] flex-col border border-[#E8E4E0] bg-[#F5F1EB] transition-[box-shadow,border-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-[#C9A962]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
+                  <button type="button" onClick={() => setEditorProduct(product)} className="relative aspect-square w-full overflow-hidden border-b border-[#E8E4E0] bg-[#FFFDF9]">
+                    <ProductThumb src={getMainImage(product)} alt={displayName} size="large" />
+                  </button>
+
+                  <div className="flex flex-1 flex-col p-4">
+                    <div className="flex flex-wrap gap-2">
+                      <StatusBadge tone={product.is_active ? 'success' : 'muted'} label={statusLabel} />
+                      {product.is_featured && <StatusBadge tone="gold" label={isEs ? 'Destacado' : 'Featured'} />}
+                      <StatusBadge tone={product.inventory_quantity <= 0 ? 'error' : 'muted'} label={stockLabel} />
+                    </div>
+
+                    <h2 className="mt-4 font-display text-xl font-medium leading-tight text-[#2D2D2D]">
+                      {displayName}
+                    </h2>
+                    <p className="mt-2 text-sm text-[#6B6459]">
+                      {(isEs ? category?.name_es : category?.name_en) || category?.name || (isEs ? 'Sin categoría' : 'No category')}
+                    </p>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[#E8E4E0] pt-4 text-sm">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.08em] text-[#6B6459]">{isEs ? 'Precio' : 'Price'}</p>
+                        <p className="mt-1 font-display text-xl font-semibold tabular-nums text-[#2D2D2D]">
+                          {formatUsd(product.dolar_price)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.08em] text-[#6B6459]">{isEs ? 'Descuento' : 'Discount'}</p>
+                        <p className="mt-1 font-display text-xl font-semibold tabular-nums text-[#2D2D2D]">
+                          {product.discount_percentage ? `${product.discount_percentage}%` : '0%'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="mt-3 text-xs text-[#6B6459]">
+                      {product.sku ? `SKU ${product.sku}` : isEs ? 'Sin SKU' : 'No SKU'}
+                    </p>
+
+                    <div className="mt-auto pt-4">
+                      <ProductActions
+                        busy={busy}
+                        isEs={isEs}
+                        onArchive={() => void archiveProduct(product)}
+                        onDelete={() => void deleteProduct(product)}
+                        onDuplicate={() => void duplicateProduct(product)}
+                        onEdit={() => setEditorProduct(product)}
+                        onToggleActive={() => void quickUpdate(product, { is_active: !product.is_active })}
+                        onToggleFeatured={() => void quickUpdate(product, { is_featured: !product.is_featured })}
+                        product={product}
+                      />
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        )}
+      </div>
+    </main>
+  );
+}
+
+function StatusBadge({ label, tone }: { label: string; tone: 'success' | 'error' | 'gold' | 'muted' }) {
+  const className = {
+    success: 'border-[#4A7C59]/35 text-[#2F5F3E]',
+    error: 'border-[#C44536]/35 text-[#9F2D24]',
+    gold: 'border-[#C9A962]/45 text-[#A08848]',
+    muted: 'border-[#E8E4E0] text-[#6B6459]',
+  }[tone];
+
+  return (
+    <span className={`inline-flex min-h-[26px] items-center border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${className}`}>
+      {label}
+    </span>
+  );
+}
+
+function ProductThumb({ src, alt, size }: { src: string; alt: string; size: 'small' | 'large' }) {
+  return (
+    <div className={`relative overflow-hidden bg-[#FFFDF9] ${size === 'small' ? 'h-[88px] w-[88px] border border-[#E8E4E0]' : 'h-full w-full'}`}>
+      {src ? (
+        <Image src={src} alt={alt} fill sizes={size === 'small' ? '88px' : '(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw'} className="object-contain p-3 transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]" unoptimized />
+      ) : (
+        <div className="flex h-full items-center justify-center">
+          <ImageIcon className="h-6 w-6 text-[#A08848]" strokeWidth={1.5} aria-hidden />
         </div>
       )}
     </div>
+  );
+}
+
+function ProductActions({
+  busy,
+  isEs,
+  onArchive,
+  onDelete,
+  onDuplicate,
+  onEdit,
+  onToggleActive,
+  onToggleFeatured,
+  product,
+}: {
+  busy: boolean;
+  isEs: boolean;
+  onArchive: () => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEdit: () => void;
+  onToggleActive: () => void;
+  onToggleFeatured: () => void;
+  product: AdminProduct;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap">
+      <ActionButton icon={Pencil} label={isEs ? 'Editar' : 'Edit'} onClick={onEdit} primary />
+      <ActionButton icon={Copy} label={isEs ? 'Duplicar' : 'Duplicate'} onClick={onDuplicate} disabled={busy} />
+      <ActionButton icon={product.is_active ? EyeOff : CheckCircle} label={product.is_active ? (isEs ? 'Ocultar' : 'Hide') : (isEs ? 'Publicar' : 'Publish')} onClick={onToggleActive} disabled={busy} />
+      <ActionButton icon={Star} label={product.is_featured ? (isEs ? 'Quitar destacado' : 'Unfeature') : (isEs ? 'Destacar' : 'Feature')} onClick={onToggleFeatured} disabled={busy} />
+      <ActionButton icon={Archive} label={isEs ? 'Archivar' : 'Archive'} onClick={onArchive} disabled={busy} />
+      <ActionButton icon={Trash2} label={isEs ? 'Borrar' : 'Delete'} onClick={onDelete} disabled={busy} danger />
+    </div>
+  );
+}
+
+function ActionButton({
+  danger = false,
+  disabled = false,
+  icon: Icon,
+  label,
+  onClick,
+  primary = false,
+}: {
+  danger?: boolean;
+  disabled?: boolean;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number; 'aria-hidden'?: boolean }>;
+  label: string;
+  onClick: () => void;
+  primary?: boolean;
+}) {
+  const className = primary
+    ? 'border-[#2D2D2D] bg-[#2D2D2D] text-[#F5F1EB] hover:bg-[#1A1A1A]'
+    : danger
+      ? 'border-[#C44536] text-[#9F2D24] hover:bg-[#FFFDF9]'
+      : 'border-[#E8E4E0] text-[#2D2D2D] hover:border-[#A08848] hover:bg-[#FFFDF9]';
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`inline-flex min-h-[40px] items-center justify-center gap-2 rounded-sm border px-3 py-2 text-xs font-semibold tracking-wide transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848] ${className}`}
+    >
+      <Icon className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+      {label}
+    </button>
   );
 }

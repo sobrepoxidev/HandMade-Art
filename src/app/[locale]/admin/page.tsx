@@ -17,23 +17,23 @@ const AdminCard = ({
   title: string;
   href: string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   locale: string;
 }) => (
-  <Link href={href} className="block group transition-transform hover:scale-[1.02]">
-    <div className="h-full p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-500 flex flex-col">
-      <div className="flex items-center mb-4">
-        <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-          <Icon className="w-6 h-6" />
+  <Link href={href} className="group block h-full">
+    <div className="flex h-full flex-col border border-[#E8E4E0] bg-[#F5F1EB] p-5 transition-[border-color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-[#C9A962]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
+      <div className="mb-4 flex items-center gap-3">
+        <div className="grid h-11 w-11 place-items-center border border-[#E8E4E0] bg-[#FAF6EF] text-[#A08848]">
+          <Icon className="h-5 w-5" strokeWidth={1.5} />
         </div>
-        <h3 className="ml-3 text-xl font-semibold text-gray-800 group-hover:text-blue-600">
+        <h2 className="font-display text-2xl font-medium text-[#2D2D2D]">
           {title}
-        </h3>
+        </h2>
       </div>
-      <p className="flex-grow text-gray-600">{description}</p>
-      <div className="mt-4 text-blue-600 font-medium flex items-center group-hover:translate-x-1 transition-transform">
+      <p className="flex-grow text-sm leading-relaxed text-[#4A4A4A]">{description}</p>
+      <div className="mt-5 flex items-center gap-2 text-sm font-semibold tracking-wide text-[#A08848] transition-transform group-hover:translate-x-1">
         {locale === 'es' ? 'Ir a' : 'Go to'} {title}
-        <ArrowRight className="ml-1 w-4 h-4" />
+        <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
       </div>
     </div>
   </Link>
@@ -60,9 +60,23 @@ export default async function AdminPage({
     redirect(`/${locale}`);
   }
   return (
-    <div className="container mx-auto px-3 py-3">
-      <h1 className="text-3xl font-bold text-gray-800 mb-4">{locale === 'es' ? 'Panel de Administración' : 'Admin Panel'}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+    <main className="min-h-screen bg-[#FAF6EF] px-4 py-10 text-[#2D2D2D] sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-screen-xl">
+        <header className="border-b border-[#E8E4E0] pb-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            {locale === 'es' ? 'Gestión interna' : 'Internal management'}
+          </p>
+          <h1 className="mt-2 font-display text-4xl font-medium text-[#2D2D2D] md:text-5xl">
+            {locale === 'es' ? 'Panel de administración' : 'Admin panel'}
+          </h1>
+          <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-[#4A4A4A] md:text-base">
+            {locale === 'es'
+              ? 'Gestioná la operación diaria de Handmade Art: productos, cotizaciones y pagos directos desde módulos separados.'
+              : 'Manage Handmade Art daily operations: products, quotes and direct payments from separated modules.'}
+          </p>
+        </header>
+
+        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         <AdminCard
           href={`/${locale}/admin/direct-payments`}
           title={locale === 'es' ? 'Pagos Directos' : 'Direct Payments'}
@@ -91,8 +105,9 @@ export default async function AdminPage({
           icon={Calendar}
           locale={locale}
         /> */}
+        </div>
       </div>
-    </div>
+    </main>
   );
 
 }
