@@ -19,10 +19,22 @@ import {
   Link as LinkIcon,
   Palette,
   QrCode,
+  Ruler,
   Share2,
 } from 'lucide-react';
 
 const MAX_URL_LENGTH = 3000;
+const MIN_SIDE = 120;
+const MAX_SIDE = 1280;
+const PREVIEW_MAX = 300;
+
+const ASPECT_PRESETS = [
+  { label: '1:1', w: 1, h: 1 },
+  { label: '4:3', w: 4, h: 3 },
+  { label: '3:4', w: 3, h: 4 },
+  { label: '16:9', w: 16, h: 9 },
+  { label: '9:16', w: 9, h: 16 },
+] as const;
 
 const COPY = {
   es: {
@@ -35,6 +47,14 @@ const COPY = {
     copied: 'Copiado',
     fgLabel: 'Color del código',
     bgLabel: 'Color de fondo',
+    hexAria: 'Valor hexadecimal del color',
+    hexPlaceholder: '#000000',
+    sizeTitle: 'Tamaño y forma',
+    widthLabel: 'Ancho',
+    heightLabel: 'Alto',
+    aspectLabel: 'Proporción',
+    squareReset: 'Cuadrado',
+    nonSquareWarn: 'Un QR muy alargado puede costar de escanear. Mantenlo cerca de 1:1 para mejor lectura.',
     generate: 'Generar código QR',
     previewTitle: 'Vista previa',
     previewEmpty: 'Ingresá una URL válida y generá el QR para verlo aquí.',
@@ -67,6 +87,14 @@ const COPY = {
     copied: 'Copied',
     fgLabel: 'Code color',
     bgLabel: 'Background color',
+    hexAria: 'Hex color value',
+    hexPlaceholder: '#000000',
+    sizeTitle: 'Size & shape',
+    widthLabel: 'Width',
+    heightLabel: 'Height',
+    aspectLabel: 'Aspect ratio',
+    squareReset: 'Square',
+    nonSquareWarn: 'A very stretched QR can be hard to scan. Keep it close to 1:1 for best reading.',
     generate: 'Generate QR code',
     previewTitle: 'Preview',
     previewEmpty: 'Enter a valid URL and generate the QR to see it here.',
@@ -104,6 +132,96 @@ function sanitizeForShare(value: string): string {
   return value.trim().replace(/[\r\n]+/g, '');
 }
 
+function clampSide(value: number): number {
+  if (Number.isNaN(value)) return MIN_SIDE;
+  return Math.min(MAX_SIDE, Math.max(MIN_SIDE, Math.round(value)));
+}
+
+// Accepts "#abc", "abc", "#aabbcc", "aabbcc" → normalized "#AABBCC" (or null if invalid).
+function normalizeHex(value: string): string | null {
+  let v = value.trim();
+  if (!v) return null;
+  if (!v.startsWith('#')) v = `#${v}`;
+  if (/^#[0-9a-fA-F]{3}$/.test(v)) {
+    v = `#${v.slice(1).split('').map((c) => c + c).join('')}`;
+  }
+  return /^#[0-9a-fA-F]{6}$/.test(v) ? v.toUpperCase() : null;
+}
+
+interface ColorFieldProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (hex: string) => void;
+  hexAria: string;
+  placeholder: string;
+}
+
+function ColorField({ id, label, value, onChange, hexAria, placeholder }: ColorFieldProps) {
+  const [draft, setDraft] = useState(value.toUpperCase());
+
+  // Keep the text field in sync when the value changes from the picker or a preset.
+  useEffect(() => {
+    setDraft(value.toUpperCase());
+  }, [value]);
+
+  const handleDraft = (raw: string) => {
+    setDraft(raw);
+    const norm = normalizeHex(raw);
+    if (norm) onChange(norm);
+  };
+
+  const commit = () => {
+    const norm = normalizeHex(draft);
+    if (norm) {
+      onChange(norm);
+      setDraft(norm);
+    } else {
+      setDraft(value.toUpperCase());
+    }
+  };
+
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]"
+      >
+        <Palette className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+        {label}
+      </label>
+      <div className="flex min-h-[48px] items-center gap-2 border border-[#E8E4E0] bg-[#FAF6EF] px-2.5">
+        <input
+          id={id}
+          type="color"
+          value={value}
+          onChange={(event) => onChange(event.target.value.toUpperCase())}
+          className="h-9 w-9 shrink-0 cursor-pointer rounded-sm border border-[#E8E4E0] bg-transparent"
+        />
+        <input
+          type="text"
+          inputMode="text"
+          spellCheck={false}
+          autoComplete="off"
+          aria-label={hexAria}
+          value={draft}
+          placeholder={placeholder}
+          maxLength={7}
+          onChange={(event) => handleDraft(event.target.value)}
+          onBlur={commit}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              commit();
+            }
+          }}
+          className="w-full min-w-0 bg-transparent text-sm font-medium uppercase tabular-nums text-[#2D2D2D] outline-none placeholder:text-[#6B6459]/70"
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function QrClient() {
   const locale = useLocale();
   const copy = locale === 'es' ? COPY.es : COPY.en;
@@ -112,6 +230,8 @@ export default function QrClient() {
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [fgColor, setFgColor] = useState('#1A1A1A');
   const [bgColor, setBgColor] = useState('#FAF6EF');
+  const [width, setWidth] = useState(280);
+  const [height, setHeight] = useState(280);
   const [isCopied, setIsCopied] = useState(false);
   const [error, setError] = useState('');
   const qrRef = useRef<HTMLDivElement>(null);
@@ -119,6 +239,13 @@ export default function QrClient() {
   const trimmedUrl = url.trim();
   const characterCount = useMemo(() => trimmedUrl.length, [trimmedUrl]);
   const hasQr = generatedUrl.length > 0;
+
+  // Square source canvas large enough for the longest requested side; export stretches it.
+  const renderSize = Math.max(width, height);
+  const ratio = width / height;
+  const isNonSquare = ratio > 1.15 || ratio < 0.87;
+  const previewWidth = ratio >= 1 ? PREVIEW_MAX : Math.round(PREVIEW_MAX * ratio);
+  const previewHeight = ratio >= 1 ? Math.round(PREVIEW_MAX / ratio) : PREVIEW_MAX;
 
   useEffect(() => {
     if (!isCopied) return;
@@ -157,6 +284,20 @@ export default function QrClient() {
     }
   };
 
+  const applyAspect = useCallback(
+    (w: number, h: number) => {
+      const base = Math.max(width, height);
+      if (w >= h) {
+        setWidth(clampSide(base));
+        setHeight(clampSide((base * h) / w));
+      } else {
+        setHeight(clampSide(base));
+        setWidth(clampSide((base * w) / h));
+      }
+    },
+    [width, height]
+  );
+
   const handleCopyUrl = useCallback(async () => {
     if (!trimmedUrl) return;
 
@@ -173,8 +314,25 @@ export default function QrClient() {
     return qrRef.current?.querySelector('canvas') ?? null;
   }, []);
 
+  // Draws the square source canvas onto a width×height canvas so the export honors the chosen shape.
+  const buildExportCanvas = useCallback(() => {
+    const source = getQrCanvas();
+    if (!source) return null;
+
+    const target = document.createElement('canvas');
+    target.width = width;
+    target.height = height;
+    const ctx = target.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(source, 0, 0, width, height);
+    return target;
+  }, [getQrCanvas, width, height]);
+
   const handleDownload = useCallback(() => {
-    const canvas = getQrCanvas();
+    const canvas = buildExportCanvas();
     if (!canvas) {
       toast.error(copy.errors.noCanvas);
       return;
@@ -203,10 +361,10 @@ export default function QrClient() {
         link.remove();
       }, 500);
     }, 'image/png');
-  }, [copy.errors.noCanvas, copy.errors.noFile, copy.toast.downloadLoading, copy.toast.downloaded, getQrCanvas]);
+  }, [buildExportCanvas, copy.errors.noCanvas, copy.errors.noFile, copy.toast.downloadLoading, copy.toast.downloaded]);
 
   const handleShare = useCallback(() => {
-    const canvas = getQrCanvas();
+    const canvas = buildExportCanvas();
     if (!canvas || !generatedUrl) {
       toast.error(copy.errors.noCanvas);
       return;
@@ -241,7 +399,7 @@ export default function QrClient() {
         console.error('Error sharing QR:', err);
       }
     }, 'image/png');
-  }, [copy.errors.noCanvas, copy.errors.noFile, copy.toast.shareText, copy.toast.shareTitle, generatedUrl, getQrCanvas]);
+  }, [buildExportCanvas, copy.errors.noCanvas, copy.errors.noFile, copy.toast.shareText, copy.toast.shareTitle, generatedUrl]);
 
   return (
     <main className="min-h-screen bg-[#FAF6EF] text-[#2D2D2D]">
@@ -315,49 +473,97 @@ export default function QrClient() {
             </div>
 
             <div className="mt-5 grid gap-4 border-t border-[#E8E4E0] pt-5 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="qr-fg"
-                  className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]"
-                >
-                  <Palette className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
-                  {copy.fgLabel}
-                </label>
-                <div className="flex min-h-[48px] items-center gap-3 border border-[#E8E4E0] bg-[#FAF6EF] px-3">
-                  <input
-                    id="qr-fg"
-                    type="color"
-                    value={fgColor}
-                    onChange={(event) => setFgColor(event.target.value)}
-                    className="h-9 w-9 cursor-pointer rounded-sm border border-[#E8E4E0] bg-transparent"
-                  />
-                  <span className="text-sm font-medium tabular-nums text-[#2D2D2D]">
-                    {fgColor.toUpperCase()}
-                  </span>
-                </div>
+              <ColorField
+                id="qr-fg"
+                label={copy.fgLabel}
+                value={fgColor}
+                onChange={setFgColor}
+                hexAria={copy.hexAria}
+                placeholder={copy.hexPlaceholder}
+              />
+              <ColorField
+                id="qr-bg"
+                label={copy.bgLabel}
+                value={bgColor}
+                onChange={setBgColor}
+                hexAria={copy.hexAria}
+                placeholder={copy.hexPlaceholder}
+              />
+            </div>
+
+            <div className="mt-5 border-t border-[#E8E4E0] pt-5">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+                  <Ruler className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  {copy.sizeTitle}
+                </span>
+                <span className="text-sm font-medium tabular-nums text-[#2D2D2D]">
+                  {width} × {height} px
+                </span>
               </div>
 
-              <div>
-                <label
-                  htmlFor="qr-bg"
-                  className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]"
-                >
-                  <Palette className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
-                  {copy.bgLabel}
-                </label>
-                <div className="flex min-h-[48px] items-center gap-3 border border-[#E8E4E0] bg-[#FAF6EF] px-3">
-                  <input
-                    id="qr-bg"
-                    type="color"
-                    value={bgColor}
-                    onChange={(event) => setBgColor(event.target.value)}
-                    className="h-9 w-9 cursor-pointer rounded-sm border border-[#E8E4E0] bg-transparent"
-                  />
-                  <span className="text-sm font-medium tabular-nums text-[#2D2D2D]">
-                    {bgColor.toUpperCase()}
-                  </span>
-                </div>
+              <div className="mb-3 flex flex-wrap items-center gap-1.5">
+                <span className="text-xs text-[#6B6459]">{copy.aspectLabel}:</span>
+                {ASPECT_PRESETS.map((preset) => {
+                  const active = Math.abs(ratio - preset.w / preset.h) < 0.02;
+                  return (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => applyAspect(preset.w, preset.h)}
+                      aria-pressed={active}
+                      className={`rounded-sm border px-2.5 py-1 text-xs font-medium tabular-nums transition-colors ${
+                        active
+                          ? 'border-[#A08848] bg-[#A08848] text-[#F5F1EB]'
+                          : 'border-[#E8E4E0] bg-[#FAF6EF] text-[#6B6459] hover:border-[#C9A962]'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
               </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="block">
+                  <span className="mb-1 flex items-center justify-between text-xs text-[#6B6459]">
+                    <span>{copy.widthLabel}</span>
+                    <span className="tabular-nums">{width} px</span>
+                  </span>
+                  <input
+                    type="range"
+                    min={MIN_SIDE}
+                    max={MAX_SIDE}
+                    step={8}
+                    value={width}
+                    onChange={(event) => setWidth(clampSide(Number(event.target.value)))}
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#E8E4E0] accent-[#A08848]"
+                    aria-label={copy.widthLabel}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 flex items-center justify-between text-xs text-[#6B6459]">
+                    <span>{copy.heightLabel}</span>
+                    <span className="tabular-nums">{height} px</span>
+                  </span>
+                  <input
+                    type="range"
+                    min={MIN_SIDE}
+                    max={MAX_SIDE}
+                    step={8}
+                    value={height}
+                    onChange={(event) => setHeight(clampSide(Number(event.target.value)))}
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#E8E4E0] accent-[#A08848]"
+                    aria-label={copy.heightLabel}
+                  />
+                </label>
+              </div>
+
+              {isNonSquare && (
+                <p className="mt-3 text-xs leading-relaxed text-[#9A6B12]">
+                  {copy.nonSquareWarn}
+                </p>
+              )}
             </div>
 
             <button
@@ -390,16 +596,18 @@ export default function QrClient() {
               aria-live="polite"
             >
               {hasQr ? (
-                <div className="w-full max-w-[264px] border border-[#E8E4E0] bg-[#FFFDF9] p-3 sm:p-4">
-                  <QRCodeCanvas
-                    value={generatedUrl}
-                    size={264}
-                    level="H"
-                    fgColor={fgColor}
-                    bgColor={bgColor}
-                    includeMargin
-                    style={{ width: '100%', height: 'auto' }}
-                  />
+                <div className="border border-[#E8E4E0] bg-[#FFFDF9] p-3 sm:p-4">
+                  <div style={{ width: previewWidth, height: previewHeight }}>
+                    <QRCodeCanvas
+                      value={generatedUrl}
+                      size={renderSize}
+                      level="H"
+                      fgColor={fgColor}
+                      bgColor={bgColor}
+                      includeMargin
+                      style={{ width: '100%', height: '100%', display: 'block' }}
+                    />
+                  </div>
                 </div>
               ) : (
                 <div className="max-w-[30ch] text-center">
