@@ -600,12 +600,6 @@ export default function CartPage() {
               </div>
               <button
                 onClick={async () => {
-                  if (currentSession === null) {
-                    const fullPath = window.location.pathname + window.location.search;
-                    router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
-                    return;
-                  }
-
                   if (Object.keys(stockWarnings).length > 0) {
                     alert(locale === 'es' ? 'Por favor, revise las advertencias de stock antes de continuar.' : 'Please check the stock warnings before proceeding.');
                     return;
@@ -616,7 +610,7 @@ export default function CartPage() {
                 className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-sm bg-[#C9A962] px-5 py-3.5 text-sm font-semibold tracking-wide text-[#1A1A1A] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
               >
                 <span>
-                  {currentSession === null ? (locale === 'es' ? 'Iniciar sesión para comprar' : 'Sign in to buy') : (locale === 'es' ? 'Comprar' : 'Buy')}
+                  {locale === 'es' ? 'Comprar' : 'Buy'}
                 </span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
