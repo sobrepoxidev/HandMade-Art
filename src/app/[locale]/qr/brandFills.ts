@@ -2,8 +2,8 @@
  * Extensible registry of decorative fills for the 1:1.5 "poster" QR band.
  *
  * Each fill paints ONLY the band region (never the QR matrix or its quiet
- * zone), at low contrast and with no finder-like triple squares — so the QR
- * always scans. Adding a new brand = add one entry to BRAND_FILLS.
+ * zone), so the QR always scans. Adding a new brand = add one entry to
+ * BRAND_FILLS.
  */
 
 export type BrandFillId = 'flat' | 'ai-solutions';
@@ -15,7 +15,7 @@ export interface BandPaintOpts {
   bg: string;
   /** Optional accent override; falls back to the brand palette accent. */
   accent?: string;
-  /** Optional caption line. */
+  /** Optional caption / tagline override. */
   caption?: string;
 }
 
@@ -47,110 +47,105 @@ function roundRectPath(
   h: number,
   r: number,
 ): void {
+  const rr = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
   ctx.closePath();
 }
 
-// Doodle motifs, drawn centered at the current canvas origin in a ~2s box.
-function drawNode(ctx: CanvasRenderingContext2D, s: number): void {
+function withAlpha(hex: string, alpha: number): string {
+  const v = hex.replace('#', '');
+  const n = v.length === 3 ? v.split('').map((c) => c + c).join('') : v;
+  const r = parseInt(n.slice(0, 2), 16);
+  const g = parseInt(n.slice(2, 4), 16);
+  const b = parseInt(n.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// AI Solutions "Ai" monogram: a peak (A, no crossbar) + i stem + accent dot.
+function drawAiMark(
+  ctx: CanvasRenderingContext2D,
+  bx: number,
+  by: number,
+  u: number,
+  accent: string,
+): void {
+  ctx.save();
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = u * 0.15;
+
+  // A — peak
   ctx.beginPath();
-  ctx.arc(-s * 0.6, 0, s * 0.16, 0, Math.PI * 2);
+  ctx.moveTo(bx + u * 0.05, by + u * 0.9);
+  ctx.lineTo(bx + u * 0.37, by + u * 0.12);
+  ctx.lineTo(bx + u * 0.69, by + u * 0.9);
+  ctx.stroke();
+
+  // i — stem
+  ctx.beginPath();
+  ctx.moveTo(bx + u * 0.87, by + u * 0.9);
+  ctx.lineTo(bx + u * 0.87, by + u * 0.4);
+  ctx.stroke();
+
+  // i — accent dot
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  ctx.arc(bx + u * 0.87, by + u * 0.19, u * 0.105, 0, Math.PI * 2);
   ctx.fill();
-  ctx.beginPath();
-  ctx.arc(s * 0.6, 0, s * 0.16, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(-s * 0.45, 0);
-  ctx.lineTo(s * 0.45, 0);
-  ctx.stroke();
+
+  ctx.restore();
 }
 
-function drawBubble(ctx: CanvasRenderingContext2D, s: number): void {
-  roundRectPath(ctx, -s * 0.6, -s * 0.5, s * 1.2, s * 0.8, s * 0.22);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(-s * 0.2, s * 0.3);
-  ctx.lineTo(-s * 0.34, s * 0.6);
-  ctx.lineTo(s * 0.02, s * 0.3);
-  ctx.stroke();
-}
+// Cohesive low-contrast "node network" texture, kept to the margins so it never
+// competes with the central lockup. Deterministic — no randomness.
+const NETWORK_NODES: [number, number][] = [
+  [0.07, 0.28], [0.15, 0.6], [0.05, 0.84], [0.23, 0.18], [0.19, 0.86],
+  [0.31, 0.5], [0.93, 0.26], [0.85, 0.56], [0.95, 0.8], [0.77, 0.2],
+  [0.81, 0.84], [0.69, 0.52], [0.5, 0.92], [0.38, 0.88], [0.62, 0.9],
+];
 
-function drawSparkle(ctx: CanvasRenderingContext2D, s: number): void {
-  ctx.beginPath();
-  ctx.moveTo(0, -s * 0.62);
-  ctx.lineTo(0, s * 0.62);
-  ctx.moveTo(-s * 0.62, 0);
-  ctx.lineTo(s * 0.62, 0);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(-s * 0.3, -s * 0.3);
-  ctx.lineTo(s * 0.3, s * 0.3);
-  ctx.moveTo(s * 0.3, -s * 0.3);
-  ctx.lineTo(-s * 0.3, s * 0.3);
-  ctx.stroke();
-}
-
-function drawPill(ctx: CanvasRenderingContext2D, s: number): void {
-  roundRectPath(ctx, -s * 0.66, -s * 0.28, s * 1.32, s * 0.56, s * 0.28);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(-s * 0.32, 0, s * 0.12, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawArrow(ctx: CanvasRenderingContext2D, s: number): void {
-  ctx.beginPath();
-  ctx.moveTo(-s * 0.6, s * 0.22);
-  ctx.quadraticCurveTo(0, -s * 0.5, s * 0.56, -s * 0.02);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(s * 0.56, -s * 0.02);
-  ctx.lineTo(s * 0.3, -s * 0.16);
-  ctx.moveTo(s * 0.56, -s * 0.02);
-  ctx.lineTo(s * 0.34, s * 0.2);
-  ctx.stroke();
-}
-
-const MOTIFS = [drawNode, drawBubble, drawSparkle, drawPill, drawArrow];
-
-// Tiles low-contrast doodles across the band (deterministic — no randomness).
-function paintDoodleTexture(
+function paintNodeNetwork(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   w: number,
   h: number,
-  ink: string,
   accent: string,
 ): void {
-  const cell = w / 6;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  for (let r = 0; r * cell < h + cell; r++) {
-    for (let c = 0; c * cell < w + cell; c++) {
-      const cx = x + c * cell + cell * 0.5 + (r % 2) * cell * 0.5;
-      const cy = y + r * cell + cell * 0.5;
-      if (cx > x + w + cell || cy > y + h) continue;
-      const motif = MOTIFS[(r * 3 + c * 7) % MOTIFS.length];
-      const useAccent = (r + c) % 4 === 0;
-      ctx.globalAlpha = useAccent ? 0.16 : 0.09;
-      ctx.strokeStyle = useAccent ? accent : ink;
-      ctx.fillStyle = useAccent ? accent : ink;
-      ctx.lineWidth = Math.max(1.5, cell * 0.05);
-      const rot = (((r * 7 + c * 13) % 24) - 12) * (Math.PI / 180);
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(rot);
-      motif(ctx, cell * 0.42);
-      ctx.restore();
+  const px = (nx: number) => x + nx * w;
+  const py = (ny: number) => y + ny * h;
+
+  // Edges between nearby nodes.
+  ctx.lineWidth = Math.max(1, h * 0.0035);
+  for (let i = 0; i < NETWORK_NODES.length; i++) {
+    for (let j = i + 1; j < NETWORK_NODES.length; j++) {
+      const a = NETWORK_NODES[i];
+      const b = NETWORK_NODES[j];
+      const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      if (d > 0.23) continue;
+      ctx.strokeStyle = withAlpha('#FFFFFF', 0.05);
+      ctx.beginPath();
+      ctx.moveTo(px(a[0]), py(a[1]));
+      ctx.lineTo(px(b[0]), py(b[1]));
+      ctx.stroke();
     }
   }
-  ctx.globalAlpha = 1;
+
+  // Nodes.
+  for (let i = 0; i < NETWORK_NODES.length; i++) {
+    const [nx, ny] = NETWORK_NODES[i];
+    const isAccent = i % 5 === 0;
+    ctx.fillStyle = isAccent ? withAlpha(accent, 0.55) : withAlpha('#FFFFFF', 0.13);
+    ctx.beginPath();
+    ctx.arc(px(nx), py(ny), isAccent ? h * 0.016 : h * 0.011, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
 
 /* ----------------------------------- fills ---------------------------------- */
@@ -165,15 +160,16 @@ const flat: BrandFill = {
     ctx.fillStyle = opts.bg;
     ctx.fillRect(x, y, w, h);
     const accent = opts.accent || this.palette.accent;
-    ctx.fillStyle = accent;
-    ctx.fillRect(x + w * 0.5 - w * 0.05, y + h * 0.2, w * 0.1, Math.max(2, h * 0.012));
     if (opts.caption) {
       ctx.fillStyle = opts.fg;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `600 ${Math.round(h * 0.14)}px ui-sans-serif, system-ui, sans-serif`;
-      ctx.fillText(opts.caption, x + w / 2, y + h * 0.52, w * 0.86);
+      ctx.font = `600 ${Math.round(h * 0.15)}px ui-sans-serif, system-ui, sans-serif`;
+      ctx.fillText(opts.caption, x + w / 2, y + h * 0.46, w * 0.86);
     }
+    ctx.fillStyle = accent;
+    roundRectPath(ctx, x + w * 0.5 - w * 0.05, y + h * (opts.caption ? 0.66 : 0.5), w * 0.1, Math.max(3, h * 0.014), h * 0.01);
+    ctx.fill();
     ctx.restore();
   },
 };
@@ -182,37 +178,83 @@ const aiSolutions: BrandFill = {
   id: 'ai-solutions',
   label: 'AI Solutions',
   supportsCaption: true,
-  palette: { bg: '#0D1117', ink: '#FFFFFF', accent: '#2E6BF0' },
+  palette: { bg: '#0B0F1A', ink: '#FFFFFF', accent: '#2E6BF0' },
   paintBand(ctx, x, y, w, h, opts) {
     const accent = opts.accent || this.palette.accent;
     ctx.save();
-    ctx.fillStyle = this.palette.bg;
+
+    // Background — soft radial glow over deep navy (echoes the app icon depth).
+    const cx = x + w / 2;
+    const cy = y + h * 0.42;
+    const grad = ctx.createRadialGradient(cx, cy, h * 0.08, cx, cy, w * 0.72);
+    grad.addColorStop(0, '#1A2436');
+    grad.addColorStop(1, '#0A0E16');
+    ctx.fillStyle = grad;
     ctx.fillRect(x, y, w, h);
 
-    paintDoodleTexture(ctx, x, y, w, h, '#FFFFFF', accent);
+    // Top accent hairline — brand blue, also delineates QR / band.
+    ctx.fillStyle = accent;
+    ctx.fillRect(x, y, w, Math.max(2, h * 0.007));
 
-    const cx = x + w / 2;
-    ctx.textAlign = 'center';
+    // Texture.
+    paintNodeNetwork(ctx, x, y, w, h, accent);
+
+    // ---- Brand lockup: [Ai mark] │ [AI Solutions + underline + tagline] ----
+    const markSize = h * 0.46;
+    const gap1 = h * 0.12; // mark → divider
+    const gap2 = h * 0.12; // divider → text
+    const dividerW = Math.max(1.5, h * 0.005);
+
     ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+
+    const wordFont = `600 ${Math.round(h * 0.155)}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    const tagFontSize = Math.round(h * 0.062);
+    const tagFont = `500 ${tagFontSize}px ui-sans-serif, system-ui, sans-serif`;
+    const word = 'AI Solutions';
+    const tag = opts.caption || 'Automatización inteligente';
+
+    ctx.font = wordFont;
+    const wordW = ctx.measureText(word).width;
+    ctx.font = tagFont;
+    ctx.letterSpacing = `${Math.round(h * 0.012)}px`;
+    const tagW = ctx.measureText(tag.toUpperCase()).width;
+    ctx.letterSpacing = '0px';
+
+    const textBlockW = Math.max(wordW, tagW);
+    const totalW = markSize + gap1 + dividerW + gap2 + textBlockW;
+    const scale = Math.min(1, (w * 0.9) / totalW);
+
+    ctx.translate(cx, y + h * 0.44);
+    ctx.scale(scale, scale);
+
+    const startX = -totalW / 2;
+
+    // Mark.
+    drawAiMark(ctx, startX, -markSize / 2, markSize, accent);
+
+    // Divider.
+    ctx.fillStyle = withAlpha('#FFFFFF', 0.16);
+    ctx.fillRect(startX + markSize + gap1, -markSize * 0.42, dividerW, markSize * 0.84);
+
+    const textX = startX + markSize + gap1 + dividerW + gap2;
 
     // Wordmark.
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `700 ${Math.round(h * 0.17)}px ui-sans-serif, system-ui, sans-serif`;
-    const word = 'AI Solutions';
-    const wordY = y + h * 0.42;
-    ctx.fillText(word, cx, wordY, w * 0.78);
+    ctx.font = wordFont;
+    ctx.fillText(word, textX, -h * 0.05);
 
-    // Accent dot after the wordmark.
-    const half = Math.min(ctx.measureText(word).width, w * 0.78) / 2;
+    // Accent underline (short dash, like the brand logo).
     ctx.fillStyle = accent;
-    ctx.beginPath();
-    ctx.arc(cx + half + h * 0.055, wordY - h * 0.045, Math.max(3, h * 0.024), 0, Math.PI * 2);
+    roundRectPath(ctx, textX, h * 0.04, Math.min(textBlockW, h * 0.34), Math.max(2, h * 0.016), h * 0.01);
     ctx.fill();
 
-    // Tagline / caption.
-    ctx.fillStyle = 'rgba(255,255,255,0.74)';
-    ctx.font = `500 ${Math.round(h * 0.082)}px ui-sans-serif, system-ui, sans-serif`;
-    ctx.fillText(opts.caption || 'Automatización inteligente', cx, y + h * 0.64, w * 0.82);
+    // Tagline.
+    ctx.fillStyle = withAlpha('#FFFFFF', 0.62);
+    ctx.font = tagFont;
+    ctx.letterSpacing = `${Math.round(h * 0.012)}px`;
+    ctx.fillText(tag.toUpperCase(), textX, h * 0.135);
+    ctx.letterSpacing = '0px';
 
     ctx.restore();
   },
