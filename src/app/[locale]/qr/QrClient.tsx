@@ -313,6 +313,7 @@ export default function QrClient() {
   const [logo, setLogo] = useState<string | null>(null);
   const [fillId, setFillId] = useState<BrandFillId>('ai-solutions');
   const [caption, setCaption] = useState('');
+  const [bandImage, setBandImage] = useState<HTMLImageElement | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [error, setError] = useState('');
 
@@ -351,6 +352,29 @@ export default function QrClient() {
     const timer = window.setTimeout(() => setIsCopied(false), 1800);
     return () => window.clearTimeout(timer);
   }, [isCopied]);
+
+  // Preload the active fill's brand artwork (if any). Falls back to the
+  // procedural band while loading or on error.
+  useEffect(() => {
+    const src = BRAND_FILLS[fillId].image;
+    if (!src) {
+      setBandImage(null);
+      return;
+    }
+    let cancelled = false;
+    const img = new window.Image();
+    img.decoding = 'async';
+    img.onload = () => {
+      if (!cancelled) setBandImage(img);
+    };
+    img.onerror = () => {
+      if (!cancelled) setBandImage(null);
+    };
+    img.src = src;
+    return () => {
+      cancelled = true;
+    };
+  }, [fillId]);
 
   // Renders the styled QR and composites it (+ optional brand band) onto the canvas.
   const recompose = useCallback(async () => {
@@ -408,9 +432,10 @@ export default function QrClient() {
         fg: fgColor,
         bg: bgColor,
         caption: caption.trim() || undefined,
+        bandImage,
       });
     }
-  }, [generatedUrl, size, fgColor, bgColor, dotType, eyeType, logo, format, fillId, caption]);
+  }, [generatedUrl, size, fgColor, bgColor, dotType, eyeType, logo, format, fillId, caption, bandImage]);
 
   useEffect(() => {
     void recompose();
