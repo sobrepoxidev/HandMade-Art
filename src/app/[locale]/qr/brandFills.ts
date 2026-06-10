@@ -6,7 +6,7 @@
  * BRAND_FILLS.
  */
 
-export type BrandFillId = 'flat' | 'ai-solutions' | 'runway';
+export type BrandFillId = 'flat' | 'ai-solutions' | 'runway' | 'handmade-art';
 
 export interface BandPaintOpts {
   /** QR code (foreground) color chosen by the user. */
@@ -368,12 +368,56 @@ const runway: BrandFill = {
   },
 };
 
+// Handmade Art — warm rustic-premium artisan. Artwork-driven (charcoal + gold),
+// falls back to a charcoal fill + serif wordmark if the asset is missing.
+const handmadeArt: BrandFill = {
+  id: 'handmade-art',
+  label: 'Handmade Art',
+  supportsCaption: false,
+  image: '/qr/band_fill_handmade_art.webp',
+  squareImage: '/qr/bg_minimal_handmade_art.webp',
+  palette: { bg: '#1A1815', ink: '#FAF6EF', accent: '#C9A962' },
+  paintSquareBackground(ctx, x, y, w, h, opts) {
+    ctx.save();
+    ctx.fillStyle = '#1A1815';
+    ctx.fillRect(x, y, w, h);
+    const img = opts.squareImage;
+    const iw = img ? img.naturalWidth || img.width : 0;
+    const ih = img ? img.naturalHeight || img.height : 0;
+    if (img && iw && ih) {
+      const scale = Math.max(w / iw, h / ih);
+      ctx.drawImage(img, x + (w - iw * scale) / 2, y + (h - ih * scale) / 2, iw * scale, ih * scale);
+    }
+    ctx.restore();
+  },
+  paintBand(ctx, x, y, w, h, opts) {
+    ctx.save();
+    ctx.fillStyle = '#1A1815';
+    ctx.fillRect(x, y, w, h);
+    const img = opts.bandImage;
+    const iw = img ? img.naturalWidth || img.width : 0;
+    const ih = img ? img.naturalHeight || img.height : 0;
+    if (img && iw && ih) {
+      const scale = Math.min(w / iw, h / ih);
+      ctx.drawImage(img, x + (w - iw * scale) / 2, y + (h - ih * scale) / 2, iw * scale, ih * scale);
+    } else {
+      ctx.fillStyle = '#FAF6EF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `600 ${Math.round(h * 0.2)}px ui-serif, Georgia, serif`;
+      ctx.fillText('Handmade Art', x + w / 2, y + h * 0.5, w * 0.8);
+    }
+    ctx.restore();
+  },
+};
+
 /* --------------------------------- registry --------------------------------- */
 
 export const BRAND_FILLS: Record<BrandFillId, BrandFill> = {
   flat,
   'ai-solutions': aiSolutions,
   runway,
+  'handmade-art': handmadeArt,
 };
 
-export const BRAND_FILL_LIST: BrandFill[] = [flat, aiSolutions, runway];
+export const BRAND_FILL_LIST: BrandFill[] = [flat, aiSolutions, runway, handmadeArt];
