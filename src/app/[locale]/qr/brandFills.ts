@@ -6,7 +6,7 @@
  * BRAND_FILLS.
  */
 
-export type BrandFillId = 'flat' | 'ai-solutions';
+export type BrandFillId = 'flat' | 'ai-solutions' | 'runway';
 
 export interface BandPaintOpts {
   /** QR code (foreground) color chosen by the user. */
@@ -325,11 +325,55 @@ const aiSolutions: BrandFill = {
   },
 };
 
+// RUNWAY Modeling Agency — black & white fashion. Artwork-driven (no procedural
+// styling needed); falls back to a plain black fill if the asset is missing.
+const runway: BrandFill = {
+  id: 'runway',
+  label: 'RUNWAY',
+  supportsCaption: false,
+  image: '/qr/band_fill_runway.webp',
+  squareImage: '/qr/bg_minimal_runway.webp',
+  palette: { bg: '#000000', ink: '#FFFFFF', accent: '#FFFFFF' },
+  paintSquareBackground(ctx, x, y, w, h, opts) {
+    ctx.save();
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(x, y, w, h);
+    const img = opts.squareImage;
+    const iw = img ? img.naturalWidth || img.width : 0;
+    const ih = img ? img.naturalHeight || img.height : 0;
+    if (img && iw && ih) {
+      const scale = Math.max(w / iw, h / ih);
+      ctx.drawImage(img, x + (w - iw * scale) / 2, y + (h - ih * scale) / 2, iw * scale, ih * scale);
+    }
+    ctx.restore();
+  },
+  paintBand(ctx, x, y, w, h, opts) {
+    ctx.save();
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(x, y, w, h);
+    const img = opts.bandImage;
+    const iw = img ? img.naturalWidth || img.width : 0;
+    const ih = img ? img.naturalHeight || img.height : 0;
+    if (img && iw && ih) {
+      const scale = Math.min(w / iw, h / ih);
+      ctx.drawImage(img, x + (w - iw * scale) / 2, y + (h - ih * scale) / 2, iw * scale, ih * scale);
+    } else {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `700 ${Math.round(h * 0.22)}px ui-sans-serif, system-ui, sans-serif`;
+      ctx.fillText('RUNWAY', x + w / 2, y + h * 0.5, w * 0.8);
+    }
+    ctx.restore();
+  },
+};
+
 /* --------------------------------- registry --------------------------------- */
 
 export const BRAND_FILLS: Record<BrandFillId, BrandFill> = {
   flat,
   'ai-solutions': aiSolutions,
+  runway,
 };
 
-export const BRAND_FILL_LIST: BrandFill[] = [flat, aiSolutions];
+export const BRAND_FILL_LIST: BrandFill[] = [flat, aiSolutions, runway];
