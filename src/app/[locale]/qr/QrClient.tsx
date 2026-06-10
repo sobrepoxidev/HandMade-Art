@@ -81,7 +81,7 @@ const COPY = {
     logoAdd: 'Subir logo',
     logoRemove: 'Quitar',
     logoHint: 'Se incrusta al centro. Se procesa en tu navegador, no se sube.',
-    fillLabel: 'Relleno de la banda',
+    fillLabel: 'Relleno de marca',
     captionLabel: 'Texto (opcional)',
     captionPlaceholder: 'Escaneá para automatizar',
     generate: 'Generar código QR',
@@ -136,7 +136,7 @@ const COPY = {
     logoAdd: 'Upload logo',
     logoRemove: 'Remove',
     logoHint: 'Embedded in the center. Processed in your browser, never uploaded.',
-    fillLabel: 'Band fill',
+    fillLabel: 'Brand fill',
     captionLabel: 'Text (optional)',
     captionPlaceholder: 'Scan to automate',
     generate: 'Generate QR code',
@@ -314,6 +314,7 @@ export default function QrClient() {
   const [fillId, setFillId] = useState<BrandFillId>('ai-solutions');
   const [caption, setCaption] = useState('');
   const [bandImage, setBandImage] = useState<HTMLImageElement | null>(null);
+  const [squareImage, setSquareImage] = useState<HTMLImageElement | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [error, setError] = useState('');
 
@@ -353,24 +354,28 @@ export default function QrClient() {
     return () => window.clearTimeout(timer);
   }, [isCopied]);
 
-  // Preload the active fill's brand artwork (if any). Falls back to the
-  // procedural band while loading or on error.
+  // Preload the active fill's brand artwork (band + square). Each falls back to
+  // the procedural rendering while loading or on error.
   useEffect(() => {
-    const src = BRAND_FILLS[fillId].image;
-    if (!src) {
-      setBandImage(null);
-      return;
-    }
+    const fill = BRAND_FILLS[fillId];
     let cancelled = false;
-    const img = new window.Image();
-    img.decoding = 'async';
-    img.onload = () => {
-      if (!cancelled) setBandImage(img);
+    const preload = (src: string | undefined, set: (img: HTMLImageElement | null) => void) => {
+      if (!src) {
+        set(null);
+        return;
+      }
+      const img = new window.Image();
+      img.decoding = 'async';
+      img.onload = () => {
+        if (!cancelled) set(img);
+      };
+      img.onerror = () => {
+        if (!cancelled) set(null);
+      };
+      img.src = src;
     };
-    img.onerror = () => {
-      if (!cancelled) setBandImage(null);
-    };
-    img.src = src;
+    preload(fill.image, setBandImage);
+    preload(fill.squareImage, setSquareImage);
     return () => {
       cancelled = true;
     };
@@ -422,20 +427,36 @@ export default function QrClient() {
       return;
     }
 
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, w, h);
-    ctx.drawImage(bitmap, 0, 0, w, w);
-    bitmap.close();
+    const fill = BRAND_FILLS[fillId];
+    const squareBranded =
+      format === 'square' && Boolean(squareImage) && Boolean(fill.paintSquareBackground);
 
-    if (format === 'tall') {
-      BRAND_FILLS[fillId].paintBand(ctx, 0, w, w, h - w, {
-        fg: fgColor,
-        bg: bgColor,
-        caption: caption.trim() || undefined,
-        bandImage,
-      });
+    if (squareBranded) {
+      // Branded 1:1: brand background fills the frame; the QR sits as a centered card.
+      fill.paintSquareBackground!(ctx, 0, 0, w, w, { fg: fgColor, bg: bgColor, squareImage });
+      const card = Math.round(w * 0.72);
+      const offset = Math.round((w - card) / 2);
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+      ctx.shadowBlur = Math.round(w * 0.035);
+      ctx.shadowOffsetY = Math.round(w * 0.012);
+      ctx.drawImage(bitmap, offset, offset, card, card);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(bitmap, 0, 0, w, w);
+      if (format === 'tall') {
+        fill.paintBand(ctx, 0, w, w, h - w, {
+          fg: fgColor,
+          bg: bgColor,
+          caption: caption.trim() || undefined,
+          bandImage,
+        });
+      }
     }
-  }, [generatedUrl, size, fgColor, bgColor, dotType, eyeType, logo, format, fillId, caption, bandImage]);
+    bitmap.close();
+  }, [generatedUrl, size, fgColor, bgColor, dotType, eyeType, logo, format, fillId, caption, bandImage, squareImage]);
 
   useEffect(() => {
     void recompose();
@@ -472,6 +493,7 @@ export default function QrClient() {
   const applyPreset = (preset: 'simple' | 'logo' | 'poster') => {
     if (preset === 'simple') {
       setFormat('square');
+      setFillId('flat');
       setDotType('square');
       setEyeType('square');
       setLogo(null);
@@ -479,6 +501,7 @@ export default function QrClient() {
       setBgColor('#FAF6EF');
     } else if (preset === 'logo') {
       setFormat('square');
+      setFillId('flat');
       setDotType('rounded');
       setEyeType('extra-rounded');
     } else {
@@ -765,33 +788,31 @@ export default function QrClient() {
               <p className="mt-2 text-xs text-[#6B6459]">{copy.logoHint}</p>
             </div>
 
-            {/* Brand band fill (tall only) */}
-            {format === 'tall' && (
-              <div className="mt-5 border-t border-[#E8E4E0] pt-5">
-                <ChipGroup
-                  label={copy.fillLabel}
-                  value={fillId}
-                  onChange={setFillId}
-                  options={BRAND_FILL_LIST.map((f) => ({ value: f.id, label: f.label }))}
-                />
-                {activeFill.supportsCaption && (
-                  <div className="mt-3">
-                    <label htmlFor="qr-caption" className="mb-1.5 block text-xs text-[#6B6459]">
-                      {copy.captionLabel}
-                    </label>
-                    <input
-                      id="qr-caption"
-                      type="text"
-                      value={caption}
-                      maxLength={48}
-                      onChange={(event) => setCaption(event.target.value)}
-                      placeholder={copy.captionPlaceholder}
-                      className="min-h-[44px] w-full rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] px-3 py-2 text-sm text-[#2D2D2D] outline-none transition-colors placeholder:text-[#6B6459]/70 focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Brand fill — band for 1:1.5, background card for 1:1 */}
+            <div className="mt-5 border-t border-[#E8E4E0] pt-5">
+              <ChipGroup
+                label={copy.fillLabel}
+                value={fillId}
+                onChange={setFillId}
+                options={BRAND_FILL_LIST.map((f) => ({ value: f.id, label: f.label }))}
+              />
+              {format === 'tall' && activeFill.supportsCaption && (
+                <div className="mt-3">
+                  <label htmlFor="qr-caption" className="mb-1.5 block text-xs text-[#6B6459]">
+                    {copy.captionLabel}
+                  </label>
+                  <input
+                    id="qr-caption"
+                    type="text"
+                    value={caption}
+                    maxLength={48}
+                    onChange={(event) => setCaption(event.target.value)}
+                    placeholder={copy.captionPlaceholder}
+                    className="min-h-[44px] w-full rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] px-3 py-2 text-sm text-[#2D2D2D] outline-none transition-colors placeholder:text-[#6B6459]/70 focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+                  />
+                </div>
+              )}
+            </div>
 
             <button
               type="button"

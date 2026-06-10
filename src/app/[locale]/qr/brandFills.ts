@@ -17,8 +17,10 @@ export interface BandPaintOpts {
   accent?: string;
   /** Optional caption / tagline override. */
   caption?: string;
-  /** Preloaded brand artwork (when `BrandFill.image` is set and loaded). */
+  /** Preloaded band artwork (when `BrandFill.image` is set and loaded). */
   bandImage?: HTMLImageElement | null;
+  /** Preloaded square background (when `BrandFill.squareImage` is set and loaded). */
+  squareImage?: HTMLImageElement | null;
 }
 
 export interface BrandFill {
@@ -26,12 +28,23 @@ export interface BrandFill {
   label: string;
   /** Whether the UI should expose a caption input for this fill. */
   supportsCaption: boolean;
-  /** Optional artwork asset; drawn instead of the procedural band when loaded. */
+  /** Optional band artwork (2:1) drawn instead of the procedural band when loaded. */
   image?: string;
+  /** Optional square background (1:1) drawn behind a centered QR card. */
+  squareImage?: string;
   /** Reference palette (used for swatches and as defaults). */
   palette: { bg: string; ink: string; accent: string };
   /** Paints the band at the given rect. */
   paintBand: (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    opts: BandPaintOpts,
+  ) => void;
+  /** Paints the full-frame square background for the 1:1 branded layout. */
+  paintSquareBackground?: (
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
@@ -183,7 +196,34 @@ const aiSolutions: BrandFill = {
   label: 'AI Solutions',
   supportsCaption: true,
   image: '/qr/band_fill_ai_solutions.webp',
+  squareImage: '/qr/bg_minimal_ai_solutions.webp',
   palette: { bg: '#0B0F1A', ink: '#FFFFFF', accent: '#2E6BF0' },
+  // Full-frame square background (behind the centered QR card). Uses the artwork
+  // when loaded; otherwise a procedural navy + node-network so it never breaks.
+  paintSquareBackground(ctx, x, y, w, h, opts) {
+    ctx.save();
+    const img = opts.squareImage;
+    const iw = img ? img.naturalWidth || img.width : 0;
+    const ih = img ? img.naturalHeight || img.height : 0;
+    ctx.fillStyle = '#0A0E16';
+    ctx.fillRect(x, y, w, h);
+    if (img && iw && ih) {
+      const scale = Math.max(w / iw, h / ih);
+      const dw = iw * scale;
+      const dh = ih * scale;
+      ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+    } else {
+      const cx = x + w / 2;
+      const cy = y + h / 2;
+      const grad = ctx.createRadialGradient(cx, cy, h * 0.1, cx, cy, w * 0.72);
+      grad.addColorStop(0, '#1A2436');
+      grad.addColorStop(1, '#0A0E16');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, w, h);
+      paintNodeNetwork(ctx, x, y, w, h, opts.accent || this.palette.accent);
+    }
+    ctx.restore();
+  },
   paintBand(ctx, x, y, w, h, opts) {
     const accent = opts.accent || this.palette.accent;
     ctx.save();
