@@ -82,8 +82,8 @@ const COPY = {
     logoRemove: 'Quitar',
     logoHint: 'Se incrusta al centro. Se procesa en tu navegador, no se sube.',
     fillLabel: 'Relleno de marca',
-    captionLabel: 'Texto (opcional)',
-    captionPlaceholder: 'Escaneá para automatizar',
+    tagLabel: 'Etiqueta (opcional)',
+    tagPlaceholder: 'Menú · WhatsApp · Pedí aquí',
     generate: 'Generar código QR',
     previewTitle: 'Vista previa',
     previewEmpty: 'Ingresá una URL válida y generá el QR para verlo aquí.',
@@ -137,8 +137,8 @@ const COPY = {
     logoRemove: 'Remove',
     logoHint: 'Embedded in the center. Processed in your browser, never uploaded.',
     fillLabel: 'Brand fill',
-    captionLabel: 'Text (optional)',
-    captionPlaceholder: 'Scan to automate',
+    tagLabel: 'Label (optional)',
+    tagPlaceholder: 'Menu · WhatsApp · Order here',
     generate: 'Generate QR code',
     previewTitle: 'Preview',
     previewEmpty: 'Enter a valid URL and generate the QR to see it here.',
@@ -186,6 +186,55 @@ function normalizeHex(value: string): string | null {
     v = `#${v.slice(1).split('').map((c) => c + c).join('')}`;
   }
   return /^#[0-9a-fA-F]{6}$/.test(v) ? v.toUpperCase() : null;
+}
+
+function isLightColor(hex: string): boolean {
+  const v = hex.replace('#', '');
+  const n = v.length === 3 ? v.split('').map((c) => c + c).join('') : v;
+  const r = parseInt(n.slice(0, 2), 16);
+  const g = parseInt(n.slice(2, 4), 16);
+  const b = parseInt(n.slice(4, 6), 16);
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150;
+}
+
+// Draws a rounded label pill centered at (cx, cy). Used for the optional tag.
+function drawTagPill(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  text: string,
+  accent: string,
+  w: number,
+): void {
+  ctx.save();
+  const fontSize = Math.round(w * 0.034);
+  ctx.font = `700 ${fontSize}px ui-sans-serif, system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.letterSpacing = `${Math.round(w * 0.004)}px`;
+  const textW = Math.min(ctx.measureText(text).width, w * 0.78);
+  const ph = fontSize + Math.round(w * 0.03);
+  const pw = textW + w * 0.06;
+  const x0 = cx - pw / 2;
+  const y0 = cy - ph / 2;
+  const r = ph / 2;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+  ctx.shadowBlur = Math.round(w * 0.014);
+  ctx.shadowOffsetY = Math.round(w * 0.004);
+  ctx.beginPath();
+  ctx.moveTo(x0 + r, y0);
+  ctx.arcTo(x0 + pw, y0, x0 + pw, y0 + ph, r);
+  ctx.arcTo(x0 + pw, y0 + ph, x0, y0 + ph, r);
+  ctx.arcTo(x0, y0 + ph, x0, y0, r);
+  ctx.arcTo(x0, y0, x0 + pw, y0, r);
+  ctx.closePath();
+  ctx.fillStyle = accent;
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.fillStyle = isLightColor(accent) ? '#1A1A1A' : '#FFFFFF';
+  ctx.fillText(text, cx, cy, w * 0.74);
+  ctx.letterSpacing = '0px';
+  ctx.restore();
 }
 
 interface ColorFieldProps {
@@ -312,7 +361,7 @@ export default function QrClient() {
   const [format, setFormat] = useState<'square' | 'tall'>('square');
   const [logo, setLogo] = useState<string | null>(null);
   const [fillId, setFillId] = useState<BrandFillId>('ai-solutions');
-  const [caption, setCaption] = useState('');
+  const [tag, setTag] = useState('');
   const [bandImage, setBandImage] = useState<HTMLImageElement | null>(null);
   const [squareImage, setSquareImage] = useState<HTMLImageElement | null>(null);
   const [isCopied, setIsCopied] = useState(false);
@@ -447,16 +496,19 @@ export default function QrClient() {
       ctx.fillRect(0, 0, w, h);
       ctx.drawImage(bitmap, 0, 0, w, w);
       if (format === 'tall') {
-        fill.paintBand(ctx, 0, w, w, h - w, {
-          fg: fgColor,
-          bg: bgColor,
-          caption: caption.trim() || undefined,
-          bandImage,
-        });
+        fill.paintBand(ctx, 0, w, w, h - w, { fg: fgColor, bg: bgColor, bandImage });
       }
     }
     bitmap.close();
-  }, [generatedUrl, size, fgColor, bgColor, dotType, eyeType, logo, format, fillId, caption, bandImage, squareImage]);
+
+    // Optional tag/label pill — only where there is space off the QR modules
+    // (the band for posters, the bottom margin for a branded square card).
+    const tagText = tag.trim();
+    if (tagText && (format === 'tall' || squareBranded)) {
+      const tagY = format === 'tall' ? w + (h - w) * 0.12 : w * 0.93;
+      drawTagPill(ctx, w / 2, tagY, tagText, fill.palette.accent, w);
+    }
+  }, [generatedUrl, size, fgColor, bgColor, dotType, eyeType, logo, format, fillId, tag, bandImage, squareImage]);
 
   useEffect(() => {
     void recompose();
@@ -606,8 +658,6 @@ export default function QrClient() {
       }
     }, 'image/png');
   }, [copy.errors.noCanvas, copy.errors.noFile, copy.toast.shareText, copy.toast.shareTitle, generatedUrl]);
-
-  const activeFill = BRAND_FILLS[fillId];
 
   return (
     <main className="min-h-screen bg-[#FAF6EF] text-[#2D2D2D]">
@@ -796,22 +846,20 @@ export default function QrClient() {
                 onChange={setFillId}
                 options={BRAND_FILL_LIST.map((f) => ({ value: f.id, label: f.label }))}
               />
-              {format === 'tall' && activeFill.supportsCaption && (
-                <div className="mt-3">
-                  <label htmlFor="qr-caption" className="mb-1.5 block text-xs text-[#6B6459]">
-                    {copy.captionLabel}
-                  </label>
-                  <input
-                    id="qr-caption"
-                    type="text"
-                    value={caption}
-                    maxLength={48}
-                    onChange={(event) => setCaption(event.target.value)}
-                    placeholder={copy.captionPlaceholder}
-                    className="min-h-[44px] w-full rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] px-3 py-2 text-sm text-[#2D2D2D] outline-none transition-colors placeholder:text-[#6B6459]/70 focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
-                  />
-                </div>
-              )}
+              <div className="mt-3">
+                <label htmlFor="qr-tag" className="mb-1.5 block text-xs text-[#6B6459]">
+                  {copy.tagLabel}
+                </label>
+                <input
+                  id="qr-tag"
+                  type="text"
+                  value={tag}
+                  maxLength={28}
+                  onChange={(event) => setTag(event.target.value)}
+                  placeholder={copy.tagPlaceholder}
+                  className="min-h-[44px] w-full rounded-sm border border-[#E8E4E0] bg-[#FFFDF9] px-3 py-2 text-sm text-[#2D2D2D] outline-none transition-colors placeholder:text-[#6B6459]/70 focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+                />
+              </div>
             </div>
 
             <button
