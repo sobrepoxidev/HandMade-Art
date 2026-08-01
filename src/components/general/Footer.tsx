@@ -219,6 +219,16 @@ export default function Footer({ locale }: { locale: string }) {
               Bryam López
               <ExternalLink className="w-2.5 h-2.5" strokeWidth={1.75} aria-hidden />
             </Link>
+            ·
+            <Link
+              href="https://www.aisolutionscr.tech"
+              target="_blank"
+              rel="author noopener noreferrer"
+              className="text-[#A08848] hover:text-[#C9A962] transition-colors inline-flex items-center gap-1"
+            >
+              AI Solutions
+              <ExternalLink className="w-2.5 h-2.5" strokeWidth={1.75} aria-hidden />
+            </Link>
           </p>
         </div>
       </div>
