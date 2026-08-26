@@ -1,9 +1,7 @@
 import { supabaseServer } from "@/lib/supabaseServer";
 import { Json } from "@/lib/database.types";
 import {
-  CheckoutCartItemInput,
   CheckoutCustomer,
-  CheckoutDiscountInput,
   CheckoutOrderResponse,
   CheckoutPaymentMethod,
   CheckoutShippingAddress,
@@ -11,49 +9,7 @@ import {
 import { createCheckoutToken } from "@/lib/checkout/security";
 import { CheckoutError } from "@/lib/checkout/errors";
 
-const SHIPPING_AMOUNT_USD = 7;
 const ORDER_EXPIRATION_MINUTES = 30;
-
-interface ProductForCheckout {
-  id: number;
-  name: string | null;
-  name_en: string | null;
-  name_es: string | null;
-  dolar_price: number | null;
-  discount_percentage: number | null;
-  sku: string | null;
-  weight_kg: number | null;
-  length_cm: number | null;
-  width_cm: number | null;
-  height_cm: number | null;
-}
-
-interface DiscountCodeRow {
-  code: string;
-  discount_type: string;
-  discount_value: number;
-  min_purchase_amount: number | null;
-  max_uses: number | null;
-  current_uses: number | null;
-  valid_from: string | null;
-  valid_until: string | null;
-  is_active: boolean | null;
-}
-
-interface ValidatedDiscount {
-  code: string;
-  discountAmount: number;
-  note: string;
-}
-
-interface CreateCartOrderInput {
-  userId: string | null;
-  customer: CheckoutCustomer;
-  shippingAddress: CheckoutShippingAddress;
-  items: CheckoutCartItemInput[];
-  discount?: CheckoutDiscountInput | null;
-  paymentMethod: CheckoutPaymentMethod;
-}
 
 interface CreateQuoteOrderInput {
   quoteId: number;
@@ -64,35 +20,6 @@ interface CreateQuoteOrderInput {
 
 function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
-}
-
-function normalizeQuantity(quantity: number) {
-  if (!Number.isInteger(quantity) || quantity <= 0 || quantity > 99) {
-    throw new Error("Invalid item quantity");
-  }
-
-  return quantity;
-}
-
-function normalizeEmail(email: string) {
-  const normalized = email.trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
-    throw new Error("Invalid customer email");
-  }
-
-  return normalized;
-}
-
-function assertCustomer(customer: CheckoutCustomer) {
-  if (!customer.name.trim() || !customer.phone.trim()) {
-    throw new Error("Customer name and phone are required");
-  }
-
-  return {
-    name: customer.name.trim(),
-    email: normalizeEmail(customer.email),
-    phone: customer.phone.trim(),
-  };
 }
 
 function assertShippingAddress(address: CheckoutShippingAddress) {
@@ -112,91 +39,21 @@ function assertShippingAddress(address: CheckoutShippingAddress) {
   };
 }
 
-function getLinePrice(product: ProductForCheckout) {
-  if (!product.dolar_price || product.dolar_price <= 0) {
-    throw new Error(`Product ${product.id} does not have a valid USD price`);
+function assertCustomer(customer: CheckoutCustomer) {
+  if (!customer.name.trim() || !customer.phone.trim()) {
+    throw new Error("Customer name and phone are required");
   }
 
-  const discount = product.discount_percentage ?? 0;
-  return roundMoney(product.dolar_price * (1 - discount / 100));
-}
-
-function calculateDiscountAmount(discount: DiscountCodeRow, subtotal: number) {
-  let discountAmount = 0;
-  if (discount.discount_type === "percentage") {
-    discountAmount = subtotal * (discount.discount_value / 100);
-  } else if (discount.discount_type === "fixed") {
-    discountAmount = discount.discount_value;
-  } else if (discount.discount_type === "total_override") {
-    discountAmount = subtotal - discount.discount_value;
-  }
-
-  return roundMoney(Math.max(0, Math.min(discountAmount, subtotal)));
-}
-
-async function validateDiscount(code: string | undefined, subtotal: number): Promise<ValidatedDiscount | null> {
-  const normalizedCode = code?.trim().toLowerCase();
-  if (!normalizedCode) {
-    return null;
-  }
-
-  const { data, error } = await supabaseServer
-    .from("discount_codes")
-    .select("*")
-    .eq("code", normalizedCode)
-    .eq("is_active", true)
-    .single();
-
-  if (error || !data) {
-    throw new Error("Discount code is invalid or inactive");
-  }
-
-  const discount = data as DiscountCodeRow;
-  const now = Date.now();
-  if (discount.valid_from && new Date(discount.valid_from).getTime() > now) {
-    throw new Error("Discount code is not active yet");
-  }
-
-  if (discount.valid_until && new Date(discount.valid_until).getTime() < now) {
-    throw new Error("Discount code has expired");
-  }
-
-  if (discount.max_uses !== null && discount.current_uses !== null && discount.current_uses >= discount.max_uses) {
-    throw new CheckoutError("discount_exhausted", "Discount code reached its usage limit");
-  }
-
-  if (discount.min_purchase_amount !== null && subtotal < discount.min_purchase_amount) {
-    throw new Error("Order subtotal does not meet the discount minimum");
-  }
-
-  const discountAmount = calculateDiscountAmount(discount, subtotal);
   return {
-    code: normalizedCode,
-    discountAmount,
-    note: `Discount applied: ${discount.code} - $${discountAmount.toFixed(2)}`,
+    name: customer.name.trim(),
+    email: customer.email.trim(),
+    phone: customer.phone.trim(),
   };
-}
-
-async function consumeDiscount(discount: ValidatedDiscount | null, subtotal: number) {
-  if (!discount) {
-    return;
-  }
-
-  const { data, error } = await supabaseServer.rpc("consume_discount_code", {
-    p_code: discount.code,
-    p_subtotal: subtotal,
-  });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  if (!data || data.length === 0) {
-    throw new CheckoutError("discount_exhausted", "Discount code reached its usage limit");
-  }
-}
-
-async function reserveInventory(orderId: number, items: { productId: number; quantity: number }[], expiresAt: string) {
+}async function reserveInventory(
+  orderId: number,
+  items: { productId: number; quantity: number }[],
+  expiresAt: string,
+) {
   const reserved: number[] = [];
   try {
     for (const item of items) {
@@ -219,125 +76,6 @@ async function reserveInventory(orderId: number, items: { productId: number; qua
     }
     throw error;
   }
-}
-
-export async function createCartCheckoutOrder(input: CreateCartOrderInput): Promise<CheckoutOrderResponse> {
-  const customer = assertCustomer(input.customer);
-  const shippingAddress = assertShippingAddress(input.shippingAddress);
-  const normalizedItems = input.items.map((item) => ({
-    productId: Number(item.productId),
-    quantity: normalizeQuantity(Number(item.quantity)),
-  }));
-
-  if (normalizedItems.length === 0) {
-    throw new Error("Cart is empty");
-  }
-
-  const productIds = [...new Set(normalizedItems.map((item) => item.productId))];
-  const { data: productsData, error: productsError } = await supabaseServer
-    .from("products")
-    .select("id, name, name_en, name_es, dolar_price, discount_percentage, sku, weight_kg, length_cm, width_cm, height_cm")
-    .in("id", productIds)
-    .eq("is_active", true);
-
-  if (productsError || !productsData || productsData.length !== productIds.length) {
-    throw new Error("One or more cart products are unavailable");
-  }
-
-  const productMap = new Map<number, ProductForCheckout>(
-    productsData.map((product) => [product.id, product as ProductForCheckout]),
-  );
-
-  let subtotal = 0;
-  const orderItems = normalizedItems.map((item) => {
-    const product = productMap.get(item.productId);
-    if (!product) {
-      throw new Error(`Product ${item.productId} is unavailable`);
-    }
-
-    const unitPrice = getLinePrice(product);
-    subtotal += unitPrice * item.quantity;
-    return { item, product, unitPrice };
-  });
-
-  subtotal = roundMoney(subtotal);
-  const shipping = SHIPPING_AMOUNT_USD;
-  const discount = await validateDiscount(input.discount?.code, subtotal);
-  const discountAmount = discount?.discountAmount ?? 0;
-  const note = discount?.note ?? "";
-  const total = roundMoney(subtotal - discountAmount + shipping);
-  const { token, hash } = createCheckoutToken();
-  const expiresAt = new Date(Date.now() + ORDER_EXPIRATION_MINUTES * 60_000).toISOString();
-
-  const { data: order, error: orderError } = await supabaseServer
-    .from("orders")
-    .insert({
-      user_id: input.userId,
-      customer_name: customer.name,
-      customer_email: customer.email,
-      customer_phone: customer.phone,
-      source_type: "cart",
-      payment_method: input.paymentMethod,
-      payment_status: "pending_payment",
-      shipping_status: "pending",
-      total_amount: total,
-      currency: "USD",
-      discount_amount: discountAmount,
-      shipping_amount: shipping,
-      shipping_cost: shipping,
-      shipping_currency: "USD",
-      shipping_address: shippingAddress as unknown as Json,
-      checkout_token_hash: hash,
-      checkout_token_expires_at: expiresAt,
-      expires_at: expiresAt,
-      notes: note,
-    })
-    .select("id")
-    .single();
-
-  if (orderError || !order) {
-    throw new Error(orderError?.message ?? "Failed to create checkout order");
-  }
-
-  try {
-    await reserveInventory(order.id, normalizedItems, expiresAt);
-
-    const { error: itemsError } = await supabaseServer.from("order_items").insert(
-      orderItems.map(({ item, product, unitPrice }) => ({
-        order_id: order.id,
-        product_id: item.productId,
-        quantity: item.quantity,
-        price: unitPrice,
-        product_name_snapshot: product.name_en || product.name_es || product.name,
-        sku_snapshot: product.sku,
-        unit_weight_kg_snapshot: product.weight_kg,
-        dims_snapshot: {
-          length_cm: product.length_cm,
-          width_cm: product.width_cm,
-          height_cm: product.height_cm,
-        },
-      })),
-    );
-
-    if (itemsError) {
-      throw new Error(itemsError.message);
-    }
-
-    await consumeDiscount(discount, subtotal);
-  } catch (error) {
-    await supabaseServer.rpc("release_order_inventory", { p_order_id: order.id });
-    await supabaseServer.from("orders").update({ payment_status: "cancelled" }).eq("id", order.id);
-    throw error;
-  }
-
-  return {
-    orderId: order.id,
-    checkoutToken: token,
-    totalAmount: total,
-    currency: "USD",
-    paymentStatus: "pending",
-    expiresAt,
-  };
 }
 
 export async function createQuoteCheckoutOrder(input: CreateQuoteOrderInput): Promise<CheckoutOrderResponse> {
