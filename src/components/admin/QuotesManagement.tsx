@@ -243,9 +243,11 @@ export default function QuotesManagement({ locale }: QuotesManagementProps) {
             className="px-3 py-2 border border-gray-300 text-gray-800 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
           >
             <option value="all">{locale === 'es' ? 'Todos los estados' : 'All statuses'}</option>
-            <option value="nuevo">{locale === 'es' ? 'Nuevo' : 'New'}</option>
-            <option value="finalizado">{locale === 'es' ? 'Finalizado' : 'Finalized'}</option>
-            <option value="vendido">{locale === 'es' ? 'Vendido' : 'Sold'}</option>
+            <option value="received">{locale === 'es' ? 'Recibido' : 'Received'}</option>
+            <option value="priced">{locale === 'es' ? 'Cotizado' : 'Priced'}</option>
+            <option value="sent_to_client">{locale === 'es' ? 'Enviado al cliente' : 'Sent to client'}</option>
+            <option value="closed_won">{locale === 'es' ? 'Vendido' : 'Sold'}</option>
+            <option value="closed_lost">{locale === 'es' ? 'Perdido' : 'Lost'}</option>
           </select>
         </div>
       </div>

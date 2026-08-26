@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabaseServer';
 import { sendMail } from '@/lib/email';
 import { generateQuoteEmailTemplate, generateManagerQuoteNotificationTemplate } from '@/lib/emailTemplates/quoteEmailTemplate';
+import { getManagerNotificationEmail } from '@/lib/notifications';
 import { Database } from '@/lib/database.types';
 import { assertAdminRequest } from '@/lib/checkout/security';
 
@@ -167,7 +168,7 @@ export async function POST(request: NextRequest) {
         await sendMail(
           `📧 Cotización enviada a ${updatedQuote.requester_name}`,
           managerEmailHtml,
-          'sobrepoxidev@gmail.com'
+          getManagerNotificationEmail()
         );
       }
     } catch (emailError) {

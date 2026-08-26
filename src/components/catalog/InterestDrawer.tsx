@@ -22,6 +22,8 @@ interface FormData {
   email: string;
   phone: string;
   notes: string;
+  /** Honeypot field — humans never see or fill it. */
+  website: string;
 }
 
 const inputClass =
@@ -39,7 +41,8 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
     organization: '',
     email: '',
     phone: '',
-    notes: ''
+    notes: '',
+    website: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Partial<FormData>>({});
@@ -76,6 +79,7 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
         email: formData.email.trim() || undefined,
         phone: formData.phone.trim() || undefined,
         notes: formData.notes.trim() || undefined,
+        website: formData.website,
         discount_code_applied: appliedDiscountCode ? {
           code: appliedDiscountCode.code,
           discount_type: appliedDiscountCode.discount_type,
@@ -127,7 +131,8 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
           organization: '',
           email: '',
           phone: '',
-          notes: ''
+          notes: '',
+          website: ''
         });
         try {
           if (appliedDiscountCode?.id) {
@@ -452,6 +457,20 @@ export function InterestDrawer({ open, onClose, interestList, appliedDiscountCod
                               </>
                             )}
                           </button>
+
+                          {/* Honeypot — hidden from humans, catnip for bots */}
+                          <div className="hidden" aria-hidden="true">
+                            <label htmlFor="interest-website">Website</label>
+                            <input
+                              id="interest-website"
+                              type="text"
+                              name="website"
+                              value={formData.website}
+                              onChange={(e) => handleInputChange('website', e.target.value)}
+                              tabIndex={-1}
+                              autoComplete="off"
+                            />
+                          </div>
                         </div>
                       )}
                     </div>

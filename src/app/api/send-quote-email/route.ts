@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { sendMail } from '@/lib/email';
+import { getManagerNotificationEmail } from '@/lib/notifications';
 import { ProductSnapshot } from '@/lib/database.types';
 import { generateQuoteEmailTemplate, generateManagerQuoteNotificationTemplate } from '@/lib/emailTemplates/quoteEmailTemplate';
 
@@ -50,17 +51,17 @@ export async function POST(request: NextRequest) {
     const finalAmount = quote.final_amount || quote.total_amount || 0;
 
     // Preparar datos para las plantillas
-    const items = quote.interest_request_items.map((item: { quantity: number, snapshot: ProductSnapshot | null }) => ({
-      name: item.snapshot?.name || 'Producto',
+    const items = quote.interest_request_items.map((item: { quantity: number, product_snapshot: ProductSnapshot | null }) => ({
+      name: item.product_snapshot?.name || 'Producto',
       quantity: item.quantity,
-      unit_price: item.snapshot?.dolar_price || 0,
-      image_url: item.snapshot?.image_url,
-      sku: item.snapshot?.sku
+      unit_price: item.product_snapshot?.dolar_price || 0,
+      image_url: item.product_snapshot?.image_url,
+      sku: item.product_snapshot?.sku
     }));
 
     // Calcular descuento
-    const originalTotal = quote.interest_request_items.reduce((total: number, item: { quantity: number, snapshot: ProductSnapshot | null }) => {
-      const price = item.snapshot?.dolar_price ?? 0;
+    const originalTotal = quote.interest_request_items.reduce((total: number, item: { quantity: number, product_snapshot: ProductSnapshot | null }) => {
+      const price = item.product_snapshot?.dolar_price ?? 0;
       return total + (price * item.quantity);
     }, 0);
 
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
     await sendMail(
       `Nueva cotización enviada - ${quote.requester_name}`,
       managerEmailHtml,
-      'sobrepoxidev@gmail.com'
+      getManagerNotificationEmail()
     );
 
     return NextResponse.json({ success: true });

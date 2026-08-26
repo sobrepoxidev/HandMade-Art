@@ -20,6 +20,27 @@ interface QuotePaymentPageProps {
   locale: string;
 }
 
+type Banco = {
+  nombre: string;
+  sms?: string;
+  permiteSMS: boolean;
+};
+
+// SINPE Móvil bank list (canonical — PaymentForm that used to host this is gone).
+const bancos: Banco[] = [
+  { nombre: 'Banco Nacional de Costa Rica (BNCR)', sms: '+2627', permiteSMS: true },
+  { nombre: 'Banco de Costa Rica (BCR)', sms: '+2276 (Solo Kolbi)', permiteSMS: true },
+  { nombre: 'BAC Credomatic', sms: '+7070-1222', permiteSMS: true },
+  { nombre: 'Banco Popular', permiteSMS: false },
+  { nombre: 'Davivienda', sms: '+7070 o +7474', permiteSMS: true },
+  { nombre: 'Scotiabank', permiteSMS: false },
+  { nombre: 'Banco Promerica', sms: '+6223 o +2450', permiteSMS: true },
+  { nombre: 'Banco Lafise', sms: '+9091', permiteSMS: true },
+];
+
+const SINPE_NUMBER = '85850000';
+const SINPE_RECIPIENT_ALIAS = 'HM-ART';
+
 // TEMPORAL: Usando sandbox en producción debido a cuenta restringida
 // TODO: Revertir cuando se resuelva el problema con PayPal Live
 const PAYPAL_CLIENT_ID: string =
@@ -32,7 +53,10 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
-  const [checkoutOrder, setCheckoutOrder] = useState<{ orderId: number; checkoutToken: string } | null>(null);
+  const [checkoutOrder, setCheckoutOrder] = useState<{ orderId: number; checkoutToken: string; method: 'paypal' | 'sinpe' } | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'sinpe'>('paypal');
+  const [bancoSeleccionado, setBancoSeleccionado] = useState<Banco | null>(null);
+  const [ultimos4, setUltimos4] = useState('');
   const [shippingInfo, setShippingInfo] = useState({
     name: quote.requester_name,
     email: quote.email,
@@ -103,15 +127,19 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
     router.push(`/${locale}/order-confirmation?order_id=${orderId}&token=${encodeURIComponent(checkoutToken)}`);
   };
 
-  const createQuoteCheckoutOrder = async () => {
-    if (checkoutOrder) return checkoutOrder;
+  const createQuoteCheckoutOrder = async (method: 'paypal' | 'sinpe' = 'paypal') => {
+    if (checkoutOrder && checkoutOrder.method === method) return checkoutOrder;
+    if (checkoutOrder && checkoutOrder.method !== method) {
+      // Method changed; drop stale order so backend creates one for the new method.
+      setCheckoutOrder(null);
+    }
 
     const response = await fetch(`/api/checkout/quotes/${quote.id}/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         quoteSlug: quote.quote_slug ?? '',
-        paymentMethod: 'paypal',
+        paymentMethod: method,
         shippingAddress: {
           name: shippingInfo.name || quote.requester_name,
           address: shippingInfo.address || 'No shipping address required',
@@ -128,9 +156,81 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
       throw new Error(data.error || 'Could not create quote checkout order');
     }
 
-    const order = { orderId: data.orderId, checkoutToken: data.checkoutToken };
+    const order = { orderId: data.orderId, checkoutToken: data.checkoutToken, method };
     setCheckoutOrder(order);
     return order;
+  };
+
+  const handleMethodChange = (method: 'paypal' | 'sinpe') => {
+    if (method === paymentMethod) return;
+    setPaymentMethod(method);
+    setCheckoutOrder(null);
+    setBancoSeleccionado(null);
+    setUltimos4('');
+  };
+
+  const handleSinpePayment = async () => {
+    if (!bancoSeleccionado) {
+      toast.error(locale === 'es' ? 'Selecciona un banco para SINPE.' : 'Pick a SINPE bank.');
+      return;
+    }
+    if (!/^\d{4}$/.test(ultimos4)) {
+      toast.error(
+        locale === 'es'
+          ? 'Ingresa los últimos 4 dígitos del recibo.'
+          : 'Enter the last 4 digits of the receipt.'
+      );
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const order = await createQuoteCheckoutOrder('sinpe');
+      const res = await fetch(
+        `/api/checkout/orders/${order.orderId}/sinpe/reference`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            checkoutToken: order.checkoutToken,
+            bankName: bancoSeleccionado.nombre,
+            receiptLast4: ultimos4,
+          }),
+        }
+      );
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error || 'Could not save SINPE reference');
+      }
+      toast.success(
+        locale === 'es'
+          ? 'Recibimos tu referencia. Te confirmaremos tras verificar el pago.'
+          : 'We received your reference. We will confirm after verifying the payment.'
+      );
+      await handlePaymentSuccess(order.orderId, order.checkoutToken);
+    } catch (error) {
+      console.error('Error submitting SINPE reference:', error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : locale === 'es'
+          ? 'Error al registrar la referencia SINPE.'
+          : 'Could not save the SINPE reference.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copySinpeSmsMessage = () => {
+    if (!bancoSeleccionado?.permiteSMS) return;
+    const total =
+      Number(quote.final_amount ?? quote.total_amount ?? 0) || 0;
+    const mensaje = `PASE ${total.toFixed(2)} ${SINPE_NUMBER} ${SINPE_RECIPIENT_ALIAS}`;
+    navigator.clipboard.writeText(mensaje).catch(() => {});
+    toast.success(
+      locale === 'es' ? 'Mensaje SINPE copiado al portapapeles' : 'SINPE message copied'
+    );
   };
 
   const discountInfo = getDiscountInfo();
@@ -373,73 +473,200 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
 
                   {(!quote.requires_shipping_address || (shippingInfo.address && shippingInfo.city && shippingInfo.state)) && (
                     <div className="mt-6">
-                      <PayPalScriptProvider
-                        options={{
-                          clientId: PAYPAL_CLIENT_ID,
-                          currency: 'USD',
-                          enableFunding: "paylater,venmo",
-                          dataSdkIntegrationSource: "integrationbuilder_sc",
-                          environment: PAYPAL_ENVIRONMENT,
-                        }}
-                      >
-                        <PayPalButtons
-                          style={{ layout: "vertical" }}
-                          disabled={loading}
-                          createOrder={async () => {
-                            setLoading(true);
-                            try {
-                              const order = await createQuoteCheckoutOrder();
-                              const res = await fetch(`/api/checkout/orders/${order.orderId}/paypal/create?token=${encodeURIComponent(order.checkoutToken)}`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                              });
-                              const data = await res.json();
-                              
-                              if (data.error) {
-                                toast.error(data.error);
-                                throw new Error(data.error);
-                              }
-                              
-                              return data.paypalOrderId;
-                            } catch (error) {
-                              console.error('Error creating PayPal order:', error);
-                              throw error;
-                            } finally {
-                              setLoading(false);
-                            }
+                      <h3 className="text-gray-900 font-semibold mb-2">
+                        {locale === 'es' ? 'Método de pago' : 'Payment method'}
+                      </h3>
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        <button
+                          type="button"
+                          onClick={() => handleMethodChange('paypal')}
+                          aria-pressed={paymentMethod === 'paypal'}
+                          className={`min-h-[44px] rounded-md border text-sm font-medium transition-colors ${
+                            paymentMethod === 'paypal'
+                              ? 'bg-green-600 text-white border-green-600'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-green-600'
+                          }`}
+                        >
+                          {locale === 'es' ? 'PayPal / Tarjeta' : 'PayPal / Card'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMethodChange('sinpe')}
+                          aria-pressed={paymentMethod === 'sinpe'}
+                          className={`min-h-[44px] rounded-md border text-sm font-medium transition-colors ${
+                            paymentMethod === 'sinpe'
+                              ? 'bg-green-600 text-white border-green-600'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-green-600'
+                          }`}
+                        >
+                          {locale === 'es' ? 'SINPE Móvil' : 'SINPE Mobile'}
+                        </button>
+                      </div>
+
+                      {paymentMethod === 'paypal' ? (
+                        <PayPalScriptProvider
+                          options={{
+                            clientId: PAYPAL_CLIENT_ID,
+                            currency: 'USD',
+                            enableFunding: 'paylater,venmo',
+                            dataSdkIntegrationSource: 'integrationbuilder_sc',
+                            environment: PAYPAL_ENVIRONMENT,
                           }}
-                          onApprove={async (data) => {
-                            setLoading(true);
-                            try {
-                              const order = await createQuoteCheckoutOrder();
-                              const res = await fetch(`/api/checkout/orders/${order.orderId}/paypal/capture`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                  paypalOrderId: data.orderID,
-                                  checkoutToken: order.checkoutToken,
-                                })
-                              });
-                              const result = await res.json();
-                              
-                              if (result.status === "COMPLETED") {
-                                await handlePaymentSuccess(order.orderId, order.checkoutToken);
-                              } else {
+                        >
+                          <PayPalButtons
+                            style={{ layout: 'vertical' }}
+                            disabled={loading}
+                            createOrder={async () => {
+                              setLoading(true);
+                              try {
+                                const order = await createQuoteCheckoutOrder('paypal');
+                                const res = await fetch(`/api/checkout/orders/${order.orderId}/paypal/create?token=${encodeURIComponent(order.checkoutToken)}`, {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                });
+                                const data = await res.json();
+
+                                if (data.error) {
+                                  toast.error(data.error);
+                                  throw new Error(data.error);
+                                }
+
+                                return data.paypalOrderId;
+                              } catch (error) {
+                                console.error('Error creating PayPal order:', error);
+                                throw error;
+                              } finally {
+                                setLoading(false);
+                              }
+                            }}
+                            onApprove={async (data) => {
+                              setLoading(true);
+                              try {
+                                const order = await createQuoteCheckoutOrder('paypal');
+                                const res = await fetch(`/api/checkout/orders/${order.orderId}/paypal/capture`, {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    paypalOrderId: data.orderID,
+                                    checkoutToken: order.checkoutToken,
+                                  })
+                                });
+                                const result = await res.json();
+
+                                if (result.status === 'COMPLETED') {
+                                  await handlePaymentSuccess(order.orderId, order.checkoutToken);
+                                } else {
+                                  toast.error(locale === 'es' ? 'Error al procesar el pago' : 'Error processing payment');
+                                }
+                              } catch (error) {
+                                console.error('Error capturing payment:', error);
                                 toast.error(locale === 'es' ? 'Error al procesar el pago' : 'Error processing payment');
+                              } finally {
+                                setLoading(false);
                               }
-                            } catch (error) {
-                              console.error('Error capturing payment:', error);
-                              toast.error(locale === 'es' ? 'Error al procesar el pago' : 'Error processing payment');
-                            } finally {
-                              setLoading(false);
+                            }}
+                            onError={(err) => {
+                              console.error('PayPal Error:', err);
+                              toast.error(locale === 'es' ? 'Error con PayPal' : 'PayPal error');
+                            }}
+                          />
+                        </PayPalScriptProvider>
+                      ) : (
+                        <div className="bg-[#FAF6EF] border border-[#E8E4E0] rounded-md p-4 space-y-3">
+                          <p className="text-sm text-gray-700">
+                            {locale === 'es'
+                              ? 'Total a enviar vía SINPE:'
+                              : 'Total to send via SINPE:'}{' '}
+                            <b className="text-green-700">
+                              ${(Number(quote.final_amount ?? quote.total_amount ?? 0) || 0).toFixed(2)} USD
+                            </b>
+                          </p>
+
+                          <label className="block text-sm font-medium text-gray-800">
+                            {locale === 'es' ? 'Selecciona banco' : 'Select bank'}
+                          </label>
+                          <select
+                            value={bancoSeleccionado?.nombre || ''}
+                            onChange={(e) =>
+                              setBancoSeleccionado(bancos.find((b) => b.nombre === e.target.value) || null)
                             }
-                          }}
-                          onError={(err) => {
-                            console.error("PayPal Error:", err);
-                            toast.error(locale === 'es' ? 'Error con PayPal' : 'PayPal error');
-                          }}
-                        />
-                      </PayPalScriptProvider>
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800 bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          >
+                            <option value="">
+                              -- {locale === 'es' ? 'Selecciona banco' : 'Select bank'} --
+                            </option>
+                            {bancos.map((b) => (
+                              <option key={b.nombre} value={b.nombre}>
+                                {b.nombre}
+                              </option>
+                            ))}
+                          </select>
+
+                          {bancoSeleccionado && (
+                            <div className="p-3 border border-yellow-300 bg-yellow-50 rounded-md text-sm text-gray-700">
+                              {bancoSeleccionado.permiteSMS ? (
+                                <div className="space-y-1">
+                                  <p>
+                                    {locale === 'es' ? 'Enviar SMS a:' : 'Send SMS to:'}{' '}
+                                    <b className="text-gray-900">{bancoSeleccionado.sms}</b>
+                                  </p>
+                                  <p>
+                                    {locale === 'es' ? 'Mensaje:' : 'Message:'}{' '}
+                                    <b className="text-gray-900">
+                                      PASE {(Number(quote.final_amount ?? quote.total_amount ?? 0) || 0).toFixed(2)}{' '}
+                                      {SINPE_NUMBER} {SINPE_RECIPIENT_ALIAS}
+                                    </b>
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={copySinpeSmsMessage}
+                                    className="mt-2 text-sm bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md min-h-[40px]"
+                                  >
+                                    {locale === 'es' ? 'Copiar mensaje' : 'Copy message'}
+                                  </button>
+                                </div>
+                              ) : (
+                                <p>
+                                  {locale === 'es'
+                                    ? 'Realiza la transferencia desde la app o banca en línea de '
+                                    : 'Make the transfer from the app or online bank of '}
+                                  <b className="text-gray-900">{bancoSeleccionado.nombre}</b>.
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          <label className="block text-sm font-medium text-gray-800">
+                            {locale === 'es'
+                              ? 'Últimos 4 dígitos del recibo'
+                              : 'Last 4 digits of the receipt'}
+                          </label>
+                          <input
+                            type="text"
+                            maxLength={4}
+                            inputMode="numeric"
+                            pattern="\\d{4}"
+                            placeholder="1234"
+                            value={ultimos4}
+                            onChange={(e) => setUltimos4(e.target.value.replace(/\\D/g, '').slice(0, 4))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800 bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={handleSinpePayment}
+                            disabled={loading}
+                            aria-busy={loading}
+                            className="w-full bg-[#2D2D2D] hover:bg-[#1A1A1A] text-white font-semibold py-3 px-4 rounded-md transition-colors disabled:opacity-60"
+                          >
+                            {loading
+                              ? locale === 'es' ? 'Enviando…' : 'Sending…'
+                              : locale === 'es'
+                                ? 'Confirmar y finalizar'
+                                : 'Confirm and finalize'}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
