@@ -1,7 +1,6 @@
 // src/app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
-import { CartProvider } from "@/context/CartContext";
 import { Suspense } from "react";
 import { Frank_Ruhl_Libre, Geist } from "next/font/google";
 import { headers } from "next/headers";
@@ -71,9 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="antialiased bg-[#FAF6EF]">
-        <Suspense>
-          <CartProvider>{children}</CartProvider>
-        </Suspense>
+        <Suspense>{children}</Suspense>
       </body>
     </html>
   );
