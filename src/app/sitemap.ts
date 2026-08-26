@@ -31,12 +31,9 @@ const STATIC_ROUTES: string[] = [
   "/contact",
   "/privacy-policies",
   "/conditions-service",
-  "/qr",
-  "/account",
   "/feria-artesanias",
   "/feria-artesanias-terminos",
   "/fiestas-patronales-de-san-ramon",
-  "/search",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -57,7 +54,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const make = (path: string, isProduct = false): MetadataRoute.Sitemap[number] => ({
     url: `https://${host}/${locale}${path}`,
-    lastModified: now,
     changeFrequency: isProduct ? "weekly" : "monthly",
     priority: isProduct ? 0.8 : 0.6,
     alternates: {
@@ -75,7 +71,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const localizedPages: MetadataRoute.Sitemap = Object.values(LOCALIZED_ROUTES).map(
     (paths) => ({
       url: `https://${host}/${locale}${paths[locale]}`,
-      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.7,
       alternates: {
@@ -105,8 +100,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .filter((u): u is string => typeof u === "string" && u.length > 0)
           .slice(0, 5);
 
-        const url = `https://${host}/${locale}/product/${product.name}`;
-        const altUrl = `https://${altDomain}/${altLocale}/product/${product.name}`;
+        const url = `https://${host}/${locale}/product/${encodeURIComponent(product.name ?? "")}`;
+        const altUrl = `https://${altDomain}/${altLocale}/product/${encodeURIComponent(product.name ?? "")}`;
 
         return {
           url,

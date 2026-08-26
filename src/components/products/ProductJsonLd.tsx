@@ -12,7 +12,8 @@ type MediaItem = { url: string; alt?: string };
 type Props = {
   product: Product;
   category: Category | null;
-  inventory: number;
+  /** Kept for caller compatibility; availability is now Made-to-order. */
+  inventory?: number;
   ratingAvg: number | null;
   reviewCount: number;
   reviews?: ReviewRow[];
@@ -50,7 +51,6 @@ function pickSpecValue(
 export default function ProductJsonLd({
   product,
   category,
-  inventory,
   ratingAvg,
   reviewCount,
   reviews,
@@ -74,8 +74,6 @@ export default function ProductJsonLd({
   const basePrice = product.dolar_price ?? null;
   const finalPrice =
     basePrice != null && discount > 0 ? basePrice * (1 - discount / 100) : basePrice;
-
-  const inStock = inventory > 0;
 
   const specs =
     product.specifications && typeof product.specifications === 'object' && !Array.isArray(product.specifications)
@@ -202,6 +200,12 @@ export default function ProductJsonLd({
   }
 
   if (finalPrice != null) {
+    // Made-to-order: every piece is built on demand after a quote is
+    // reviewed, so we tell schema.org the same. The reference USD price is
+    // still surfaced so rich results have something to anchor on; we
+    // deliberately drop the fabricated 14-day return policy and the
+    // invented $6.99/1–3 day shipping claim — those were never part of
+    // the real flow.
     const validUntil = new Date();
     validUntil.setFullYear(validUntil.getFullYear() + 1);
 
@@ -211,33 +215,13 @@ export default function ProductJsonLd({
       priceCurrency: 'USD',
       price: finalPrice.toFixed(2),
       priceValidUntil: validUntil.toISOString().slice(0, 10),
-      availability: inStock
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
+      availability: 'https://schema.org/MadeToOrder',
       itemCondition: 'https://schema.org/NewCondition',
       seller: {
         '@type': 'Organization',
         '@id': 'https://handmadeart.store/#organization',
         name: 'Handmade Art',
         url: 'https://handmadeart.store',
-      },
-      hasMerchantReturnPolicy: {
-        '@type': 'MerchantReturnPolicy',
-        applicableCountry: 'CR',
-        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-        merchantReturnDays: 14,
-        returnMethod: 'https://schema.org/ReturnByMail',
-        returnFees: 'https://schema.org/FreeReturn',
-      },
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingRate: { '@type': 'MonetaryAmount', value: '6.99', currency: 'USD' },
-        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'CR' },
-        deliveryTime: {
-          '@type': 'ShippingDeliveryTime',
-          handlingTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' },
-          transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 5, unitCode: 'DAY' },
-        },
       },
     };
   }

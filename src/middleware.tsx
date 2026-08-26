@@ -48,6 +48,15 @@ export async function middleware(req: NextRequest) {
   const isEnglishDomain = host === 'handmadeart.store' || host.includes('handmadeart');
   const pathLocale = pathname.startsWith('/es') ? 'es' : pathname.startsWith('/en') ? 'en' : null;
 
+  // www → apex: keep the path/host so the rest of the pipeline still
+  // resolves correctly on the canonical hostname.
+  if (host.startsWith('www.')) {
+    const apex = host.slice(4);
+    url.host = apex;
+    url.hostname = apex;
+    return NextResponse.redirect(url, 301);
+  }
+
   // Redireccionar según el dominio si el idioma en la URL no coincide
   if (isSpanishDomain && pathLocale === 'en') {
     // Si estamos en dominio español pero la URL es /en, redirigir a /es con la misma ruta

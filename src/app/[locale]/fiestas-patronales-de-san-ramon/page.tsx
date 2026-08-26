@@ -1,48 +1,36 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/metadata";
 type tParams = Promise<{ locale: string }>;
 
 export async function generateMetadata({ params }: { params: tParams }): Promise<Metadata> {
   const { locale } = await params;
+  // Fiestas Patronales de San Ramón is the site's top non-brand ranking
+  // (pos. ~5) thanks to the local search demand around the August event.
+  // Keep it indexable and properly hreflang'd so the seasonal traffic
+  // arrives on the right domain.
+  const meta = await buildMetadata({
+    locale: locale === 'es' ? 'es' : 'en',
+    title:
+      locale === 'es'
+        ? 'Fiestas Patronales de San Ramón'
+        : 'San Ramón Patronal Festivities',
+    description:
+      locale === 'es'
+        ? 'Programa, tradición y artesanías de las Fiestas Patronales de San Ramón, Alajuela, Costa Rica.'
+        : 'Programme, traditions and handicrafts of the San Ramón Patronal Festivities in Alajuela, Costa Rica.',
+    pathname: `/${locale}/fiestas-patronales-de-san-ramon`,
+  });
+
   return {
-    title: locale === 'es' ? 'Fiestas Patronales de San Ramón 2025 | Handmade Art' : 'San Ramón Patronal Festivities 2025 | Handmade Art',
-    description: locale === 'es'
-      ? 'Descubre todo sobre las Fiestas Patronales de San Ramón 2025 del 21 al 31 de Agosto. Handmade Art estará presente con sus artesanías únicas en este evento centenario.'
-      : 'Discover everything about the San Ramón Patronal Festivities 2025 from August 21-31. Handmade Art will be present with its unique crafts at this centenary event.',
-    keywords: locale === 'es'
-      ? ['fiestas san ramón', 'fiestas patronales 2025', 'san ramón costa rica', 'artesanías costa rica', 'handmade art', 'entrada de los santos', 'eventos culturales costa rica']
-      : ['san ramon festival', 'patronal festivities 2025', 'san ramon costa rica', 'costa rica crafts', 'handmade art', 'entrance of saints', 'cultural events costa rica'],
-    alternates: {
-      canonical: 'https://handmadeart.com/fiestas-de-san-ramon',
-    },
+    ...meta,
     openGraph: {
-      title: locale === 'es' ? 'Fiestas Patronales de San Ramón 2025 | Handmade Art' : 'San Ramón Patronal Festivities 2025 | Handmade Art',
-      description: locale === 'es'
-        ? 'Descubre todo sobre las Fiestas Patronales de San Ramón 2025 del 21 al 31 de Agosto. Handmade Art estará presente con sus artesanías únicas en este evento centenario.'
-        : 'Discover everything about the San Ramón Patronal Festivities 2025 from August 21-31. Handmade Art will be present with its unique crafts at this centenary event.',
-      url: 'https://handmadeart.com/fiestas-de-san-ramon',
-      siteName: 'Handmade Art',
-      images: [
-        {
-          url: '/banner-fiestas-san-ramon.webp',
-          width: 1200,
-          height: 630,
-          alt: locale === 'es' ? 'Fiestas Patronales de San Ramón 2025' : 'San Ramón Patronal Festivities 2025',
-        },
-      ],
-      locale: locale === 'es' ? 'es_CR' : 'en_US',
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: locale === 'es' ? 'Fiestas Patronales de San Ramón 2025 | Handmade Art' : 'San Ramón Patronal Festivities 2025 | Handmade Art',
-      description: locale === 'es'
-        ? 'Descubre todo sobre las Fiestas Patronales de San Ramón 2025 del 21 al 31 de Agosto. Handmade Art estará presente con sus artesanías únicas en este evento centenario.'
-        : 'Discover everything about the San Ramón Patronal Festivities 2025 from August 21-31. Handmade Art will be present with its unique crafts at this centenary event.',
+      ...meta.openGraph,
       images: ['/banner-fiestas-san-ramon.webp'],
     },
-    // Event has ended — keep the URL alive for historical links but
-    // exclude from index so it doesn't compete with the catalog.
-    robots: { index: false, follow: true },
+    twitter: {
+      ...meta.twitter,
+      images: ['/banner-fiestas-san-ramon.webp'],
+    },
   };
 }
 
@@ -451,13 +439,13 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
               info@handmadeart.store
             </a>
             {' | '}
-            <a 
-              href="https://wa.me/50684237555" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://wa.me/50685850000"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-green-600 hover:text-green-800 underline"
             >
-              +506 8423 7555
+              +506 8585 0000
             </a>
           </p>
         </div>

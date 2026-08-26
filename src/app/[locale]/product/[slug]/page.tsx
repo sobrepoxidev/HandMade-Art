@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { buildMetadata } from "@/lib/metadata";
 import { supabase } from "@/lib/supabaseClient";
 import ProductDetail from '@/components/products/ProductDetail';
@@ -145,6 +146,23 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 export default async function ProductPage({ params }: { params: tParams }) {
   const { slug, locale } = await params;
   const currentLocale: 'es' | 'en' = locale === 'es' ? 'es' : 'en';
+
+  // Legacy URLs used numeric product ids (e.g. /en/product/105). Look up
+  // the canonical slug and 308 to it so the page-equity flows to the right
+  // place instead of 404ing.
+  if (/^\d+$/.test(slug)) {
+    const id = Number(slug);
+    const { data: byId } = await supabase
+      .from('products')
+      .select('name, is_active')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (byId?.name && byId.is_active !== false) {
+      redirect(`/${currentLocale}/product/${encodeURIComponent(byId.name)}`);
+    }
+    notFound();
+  }
 
   // Single SSR fetch with all fields needed for: rendering, JSON-LD, and SEO
   const { data: product, error } = await supabase
