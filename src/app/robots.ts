@@ -28,6 +28,21 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     "/orders",
     "/orders/",
     "/search",            // dynamic search results — low quality for indexing
+    // Transactional & private-quote pages (quote pages carry client PII)
+    "/quote",
+    "/quote/",
+    "/direct-quote",
+    "/direct-quote/",
+    "/pay",
+    "/payment-success",
+    "/payment-cancel",
+    "/order-confirmation",
+    // Auth & user-private surfaces
+    "/login",
+    "/register",
+    "/viewed-history",
+    "/catalog/gracias",    // post-request confirmation, no index value
+    "/qr",                 // meta noindex already; block crawler too
     // Tracking-param duplicates — canonical URLs cover the rest
     "/*?utm_*",
     "/*?ref=*",

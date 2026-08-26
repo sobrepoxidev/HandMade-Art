@@ -51,22 +51,15 @@ export default async function QuotePage({ params }: { params: tParams }) {
 }
 
 export async function generateMetadata({ params }: { params: tParams }) {
-  const { slug } = await params;
-  
-  const { data: quote } = await supabase
-    .from('interest_requests')
-    .select('requester_name, final_amount')
-    .eq('quote_slug', slug)
-    .single();
+  const { locale } = await params;
 
-  if (!quote) {
-    return {
-      title: 'Cotización no encontrada',
-    };
-  }
-
+  // Private per-client page: never index, and never leak requester
+  // names or amounts into metadata.
   return {
-    title: `Cotización para ${quote.requester_name} - Hands Made Art`,
-    description: `Cotización personalizada por $${quote.final_amount?.toFixed(2) || '0.00'}`,
+    title: locale === 'es' ? 'Cotización — Handmade Art' : 'Quote — Handmade Art',
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }

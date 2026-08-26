@@ -9,9 +9,13 @@ export async function generateMetadata({ params }: { params: PageParams }): Prom
   
   return {
     title: locale === 'es' ? 'Pago Exitoso | Hands Made Art' : 'Payment Success | Hands Made Art',
-    description: locale === 'es' 
-      ? 'Su pago ha sido procesado exitosamente' 
+    description: locale === 'es'
+      ? 'Su pago ha sido procesado exitosamente'
       : 'Your payment has been successfully processed',
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 

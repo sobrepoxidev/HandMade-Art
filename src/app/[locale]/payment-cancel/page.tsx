@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
-import { ArrowLeft, ShoppingBag, XCircle } from 'lucide-react';
+import { ShoppingBag, XCircle } from 'lucide-react';
 
 type PageParams = Promise<{ locale: string }>;
 
@@ -9,9 +9,13 @@ export async function generateMetadata({ params }: { params: PageParams }): Prom
   
   return {
     title: locale === 'es' ? 'Pago Cancelado | Hands Made Art' : 'Payment Cancelled | Hands Made Art',
-    description: locale === 'es' 
-      ? 'Su proceso de pago ha sido cancelado' 
+    description: locale === 'es'
+      ? 'Su proceso de pago ha sido cancelado'
       : 'Your payment process has been cancelled',
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 
@@ -35,29 +39,18 @@ export default async function PaymentCancelPage({ params }: { params: PageParams
         
         <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-[#4A4A4A]">
           {isEs
-            ? 'No se realizó ningún cargo. Puedes volver al checkout para intentarlo de nuevo o seguir revisando piezas.'
-            : 'No charge was made. You can return to checkout and try again, or keep browsing pieces.'}
+            ? 'No se realizó ningún cargo. Puedes seguir revisando piezas o solicitar tu cotización sin compromiso.'
+            : 'No charge was made. Keep browsing pieces or request a quote — no commitment.'}
         </p>
-        
-        <div className="mt-8 grid gap-3 sm:grid-cols-2">
-          <Link 
-            href="/checkout"
-            locale={locale}
-            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-5 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
-          >
-            <ArrowLeft className="h-4 w-4" strokeWidth={1.75} aria-hidden />
-            {isEs ? 'Volver al checkout' : 'Return to checkout'}
-          </Link>
-          
-          <Link 
-            href="/products"
-            locale={locale}
-            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm border border-[#A08848] px-5 py-3 text-sm font-semibold tracking-wide text-[#A08848] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
-          >
-            <ShoppingBag className="h-4 w-4" strokeWidth={1.75} aria-hidden />
-            {isEs ? 'Ver productos' : 'Browse products'}
-          </Link>
-        </div>
+
+        <Link
+          href="/products"
+          locale={locale}
+          className="mt-8 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-6 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+        >
+          <ShoppingBag className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+          {isEs ? 'Ver piezas' : 'Browse pieces'}
+        </Link>
       </section>
     </main>
   );
