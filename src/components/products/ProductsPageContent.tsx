@@ -5,10 +5,12 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { ChevronDown, ChevronRight, GridIcon, ListIcon } from 'lucide-react';
+import { ChevronDown, ChevronRight, GridIcon, ListIcon, Send } from 'lucide-react';
 import ProductCard from './ProductCard';
 import ProductFilters from './ProductFilters';
 import PaginationControls from './PaginationControls';
+import { InterestDrawer } from '@/components/catalog/InterestDrawer';
+import { useInterestList } from '@/lib/hooks/useInterestList';
 import { supabase } from '@/lib/supabaseClient';
 import { Database } from '@/lib/database.types';
 import ViewedProductsHistory from './ViewedProductsHistory';
@@ -16,23 +18,18 @@ import ViewedProductsHistory from './ViewedProductsHistory';
 type Product = Database['public']['Tables']['products']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
 type MediaItem = { url: string; alt?: string; type?: string };
-type ProductWithInventory = Product & {
-  inventory?: { quantity: number | null }[] | { quantity: number | null } | null;
-};
 
 const PRODUCTS_PER_PAGE = 12;
-
-function getInventoryQuantity(product: ProductWithInventory) {
-  if (Array.isArray(product.inventory)) return product.inventory[0]?.quantity ?? null;
-  return product.inventory?.quantity ?? null;
-}
 
 export default function ProductsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const locale = useLocale();
-  
+  const interestList = useInterestList();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const totalItems = interestList.getTotalItems();
+
   // Estados
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -200,7 +197,9 @@ export default function ProductsPageContent() {
             {categoryFilter ? `${categoryName}` : locale === 'es' ? 'Todos los Productos' : 'All Products'}
           </h1>
           <p className="text-[#4A4A4A] text-sm mt-2 leading-relaxed">
-            {locale === 'es' ? 'Descubre nuestra colección de productos hechos a mano.' : 'Discover our collection of handmade products.'}
+            {locale === 'es'
+              ? 'Explora piezas hechas a mano y arma tu lista para recibir una cotización personalizada, sin compromiso.'
+              : 'Browse handmade pieces and build your list to receive a personalized quote — no commitment.'}
             {totalCount > 0 && ` ${locale === 'es' ? 'Mostrando' : 'Showing'} ${products.length} ${locale === 'es' ? 'de' : 'of'} ${totalCount} ${locale === 'es' ? 'productos' : 'products'}.`}
           </p>
         </div>
@@ -337,7 +336,7 @@ export default function ProductsPageContent() {
                       ? categories.find(cat => cat.id === product.category_id)?.name_es
                       : categories.find(cat => cat.id === product.category_id)?.name_en) || undefined
                   }
-                  inventoryQuantity={getInventoryQuantity(product as ProductWithInventory)}
+                  interestList={interestList}
                 />
               ))}
             </div>
@@ -458,6 +457,32 @@ export default function ProductsPageContent() {
         </div>
       </div>
       </div>
+
+      {/* Sticky quote-request bar */}
+      {totalItems > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E8E4E0] bg-[#FAF6EF]/96 px-4 py-3 shadow-[0_-12px_36px_-18px_rgba(61,46,32,0.30)] backdrop-blur-sm">
+          <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3">
+            <p className="text-sm font-medium text-[#2D2D2D]">
+              {totalItems} {totalItems === 1 ? (locale === 'es' ? 'pieza seleccionada' : 'piece selected') : (locale === 'es' ? 'piezas seleccionadas' : 'pieces selected')}
+            </p>
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-4 py-2 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+            >
+              <Send className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              {locale === 'es' ? 'Solicitar cotización' : 'Request quote'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <InterestDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        interestList={interestList}
+      />
+      {totalItems > 0 && <div className="h-20" />}
     </div>
   );
 }

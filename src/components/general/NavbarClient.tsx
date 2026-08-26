@@ -6,9 +6,8 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
 import { usePathname } from 'next/navigation';
-import { Menu, X, User, ShoppingBag, ChevronDown, Globe, Package } from 'lucide-react';
+import { Menu, X, User, ChevronDown, Globe, Package } from 'lucide-react';
 import { useSupabase } from '@/app/supabase-provider/provider';
-import { useCart } from '@/context/CartContext';
 import UserDropdown from '@/components/user/UserDropdown';
 import SearchBar from '@/components/search/SearchBar';
 import CategoryCarousel from '@/components/search/CategoryCarousel';
@@ -30,7 +29,6 @@ export default function NavbarClient({
   const router = useRouter();
   const pathname = usePathname();
   const { supabase, session } = useSupabase();
-  const { totalItems } = useCart();
 
   const [currentSession, setCurrentSession] = useState(session);
 
@@ -183,11 +181,12 @@ export default function NavbarClient({
               <span className="font-medium">{locale === 'es' ? 'ES' : 'EN'}</span>
             </button>
             {shouldShowSearchComponents && (
-              <Link href="/cart" className="relative flex min-h-[44px] items-center rounded-sm px-2 py-1 text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB] hover:text-[#C9A962]">
-                <ShoppingBag className="h-5 w-5" />
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#C9A962] text-xs font-semibold text-[#1A1A1A] ml-1">
-                  {totalItems}
-                </span>
+              <Link
+                href="/products"
+                className="inline-flex min-h-[40px] items-center gap-2 rounded-sm bg-[#C9A962] px-3.5 py-2 text-sm font-semibold text-[#1A1A1A] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
+              >
+                <Package className="h-4 w-4" strokeWidth={2} aria-hidden />
+                {locale === 'es' ? 'Cotizar' : 'Get a quote'}
               </Link>
             )}
           </div>
@@ -226,14 +225,11 @@ export default function NavbarClient({
 
           {shouldShowSearchComponents && (
             <Link
-              href="/cart"
+              href="/products"
               className="relative flex items-center space-x-0.5 text-sm text-[#2D2D2D] hover:text-[#C9A962]"
             >
-              <ShoppingBag className="h-5 w-5" />
-              <span className="sr-only">{locale === 'es' ? 'Carrito' : 'Cart'}</span>
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#C9A962] text-xs font-medium text-[#1A1A1A]">
-                {totalItems}
-              </span>
+              <Package className="h-5 w-5" />
+              <span className="sr-only">{locale === 'es' ? 'Cotizar' : 'Get a quote'}</span>
             </Link>
           )}
 
@@ -298,17 +294,17 @@ export default function NavbarClient({
           </button>
 
           <nav className="px-4 py-4" aria-label={locale === 'es' ? 'Menú principal' : 'Main menu'}>
-            {/* Cart Link */}
+            {/* Quote CTA */}
             {shouldShowSearchComponents && (
               <div className="mb-4">
                 <Link
-                  href="/cart"
+                  href="/products"
                   className="inline-flex items-center w-full min-h-[48px] gap-3 text-sm font-semibold bg-[#C9A962] hover:bg-[#A08848] hover:text-[#F5F1EB] text-[#1A1A1A] px-4 py-3 rounded-sm transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden />
+                  <Package className="h-5 w-5" strokeWidth={2} aria-hidden />
                   <span>
-                    {locale === 'es' ? 'Ver carrito' : 'View cart'} ({totalItems})
+                    {locale === 'es' ? 'Solicitar cotización' : 'Request a quote'}
                   </span>
                 </Link>
               </div>

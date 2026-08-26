@@ -34,7 +34,6 @@
     "impact": "Impacto",
     "store": "Tienda",
     "contact": "Contacto",
-    "cart": "Carrito",
     "search": "Buscar",
     "searchProducts": "Buscar productos",
     "closeSearch": "Cerrar búsqueda",
@@ -45,7 +44,6 @@
     "login": "Iniciar sesión",
     "register": "Registrarse",
     "browseBy": "Navegar por:",
-    "viewCart": "Ver carrito",
     "changeLanguage": "Cambiar idioma",
     "shipping": "Envíos"
   },

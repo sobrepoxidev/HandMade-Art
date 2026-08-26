@@ -48,21 +48,22 @@ export function useInterestList() {
     }
   }, [items, isLoaded]);
 
-  const addItem = useCallback((product: Omit<InterestItem, 'qty'>) => {
+  const addItem = useCallback((product: Omit<InterestItem, 'qty'>, qty = 1) => {
+    const quantity = Math.max(1, Math.floor(qty));
     setItems(current => {
       const existingIndex = current.findIndex(item => item.product_id === product.product_id);
-      
+
       if (existingIndex >= 0) {
         // Si ya existe, incrementar cantidad
         const updated = [...current];
         updated[existingIndex] = {
           ...updated[existingIndex],
-          qty: updated[existingIndex].qty + 1
+          qty: updated[existingIndex].qty + quantity
         };
         return updated;
       } else {
         // Si no existe, agregar nuevo
-        return [...current, { ...product, qty: 1 }];
+        return [...current, { ...product, qty: quantity }];
       }
     });
   }, []);

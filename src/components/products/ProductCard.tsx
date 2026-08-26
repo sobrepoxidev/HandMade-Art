@@ -2,9 +2,9 @@
 
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
-import { Check, ShoppingCart, Star } from 'lucide-react';
+import { Check, Plus, Star } from 'lucide-react';
 import { useLocale } from 'next-intl';
-import { useCart } from '@/context/CartContext';
+import { useInterestList } from '@/lib/hooks/useInterestList';
 import type { Database } from '@/lib/database.types';
 import { formatUSD } from '@/lib/formatCurrency';
 
@@ -14,7 +14,9 @@ type MediaItem = { url: string; alt?: string; type?: string };
 interface ProductCardProps {
   product: Product;
   categoryName?: string;
+  /** Kept for call-site compatibility; stock no longer gates the quote CTA. */
   inventoryQuantity?: number | null;
+  interestList: ReturnType<typeof useInterestList>;
 }
 
 function getProductImage(product: Product) {
@@ -29,16 +31,30 @@ function getProductName(product: Product, locale: string) {
 export default function ProductCard({
   product,
   categoryName,
-  inventoryQuantity,
+  interestList,
 }: ProductCardProps) {
   const locale = useLocale();
-  const { addToCart } = useCart();
   const productName = getProductName(product, locale);
   const href = `/product/${encodeURIComponent(product.name || String(product.id))}`;
   const finalPrice = product.dolar_price
     ? product.dolar_price * (1 - (product.discount_percentage || 0) / 100)
     : null;
-  const hasInventory = inventoryQuantity == null || inventoryQuantity > 0;
+  const currentItem = interestList.getItem(product.id);
+  const inList = Boolean(currentItem);
+
+  const addToList = () => {
+    const media = product.media as MediaItem[] | null;
+    interestList.addItem({
+      product_id: product.id,
+      name: productName,
+      sku: product.sku || undefined,
+      main_image_url: media?.[0]?.url || undefined,
+      price: finalPrice ?? product.dolar_price ?? 0,
+      dolar_price: product.dolar_price || 0,
+      discount_percentage: product.discount_percentage || undefined,
+      category_id: product.category_id || undefined,
+    });
+  };
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] transition-[border-color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-[#C9A962]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
@@ -101,17 +117,8 @@ export default function ProductCard({
             )}
           </div>
 
-          <span
-            className={`inline-flex items-center gap-1 text-xs font-medium ${
-              hasInventory ? 'text-[#2F5F3E]' : 'text-[#9F2D24]'
-            }`}
-          >
-            {hasInventory && <Check className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />}
-            {hasInventory
-              ? inventoryQuantity && inventoryQuantity <= 10
-                ? `${inventoryQuantity} ${locale === 'es' ? 'disp.' : 'left'}`
-                : locale === 'es' ? 'En stock' : 'In stock'
-              : locale === 'es' ? 'Agotado' : 'Sold out'}
+          <span className="text-xs font-medium text-[#6B6459]">
+            {locale === 'es' ? 'Por encargo' : 'Made to order'}
           </span>
         </div>
 
@@ -124,12 +131,28 @@ export default function ProductCard({
           </Link>
           <button
             type="button"
-            onClick={() => addToCart(product, 1)}
-            disabled={!hasInventory}
-            className="grid h-11 w-11 place-items-center rounded-sm bg-[#2D2D2D] text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A] disabled:cursor-not-allowed disabled:bg-[#E8E4E0] disabled:text-[#6B6459]"
-            aria-label={locale === 'es' ? `Añadir ${productName} al carrito` : `Add ${productName} to cart`}
+            onClick={addToList}
+            aria-pressed={inList}
+            className={`grid h-11 w-11 place-items-center rounded-sm transition-colors ${
+              inList
+                ? 'bg-[#2F5F3E] text-[#F5F1EB] hover:bg-[#26503A]'
+                : 'bg-[#2D2D2D] text-[#F5F1EB] hover:bg-[#1A1A1A]'
+            }`}
+            aria-label={
+              inList
+                ? locale === 'es'
+                  ? `${productName} está en tu lista de cotización`
+                  : `${productName} is in your quote list`
+                : locale === 'es'
+                  ? `Agregar ${productName} a la lista de cotización`
+                  : `Add ${productName} to the quote list`
+            }
           >
-            <ShoppingCart className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+            {inList ? (
+              <Check className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+            ) : (
+              <Plus className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+            )}
           </button>
         </div>
       </div>

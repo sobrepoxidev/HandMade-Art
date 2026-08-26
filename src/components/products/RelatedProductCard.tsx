@@ -4,7 +4,7 @@ import { Star } from 'lucide-react';
 import { Database } from '@/lib/database.types';
 import { formatUSD } from '@/lib/formatCurrency';
 import FavoriteButton from './FavoriteButton';
-import AddToCartButton from './AddToCartButton';
+import AddToListButton from './AddToListButton';
 
 type Product = Database['public']['Tables']['products']['Row'];
 type Category = Pick<
@@ -27,7 +27,6 @@ type Props = RelatedProductCardData & {
 export default function RelatedProductCard({
   product,
   category,
-  inventory,
   isFavorite,
   locale,
 }: Props) {
@@ -44,15 +43,6 @@ export default function RelatedProductCard({
   const finalPrice =
     basePrice != null && discount > 0 ? basePrice * (1 - discount / 100) : basePrice;
   const hasDiscount = discount > 0 && basePrice != null;
-
-  const inStock = inventory > 0;
-  const lowStock = inStock && inventory <= 10;
-  const stockColor = !inStock ? '#C44536' : lowStock ? '#D4A84B' : '#4A7C59';
-  const stockLabel = !inStock
-    ? locale === 'es' ? 'Agotado' : 'Sold out'
-    : lowStock
-    ? `${inventory} ${locale === 'es' ? 'disponibles' : 'left'}`
-    : locale === 'es' ? 'En stock' : 'In stock';
 
   return (
     <article
@@ -141,12 +131,9 @@ export default function RelatedProductCard({
           )}
 
           <div className="inline-flex items-center gap-1.5 mb-3">
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: stockColor }}
-              aria-hidden
-            />
-            <span className="text-[11px] text-[#9C9589] font-medium">{stockLabel}</span>
+            <span className="text-[11px] text-[#9C9589] font-medium">
+              {locale === 'es' ? 'Por encargo' : 'Made to order'}
+            </span>
           </div>
 
           <div className="flex items-stretch gap-2">
@@ -157,7 +144,7 @@ export default function RelatedProductCard({
             >
               {locale === 'es' ? 'Ver detalles' : 'View details'}
             </Link>
-            <AddToCartButton product={product} disabled={!inStock} />
+            <AddToListButton product={product} />
           </div>
         </div>
       </div>

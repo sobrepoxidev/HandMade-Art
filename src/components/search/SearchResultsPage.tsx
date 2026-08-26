@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Link, useRouter } from '@/i18n/navigation';
-import { ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronRight, Send, SlidersHorizontal, X } from 'lucide-react';
 import ProductCard from '@/components/products/ProductCard';
 import PaginationControls from '@/components/products/PaginationControls';
+import { InterestDrawer } from '@/components/catalog/InterestDrawer';
+import { useInterestList } from '@/lib/hooks/useInterestList';
 import { supabase } from '@/lib/supabaseClient';
 import { searchProducts, type SearchResult } from '@/lib/search';
 import type { Database, Json } from '@/lib/database.types';
@@ -14,17 +16,9 @@ const PRODUCTS_PER_PAGE = 12;
 
 type Category = Database['public']['Tables']['categories']['Row'];
 type Product = Database['public']['Tables']['products']['Row'];
-type ProductWithInventory = Product & {
-  inventory?: { quantity: number | null }[] | { quantity: number | null } | null;
-};
 
 function isAllCategory(value: string) {
   return ['Todo', 'Todas', 'All', ''].includes(value);
-}
-
-function getInventoryQuantity(product: ProductWithInventory) {
-  if (Array.isArray(product.inventory)) return product.inventory[0]?.quantity ?? null;
-  return product.inventory?.quantity ?? null;
 }
 
 function toProductRow(result: SearchResult): Product {
@@ -68,12 +62,15 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
   const sortBy = searchParams.get('sort') || 'relevance';
   const isCategoryFilter = !isAllCategory(category);
 
-  const [results, setResults] = useState<ProductWithInventory[]>([]);
+  const [results, setResults] = useState<Product[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryName, setCategoryName] = useState('');
+  const interestList = useInterestList();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const totalItems = interestList.getTotalItems();
 
   useEffect(() => {
     async function fetchCategories() {
@@ -152,7 +149,7 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
 
           if (error) throw error;
 
-          setResults((data || []) as ProductWithInventory[]);
+          setResults((data || []) as Product[]);
           setTotalCount(count || 0);
         }
       } catch (error) {
@@ -204,10 +201,10 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
           <p className="mt-2 text-sm leading-relaxed text-[#4A4A4A]">
             {loading
               ? locale === 'es'
-                ? 'Preparando piezas disponibles y filtros de compra.'
-                : 'Preparing available pieces and shopping filters.'
+                ? 'Preparando piezas y filtros disponibles.'
+                : 'Preparing available pieces and filters.'
               : totalCount > 0
-              ? `${locale === 'es' ? 'Encontramos' : 'Found'} ${totalCount} ${locale === 'es' ? 'productos listos para comprar.' : 'products ready to shop.'}`
+              ? `${locale === 'es' ? 'Encontramos' : 'Found'} ${totalCount} ${locale === 'es' ? 'piezas. Agrega las que te interesen a tu lista de cotización.' : 'pieces. Add the ones you like to your quote list.'}`
               : locale === 'es'
                 ? 'Explora por categoría o escribe al menos dos caracteres en la barra de búsqueda.'
                 : 'Browse by category or type at least two characters in the search bar.'}
@@ -292,7 +289,7 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
                           ? categories.find((cat) => cat.id === product.category_id)?.name_es
                           : categories.find((cat) => cat.id === product.category_id)?.name_en) || undefined
                       }
-                      inventoryQuantity={getInventoryQuantity(product)}
+                      interestList={interestList}
                     />
                   ))}
                 </div>
@@ -322,6 +319,32 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
           </section>
         </div>
       </div>
+
+      {/* Sticky quote-request bar */}
+      {totalItems > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E8E4E0] bg-[#FAF6EF]/96 px-4 py-3 shadow-[0_-12px_36px_-18px_rgba(61,46,32,0.30)] backdrop-blur-sm">
+          <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3">
+            <p className="text-sm font-medium text-[#2D2D2D]">
+              {totalItems} {totalItems === 1 ? (locale === 'es' ? 'pieza seleccionada' : 'piece selected') : (locale === 'es' ? 'piezas seleccionadas' : 'pieces selected')}
+            </p>
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-4 py-2 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+            >
+              <Send className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              {locale === 'es' ? 'Solicitar cotización' : 'Request quote'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <InterestDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        interestList={interestList}
+      />
+      {totalItems > 0 && <div className="h-20" />}
     </main>
   );
 }

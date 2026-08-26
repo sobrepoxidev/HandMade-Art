@@ -8,7 +8,7 @@ import CategoryCarousel from '../search/CategoryCarousel';
 import { headers } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 import { HOME_CATEGORY_COLUMNS, type HomeCategory } from '@/lib/home/types';
-import { Globe, Menu, Package, ShoppingBag } from 'lucide-react';
+import { Globe, Menu, Package } from 'lucide-react';
 
 export default async function Navbar({ locale }: { locale: string }) {
   // Obtener la ruta actual para determinar si mostrar componentes de búsqueda
@@ -78,11 +78,11 @@ export default async function Navbar({ locale }: { locale: string }) {
                 <div className="mb-4 grid grid-cols-2 gap-2">
                   {shouldShowSearchComponents && (
                     <Link
-                      href="/cart"
+                      href="/products"
                       className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm bg-[#C9A962] px-4 py-3 text-sm font-semibold text-[#1A1A1A] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
                     >
-                      <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden />
-                      {locale === 'es' ? 'Carrito' : 'Cart'}
+                      <Package className="h-5 w-5" strokeWidth={2} aria-hidden />
+                      {locale === 'es' ? 'Cotizar' : 'Get a quote'}
                     </Link>
                   )}
                   <Link
@@ -154,16 +154,6 @@ export default async function Navbar({ locale }: { locale: string }) {
                 </ul>
               </nav>
             </details>
-
-            {shouldShowSearchComponents && (
-              <Link
-                href="/cart"
-                className="grid h-11 w-11 place-items-center rounded-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A08848]"
-                aria-label={locale === 'es' ? 'Ver carrito' : 'View cart'}
-              >
-                <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden />
-              </Link>
-            )}
           </div>
 
           <NavbarClient
