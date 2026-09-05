@@ -289,26 +289,26 @@ export function generateQuoteEmailTemplate(data: QuoteEmailData): string {
                 📧 info@handmadeart.store
               </p>
               <p style="margin: 0 0 12px 0; color: #16a34a; font-size: 14px; font-weight: 500;">
-                📞 +506 8423 7555
+                📞 +506 8585 0000
               </p>
             </div>
             
             <div style="margin: 10px 0; text-align: center;">
               <a href="mailto:info@handmadeart.store" style="display: inline-block; background-color: #16a34a; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">📧 ${isSpanish ? 'Enviar Email' : 'Send Email'}</a>
-              <a href="https://wa.me/50684237555" style="display: inline-block; background-color: #25d366; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">💬 WhatsApp</a>
-              <a href="tel:+50684237555" style="display: inline-block; background-color: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">📞 ${isSpanish ? 'Llamar' : 'Call'}</a>
+              <a href="https://wa.me/50685850000" style="display: inline-block; background-color: #25d366; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">💬 WhatsApp</a>
+              <a href="tel:+50685850000" style="display: inline-block; background-color: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">📞 ${isSpanish ? 'Llamar' : 'Call'}</a>
             </div>
             <p style="margin: 5px 0; color: #16a34a; font-size: 14px; font-weight: 500;">
-              ${isSpanish ? 'Contáctenos: info@handmadeart.store | +506 8423 7555' : 'Contact us: info@handmadeart.store | +506 8423 7555'}
+              ${isSpanish ? 'Contáctenos: info@handmadeart.store | +506 8585 0000' : 'Contact us: info@handmadeart.store | +506 8585 0000'}
             </p>
             
             <!-- Action Buttons -->
             <div class="contact-buttons" style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-              <a href="https://wa.me/50684237555" 
+              <a href="https://wa.me/50685850000" 
                  class="contact-button" style="display: inline-block; background-color: #25d366; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 25px; font-weight: 600; font-size: 14px; margin: 4px; min-width: 120px; text-align: center;">
                 📱 ${isSpanish ? 'WhatsApp' : 'WhatsApp'}
               </a>
-              <a href="tel:+50684237555" 
+              <a href="tel:+50685850000" 
                  class="contact-button" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 25px; font-weight: 600; font-size: 14px; margin: 4px; min-width: 120px; text-align: center;">
                 📞 ${isSpanish ? 'Llamar' : 'Call'}
               </a>

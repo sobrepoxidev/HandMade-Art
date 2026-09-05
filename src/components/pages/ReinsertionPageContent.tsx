@@ -112,7 +112,7 @@ const COPY = {
     closingBody:
       "La forma más directa es comprar una pieza. Cada compra paga horas de oficio reales, no una etiqueta. Si tu empresa quiere explorar una alianza, convenio de inserción, padrinazgo de un taller o donación con certificado de impacto, escríbenos.",
     contactEmail: "info@handmadeart.store",
-    contactPhone: "+506 8423 7555",
+    contactPhone: "+506 8585 0000",
     ctaShop: "Ver el catálogo",
     ctaContact: "Escribir para alianzas",
     legalFramework: "Marco legal",
@@ -220,7 +220,7 @@ const COPY = {
     closingBody:
       "The most direct way is to buy a piece. Every purchase pays real hours of craft, not a label. If your company wants to explore a partnership, reintegration agreement, workshop sponsorship or donation with an impact certificate, get in touch.",
     contactEmail: "info@handmadeart.store",
-    contactPhone: "+506 8423 7555",
+    contactPhone: "+506 8585 0000",
     ctaShop: "Browse the catalog",
     ctaContact: "Email us about partnerships",
     legalFramework: "Legal framework",

@@ -27,7 +27,7 @@ export async function GET() {
     lines.push("# Handmade Art");
     lines.push("");
     lines.push(
-      "> Arte y artesanía costarricense hecha a mano en San Ramón, Alajuela, Costa Rica. Espejos, chorreadores de café, esculturas y decoración talladas en madera por artesanos de un programa de reinserción social. Cada compra remunera directamente el trabajo de un artesano y apoya su proceso de reinserción."
+      "> Arte y artesanía costarricense hecha a mano en San Isidro de Coronado, San José, Costa Rica. Espejos, chorreadores de café, esculturas y decoración talladas en madera por artesanos de un programa de reinserción social. Cada compra remunera directamente el trabajo de un artesano y apoya su proceso de reinserción."
     );
     lines.push("");
     lines.push(
@@ -62,7 +62,7 @@ export async function GET() {
     lines.push("# Handmade Art");
     lines.push("");
     lines.push(
-      "> Handmade Costa Rican art and crafts made in San Ramón, Alajuela, Costa Rica. Mirrors, coffee drippers, sculptures and décor carved in wood by artisans in a social reintegration program. Every purchase directly pays an artisan and supports their reintegration process."
+      "> Handmade Costa Rican art and crafts made in San Isidro de Coronado, San José, Costa Rica. Mirrors, coffee drippers, sculptures and décor carved in wood by artisans in a social reintegration program. Every purchase directly pays an artisan and supports their reintegration process."
     );
     lines.push("");
     lines.push(

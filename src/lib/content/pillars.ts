@@ -44,16 +44,16 @@ export const PILLARS: PillarContent[] = [
     id: "handicrafts",
     slug: { es: "artesania-costarricense", en: "costa-rican-handicrafts" },
     h1: {
-      es: "Artesanía costarricense hecha a mano en San Ramón, Alajuela",
-      en: "Costa Rican Handicrafts, Hand-Carved in San Ramón, Alajuela",
+      es: "Artesanía costarricense hecha a mano en San Isidro de Coronado, San José",
+      en: "Costa Rican Handicrafts, Hand-Carved in San Isidro de Coronado, San José",
     },
     metaTitle: {
       es: "Artesanía costarricense hecha a mano | Costa Rica",
       en: "Costa Rican Handicrafts, Made By Hand",
     },
     metaDescription: {
-      es: "Artesanía costarricense auténtica: madera de cedro amargo y laurel, motivos de fauna tica y un taller en San Ramón que reinserta a sus artesanos.",
-      en: "Authentic Costa Rican handicrafts: cedro amargo and laurel wood, wildlife motifs, and a San Ramón workshop that reintegrates its artisans.",
+      es: "Artesanía costarricense auténtica: madera de cedro amargo y laurel, motivos de fauna tica y un taller en San Isidro de Coronado que reinserta a sus artesanos.",
+      en: "Authentic Costa Rican handicrafts: cedro amargo and laurel wood, wildlife motifs, and a San Isidro de Coronado workshop that reintegrates its artisans.",
     },
     sections: [
       {
@@ -64,12 +64,12 @@ export const PILLARS: PillarContent[] = [
         paragraphs: {
           es: [
             "\"Artesanía costarricense\" debería significar una sola cosa: un objeto hecho a mano, en Costa Rica, por una persona que domina un oficio específico —tallado, pintura, ensamblaje— y no una etiqueta pegada sobre un producto fabricado en otro país. En la práctica, buena parte de lo que se vende bajo ese nombre en zonas turísticas es producción en serie importada; la diferencia entre eso y una pieza real casi nunca está en el precio, sino en las variaciones que solo puede dejar una mano humana: una veta de madera distinta, un trazo de pincel que no se repite igual dos veces.",
-            "Nuestro catálogo funciona con esa definición estricta: 119 productos activos, cada uno tallado o pintado por un artesano identificable dentro de un taller en San Ramón, Alajuela, no comprado a un intermediario ni ensamblado a partir de piezas genéricas. Eso significa que un chorreador de café, un espejo o una taza de esta colección se puede rastrear hasta la persona y el proceso que lo hicieron, algo que ningún imán de refrigerador importado puede ofrecer.",
+            "Nuestro catálogo funciona con esa definición estricta: 119 productos activos, cada uno tallado o pintado por un artesano identificable dentro de un taller en San Isidro de Coronado, San José, no comprado a un intermediario ni ensamblado a partir de piezas genéricas. Eso significa que un chorreador de café, un espejo o una taza de esta colección se puede rastrear hasta la persona y el proceso que lo hicieron, algo que ningún imán de refrigerador importado puede ofrecer.",
             "Esa trazabilidad también cambia lo que significa el precio: no estás pagando solo por un objeto terminado, sino por las horas de tallado o pintura de una persona específica y por el proceso de reinserción que ese trabajo sostiene. Es una diferencia que vale la pena tener presente al comparar un chorreador de $30 hecho a mano contra uno importado de $10 en una tienda de souvenirs: no son el mismo producto, aunque se parezcan en la foto.",
           ],
           en: [
             "\"Costa Rican handicraft\" should mean one thing: an object made by hand, in Costa Rica, by someone who has a real trade — carving, painting, assembly — not a sticker slapped on something manufactured elsewhere. In practice, a large share of what gets sold under that label in tourist areas is imported mass production; the difference between that and a genuine piece is almost never the price tag, it's the variation only a human hand leaves behind — a different grain pattern, a brushstroke that never repeats exactly.",
-            "Our catalog holds to that strict definition: 119 active products, each one carved or painted by an identifiable artisan inside a workshop in San Ramón, Alajuela — not bought from a middleman or assembled from generic parts. That means a coffee dripper, a mirror or a mug in this collection can be traced back to the person and the process that made it, something no imported fridge magnet can offer.",
+            "Our catalog holds to that strict definition: 119 active products, each one carved or painted by an identifiable artisan inside a workshop in San Isidro de Coronado, San José — not bought from a middleman or assembled from generic parts. That means a coffee dripper, a mirror or a mug in this collection can be traced back to the person and the process that made it, something no imported fridge magnet can offer.",
             "That traceability also changes what the price actually represents: you're not just paying for a finished object, you're paying for a specific person's carving or painting hours and for the reintegration process that work supports. It's a distinction worth keeping in mind when comparing a $30 handmade dripper against a $10 imported one at a souvenir stand — they may look alike in a photo, but they aren't the same product.",
           ],
         },
@@ -108,16 +108,16 @@ export const PILLARS: PillarContent[] = [
       },
       {
         h2: {
-          es: "El taller en San Ramón y el programa de reinserción",
-          en: "The San Ramón workshop and the reintegration program",
+          es: "El taller en San Isidro de Coronado y el programa de reinserción",
+          en: "The San Isidro de Coronado workshop and the reintegration program",
         },
         paragraphs: {
           es: [
-            "Todas las piezas se producen en un taller en San Ramón de Alajuela, donde trabajan artesanos que forman parte de un programa de reinserción social respaldado por el Ministerio de Justicia y Paz y el Instituto Nacional de Aprendizaje (INA). El INA aporta la capacitación técnica en talla y acabado; el programa de reinserción aporta la estructura, el acompañamiento y el espacio de trabajo. El resultado es un oficio real, con metas de producción y control de calidad, no una actividad ocasional.",
+            "Todas las piezas se producen en un taller en San Isidro de Coronado, donde trabajan artesanos que forman parte de un programa de reinserción social respaldado por el Ministerio de Justicia y Paz y el Instituto Nacional de Aprendizaje (INA). El INA aporta la capacitación técnica en talla y acabado; el programa de reinserción aporta la estructura, el acompañamiento y el espacio de trabajo. El resultado es un oficio real, con metas de producción y control de calidad, no una actividad ocasional.",
             "Esto tiene una consecuencia directa para quien compra: cada pieza vendida remunera el trabajo de la persona que la hizo y sostiene ese proceso de reinserción en marcha. No publicamos nombres, cifras de artesanos ni años de fundación porque preferimos no inventar datos que no podemos verificar en este momento —lo que sí podemos garantizar es la trazabilidad del taller y el programa detrás de cada producto.",
           ],
           en: [
-            "Every piece is produced in a workshop in San Ramón, Alajuela, where the artisans are part of a social reintegration program backed by Costa Rica's Ministerio de Justicia y Paz (Ministry of Justice and Peace) and the Instituto Nacional de Aprendizaje (INA, the national vocational training institute). INA provides the technical training in carving and finishing; the reintegration program provides the structure, support and workspace. The result is a real trade, with production targets and quality control, not an occasional activity.",
+            "Every piece is produced in a workshop in San Isidro de Coronado, San José, where the artisans are part of a social reintegration program backed by Costa Rica's Ministerio de Justicia y Paz (Ministry of Justice and Peace) and the Instituto Nacional de Aprendizaje (INA, the national vocational training institute). INA provides the technical training in carving and finishing; the reintegration program provides the structure, support and workspace. The result is a real trade, with production targets and quality control, not an occasional activity.",
             "That has a direct consequence for the buyer: every piece sold pays the person who made it and keeps that reintegration process running. We don't publish artisan names, headcounts or founding dates, because we'd rather not state numbers we can't verify right now — what we can guarantee is the traceability of the workshop and the program behind every product.",
           ],
         },
@@ -164,8 +164,8 @@ export const PILLARS: PillarContent[] = [
           en: "How do I know a piece is real Costa Rican handicraft and not imported?",
         },
         answer: {
-          es: "Fijate en las variaciones naturales entre piezas del mismo diseño (veta de madera, pincelada) y en si el vendedor puede decirte de qué taller sale y en qué madera está hecha. Todas nuestras piezas se producen en un taller identificable en San Ramón, Alajuela.",
-          en: "Look for natural variation between pieces of the same design (wood grain, brushwork) and whether the seller can tell you which workshop it comes from and what wood it's made of. All of our pieces are produced in an identifiable workshop in San Ramón, Alajuela.",
+          es: "Fijate en las variaciones naturales entre piezas del mismo diseño (veta de madera, pincelada) y en si el vendedor puede decirte de qué taller sale y en qué madera está hecha. Todas nuestras piezas se producen en un taller identificable en San Isidro de Coronado, San José.",
+          en: "Look for natural variation between pieces of the same design (wood grain, brushwork) and whether the seller can tell you which workshop it comes from and what wood it's made of. All of our pieces are produced in an identifiable workshop in San Isidro de Coronado, San José.",
         },
       },
       {
@@ -184,8 +184,8 @@ export const PILLARS: PillarContent[] = [
           en: "What's the workshop's relationship with the reintegration program?",
         },
         answer: {
-          es: "El taller de San Ramón emplea a artesanos dentro de un programa de reinserción social respaldado por el Ministerio de Justicia y Paz y el INA, que aporta la capacitación técnica en talla y acabado.",
-          en: "The San Ramón workshop employs artisans within a social reintegration program backed by the Ministerio de Justicia y Paz (Ministry of Justice and Peace) and the INA, which provides the technical training in carving and finishing.",
+          es: "El taller de San Isidro de Coronado emplea a artesanos dentro de un programa de reinserción social respaldado por el Ministerio de Justicia y Paz y el INA, que aporta la capacitación técnica en talla y acabado.",
+          en: "The San Isidro de Coronado workshop employs artisans within a social reintegration program backed by the Ministerio de Justicia y Paz (Ministry of Justice and Peace) and the INA, which provides the technical training in carving and finishing.",
         },
       },
       {
@@ -411,11 +411,11 @@ export const PILLARS: PillarContent[] = [
         paragraphs: {
           es: [
             "El souvenir típico de aeropuerto o de zona turística —el imán de refrigerador, la pulsera de plástico con la bandera impresa, el llavero genérico— casi nunca se fabrica en Costa Rica: se importa en volumen y se le agrega una etiqueta al llegar. No es un problema de calidad exclusivamente, es un problema de honestidad: la persona que lo compra cree estar llevándose algo local cuando en realidad no lo es.",
-            "La forma más simple de evitarlo es comprar directo de un catálogo que muestre el origen real de cada pieza. En este caso, cada producto se fabrica en un taller identificable en San Ramón, Alajuela, por artesanos de un programa de reinserción social —así que lo que ves en la ficha del producto es exactamente lo que vas a recibir, sin intermediarios que oculten de dónde viene.",
+            "La forma más simple de evitarlo es comprar directo de un catálogo que muestre el origen real de cada pieza. En este caso, cada producto se fabrica en un taller identificable en San Isidro de Coronado, San José, por artesanos de un programa de reinserción social —así que lo que ves en la ficha del producto es exactamente lo que vas a recibir, sin intermediarios que oculten de dónde viene.",
           ],
           en: [
             "The typical airport or tourist-zone souvenir — the fridge magnet, the plastic bracelet printed with the flag, the generic keychain — is almost never made in Costa Rica: it's imported in bulk and gets a sticker added on arrival. It's not just a quality problem, it's an honesty problem: the buyer thinks they're taking home something local when they're not.",
-            "The simplest way to avoid that is to buy directly from a catalog that shows each piece's real origin. Here, every product is made in an identifiable workshop in San Ramón, Alajuela, by artisans in a social reintegration program — so what you see on the product page is exactly what you'll receive, with no middlemen hiding where it actually came from. If a shop can't tell you the workshop, the material, or roughly how long a piece took to make, that's usually enough reason to keep looking before you buy.",
+            "The simplest way to avoid that is to buy directly from a catalog that shows each piece's real origin. Here, every product is made in an identifiable workshop in San Isidro de Coronado, San José, by artisans in a social reintegration program — so what you see on the product page is exactly what you'll receive, with no middlemen hiding where it actually came from. If a shop can't tell you the workshop, the material, or roughly how long a piece took to make, that's usually enough reason to keep looking before you buy.",
           ],
         },
       },

@@ -162,10 +162,10 @@ function synthesizeIntro(
   const p1: LocalizedText = {
     es: `Esta colección de ${nameEs.toLowerCase()} reúne ${count} ${
       count === 1 ? "pieza activa" : "piezas activas"
-    }, cada una trabajada a mano en cedro amargo o laurel costarricense por artesanos del programa de reinserción social en San Ramón, Alajuela. Como cada pieza se hace a mano y no en serie, ninguna sale idéntica a otra: la veta de la madera y el acabado del barniz varían de una pieza a otra.`,
+    }, cada una trabajada a mano en cedro amargo o laurel costarricense por artesanos del programa de reinserción social en San Isidro de Coronado, San José. Como cada pieza se hace a mano y no en serie, ninguna sale idéntica a otra: la veta de la madera y el acabado del barniz varían de una pieza a otra.`,
     en: `This ${nameEn.toLowerCase()} collection brings together ${count} active ${
       count === 1 ? "piece" : "pieces"
-    }, each one hand-worked in Costa Rican cedro amargo or laurel wood by artisans in the social reintegration program in San Ramón, Alajuela. Since every piece is made by hand rather than mass-produced, no two are exactly alike — the wood grain and varnish finish vary piece to piece.`,
+    }, each one hand-worked in Costa Rican cedro amargo or laurel wood by artisans in the social reintegration program in San Isidro de Coronado, San José. Since every piece is made by hand rather than mass-produced, no two are exactly alike — the wood grain and varnish finish vary piece to piece.`,
   };
 
   const p2: LocalizedText = {

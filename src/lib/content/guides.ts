@@ -198,11 +198,11 @@ export const GUIDES: GuideContent[] = [
         h2: { es: "Por qué un regalo artesanal de Costa Rica es diferente", en: "Why a Costa Rican handmade gift is different" },
         paragraphs: {
           es: [
-            "A diferencia de un souvenir producido en serie, cada pieza de esta colección la talla o pinta a mano un artesano del programa de reinserción social en San Ramón, Alajuela. Eso significa dos cosas prácticas: primero, que ninguna pieza es exactamente igual a otra, así que el regalo se siente único de verdad; segundo, que la compra tiene un impacto directo y verificable en la vida de esa persona.",
+            "A diferencia de un souvenir producido en serie, cada pieza de esta colección la talla o pinta a mano un artesano del programa de reinserción social en San Isidro de Coronado, San José. Eso significa dos cosas prácticas: primero, que ninguna pieza es exactamente igual a otra, así que el regalo se siente único de verdad; segundo, que la compra tiene un impacto directo y verificable en la vida de esa persona.",
             "Si no estás seguro de qué elegir, empezá por la categoría más cercana a los hábitos de la persona —café, decoración, cocina— y de ahí filtrá por presupuesto y ocasión. Todas las piezas se pueden enviar a todo Costa Rica o al extranjero, así que la distancia no es un obstáculo para regalar algo hecho a mano de verdad.",
           ],
           en: [
-            "Unlike a mass-produced souvenir, every piece in this collection is hand-carved or hand-painted by an artisan in the social reintegration program in San Ramón, Alajuela. That means two practical things: first, no two pieces are exactly alike, so the gift feels genuinely unique; second, the purchase has a direct, traceable impact on that person's life.",
+            "Unlike a mass-produced souvenir, every piece in this collection is hand-carved or hand-painted by an artisan in the social reintegration program in San Isidro de Coronado, San José. That means two practical things: first, no two pieces are exactly alike, so the gift feels genuinely unique; second, the purchase has a direct, traceable impact on that person's life.",
             "If you're not sure what to pick, start with the category closest to the person's habits — coffee, décor, cooking — then filter by budget and occasion from there. Every piece can ship anywhere in Costa Rica or internationally, so distance is never a reason to skip giving something genuinely handmade.",
           ],
         },
@@ -524,11 +524,11 @@ export const GUIDES: GuideContent[] = [
         h2: { es: "Souvenirs que sí son 100% hechos en Costa Rica", en: "Souvenirs that really are 100% made in Costa Rica" },
         paragraphs: {
           es: [
-            "En nuestro catálogo, cada pieza —desde un chorreador de café hasta una taza de peltre pintada a mano— se produce en el taller de San Ramón, Alajuela, por artesanos del programa de reinserción social. Eso significa trazabilidad real: sabemos quién hizo cada pieza y cómo se hizo, algo que ningún souvenir importado puede ofrecer.",
+            "En nuestro catálogo, cada pieza —desde un chorreador de café hasta una taza de peltre pintada a mano— se produce en el taller de San Isidro de Coronado, San José, por artesanos del programa de reinserción social. Eso significa trazabilidad real: sabemos quién hizo cada pieza y cómo se hizo, algo que ningún souvenir importado puede ofrecer.",
             "Para alguien que visita el país o para quien quiere enviar un recuerdo genuino a otra persona, los chorreadores de madera y las tazas pintadas a mano son las opciones más fáciles de transportar y las más representativas de la cultura cafetalera costarricense. Todas se pueden enviar directamente a cualquier parte del mundo, sin necesidad de cargarlas en la maleta.",
           ],
           en: [
-            "In our catalog, every piece — from a coffee dripper to a hand-painted enamel mug — is produced in the workshop in San Ramón, Alajuela, by artisans in the social reintegration program. That means real traceability: we know who made each piece and how, something no imported souvenir can offer.",
+            "In our catalog, every piece — from a coffee dripper to a hand-painted enamel mug — is produced in the workshop in San Isidro de Coronado, San José, by artisans in the social reintegration program. That means real traceability: we know who made each piece and how, something no imported souvenir can offer.",
             "For someone visiting the country, or for sending a genuine keepsake to someone else, wooden coffee drippers and hand-painted mugs are the easiest to transport and the most representative of Costa Rican coffee culture. All of them can ship directly anywhere in the world, no suitcase required.",
           ],
         },
@@ -538,14 +538,14 @@ export const GUIDES: GuideContent[] = [
         paragraphs: {
           es: [
             "Algunos puestos en zonas muy turísticas mezclan piezas locales genuinas con productos importados en el mismo estante, sin distinguirlos, lo que hace fácil llevarse algo que no es lo que parece. Desconfiá especialmente de tiendas donde todo el inventario tiene el mismo nivel de \"perfección\" industrial, sin ninguna variación entre piezas del mismo diseño.",
-            "Comprar directo del taller o de un sitio que muestre claramente el origen de cada pieza —como este catálogo, donde cada producto se fabrica en San Ramón, Alajuela— elimina esa incertidumbre. Podés pedir con anticipación y recibir la pieza en tu casa o en tu hotel antes de viajar de regreso, sin depender de encontrarla en el aeropuerto a última hora.",
+            "Comprar directo del taller o de un sitio que muestre claramente el origen de cada pieza —como este catálogo, donde cada producto se fabrica en San Isidro de Coronado, San José— elimina esa incertidumbre. Podés pedir con anticipación y recibir la pieza en tu casa o en tu hotel antes de viajar de regreso, sin depender de encontrarla en el aeropuerto a última hora.",
             "Guardá el comprobante de compra o el correo de confirmación del pedido: si alguna vez necesitás explicar de dónde viene la pieza —a aduanas, a un asegurador de envíos, o simplemente a la persona a quien se la regalás— tener ese respaldo evita dudas y confirma que se trata de una pieza artesanal genuina con origen verificable.",
             "Al final, la mejor garantía de autenticidad no es un sello ni una etiqueta, sino la posibilidad de rastrear la pieza hasta un taller y un artesano reales. Eso es exactamente lo que buscamos ofrecer con cada producto de este catálogo, para que un souvenir de Costa Rica siga siendo un objeto con historia años después de la compra.",
             "La próxima vez que busques un recuerdo de un viaje, hacete esas tres preguntas antes de pagar: material, origen y quién lo hizo. Es un filtro rápido que funciona en cualquier país, no solo en Costa Rica.",
           ],
           en: [
             "Some stalls in heavily touristed areas mix genuine local pieces with imported products on the same shelf without distinguishing them, making it easy to walk away with something that isn't what it seems. Be especially wary of shops where the entire inventory shows the same level of industrial \"perfection,\" with no variation between pieces of the same design.",
-            "Buying directly from the workshop, or from a site that clearly shows each piece's origin — like this catalog, where every product is made in San Ramón, Alajuela — removes that uncertainty. You can order ahead of time and have the piece delivered to your home or hotel before you fly back, instead of hoping to find it at the airport at the last minute.",
+            "Buying directly from the workshop, or from a site that clearly shows each piece's origin — like this catalog, where every product is made in San Isidro de Coronado, San José — removes that uncertainty. You can order ahead of time and have the piece delivered to your home or hotel before you fly back, instead of hoping to find it at the airport at the last minute.",
             "Keep the receipt or order confirmation email: if you ever need to explain where the piece came from — to customs, to a shipping insurer, or simply to the person you're gifting it to — having that on hand removes any doubt and confirms it's a genuine handmade piece with a verifiable origin.",
             "In the end, the best guarantee of authenticity isn't a stamp or a tag — it's the ability to trace the piece back to a real workshop and a real artisan. That's exactly what we aim to offer with every product in this catalog, so a Costa Rican souvenir keeps being an object with a story years after the purchase.",
             "Next time you're shopping for a travel keepsake anywhere, ask those same three questions before you pay: material, origin, and who made it. It's a quick filter that works in any country, not just Costa Rica, and it takes less time than deciding which shelf to display the souvenir on once you get home.",
@@ -618,14 +618,14 @@ export const GUIDES: GuideContent[] = [
         },
       },
       {
-        h2: { es: "El taller en San Ramón, Alajuela", en: "The workshop in San Ramón, Alajuela" },
+        h2: { es: "El taller en San Isidro de Coronado, San José", en: "The workshop in San Isidro de Coronado, San José" },
         paragraphs: {
           es: [
-            "El taller que produce cada pieza de este catálogo está en San Ramón, Alajuela, una zona con tradición cafetalera y de trabajo en madera. Ahí, los artesanos reciben la madera —principalmente cedro— y la transforman a mano en chorreadores, espejos, esculturas y el resto de las categorías del catálogo, siguiendo procesos que van del tallado inicial al barnizado final.",
+            "El taller que produce cada pieza de este catálogo está en San Isidro de Coronado, San José, una zona con tradición cafetalera y de trabajo en madera. Ahí, los artesanos reciben la madera —principalmente cedro— y la transforman a mano en chorreadores, espejos, esculturas y el resto de las categorías del catálogo, siguiendo procesos que van del tallado inicial al barnizado final.",
             "No es un taller simbólico ni una donación disfrazada de comercio: cada pieza se vende a precio de mercado por su calidad y diseño. La diferencia es que, en lugar de que la ganancia vaya a un intermediario o a una fábrica, sostiene directamente el trabajo del artesano y la continuidad del programa.",
           ],
           en: [
-            "The workshop that produces every piece in this catalog is in San Ramón, Alajuela, an area with a long tradition of coffee farming and woodworking. There, artisans receive the wood — mainly cedar — and hand-transform it into coffee drippers, mirrors, sculptures and every other category in the catalog, following a process that runs from initial carving to final varnishing.",
+            "The workshop that produces every piece in this catalog is in San Isidro de Coronado, San José, an area with a long tradition of coffee farming and woodworking. There, artisans receive the wood — mainly cedar — and hand-transform it into coffee drippers, mirrors, sculptures and every other category in the catalog, following a process that runs from initial carving to final varnishing.",
             "This isn't a symbolic workshop or charity disguised as commerce — each piece sells at market price because of its quality and design. The difference is that instead of the profit going to a middleman or a factory, it directly sustains the artisan's work and the program's continuity.",
           ],
         },
@@ -672,7 +672,7 @@ export const GUIDES: GuideContent[] = [
         },
       },
       {
-        question: { es: "¿Puedo visitar el taller en San Ramón?", en: "Can I visit the workshop in San Ramón?" },
+        question: { es: "¿Puedo visitar el taller en San Isidro de Coronado?", en: "Can I visit the workshop in San Isidro de Coronado?" },
         answer: {
           es: "Escribinos por los canales de contacto del sitio para consultar disponibilidad de visitas.",
           en: "Reach out through the site's contact channels to ask about visit availability.",
@@ -866,13 +866,13 @@ export const GUIDES: GuideContent[] = [
         paragraphs: {
           es: [
             "Una talla hecha a mano casi siempre muestra pequeñas irregularidades: un ala ligeramente distinta a la otra, marcas finas de gubia visibles de cerca, un peso real de madera maciza en la mano. Una figura moldeada en resina o producida en masa suele ser demasiado simétrica y perfecta, y pesa menos de lo que aparenta porque no es madera sólida.",
-            "Si te interesa una figura en particular, revisá el material indicado en la ficha de producto y, si tenés dudas, escribinos directamente: podemos confirmarte el origen exacto de la pieza y, si querés, el nombre del artesano que la talló como parte del programa en San Ramón, Alajuela.",
+            "Si te interesa una figura en particular, revisá el material indicado en la ficha de producto y, si tenés dudas, escribinos directamente: podemos confirmarte el origen exacto de la pieza y, si querés, el nombre del artesano que la talló como parte del programa en San Isidro de Coronado, San José.",
             "Otra señal útil: una talla auténtica suele conservar parte del olor natural de la madera recién trabajada durante las primeras semanas, algo que una pieza de resina o plástico pintado nunca tiene. Si tenés la oportunidad de olerla de cerca antes de comprar, es una forma sencilla y rápida de confirmar que estás frente a madera real.",
             "Sea cual sea el animal que elijas, una talla auténtica siempre va a tener algo que una réplica producida en masa nunca podrá igualar: el tiempo real de una persona dedicado a esa pieza específica.",
           ],
           en: [
             "A hand-carved figure almost always shows small irregularities: one wing slightly different from the other, fine gouge marks visible up close, the real heft of solid wood in your hand. A figure molded from resin or mass-produced tends to be too symmetrical and perfect, and weighs less than it looks like it should because it isn't solid wood.",
-            "If you're interested in a particular figure, check the material listed on the product page, and if you have doubts, reach out directly — we can confirm the piece's exact origin and, if you'd like, the name of the artisan who carved it as part of the program in San Ramón, Alajuela.",
+            "If you're interested in a particular figure, check the material listed on the product page, and if you have doubts, reach out directly — we can confirm the piece's exact origin and, if you'd like, the name of the artisan who carved it as part of the program in San Isidro de Coronado, San José.",
             "Another useful sign: an authentic carving usually keeps some of the natural scent of freshly worked wood for the first few weeks, something a resin or painted-plastic piece never has. If you get the chance to smell it up close before buying, it's a quick, simple way to confirm you're looking at real wood.",
             "Whichever animal you choose, an authentic carving will always have something a mass-produced replica never can: the real, human time one person spent on that specific piece.",
           ],

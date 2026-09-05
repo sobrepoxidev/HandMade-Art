@@ -45,7 +45,7 @@ export default function HomeContainer({locale}: {locale: string}) {
             {locale === 'es' ? 'Pedir cotización' : 'Request a quote'}
           </Link>
           <a
-            href={`https://wa.me/50684237555?text=${encodeURIComponent(whatsappMessage)}`}
+            href={`https://wa.me/50685850000?text=${encodeURIComponent(whatsappMessage)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex min-h-[50px] items-center justify-center gap-2 rounded-sm border border-[#3C9A70] px-4 text-sm font-bold text-[#F1E7D6]"

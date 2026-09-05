@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { buildMetadata } from "@/lib/metadata";
+import { BUSINESS } from "@/lib/businessInfo";
 
 import Navbar from "@/components/general/Navbar";
 import Footer from "@/components/general/Footer";
@@ -133,14 +134,14 @@ export default async function LocaleLayout({
                 "@type": "Country",
                 name: "Costa Rica",
               },
-              telephone: "+506 8585 0000",
+              telephone: BUSINESS.telephone,
               email: "info@artehechoamano.com",
               address: {
                 "@type": "PostalAddress",
-                streetAddress: "San Ramón, Alajuela",
-                addressLocality: "San Ramón",
-                addressRegion: "Alajuela",
-                postalCode: "20201",
+                streetAddress: BUSINESS.streetAddress,
+                addressLocality: BUSINESS.addressLocality,
+                addressRegion: BUSINESS.addressRegion,
+                postalCode: BUSINESS.postalCode,
                 addressCountry: "CR",
               },
               sameAs: [
@@ -186,20 +187,20 @@ export default async function LocaleLayout({
               image: `${currentUrl}/web-image.jpg`,
               "@id": `${currentUrl}/#store`,
               url: currentUrl,
-              telephone: "+506 8585 0000",
+              telephone: BUSINESS.telephone,
               priceRange: "$$",
               address: {
                 "@type": "PostalAddress",
-                streetAddress: "San Ramón",
-                addressLocality: "San Ramón",
-                addressRegion: "Alajuela",
-                postalCode: "20201",
+                streetAddress: BUSINESS.streetAddress,
+                addressLocality: BUSINESS.addressLocality,
+                addressRegion: BUSINESS.addressRegion,
+                postalCode: BUSINESS.postalCode,
                 addressCountry: "CR",
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: 10.0866,
-                longitude: -84.4694,
+                latitude: BUSINESS.latitude,
+                longitude: BUSINESS.longitude,
               },
               openingHoursSpecification: {
                 "@type": "OpeningHoursSpecification",

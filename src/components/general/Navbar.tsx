@@ -41,8 +41,6 @@ export default async function Navbar({ locale }: { locale: string }) {
         </span>
         <span className="text-[#3A2E24]">|</span>
         <span>{locale === 'es' ? 'Envíos a todo Costa Rica y al exterior' : 'Shipping across Costa Rica and abroad'}</span>
-        <span className="text-[#3A2E24]">|</span>
-        <span>USD · CRC · SINPE</span>
       </div>
 
       {/* Top Bar */}
@@ -65,9 +63,6 @@ export default async function Navbar({ locale }: { locale: string }) {
               <span className="flex min-w-0 flex-col leading-none">
                 <span className="truncate whitespace-nowrap font-display text-lg tracking-normal text-[#F1E7D6] sm:text-xl">
                   Handmade Art
-                </span>
-                <span className="hidden text-[9px] uppercase tracking-[0.22em] text-[#8C7F6E] sm:block">
-                  {locale === 'es' ? 'Taller · San Ramón, Costa Rica' : 'Workshop · San Ramón, Costa Rica'}
                 </span>
               </span>
             </div>

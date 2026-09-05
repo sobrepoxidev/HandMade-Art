@@ -2,6 +2,7 @@ import { Link } from '@/i18n/navigation';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
 import { getCategoryById, PRIMARY_NAV_CATEGORY_IDS } from '@/lib/content/categories';
 import { PILLARS, getPillarPath } from '@/lib/content/pillars';
+import { SHORT_LOCATION } from '@/lib/businessInfo';
 
 export default function Footer({ locale }: { locale: string }) {
   const localeKey: 'es' | 'en' = locale === 'es' ? 'es' : 'en';
@@ -29,8 +30,8 @@ export default function Footer({ locale }: { locale: string }) {
             </Link>
             <p className="text-[14px] leading-relaxed max-w-sm">
               {locale === 'es'
-                ? 'Arte costarricense hecho a mano por artesanos de un programa de reinserción social. Taller en San Ramón, Alajuela. Envíos a todo el país y al exterior.'
-                : 'Costa Rican handmade art made by artisans in a social reintegration program. Workshop in San Ramón, Alajuela. Shipping nationwide and abroad.'}
+                ? `Arte costarricense hecho a mano por artesanos de un programa de reinserción social. Taller en ${SHORT_LOCATION}. Envíos a todo el país y al exterior.`
+                : `Costa Rican handmade art made by artisans in a social reintegration program. Workshop in ${SHORT_LOCATION}. Shipping nationwide and abroad.`}
             </p>
             <span aria-hidden className="block w-12 h-[3px] bg-[#E0A83A]" />
 
@@ -83,7 +84,7 @@ export default function Footer({ locale }: { locale: string }) {
               </li>
               <li>
                 <a
-                  href="https://wa.me/50684237555"
+                  href="https://wa.me/50685850000"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={locale === 'es' ? 'WhatsApp (abre en nueva ventana)' : 'WhatsApp (opens in new window)'}
@@ -189,8 +190,8 @@ export default function Footer({ locale }: { locale: string }) {
                 </a>
               </li>
               <li>
-                <a href="tel:+50684237555" className="tabular-nums hover:text-[#E0A83A] transition-colors duration-200">
-                  +506 8423 7555
+                <a href="tel:+50685850000" className="tabular-nums hover:text-[#E0A83A] transition-colors duration-200">
+                  +506 8585 0000
                 </a>
               </li>
               <li>

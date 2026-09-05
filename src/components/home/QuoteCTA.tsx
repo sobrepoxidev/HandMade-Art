@@ -45,7 +45,7 @@ export default function QuoteCTA({ locale }: { locale: string }) {
           {t.cta}
         </Link>
         <a
-          href={`https://wa.me/50684237555?text=${encodeURIComponent(whatsappMessage)}`}
+          href={`https://wa.me/50685850000?text=${encodeURIComponent(whatsappMessage)}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex min-h-[54px] items-center justify-center gap-2.5 rounded-sm border border-[#161210] px-6 text-sm font-bold text-[#161210] transition-colors hover:bg-[#161210]/10"

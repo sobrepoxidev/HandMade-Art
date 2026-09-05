@@ -60,9 +60,9 @@ export default function GraciasPage() {
                 <Mail className="h-4 w-4" strokeWidth={1.75} aria-hidden />
                 info@handmadeart.store
               </a>
-              <a href="tel:+50684237555" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm border border-[#3A2E24] px-3 transition-colors hover:border-[#F3C56B] hover:text-[#F3C56B]">
+              <a href="tel:+50685850000" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm border border-[#3A2E24] px-3 transition-colors hover:border-[#F3C56B] hover:text-[#F3C56B]">
                 <Phone className="h-4 w-4" strokeWidth={1.75} aria-hidden />
-                +506 8423 7555
+                +506 8585 0000
               </a>
             </div>
           </div>

@@ -70,7 +70,7 @@ export async function GET() {
     lines.push("# Handmade Art — listado completo");
     lines.push("");
     lines.push(
-      "> Arte y artesanía costarricense hecha a mano en San Ramón, Alajuela, Costa Rica. Cada pieza la talla o pinta a mano un artesano en proceso de reinserción social. Envíos a todo Costa Rica y al extranjero. Pagos por SINPE Móvil, transferencia bancaria y tarjeta."
+      "> Arte y artesanía costarricense hecha a mano en San Isidro de Coronado, San José, Costa Rica. Cada pieza la talla o pinta a mano un artesano en proceso de reinserción social. Envíos a todo Costa Rica y al extranjero. Pagos por SINPE Móvil, transferencia bancaria y tarjeta."
     );
     lines.push("");
     lines.push("## Páginas principales");
@@ -111,7 +111,7 @@ export async function GET() {
     lines.push("# Handmade Art — full listing");
     lines.push("");
     lines.push(
-      "> Handmade Costa Rican art and crafts made in San Ramón, Alajuela, Costa Rica. Every piece is hand-carved or hand-painted by an artisan in a social reintegration process. Shipping nationwide and internationally. Payment via SINPE Móvil, bank transfer, and card."
+      "> Handmade Costa Rican art and crafts made in San Isidro de Coronado, San José, Costa Rica. Every piece is hand-carved or hand-painted by an artisan in a social reintegration process. Shipping nationwide and internationally. Payment via SINPE Móvil, bank transfer, and card."
     );
     lines.push("");
     lines.push("## Main pages");

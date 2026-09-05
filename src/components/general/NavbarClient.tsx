@@ -158,27 +158,19 @@ export default function NavbarClient({
                 <span className="font-display text-xl md:text-2xl tracking-[-0.005em] text-[#F1E7D6]">
                   Handmade Art
                 </span>
-                <span className="mt-1 text-[10px] uppercase tracking-[0.22em] text-[#8C7F6E]">
-                  {locale === 'es' ? 'Taller · San Ramón, Costa Rica' : 'Workshop · San Ramón, Costa Rica'}
-                </span>
               </span>
             </Link>
           </div>
 
           {/* Primary nav — Chorreadores / Espejos / Esculturas / Pinturas / Guías / El taller */}
+          {/* Only the two links that are NOT in the category row right below.
+              The four category links used to sit here too, which duplicated that
+              row and squeezed the search field and the language / quote buttons
+              off the right edge on a 1920px screen. */}
           <nav
-            className="hidden shrink-0 items-center gap-7 text-[15px] font-medium text-[#F1E7D6] xl:flex"
-            aria-label={locale === 'es' ? 'Categorías principales' : 'Primary categories'}
+            className="hidden shrink-0 items-center gap-7 text-[15px] font-medium text-[#F1E7D6] lg:flex"
+            aria-label={locale === 'es' ? 'Secciones' : 'Sections'}
           >
-            {primaryNav.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/c/${cat.slugs[localeKey]}`}
-                className="transition-colors hover:text-[#F3C56B]"
-              >
-                {cat.dbName[localeKey]}
-              </Link>
-            ))}
             <Link
               href={locale === 'es' ? '/guias' : '/guides'}
               className="transition-colors hover:text-[#F3C56B]"
@@ -196,7 +188,7 @@ export default function NavbarClient({
 
           {shouldShowSearchComponents && (
             <div
-              className="relative min-w-[240px] flex-1 xl:max-w-[280px]"
+              className="relative mx-4 min-w-0 flex-1 basis-0 lg:max-w-[320px] xl:max-w-[420px]"
               style={{ zIndex: 40, position: 'relative' }}
             >
               <SearchBar

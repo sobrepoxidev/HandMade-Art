@@ -124,11 +124,11 @@ export function generateCustomerQuoteEmail(data: QuoteData): string {
             <h3 style="color: #8B4513; margin: 0 0 15px 0;">¿Tienes preguntas?</h3>
             <div style="margin: 10px 0;">
               <a href="mailto:info@handmadeart.store" style="display: inline-block; background-color: #16a34a; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">📧 Enviar Email</a>
-              <a href="https://wa.me/50684237555" style="display: inline-block; background-color: #25d366; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">💬 WhatsApp</a>
-              <a href="tel:+50684237555" style="display: inline-block; background-color: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">📞 Llamar</a>
+              <a href="https://wa.me/50685850000" style="display: inline-block; background-color: #25d366; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">💬 WhatsApp</a>
+              <a href="tel:+50685850000" style="display: inline-block; background-color: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 14px;">📞 Llamar</a>
             </div>
             <p style="color: #666; margin: 5px 0; font-size: 14px;">📧 info@handmadeart.store</p>
-            <p style="color: #666; margin: 5px 0; font-size: 14px;">📱 +506 8423 7555</p>
+            <p style="color: #666; margin: 5px 0; font-size: 14px;">📱 +506 8585 0000</p>
           </div>
         </div>
 
