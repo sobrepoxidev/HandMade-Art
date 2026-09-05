@@ -78,8 +78,42 @@ starting point.
   `@/lib/supabaseServer` (server, service-role bypass).
 - **`Link` for i18n** comes from `@/i18n/navigation`, not `next/link`.
 - **Fonts**: `next/font` variables are `--font-display-family`
-  (Frank Ruhl Libre) and `--font-sans-family` (Geist), defined in
-  `src/app/[locale]/layout.tsx`.
+  (Libre Caslon Display) and `--font-sans-family` (Manrope), defined in
+  `src/app/layout.tsx`.
+- **The address and phone live in ONE place**: `src/lib/businessInfo.ts`.
+  The workshop is in San Isidro de Vásquez de Coronado, San José —
+  **not** San Ramón, Alajuela, which was wrong sitewide until Sept 2026
+  and is still the name of an unrelated event page. Never retype the
+  address or the phone (+506 8585 0000) as free text; import the
+  constant. Wrong or inconsistent NAP is the single most damaging thing
+  for local search.
+- **Category SEO is DB-driven, not a hardcoded list**:
+  `src/lib/content/categoryResolver.ts` reads the `categories` table and
+  uses `src/lib/content/categories.ts` only as an optional editorial
+  copy layer. A category created in the admin gets its landing page,
+  slug, FAQ, sitemap entry and llms.txt line automatically. The admin
+  product routes call `revalidateCategorySeo()` so it is immediate. Do
+  not reintroduce a fixed category array.
+- **`buildMetadata` takes `alternatePathname` WITHOUT the locale
+  prefix** and adds it itself. Passing `/es/...` there produced hreflang
+  URLs that 308-redirect, which invalidates the whole language cluster.
+- **Product images are transparent PNG cutouts.** Always render them on
+  a cream tile (`bg-[#F1E7D6]`) with `object-contain`; on the dark theme
+  they disappear otherwise.
+- **Brand photography rule**: no human faces in any image under
+  `public/taller/`. The generator produced a deformed face once, and the
+  artisans are residents of a social reintegration program whose
+  identity should not be exposed. Hands, backs, or empty workshop only.
+- **Never invent facts in content or structured data.** There is no
+  fixed shipping rate and no written return policy (the business is
+  quote-only), so `shippingDetails` and `hasMerchantReturnPolicy` are
+  deliberately absent from the Product JSON-LD. A previous version
+  declared a fake 14-day return and $6.99 shipping. Counts and prices in
+  copy must come from a live query, not from memory.
+- **A new quote POSTs to `NOTIFY_WEBHOOK_URL`** (set in Vercel) which
+  bridges into aisolutions-saas → Ben's outbox → WhatsApp. See
+  `src/lib/notifications.ts` and `notifyQuoteWebhook` in
+  `src/app/api/create-interest-request/route.ts`.
 - **RSC ↔ Client**: Server Components can be passed as `children` to
   Client Components. RelatedProducts (server) lives inside
   ProductDetail (client) via this pattern.

@@ -85,8 +85,23 @@ there in the same change set.** Don't invent inline.
 - `supabase` client (`@/lib/supabaseClient`) is browser; for server
   components use `@/utils/supabase/server` (cookie-aware).
 - `i18n` Link comes from `@/i18n/navigation`, not `next/link`.
-- `next/font` variables are `--font-display-family` and
-  `--font-sans-family` (defined in `src/app/[locale]/layout.tsx`).
+- `next/font` variables are `--font-display-family` (Libre Caslon
+  Display) and `--font-sans-family` (Manrope), defined in
+  `src/app/layout.tsx`.
+- The address and phone live in ONE place: `src/lib/businessInfo.ts`.
+  The workshop is in San Isidro de Vásquez de Coronado, San José — not
+  San Ramón, Alajuela. Import the constant; never retype it.
+- Category SEO is DB-driven: `src/lib/content/categoryResolver.ts`
+  reads the `categories` table; `categories.ts` is only an optional
+  editorial copy layer. Do not reintroduce a hardcoded category list.
+- `buildMetadata` takes `alternatePathname` WITHOUT the locale prefix
+  and adds it itself.
+- Product images are transparent PNG cutouts: render on a cream tile
+  (`bg-[#F1E7D6]`) with `object-contain`.
+- No human faces in `public/taller/` imagery.
+- Never invent facts in copy or structured data. The business is
+  quote-only: there is no fixed shipping rate and no written return
+  policy, so those fields stay out of the Product JSON-LD.
 - React Server Components can be passed as `children` to Client
   Components — this is how RelatedProducts (server) lives inside
   ProductDetail (client).
