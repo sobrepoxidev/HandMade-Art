@@ -50,7 +50,14 @@ export default async function Navbar({ locale }: { locale: string }) {
         {/* Logo - SSR (Left) */}
 
           <div className="min-w-0 lg:hidden bg-[#161210]">
-          <Link href="/" className="flex min-w-0 items-center focus-visible:outline-[#E0A83A] focus-visible:outline-offset-2" aria-label="HandMadeArt Home">
+          {/* The accessible name must contain the visible text ("Handmade Art"),
+              otherwise voice-control users saying what they read cannot activate
+              it. "HandMadeArt Home" failed that check. */}
+          <Link
+            href="/"
+            className="flex min-w-0 items-center focus-visible:outline-[#E0A83A] focus-visible:outline-offset-2"
+            aria-label={locale === 'es' ? 'Handmade Art, ir al inicio' : 'Handmade Art, go to home'}
+          >
             <div className="relative flex min-w-0 items-center gap-2.5 overflow-hidden">
               <span className="font-serif flex h-9 w-9 shrink-0 items-center justify-center bg-[#E0A83A] text-[15px] leading-none text-[#161210] sm:h-10 sm:w-10 sm:text-base">
                 HM
