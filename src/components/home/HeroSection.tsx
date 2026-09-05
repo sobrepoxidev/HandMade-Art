@@ -69,7 +69,7 @@ export default function HeroSection({ locale, featuredProducts = [] }: Props) {
         (a 1536x704 CSS viewport cut it off). Clamp keeps it cinematic on tall
         screens and always leaves the buttons visible on short ones.
       */}
-      <section className="relative hidden overflow-hidden bg-[#0F0C0A] lg:block lg:h-[clamp(440px,calc(100svh-200px),780px)]">
+      <section className="relative hidden overflow-hidden bg-[#0F0C0A] lg:block lg:min-h-[clamp(440px,calc(100svh-200px),780px)]">
         <Image
           src="/taller/hero-taller.webp"
           alt={locale === 'es' ? 'Artesano tallando un marco de espejo en el taller' : 'Artisan carving a mirror frame in the workshop'}
@@ -87,7 +87,7 @@ export default function HeroSection({ locale, featuredProducts = [] }: Props) {
           className="absolute inset-x-0 bottom-0 h-[200px] bg-[linear-gradient(180deg,rgba(22,18,16,0)_0%,rgba(22,18,16,0.95)_100%)]"
         />
 
-        <div className="relative flex h-full flex-col justify-between px-8 py-8 xl:px-16 xl:py-10">
+        <div className="relative flex min-h-[inherit] flex-col justify-between gap-8 px-8 py-8 xl:px-16 xl:py-10">
           <div className="flex max-w-[760px] flex-col gap-5 xl:gap-6">
             <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E0A83A]">
               {t.eyebrow}
@@ -157,7 +157,10 @@ export default function HeroSection({ locale, featuredProducts = [] }: Props) {
       </section>
 
       {/* Mobile hero */}
-      <section className="relative h-[clamp(500px,calc(100svh-104px),620px)] overflow-hidden bg-[#0F0C0A] lg:hidden">
+      {/* Height = viewport minus the header stack above (~232px) minus the sticky
+          quote bar below (74px), so the bottom-aligned copy and CTA land just
+          above the bar instead of behind it. */}
+      <section className="relative min-h-[clamp(380px,calc(100svh-306px),620px)] overflow-hidden bg-[#0F0C0A] lg:hidden">
         <Image
           src="/taller/hero-taller-movil.webp"
           alt={locale === 'es' ? 'Artesano tallando un marco de espejo en el taller' : 'Artisan carving a mirror frame in the workshop'}
@@ -170,16 +173,21 @@ export default function HeroSection({ locale, featuredProducts = [] }: Props) {
           aria-hidden
           className="absolute inset-0 bg-[linear-gradient(180deg,rgba(22,18,16,0.15)_0%,rgba(22,18,16,0.2)_35%,rgba(22,18,16,0.92)_68%,rgba(22,18,16,1)_100%)]"
         />
-        <div className="relative flex h-full flex-col justify-end gap-4 px-5 pb-6">
+        <div className="relative flex min-h-[inherit] flex-col justify-end gap-4 px-5 pt-16 pb-[86px]">
+          {/* pb clears the sticky quote bar (74px) so the hero CTAs are not
+              hidden behind it on a phone. */}
           <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E0A83A]">
             {t.eyebrowMobile}
           </span>
-          <h1 className="font-display text-[42px] leading-[0.98] text-[#F1E7D6] text-wrap-pretty">
+          <h1 className="font-display text-[clamp(30px,min(11vw,7.5vh),42px)] leading-[0.98] text-[#F1E7D6] text-wrap-pretty">
             {t.headline}
           </h1>
-          <p className="text-[15px] leading-[1.55] text-[#C9BBA5]">
+          <p className="text-[15px] leading-[1.5] text-[#C9BBA5]">
             {t.subMobile}
           </p>
+          {/* One button only on a phone: the sticky bar below already carries the
+              conversion action, and a second full-width button was landing behind
+              it. The workshop link stays as an inline link, still 44px tall. */}
           <Link
             href="/products"
             className="flex min-h-[54px] items-center justify-center rounded-sm bg-[#E0A83A] px-5 text-sm font-bold text-[#161210]"
@@ -188,7 +196,7 @@ export default function HeroSection({ locale, featuredProducts = [] }: Props) {
           </Link>
           <Link
             href="/reinsercion-sociolaboral"
-            className="flex min-h-[54px] items-center justify-center rounded-sm border border-[#F1E7D6]/45 px-5 text-sm font-bold text-[#F1E7D6]"
+            className="flex min-h-[44px] items-center text-sm font-bold text-[#F1E7D6] underline decoration-[#E0A83A] decoration-2 underline-offset-[6px]"
           >
             {t.ctaSecondary}
           </Link>
