@@ -12,7 +12,7 @@ type MediaItem = { url: string; alt?: string };
 type Props = {
   product: Product;
   category: Category | null;
-  /** Kept for caller compatibility; availability is now Made-to-order. */
+  /** Stock on hand; drives the Offer availability value. */
   inventory?: number;
   ratingAvg: number | null;
   reviewCount: number;
@@ -51,6 +51,7 @@ function pickSpecValue(
 export default function ProductJsonLd({
   product,
   category,
+  inventory,
   ratingAvg,
   reviewCount,
   reviews,
@@ -209,13 +210,32 @@ export default function ProductJsonLd({
     const validUntil = new Date();
     validUntil.setFullYear(validUntil.getFullYear() + 1);
 
+    // Google's merchant-listing parser rejects schema.org/MadeToOrder — it is
+    // valid schema.org but not in Google's supported enumeration, so it was
+    // reported as an invalid `availability` value. Map to what is both true and
+    // supported: stocked pieces are InStock, made-to-order pieces are BackOrder
+    // (the buyer can order now, the workshop carves it before shipping).
+    const availability =
+      inventory != null && inventory > 0
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/BackOrder';
+
+    // `validFrom` is when this offer started applying. The row's own timestamps
+    // are the only honest source; fall back to today for rows without them.
+    const offerValidFrom = (product.modified_at || product.created_at || null) as
+      | string
+      | null;
+
     schema.offers = {
       '@type': 'Offer',
       url,
       priceCurrency: 'USD',
       price: finalPrice.toFixed(2),
+      validFrom: (offerValidFrom ? new Date(offerValidFrom) : new Date())
+        .toISOString()
+        .slice(0, 10),
       priceValidUntil: validUntil.toISOString().slice(0, 10),
-      availability: 'https://schema.org/MadeToOrder',
+      availability,
       itemCondition: 'https://schema.org/NewCondition',
       seller: {
         '@type': 'Organization',
