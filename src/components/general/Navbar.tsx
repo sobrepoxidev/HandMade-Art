@@ -1,5 +1,6 @@
 // components/layout/Navbar/index.tsx
 // Componente principal SSR
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import NavbarClient from './NavbarClient';
 import SearchBar from '../search/SearchBar';
@@ -57,9 +58,15 @@ export default async function Navbar({ locale }: { locale: string }) {
             aria-label={locale === 'es' ? 'Handmade Art, ir al inicio' : 'Handmade Art, go to home'}
           >
             <div className="relative flex min-w-0 items-center gap-2.5 overflow-hidden">
-              <span className="font-serif flex h-9 w-9 shrink-0 items-center justify-center bg-[#E0A83A] text-[15px] leading-none text-[#161210] sm:h-10 sm:w-10 sm:text-base">
-                HM
-              </span>
+              <Image
+                src="/logo-hm.svg"
+                alt=""
+                aria-hidden
+                width={40}
+                height={40}
+                priority
+                className="h-9 w-9 shrink-0 rounded-sm sm:h-10 sm:w-10"
+              />
               <span className="flex min-w-0 flex-col leading-none">
                 <span className="truncate whitespace-nowrap font-display text-lg tracking-normal text-[#F1E7D6] sm:text-xl">
                   Handmade Art

@@ -2,6 +2,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { usePathname } from 'next/navigation';
@@ -151,9 +152,15 @@ export default function NavbarClient({
               className="flex items-center gap-3 group"
               aria-label="Handmade Art"
             >
-              <span className="font-serif flex h-11 w-11 shrink-0 items-center justify-center bg-[#E0A83A] text-lg leading-none text-[#161210]">
-                HM
-              </span>
+              <Image
+                src="/logo-hm.svg"
+                alt=""
+                aria-hidden
+                width={44}
+                height={44}
+                priority
+                className="h-11 w-11 shrink-0 rounded-sm"
+              />
               <span className="hidden sm:flex flex-col leading-none">
                 <span className="font-display text-xl md:text-2xl tracking-[-0.005em] text-[#F1E7D6]">
                   Handmade Art

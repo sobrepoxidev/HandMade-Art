@@ -119,11 +119,13 @@ export default async function LocaleLayout({
                 ? "Arte costarricense hecho a mano: espejos, chorreadores y piezas únicas. Envíos a todo el país. Cada compra apoya la reinserción social."
                 : "Costa Rican handmade art: mirrors, coffee drippers and unique pieces. Fast shipping. Every purchase supports social reintegration.",
               url: currentUrl,
+              // The real brand mark, not the OG card: Google uses this for the
+              // knowledge panel, so it has to be the actual logo.
               logo: {
                 "@type": "ImageObject",
-                url: `${currentUrl}/og-image-optimized.svg`,
-                width: 512,
-                height: 512,
+                url: `${currentUrl}/logo-hm.svg`,
+                width: 4000,
+                height: 4000,
               },
               image: [
                 `${currentUrl}/web-image.jpg`,
