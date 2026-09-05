@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { assertAdminRequest } from '@/lib/checkout/security';
+import { revalidateCategorySeo } from '@/lib/content/categoryResolver';
 import {
   ensureUniqueProductName,
   fetchAdminProduct,
@@ -49,6 +50,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Params }
     await setProductInventory(productId, payload.inventory_quantity);
     const product = await fetchAdminProduct(productId);
 
+    // Price, category or is_active may have moved: refresh the public SEO
+    // snapshot (counts, starting prices, which categories have a landing page).
+    revalidateCategorySeo();
+
     return NextResponse.json({ product });
   } catch (error) {
     return adminErrorResponse(error);
@@ -73,6 +78,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Params 
       }
 
       const product = await fetchAdminProduct(productId);
+      revalidateCategorySeo();
       return NextResponse.json({ product, deleted: false });
     }
 
@@ -102,6 +108,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Params 
         { status }
       );
     }
+
+    revalidateCategorySeo();
 
     return NextResponse.json({ deleted: true, productId });
   } catch (error) {

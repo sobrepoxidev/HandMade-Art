@@ -11,7 +11,7 @@
 // Server-only: reads Supabase and is meant to be called from Server
 // Components / route handlers (page.tsx, sitemap.ts, llms.txt, llms-full.txt).
 
-import { unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import {
   CATEGORIES,
@@ -286,15 +286,28 @@ async function resolveCategoriesUncached(): Promise<ResolvedCategory[]> {
   return resolved;
 }
 
+const CATEGORY_SEO_TAG = "categories-seo";
+
 const getCachedResolvedCategories = unstable_cache(
   resolveCategoriesUncached,
   ["categories-seo-resolved"],
-  { tags: ["categories-seo"], revalidate: 1800 }
+  { tags: [CATEGORY_SEO_TAG], revalidate: 1800 }
 );
 
 /** Every category with at least one active product, editorial or synthesized. */
 export async function getResolvedCategories(): Promise<ResolvedCategory[]> {
   return getCachedResolvedCategories();
+}
+
+/**
+ * Drop the cached category SEO snapshot. Call this from any admin write that can
+ * change what the public SEO layer says: creating, editing or deleting a product
+ * moves a category's product count and starting price, and a brand-new category
+ * only gets its landing page, sitemap entry and llms.txt line once this is
+ * cleared. Without it those surfaces lag by up to the 1800s revalidate window.
+ */
+export function revalidateCategorySeo(): void {
+  revalidateTag(CATEGORY_SEO_TAG);
 }
 
 export async function getResolvedCategoryBySlug(

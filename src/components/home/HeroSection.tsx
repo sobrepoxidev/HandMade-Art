@@ -62,7 +62,14 @@ export default function HeroSection({ locale, featuredProducts = [] }: Props) {
   return (
     <>
       {/* Desktop hero */}
-      <section className="relative hidden overflow-hidden bg-[#0F0C0A] lg:block lg:h-[780px]">
+      {/*
+        The hero height must follow the viewport, not a fixed number: above it sit
+        the announcement strip, the header and the category row (~200px), so a
+        fixed 780px pushed the primary CTA below the fold on a normal laptop
+        (a 1536x704 CSS viewport cut it off). Clamp keeps it cinematic on tall
+        screens and always leaves the buttons visible on short ones.
+      */}
+      <section className="relative hidden overflow-hidden bg-[#0F0C0A] lg:block lg:h-[clamp(440px,calc(100svh-200px),780px)]">
         <Image
           src="/taller/hero-taller.webp"
           alt={locale === 'es' ? 'Artesano tallando un marco de espejo en el taller' : 'Artisan carving a mirror frame in the workshop'}
@@ -80,12 +87,15 @@ export default function HeroSection({ locale, featuredProducts = [] }: Props) {
           className="absolute inset-x-0 bottom-0 h-[200px] bg-[linear-gradient(180deg,rgba(22,18,16,0)_0%,rgba(22,18,16,0.95)_100%)]"
         />
 
-        <div className="relative flex h-full flex-col justify-between px-8 py-11 xl:px-16 xl:py-12">
-          <div className="flex max-w-[760px] flex-col gap-6">
+        <div className="relative flex h-full flex-col justify-between px-8 py-8 xl:px-16 xl:py-10">
+          <div className="flex max-w-[760px] flex-col gap-5 xl:gap-6">
             <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E0A83A]">
               {t.eyebrow}
             </span>
-            <h1 className="font-display text-[64px] leading-[0.96] text-[#F1E7D6] text-wrap-pretty xl:text-[88px]">
+            {/* Scales with BOTH viewport axes. Width alone is not enough: on a
+                short laptop screen (1536x704) a 88px headline pushed the primary
+                CTA below the fold, so height caps it too. */}
+            <h1 className="font-display text-[clamp(40px,min(6.2vw,9.5vh),88px)] leading-[0.96] text-[#F1E7D6] text-wrap-pretty">
               {t.headline}
             </h1>
             <p className="max-w-[540px] text-[17px] leading-relaxed text-[#C9BBA5] xl:text-[19px]">
@@ -147,7 +157,7 @@ export default function HeroSection({ locale, featuredProducts = [] }: Props) {
       </section>
 
       {/* Mobile hero */}
-      <section className="relative h-[620px] overflow-hidden bg-[#0F0C0A] lg:hidden">
+      <section className="relative h-[clamp(500px,calc(100svh-104px),620px)] overflow-hidden bg-[#0F0C0A] lg:hidden">
         <Image
           src="/taller/hero-taller-movil.webp"
           alt={locale === 'es' ? 'Artesano tallando un marco de espejo en el taller' : 'Artisan carving a mirror frame in the workshop'}

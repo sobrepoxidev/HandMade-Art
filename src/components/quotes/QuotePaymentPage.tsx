@@ -237,22 +237,22 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
 
   if (paymentCompleted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 text-gray-800">
-        <div className="bg-[#1E1813] rounded-lg shadow-lg p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CreditCard className="w-8 h-8 text-green-600" />
+      <div className="min-h-screen bg-[#161210] flex items-center justify-center p-4 text-[#F1E7D6]">
+        <div className="bg-[#1E1813] border border-[#3A2E24] rounded-sm shadow-lg p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-[#3C9A70]/12 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CreditCard className="w-8 h-8 text-[#3C9A70]" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="font-display text-2xl font-bold text-[#F1E7D6] mb-2">
             {locale === 'es' ? '¡Pago Exitoso!' : 'Payment Successful!'}
           </h2>
-          <p className="text-gray-600 mb-6">
-            {locale === 'es' 
+          <p className="text-[#C9BBA5] mb-6">
+            {locale === 'es'
               ? 'Tu pago ha sido procesado correctamente. Recibirás un correo de confirmación pronto.'
               : 'Your payment has been processed successfully. You will receive a confirmation email soon.'}
           </p>
           <button
             onClick={() => router.push('/')}
-            className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+            className="w-full min-h-[50px] bg-[#E0A83A] text-[#161210] py-2 px-4 rounded-sm font-bold hover:bg-[#F3C56B] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F3C56B]"
           >
             {locale === 'es' ? 'Volver al inicio' : 'Back to home'}
           </button>
@@ -262,28 +262,28 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-3 text-gray-800">
+    <div className="min-h-screen bg-[#161210] py-3 text-[#F1E7D6]">
       <div className="max-w-6xl mx-auto px-2">
         {/* Header */}
-        <div className="bg-[#1E1813] rounded-lg shadow-sm p-3 mb-2">
+        <div className="bg-[#1E1813] border border-[#3A2E24] rounded-sm shadow-sm p-3 mb-2">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-gray-900 flex items-center">
-                <ShoppingBag className="w-6 h-6 mr-2 text-green-600" />
+              <h1 className="font-display text-xl font-bold text-[#F1E7D6] flex items-center">
+                <ShoppingBag className="w-6 h-6 mr-2 text-[#E0A83A]" />
                 {locale === 'es' ? 'Tu Cotización Personalizada' : 'Your Custom Quote'}
               </h1>
-              <p className="text-gray-600 mt-1">
-                {quote.status === 'closed_won' 
+              <p className="text-[#C9BBA5] mt-1">
+                {quote.status === 'closed_won'
                   ? (locale === 'es' ? 'Esta cotización ya ha sido vendida' : 'This quote has already been sold')
                   : (locale === 'es' ? 'Revisa los detalles y procede con el pago' : 'Review details and proceed with payment')
                 }
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[#8C7F6E]">
                 {locale === 'es' ? 'Fecha de cotización' : 'Quote date'}
               </p>
-              <p className="font-medium">
+              <p className="font-medium text-[#F1E7D6]">
                 {new Date(quote.created_at).toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US')}
               </p>
             </div>
@@ -293,34 +293,34 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           {/* Información del cliente */}
           <div className="lg:col-span-2">
-            <div className="bg-[#1E1813] rounded-lg shadow-sm p-3 mb-2">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <User className="w-5 h-5 mr-2 text-gray-800" />
+            <div className="bg-[#1E1813] border border-[#3A2E24] rounded-sm shadow-sm p-3 mb-2">
+              <h2 className="font-display text-lg font-semibold text-[#F1E7D6] mb-4 flex items-center">
+                <User className="w-5 h-5 mr-2 text-[#E0A83A]" />
                 {locale === 'es' ? 'Información del Cliente' : 'Customer Information'}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center">
-                  <User className="w-4 h-4 mr-2 text-gray-600" />
+                  <User className="w-4 h-4 mr-2 text-[#8C7F6E]" />
                   <span>{quote.requester_name}</span>
                 </div>
                 <div className="flex items-center">
-                  <Mail className="w-4 h-4 mr-2 text-gray-600" />
+                  <Mail className="w-4 h-4 mr-2 text-[#8C7F6E]" />
                   <span>{quote.email}</span>
                 </div>
                 <div className="flex items-center">
-                  <Phone className="w-4 h-4 mr-2 text-gray-600" />
+                  <Phone className="w-4 h-4 mr-2 text-[#8C7F6E]" />
                   <span>{quote.phone}</span>
                 </div>
                 <div className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-2 text-gray-600" />
+                  <Calendar className="w-4 h-4 mr-2 text-[#8C7F6E]" />
                   <span>{new Date(quote.created_at).toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US')}</span>
                 </div>
               </div>
             </div>
 
             {/* Productos */}
-            <div className="bg-[#1E1813] rounded-lg shadow-sm p-2">
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">
+            <div className="bg-[#1E1813] border border-[#3A2E24] rounded-sm shadow-sm p-2">
+              <h2 className="font-display text-lg font-semibold text-[#F1E7D6] mb-3">
                 {locale === 'es' ? 'Productos Incluidos' : 'Included Products'}
               </h2>
               <div className="space-y-4">
@@ -328,31 +328,31 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                   const unitPrice = item.unit_price_usd || item.product_snapshot.dolar_price || 0;
                   const itemTotal = unitPrice * item.quantity;
                   return (
-                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div key={item.id} className="flex items-center justify-between p-4 border border-[#3A2E24] rounded-sm">
                       <div className="flex items-center space-x-4">
                         {item.product_snapshot.image_url && item.product_snapshot.image_url != null ? (
-                          <div className="w-14 h-14 relative rounded-md overflow-hidden">
+                          <div className="w-14 h-14 relative rounded-sm overflow-hidden bg-[#F1E7D6]">
                             <Image
                               src={item.product_snapshot.image_url || '/placeholder-image.jpg'}
                               alt={item.product_snapshot.name || 'Product'}
                               fill
-                              className="object-cover"
+                              className="object-contain"
                             />
                           </div>
                         ) : (
-                          <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
-                            <span className="text-gray-400 text-xs">No img</span>
+                          <div className="w-16 h-16 bg-[#0F0C0A] border border-[#3A2E24] rounded-sm flex items-center justify-center">
+                            <span className="text-[#8C7F6E] text-xs">No img</span>
                           </div>
                         )}
                         <div>
-                          <h3 className="font-medium text-gray-900">{item.product_snapshot.name}</h3>
-                          <p className="text-sm text-gray-500">
+                          <h3 className="font-medium text-[#F1E7D6]">{item.product_snapshot.name}</h3>
+                          <p className="text-sm text-[#C9BBA5]">
                             {formatCurrency(unitPrice)} x {item.quantity}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">{formatCurrency(itemTotal)}</p>
+                        <p className="font-medium text-[#F1E7D6]">{formatCurrency(itemTotal)}</p>
                       </div>
                     </div>
                   );
@@ -363,34 +363,34 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
 
           {/* Resumen y pago */}
           <div className="lg:col-span-1">
-            <div className="bg-[#1E1813] rounded-lg shadow-sm p-3 sticky top-3">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Calculator className="w-5 h-5 mr-2 text-gray-600" />
+            <div className="bg-[#1E1813] border border-[#3A2E24] rounded-sm shadow-sm p-3 sticky top-3">
+              <h2 className="font-display text-lg font-semibold text-[#F1E7D6] mb-4 flex items-center">
+                <Calculator className="w-5 h-5 mr-2 text-[#E0A83A]" />
                 {locale === 'es' ? 'Resumen de Cotización' : 'Quote Summary'}
               </h2>
-              
+
               <div className="space-y-3 mb-3">
                 <div className="flex justify-between text-sm">
                   <span>{locale === 'es' ? 'Subtotal' : 'Subtotal'}</span>
                   <span>{formatCurrency(quote.total_amount || 0)}</span>
                 </div>
-                
+
                 {discountInfo && (
-                  <div className="flex justify-between text-sm text-green-600">
+                  <div className="flex justify-between text-sm text-[#3C9A70]">
                     <span>{discountInfo.text}</span>
                     <span>-{formatCurrency(discountInfo.amount)}</span>
                   </div>
                 )}
-                
+
                 {(quote.shipping_cost || 0) > 0 && (
                   <div className="flex justify-between text-sm">
                     <span>{locale === 'es' ? 'Envío' : 'Shipping'}</span>
                     <span>{formatCurrency(quote.shipping_cost || 0)}</span>
                   </div>
                 )}
-                
-                <hr className="border-gray-200" />
-                
+
+                <hr className="border-[#2A2119]" />
+
                 <div className="flex justify-between font-semibold text-lg">
                   <span>{locale === 'es' ? 'Total' : 'Total'}</span>
                   <span>{formatCurrency(quote.final_amount || quote.total_amount || 0)}</span>
@@ -398,11 +398,11 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
               </div>
 
               {quote.status === 'closed_won' ? (
-                <div className="bg-green-50 border border-green-200 rounded-md p-4 text-center">
-                  <p className="text-green-800 font-medium">
+                <div className="bg-[#3C9A70]/10 border border-[#3C9A70]/30 rounded-sm p-4 text-center">
+                  <p className="text-[#3C9A70] font-medium">
                     {locale === 'es' ? '✓ Cotización Vendida' : '✓ Quote Sold'}
                   </p>
-                  <p className="text-green-600 text-sm mt-1">
+                  <p className="text-[#3C9A70] text-sm mt-1">
                     {locale === 'es' ? 'Esta cotización ya ha sido procesada y vendida.' : 'This quote has already been processed and sold.'}
                   </p>
                 </div>
@@ -416,7 +416,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                       setShowShippingForm(true);
                     }
                   }}
-                  className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-medium"
+                  className="w-full min-h-[50px] bg-[#E0A83A] text-[#161210] py-3 px-4 rounded-sm hover:bg-[#F3C56B] transition-colors font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F3C56B]"
                 >
                   {quote.requires_shipping_address
                     ? (locale === 'es' ? 'Ingresar Dirección de Envío' : 'Enter Shipping Address')
@@ -427,27 +427,27 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                 <div className="space-y-4">
                   {quote.requires_shipping_address && (
                     <>
-                      <h3 className="text-gray-900 font-semibold">
+                      <h3 className="font-display text-[#F1E7D6] font-semibold">
                         {locale === 'es' ? 'Información de Envío' : 'Shipping Information'}
                       </h3>
-                      
-                      <div className="space-y-2 text-gray-800 ">
+
+                      <div className="space-y-2 text-[#F1E7D6]">
                         <input
                           type="text"
                           placeholder={locale === 'es' ? 'Dirección' : 'Address'}
                           value={shippingInfo.address}
                           onChange={(e) => setShippingInfo(prev => ({ ...prev, address: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-3 py-2 bg-[#1E1813] border border-[#3A2E24] text-[#F1E7D6] placeholder:text-[#8C7F6E] rounded-sm focus:outline-none focus:ring-2 focus:ring-[#E0A83A]/25 focus:border-[#E0A83A]"
                           required
                         />
-                        
+
                         <div className="grid grid-cols-2 gap-2">
                           <input
                             type="text"
                             placeholder={locale === 'es' ? 'Ciudad' : 'City'}
                             value={shippingInfo.city}
                             onChange={(e) => setShippingInfo(prev => ({ ...prev, city: e.target.value }))}
-                            className="px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="px-3 py-2 bg-[#1E1813] border border-[#3A2E24] text-[#F1E7D6] placeholder:text-[#8C7F6E] rounded-sm focus:outline-none focus:ring-2 focus:ring-[#E0A83A]/25 focus:border-[#E0A83A]"
                             required
                           />
                           <input
@@ -455,17 +455,17 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                             placeholder={locale === 'es' ? 'Provincia' : 'State'}
                             value={shippingInfo.state}
                             onChange={(e) => setShippingInfo(prev => ({ ...prev, state: e.target.value }))}
-                            className="px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="px-3 py-2 bg-[#1E1813] border border-[#3A2E24] text-[#F1E7D6] placeholder:text-[#8C7F6E] rounded-sm focus:outline-none focus:ring-2 focus:ring-[#E0A83A]/25 focus:border-[#E0A83A]"
                             required
                           />
                         </div>
-                        
+
                         <input
                           type="text"
                           placeholder={locale === 'es' ? 'Código Postal' : 'Zip Code'}
                           value={shippingInfo.zipCode}
                           onChange={(e) => setShippingInfo(prev => ({ ...prev, zipCode: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-500 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-3 py-2 bg-[#1E1813] border border-[#3A2E24] text-[#F1E7D6] placeholder:text-[#8C7F6E] rounded-sm focus:outline-none focus:ring-2 focus:ring-[#E0A83A]/25 focus:border-[#E0A83A]"
                         />
                       </div>
                     </>
@@ -473,7 +473,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
 
                   {(!quote.requires_shipping_address || (shippingInfo.address && shippingInfo.city && shippingInfo.state)) && (
                     <div className="mt-6">
-                      <h3 className="text-gray-900 font-semibold mb-2">
+                      <h3 className="font-display text-[#F1E7D6] font-semibold mb-2">
                         {locale === 'es' ? 'Método de pago' : 'Payment method'}
                       </h3>
                       <div className="grid grid-cols-2 gap-2 mb-4">
@@ -481,10 +481,10 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                           type="button"
                           onClick={() => handleMethodChange('paypal')}
                           aria-pressed={paymentMethod === 'paypal'}
-                          className={`min-h-[44px] rounded-md border text-sm font-medium transition-colors ${
+                          className={`min-h-[44px] rounded-sm border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E0A83A] ${
                             paymentMethod === 'paypal'
-                              ? 'bg-green-600 text-white border-green-600'
-                              : 'bg-[#1E1813] text-gray-700 border-gray-300 hover:border-green-600'
+                              ? 'bg-[#E0A83A] text-[#161210] border-[#E0A83A]'
+                              : 'bg-[#1E1813] text-[#C9BBA5] border-[#3A2E24] hover:border-[#E0A83A]'
                           }`}
                         >
                           {locale === 'es' ? 'PayPal / Tarjeta' : 'PayPal / Card'}
@@ -493,10 +493,10 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                           type="button"
                           onClick={() => handleMethodChange('sinpe')}
                           aria-pressed={paymentMethod === 'sinpe'}
-                          className={`min-h-[44px] rounded-md border text-sm font-medium transition-colors ${
+                          className={`min-h-[44px] rounded-sm border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E0A83A] ${
                             paymentMethod === 'sinpe'
-                              ? 'bg-green-600 text-white border-green-600'
-                              : 'bg-[#1E1813] text-gray-700 border-gray-300 hover:border-green-600'
+                              ? 'bg-[#E0A83A] text-[#161210] border-[#E0A83A]'
+                              : 'bg-[#1E1813] text-[#C9BBA5] border-[#3A2E24] hover:border-[#E0A83A]'
                           }`}
                         >
                           {locale === 'es' ? 'SINPE Móvil' : 'SINPE Mobile'}
@@ -572,17 +572,17 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                           />
                         </PayPalScriptProvider>
                       ) : (
-                        <div className="bg-[#161210] border border-[#3A2E24] rounded-md p-4 space-y-3">
-                          <p className="text-sm text-gray-700">
+                        <div className="bg-[#161210] border border-[#3A2E24] rounded-sm p-4 space-y-3">
+                          <p className="text-sm text-[#C9BBA5]">
                             {locale === 'es'
                               ? 'Total a enviar vía SINPE:'
                               : 'Total to send via SINPE:'}{' '}
-                            <b className="text-green-700">
+                            <b className="text-[#3C9A70]">
                               ${(Number(quote.final_amount ?? quote.total_amount ?? 0) || 0).toFixed(2)} USD
                             </b>
                           </p>
 
-                          <label className="block text-sm font-medium text-gray-800">
+                          <label className="block text-sm font-medium text-[#F1E7D6]">
                             {locale === 'es' ? 'Selecciona banco' : 'Select bank'}
                           </label>
                           <select
@@ -590,7 +590,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                             onChange={(e) =>
                               setBancoSeleccionado(bancos.find((b) => b.nombre === e.target.value) || null)
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800 bg-[#1E1813] focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-[#1E1813] border border-[#3A2E24] text-[#F1E7D6] rounded-sm focus:outline-none focus:ring-2 focus:ring-[#E0A83A]/25 focus:border-[#E0A83A]"
                           >
                             <option value="">
                               -- {locale === 'es' ? 'Selecciona banco' : 'Select bank'} --
@@ -603,16 +603,16 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                           </select>
 
                           {bancoSeleccionado && (
-                            <div className="p-3 border border-yellow-300 bg-yellow-50 rounded-md text-sm text-gray-700">
+                            <div className="p-3 border border-[#E0A83A]/30 bg-[#E0A83A]/10 rounded-sm text-sm text-[#C9BBA5]">
                               {bancoSeleccionado.permiteSMS ? (
                                 <div className="space-y-1">
                                   <p>
                                     {locale === 'es' ? 'Enviar SMS a:' : 'Send SMS to:'}{' '}
-                                    <b className="text-gray-900">{bancoSeleccionado.sms}</b>
+                                    <b className="text-[#F1E7D6]">{bancoSeleccionado.sms}</b>
                                   </p>
                                   <p>
                                     {locale === 'es' ? 'Mensaje:' : 'Message:'}{' '}
-                                    <b className="text-gray-900">
+                                    <b className="text-[#F1E7D6]">
                                       PASE {(Number(quote.final_amount ?? quote.total_amount ?? 0) || 0).toFixed(2)}{' '}
                                       {SINPE_NUMBER} {SINPE_RECIPIENT_ALIAS}
                                     </b>
@@ -620,7 +620,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                                   <button
                                     type="button"
                                     onClick={copySinpeSmsMessage}
-                                    className="mt-2 text-sm bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md min-h-[40px]"
+                                    className="mt-2 min-h-[40px] text-sm border border-[#F1E7D6]/45 text-[#F1E7D6] font-medium px-4 py-2 rounded-sm hover:bg-[#1E1813] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E0A83A]"
                                   >
                                     {locale === 'es' ? 'Copiar mensaje' : 'Copy message'}
                                   </button>
@@ -630,13 +630,13 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                                   {locale === 'es'
                                     ? 'Realiza la transferencia desde la app o banca en línea de '
                                     : 'Make the transfer from the app or online bank of '}
-                                  <b className="text-gray-900">{bancoSeleccionado.nombre}</b>.
+                                  <b className="text-[#F1E7D6]">{bancoSeleccionado.nombre}</b>.
                                 </p>
                               )}
                             </div>
                           )}
 
-                          <label className="block text-sm font-medium text-gray-800">
+                          <label className="block text-sm font-medium text-[#F1E7D6]">
                             {locale === 'es'
                               ? 'Últimos 4 dígitos del recibo'
                               : 'Last 4 digits of the receipt'}
@@ -649,7 +649,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                             placeholder="1234"
                             value={ultimos4}
                             onChange={(e) => setUltimos4(e.target.value.replace(/\\D/g, '').slice(0, 4))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800 bg-[#1E1813] focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-[#1E1813] border border-[#3A2E24] text-[#F1E7D6] placeholder:text-[#8C7F6E] rounded-sm focus:outline-none focus:ring-2 focus:ring-[#E0A83A]/25 focus:border-[#E0A83A]"
                           />
 
                           <button
@@ -657,7 +657,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                             onClick={handleSinpePayment}
                             disabled={loading}
                             aria-busy={loading}
-                            className="w-full bg-[#161210] hover:bg-[#0F0C0A] text-white font-semibold py-3 px-4 rounded-md transition-colors disabled:opacity-60"
+                            className="w-full min-h-[50px] bg-[#E0A83A] hover:bg-[#F3C56B] text-[#161210] font-bold py-3 px-4 rounded-sm transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F3C56B]"
                           >
                             {loading
                               ? locale === 'es' ? 'Enviando…' : 'Sending…'

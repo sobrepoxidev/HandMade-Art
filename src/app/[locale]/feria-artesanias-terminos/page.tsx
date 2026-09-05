@@ -1,39 +1,39 @@
 // src/app/feria-artesanias-terminos/page.tsx
-export const metadata = { 
+export const metadata = {
   title: 'Términos y Condiciones - Sorteo Día de la Madre',
   description: 'Términos y condiciones del sorteo del Espejo Artesanal por el Día de la Madre - Handmade Art'
 };
 
 export default function Terminos() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 px-4 py-8">
+    <div className="min-h-screen bg-[#161210] px-4 py-8">
       <main className="mx-auto max-w-4xl">
-        {/* Header decorativo */}
+        {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#E0A83A] rounded-full mb-4 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)]">
             <span className="text-2xl">📋</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 bg-clip-text text-transparent mb-2">
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-[#F1E7D6] mb-2">
             Términos y Condiciones
           </h1>
-          <p className="text-gray-600 font-medium">
+          <p className="text-[#C9BBA5] font-medium">
             Sorteo del Espejo Artesanal - Día de la Madre 💐
           </p>
         </div>
 
-        {/* Contenedor principal con glassmorphism */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-6 sm:p-8 space-y-8">
-          
+        {/* Contenedor principal */}
+        <div className="bg-[#1E1813]/85 backdrop-blur-sm rounded-sm shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)] border border-[#3A2E24] p-6 sm:p-8 space-y-8">
+
           {/* Responsable y finalidad */}
-          <section className="bg-pink-50/50 rounded-2xl p-6 border border-pink-100">
-            <h2 className="text-xl font-bold text-pink-700 mb-4 flex items-center gap-2">
+          <section className="bg-[#161210] rounded-sm p-6 border border-[#3A2E24]">
+            <h2 className="font-display text-xl font-bold text-[#E0A83A] mb-4 flex items-center gap-2">
               <span>🏢</span> Responsable del Tratamiento
             </h2>
-            <div className="space-y-3 text-gray-700 leading-relaxed">
+            <div className="space-y-3 text-[#C9BBA5] leading-relaxed">
               <p>
-                <strong className="text-pink-600">Responsable:</strong> HandMade Art Costa Rica
+                <strong className="text-[#F1E7D6]">Responsable:</strong> HandMade Art Costa Rica
               </p>
-              <p><strong className="text-pink-600">Finalidades:</strong></p>
+              <p><strong className="text-[#F1E7D6]">Finalidades:</strong></p>
               <ul className="list-disc list-inside ml-4 space-y-1">
                 <li>Gestionar tu participación en el sorteo del <strong>Espejo Artesanal</strong> por el Día de la Madre</li>
                 <li>Procesar y validar tu registro en la promoción</li>
@@ -41,12 +41,12 @@ export default function Terminos() {
                 <li>Opcionalmente, enviarte novedades y promociones de nuestros productos artesanales</li>
               </ul>
               <p>
-                <strong className="text-pink-600">Datos recopilados:</strong> Nombre completo, correo electrónico y número de teléfono.
+                <strong className="text-[#F1E7D6]">Datos recopilados:</strong> Nombre completo, correo electrónico y número de teléfono.
               </p>
               <p>
-                <strong className="text-pink-600">Derechos ARCO:</strong> Puedes ejercer tus derechos de acceso, rectificación, cancelación u oposición escribiendo a{' '}
+                <strong className="text-[#F1E7D6]">Derechos ARCO:</strong> Puedes ejercer tus derechos de acceso, rectificación, cancelación u oposición escribiendo a{' '}
                 <a
-                  className="text-pink-600 underline font-medium hover:text-pink-700 transition-colors"
+                  className="text-[#E0A83A] underline font-medium hover:text-[#F3C56B] transition-colors"
                   href="mailto:info@handmadeart.store"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -58,82 +58,82 @@ export default function Terminos() {
           </section>
 
           {/* Bases del sorteo */}
-          <section className="bg-rose-50/50 rounded-2xl p-6 border border-rose-100">
-            <h2 className="text-xl font-bold text-rose-700 mb-4 flex items-center gap-2">
+          <section className="bg-[#161210] rounded-sm p-6 border border-[#3A2E24]">
+            <h2 className="font-display text-xl font-bold text-[#E0A83A] mb-4 flex items-center gap-2">
               <span>🎁</span> Bases del Sorteo
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="bg-white/60 rounded-xl p-4 border border-rose-200">
-                <h3 className="font-semibold text-rose-600 mb-2">🏆 Premio</h3>
-                <p className="text-gray-700">1 Espejo Artesanal hecho a mano por nuestros artesanos costarricenses</p>
+              <div className="bg-[#1E1813] rounded-sm p-4 border border-[#3A2E24]">
+                <h3 className="font-semibold text-[#E0A83A] mb-2">🏆 Premio</h3>
+                <p className="text-[#C9BBA5]">1 Espejo Artesanal hecho a mano por nuestros artesanos costarricenses</p>
               </div>
-              
-              <div className="bg-white/60 rounded-xl p-4 border border-rose-200">
-                <h3 className="font-semibold text-rose-600 mb-2">📅 Fecha del Sorteo</h3>
-                <p className="text-gray-700 font-medium">17 de agosto de 2025</p>
+
+              <div className="bg-[#1E1813] rounded-sm p-4 border border-[#3A2E24]">
+                <h3 className="font-semibold text-[#E0A83A] mb-2">📅 Fecha del Sorteo</h3>
+                <p className="text-[#C9BBA5] font-medium">17 de agosto de 2025</p>
               </div>
-              
-              <div className="bg-white/60 rounded-xl p-4 border border-rose-200">
-                <h3 className="font-semibold text-rose-600 mb-2">🎯 Participaciones</h3>
-                <ul className="text-gray-700 text-sm space-y-1">
+
+              <div className="bg-[#1E1813] rounded-sm p-4 border border-[#3A2E24]">
+                <h3 className="font-semibold text-[#E0A83A] mb-2">🎯 Participaciones</h3>
+                <ul className="text-[#C9BBA5] text-sm space-y-1">
                   <li>• 1 entrada por registrarte</li>
                   <li>• +1 entrada por cada red social seguida</li>
                   <li>• Máximo 5 entradas por persona</li>
                 </ul>
               </div>
-              
-              <div className="bg-white/60 rounded-xl p-4 border border-rose-200">
-                <h3 className="font-semibold text-rose-600 mb-2">🎲 Selección</h3>
-                <p className="text-gray-700 text-sm">Método aleatorio. Notificación por correo y/o WhatsApp el mismo día</p>
+
+              <div className="bg-[#1E1813] rounded-sm p-4 border border-[#3A2E24]">
+                <h3 className="font-semibold text-[#E0A83A] mb-2">🎲 Selección</h3>
+                <p className="text-[#C9BBA5] text-sm">Método aleatorio. Notificación por correo y/o WhatsApp el mismo día</p>
               </div>
             </div>
           </section>
 
           {/* Requisitos y condiciones */}
-          <section className="bg-purple-50/50 rounded-2xl p-6 border border-purple-100">
-            <h2 className="text-xl font-bold text-purple-700 mb-4 flex items-center gap-2">
+          <section className="bg-[#161210] rounded-sm p-6 border border-[#3A2E24]">
+            <h2 className="font-display text-xl font-bold text-[#E0A83A] mb-4 flex items-center gap-2">
               <span>📋</span> Requisitos y Condiciones
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <h3 className="font-semibold text-purple-600 mb-3">✅ Requisitos para participar:</h3>
-                <ul className="space-y-2 text-gray-700">
+                <h3 className="font-semibold text-[#F1E7D6] mb-3">✅ Requisitos para participar:</h3>
+                <ul className="space-y-2 text-[#C9BBA5]">
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
+                    <span className="text-[#3C9A70]">✓</span>
                     Ser mayor de 18 años
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
+                    <span className="text-[#3C9A70]">✓</span>
                     Residir en Costa Rica
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
+                    <span className="text-[#3C9A70]">✓</span>
                     Completar el formulario de registro
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
+                    <span className="text-[#3C9A70]">✓</span>
                     Aceptar estos términos y condiciones
                   </li>
                 </ul>
               </div>
-              
+
               <div>
-                <h3 className="font-semibold text-purple-600 mb-3">🎯 Condiciones importantes:</h3>
-                <ul className="space-y-2 text-gray-700">
+                <h3 className="font-semibold text-[#F1E7D6] mb-3">🎯 Condiciones importantes:</h3>
+                <ul className="space-y-2 text-[#C9BBA5]">
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">💝</span>
+                    <span className="text-[#E0A83A]">💝</span>
                     Participación 100% gratuita
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">🚫</span>
+                    <span className="text-[#E0A83A]">🚫</span>
                     No requiere compra alguna
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">📱</span>
+                    <span className="text-[#E0A83A]">📱</span>
                     Una participación por persona
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">🎁</span>
+                    <span className="text-[#E0A83A]">🎁</span>
                     El premio no es transferible
                   </li>
                 </ul>
@@ -142,16 +142,16 @@ export default function Terminos() {
           </section>
 
           {/* Conservación de datos */}
-          <section className="bg-teal-50/50 rounded-2xl p-6 border border-teal-100">
-            <h2 className="text-xl font-bold text-teal-700 mb-4 flex items-center gap-2">
+          <section className="bg-[#161210] rounded-sm p-6 border border-[#3A2E24]">
+            <h2 className="font-display text-xl font-bold text-[#E0A83A] mb-4 flex items-center gap-2">
               <span>🔒</span> Protección y Conservación de Datos
             </h2>
-            <div className="space-y-4 text-gray-700 leading-relaxed">
+            <div className="space-y-4 text-[#C9BBA5] leading-relaxed">
               <p>
-                <strong className="text-teal-600">Período de conservación:</strong> Tus datos se conservarán durante la vigencia de la promoción (hasta el 17 de agosto de 2025) y posteriormente para el envío de comunicaciones comerciales hasta que solicites la baja.
+                <strong className="text-[#F1E7D6]">Período de conservación:</strong> Tus datos se conservarán durante la vigencia de la promoción (hasta el 17 de agosto de 2025) y posteriormente para el envío de comunicaciones comerciales hasta que solicites la baja.
               </p>
               <p>
-                <strong className="text-teal-600">Cómo darte de baja:</strong> Puedes cancelar tu suscripción en cualquier momento:
+                <strong className="text-[#F1E7D6]">Cómo darte de baja:</strong> Puedes cancelar tu suscripción en cualquier momento:
               </p>
               <ul className="list-disc list-inside ml-4 space-y-1">
                 <li>Haciendo clic en el enlace de baja incluido en cada correo</li>
@@ -162,23 +162,23 @@ export default function Terminos() {
           </section>
 
           {/* Exoneración de redes sociales */}
-          <section className="bg-gray-50/50 rounded-2xl p-6 border border-gray-200">
-            <h2 className="text-xl font-bold text-gray-700 mb-4 flex items-center gap-2">
+          <section className="bg-[#161210] rounded-sm p-6 border border-[#3A2E24]">
+            <h2 className="font-display text-xl font-bold text-[#F1E7D6] mb-4 flex items-center gap-2">
               <span>⚖️</span> Exoneración de Responsabilidad
             </h2>
-            <p className="text-gray-700 leading-relaxed">
-              <strong>Importante:</strong> Meta (Facebook e Instagram), TikTok y YouTube no patrocinan, avalan ni administran esta promoción. Esta es una iniciativa independiente de HandMade Art Costa Rica para celebrar el Día de la Madre y promover el arte artesanal costarricense.
+            <p className="text-[#C9BBA5] leading-relaxed">
+              <strong className="text-[#F1E7D6]">Importante:</strong> Meta (Facebook e Instagram), TikTok y YouTube no patrocinan, avalan ni administran esta promoción. Esta es una iniciativa independiente de HandMade Art Costa Rica para celebrar el Día de la Madre y promover el arte artesanal costarricense.
             </p>
           </section>
 
           {/* Footer de contacto */}
-          <div className="text-center pt-6 border-t border-pink-200">
-            <p className="text-gray-600 mb-2">
+          <div className="text-center pt-6 border-t border-[#3A2E24]">
+            <p className="text-[#C9BBA5] mb-2">
               ¿Tienes dudas sobre estos términos?
             </p>
-            <a 
+            <a
               href="mailto:info@handmadeart.store"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-200 transform hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 min-h-[50px] bg-[#E0A83A] hover:bg-[#F3C56B] text-[#161210] font-bold px-6 rounded-sm transition-colors duration-200"
             >
               <span>📧</span>
               Contáctanos
@@ -186,11 +186,11 @@ export default function Terminos() {
           </div>
         </div>
 
-        {/* Footer decorativo */}
+        {/* Footer */}
         <div className="text-center mt-8">
-          <div className="inline-flex items-center gap-2 text-sm text-gray-500">
+          <div className="inline-flex items-center gap-2 text-sm text-[#8C7F6E]">
             <span>Hecho con</span>
-            <span className="text-pink-500">💝</span>
+            <span>💝</span>
             <span>por HandMade Art</span>
           </div>
         </div>
@@ -198,4 +198,3 @@ export default function Terminos() {
     </div>
   );
 }
-

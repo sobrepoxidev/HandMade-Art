@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { assertAdminRequest } from '@/lib/checkout/security';
+import { revalidateCategorySeo } from '@/lib/content/categoryResolver';
 import {
   ensureUniqueProductName,
   fetchAdminProduct,
@@ -61,6 +62,11 @@ export async function POST(request: NextRequest) {
 
     await setProductInventory(data.id, payload.inventory_quantity ?? 0);
     const product = await fetchAdminProduct(data.id);
+
+    // A new product changes its category's public count / starting price, and
+    // can be the first product of a brand-new category (which is what makes its
+    // landing page, sitemap entry and llms.txt line exist at all).
+    revalidateCategorySeo();
 
     return NextResponse.json({ product }, { status: 201 });
   } catch (error) {

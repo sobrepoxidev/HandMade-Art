@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { buildMetadata, getLocaleSiteUrl } from "@/lib/metadata";
 import { createClient } from "@/utils/supabase/server";
@@ -11,6 +12,7 @@ import {
   type ResolvedCategory,
 } from "@/lib/content/categoryResolver";
 import { getCategoryById as getEditorialCategoryById } from "@/lib/content/categories";
+import { getCategoryImage } from "@/lib/content/categoryImages";
 import { formatUSD } from "@/lib/formatCurrency";
 import type { Database } from "@/lib/database.types";
 
@@ -81,6 +83,10 @@ export default async function CategoryPage({ params }: { params: tParams }) {
   const categoryLabel =
     (currentLocale === "es" ? category.nameEs : category.nameEn) ||
     category.h1[currentLocale];
+
+  // First paragraph leads above the product grid; the rest is pushed below it so
+  // the buyer reaches the pieces without scrolling through an essay.
+  const [leadParagraph, ...restParagraphs] = category.intro;
 
   // Related-category cross-links only exist for editorial entries (the
   // curated `relatedIds` list lives in categories.ts); synthesized
@@ -203,47 +209,68 @@ export default async function CategoryPage({ params }: { params: tParams }) {
       />
 
       <main className="bg-[#161210] text-[#F1E7D6]">
-        <div className="mx-auto max-w-screen-xl px-4 py-6 sm:px-8 lg:px-12">
-          <nav aria-label="Breadcrumb" className="text-sm text-[#8C7F6E]">
-            <ol className="flex flex-wrap items-center gap-1">
-              <li>
-                <Link href="/" className="hover:text-[#E0A83A]">
-                  {currentLocale === "es" ? "Inicio" : "Home"}
-                </Link>
-              </li>
-              <li aria-hidden="true">/</li>
-              <li>
-                <Link href="/products" className="hover:text-[#E0A83A]">
-                  {currentLocale === "es" ? "Productos" : "Products"}
-                </Link>
-              </li>
-              <li aria-hidden="true">/</li>
-              <li aria-current="page" className="text-[#F1E7D6]">
-                {category.h1[currentLocale]}
-              </li>
-            </ol>
-          </nav>
-        </div>
+        {/*
+          Hero band. A category landing used to open with the breadcrumb and two
+          long paragraphs, which reads as an empty top and a saturated bottom on
+          a phone. The photograph carries the category, the buyer sees what this
+          is in one glance, and the long copy moves below the product grid.
+        */}
+        <section className="relative isolate overflow-hidden bg-[#0F0C0A]">
+          <Image
+            src={getCategoryImage(category.id)}
+            alt={categoryLabel}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,12,10,0.55)_0%,rgba(15,12,10,0.78)_55%,rgba(22,18,16,0.97)_100%)]"
+          />
+          <div className="relative mx-auto flex min-h-[340px] max-w-screen-xl flex-col justify-end gap-3 px-4 pb-9 pt-16 sm:px-8 sm:pb-11 lg:min-h-[400px] lg:px-12">
+            <nav aria-label="Breadcrumb" className="text-sm text-[#C9BBA5]">
+              <ol className="flex flex-wrap items-center gap-1">
+                <li>
+                  <Link href="/" className="hover:text-[#E0A83A]">
+                    {currentLocale === "es" ? "Inicio" : "Home"}
+                  </Link>
+                </li>
+                <li aria-hidden="true">/</li>
+                <li>
+                  <Link href="/products" className="hover:text-[#E0A83A]">
+                    {currentLocale === "es" ? "Productos" : "Products"}
+                  </Link>
+                </li>
+                <li aria-hidden="true">/</li>
+                <li aria-current="page" className="text-[#F1E7D6]">
+                  {category.h1[currentLocale]}
+                </li>
+              </ol>
+            </nav>
 
-        <section className="mx-auto max-w-screen-xl px-4 pb-12 pt-4 sm:px-8 lg:px-12">
-          <h1 className="font-display text-3xl font-semibold text-[#F1E7D6] sm:text-4xl">
-            {category.h1[currentLocale]}
-          </h1>
+            <h1 className="font-display text-[clamp(32px,5.4vw,56px)] leading-[1.04] text-[#F1E7D6] text-wrap-pretty">
+              {category.h1[currentLocale]}
+            </h1>
 
-          <p className="mt-3 text-sm font-medium text-[#E0A83A]">
-            {currentLocale === "es"
-              ? `${category.productCount} ${category.productCount === 1 ? "pieza activa" : "piezas activas"}`
-              : `${category.productCount} active ${category.productCount === 1 ? "piece" : "pieces"}`}
-            {category.minPrice != null &&
-              ` · ${currentLocale === "es" ? "desde" : "from"} ${formatUSD(category.minPrice)}`}
-          </p>
-
-          <div className="mt-6 max-w-3xl space-y-4 text-[15px] leading-relaxed text-[#C9BBA5]">
-            {category.intro.map((paragraph, i) => (
-              <p key={i}>{paragraph[currentLocale]}</p>
-            ))}
+            <p className="text-sm font-semibold text-[#E0A83A]">
+              {currentLocale === "es"
+                ? `${category.productCount} ${category.productCount === 1 ? "pieza activa" : "piezas activas"}`
+                : `${category.productCount} active ${category.productCount === 1 ? "piece" : "pieces"}`}
+              {category.minPrice != null &&
+                ` · ${currentLocale === "es" ? "desde" : "from"} ${formatUSD(category.minPrice)}`}
+            </p>
           </div>
         </section>
+
+        {/* Short lead only — the rest of the copy sits under the grid. */}
+        {leadParagraph && (
+          <section className="mx-auto max-w-screen-xl px-4 pb-10 pt-8 sm:px-8 lg:px-12">
+            <p className="max-w-[68ch] text-[15px] leading-relaxed text-[#C9BBA5] sm:text-base">
+              {leadParagraph[currentLocale]}
+            </p>
+          </section>
+        )}
 
         <section className="mx-auto max-w-screen-xl px-4 pb-16 sm:px-8 lg:px-12 md:pb-24">
           {productList.length > 0 ? (
@@ -259,6 +286,24 @@ export default async function CategoryPage({ params }: { params: tParams }) {
             </p>
           )}
         </section>
+
+        {/* The rest of the category copy, after the buyer has seen the pieces. */}
+        {restParagraphs.length > 0 && (
+          <section className="border-t border-[#3A2E24]">
+            <div className="mx-auto max-w-screen-xl px-4 py-14 sm:px-8 lg:px-12 md:py-20">
+              <h2 className="font-display text-2xl font-semibold text-[#F1E7D6]">
+                {currentLocale === "es"
+                  ? `Sobre ${category.h1.es.toLowerCase()}`
+                  : `About ${category.h1.en.toLowerCase()}`}
+              </h2>
+              <div className="mt-5 max-w-[68ch] space-y-4 text-[15px] leading-relaxed text-[#C9BBA5] sm:text-base">
+                {restParagraphs.map((paragraph, i) => (
+                  <p key={i}>{paragraph[currentLocale]}</p>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="border-t border-[#3A2E24]">
           <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-8 lg:px-12 md:py-24">

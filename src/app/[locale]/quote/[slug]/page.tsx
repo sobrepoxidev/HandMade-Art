@@ -44,7 +44,7 @@ export default async function QuotePage({ params }: { params: tParams }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#161210]">
       <QuotePaymentPage quote={quote} locale={locale} />
     </div>
   );
