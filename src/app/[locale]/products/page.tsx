@@ -1,25 +1,36 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { buildMetadata } from "@/lib/metadata";
+import { buildMetadata, getLocaleSiteUrl } from "@/lib/metadata";
 import Loading from "@/components/products/LoadingGallery";
 import ProductsPageContent from "@/components/products/ProductsPageContent";
 import { createClient } from "@/utils/supabase/server";
+import type { Database } from "@/lib/database.types";
 
 /**
  * Catálogo principal. Renderiza JSON-LD (CollectionPage + ItemList + Breadcrumb)
- * en el HTML estático para que crawlers y LLMs lean la lista sin ejecutar JS.
+ * en el HTML estático para que crawlers y LLMs lean la lista sin ejecutar JS,
+ * y precarga la primera página de resultados (misma consulta/filtros que
+ * ProductsPageContent) para que esa primera página también quede en el HTML.
  */
 
 type tParams = Promise<{ locale: string }>;
+type tSearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 type MediaItem = { url: string; alt?: string };
+type ProductRow = Database["public"]["Tables"]["products"]["Row"];
+type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
+
+const PRODUCTS_PER_PAGE = 12;
+
+function firstParam(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
 
 async function getSiteUrl(): Promise<string> {
   const h = await headers();
-  const host = h.get("x-forwarded-host") || h.get("host") || "handmadeart.store";
-  const proto = h.get("x-forwarded-proto") || "https";
-  return `${proto}://${host}`;
+  const host = h.get("x-forwarded-host") || h.get("host") || "";
+  return getLocaleSiteUrl(host.includes("handmadeart") ? "en" : "es");
 }
 
 export async function generateMetadata({
@@ -79,8 +90,15 @@ export async function generateMetadata({
   });
 }
 
-export default async function ProductsPage({ params }: { params: tParams }) {
+export default async function ProductsPage({
+  params,
+  searchParams,
+}: {
+  params: tParams;
+  searchParams: tSearchParams;
+}) {
   const { locale } = await params;
+  const sp = await searchParams;
   const currentLocale: "es" | "en" = locale === "es" ? "es" : "en";
   const siteUrl = await getSiteUrl();
 
@@ -174,6 +192,81 @@ export default async function ProductsPage({ params }: { params: tParams }) {
     ],
   };
 
+  // --- SSR hydration data for ProductsPageContent (same query/filters the
+  // client uses on first render) so crawlers get real product links in the
+  // static HTML instead of an empty grid awaiting a client-side fetch.
+  const page = Math.max(1, parseInt(firstParam(sp.page) || "1", 10) || 1);
+  const categoryFilter = firstParam(sp.category);
+  const brandFilter = firstParam(sp.brand);
+  const tagFilter = firstParam(sp.tag);
+  const minPrice = firstParam(sp.min_price);
+  const maxPrice = firstParam(sp.max_price);
+  const stockFilter = firstParam(sp.in_stock);
+  const sortBy = firstParam(sp.sort) || "name_asc";
+  const featuredOnly = firstParam(sp.featured) === "true";
+
+  const from = (page - 1) * PRODUCTS_PER_PAGE;
+  const to = from + PRODUCTS_PER_PAGE - 1;
+
+  let initialQuery = supabase
+    .from("products")
+    .select("*, inventory(quantity)", { count: "exact" })
+    .eq("is_active", true);
+
+  if (categoryFilter) {
+    initialQuery = initialQuery.eq("category_id", Number(categoryFilter));
+  }
+  if (brandFilter) {
+    initialQuery = initialQuery.eq("brand", brandFilter);
+  }
+  if (tagFilter) {
+    initialQuery = initialQuery.contains("tags", [tagFilter]);
+  }
+  if (minPrice) {
+    initialQuery = initialQuery.gte("dolar_price", minPrice);
+  }
+  if (maxPrice) {
+    initialQuery = initialQuery.lte("dolar_price", maxPrice);
+  }
+  if (stockFilter === "true") {
+    initialQuery = initialQuery.gte("inventory.quantity", 1);
+  }
+  if (featuredOnly) {
+    initialQuery = initialQuery.eq("is_featured", true);
+  }
+
+  if (sortBy === "price_asc") {
+    initialQuery = initialQuery.order("dolar_price", { ascending: true });
+  } else if (sortBy === "price_desc") {
+    initialQuery = initialQuery.order("dolar_price", { ascending: false });
+  } else if (sortBy === "name_desc") {
+    initialQuery = initialQuery.order(currentLocale === "es" ? "name_es" : "name_en", {
+      ascending: false,
+    });
+  } else if (sortBy === "discount") {
+    initialQuery = initialQuery.order("discount_percentage", {
+      ascending: false,
+      nullsFirst: false,
+    });
+  } else if (sortBy === "newest") {
+    initialQuery = initialQuery.order("created_at", { ascending: false });
+  } else {
+    initialQuery = initialQuery.order(currentLocale === "es" ? "name_es" : "name_en", {
+      ascending: true,
+    });
+  }
+
+  initialQuery = initialQuery.range(from, to);
+
+  const [{ data: initialProductsData, count: initialTotalCount }, { data: initialCategoriesData }] =
+    await Promise.all([
+      initialQuery,
+      supabase
+        .from("categories")
+        .select("id, name, name_es, name_en")
+        .order(currentLocale === "es" ? "name_es" : "name_en", { ascending: true }),
+    ]);
+
   return (
     <>
       <script
@@ -186,7 +279,11 @@ export default async function ProductsPage({ params }: { params: tParams }) {
       />
 
       <Suspense fallback={<Loading />}>
-        <ProductsPageContent />
+        <ProductsPageContent
+          initialProducts={(initialProductsData as ProductRow[] | null) ?? []}
+          initialTotal={initialTotalCount ?? 0}
+          initialCategories={(initialCategoriesData as CategoryRow[] | null) ?? []}
+        />
       </Suspense>
     </>
   );

@@ -1,6 +1,5 @@
 // src/lib/metadata.ts
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 
 // Dominios por idioma para SEO bi-dominio
 const DOMAIN_CONFIG = {
@@ -8,17 +7,14 @@ const DOMAIN_CONFIG = {
   en: "handmadeart.store",
 } as const;
 
-// Obtiene la URL base del request actual (con fallback)
-async function getSiteUrl(): Promise<string> {
-  try {
-    const headersList = await headers();
-    const host = headersList.get("host");
-    const proto = headersList.get("x-forwarded-proto") || "https";
-    if (host) return `${proto}://${host}`;
-  } catch (err) {
-    console.warn("No se pudo obtener la URL del request. Usando fallback.", err);
-  }
-  return process.env.NEXT_PUBLIC_SITE_URL || "https://handmadeart.store";
+/**
+ * Canonical origin for a locale. Middleware already forces es ↔ artehechoamano.com
+ * and en ↔ handmadeart.store, so the locale alone determines the canonical host.
+ * Never derive canonical/hreflang from the request `host` header: www, preview
+ * deployments and proxies would leak into the canonical URL.
+ */
+export function getLocaleSiteUrl(locale: "es" | "en"): string {
+  return `https://${DOMAIN_CONFIG[locale]}`;
 }
 
 
@@ -97,7 +93,7 @@ export async function buildMetadata(
   const { locale, title, description, pathname, image } = params;
   const t = seoConfig[locale];
 
-  const siteUrl = await getSiteUrl();
+  const siteUrl = getLocaleSiteUrl(locale);
   const defaultImage = getDefaultImage(siteUrl);
 
   const pageTitle = title ?? t.title.default;
@@ -147,7 +143,9 @@ export async function buildMetadata(
       languages: {
         "es-CR": esUrl,
         "en-US": enUrl,
-        "x-default": locale === "es" ? esUrl : enUrl,
+        // x-default must be the SAME URL on both locales (Google requires
+        // consistency across the hreflang cluster); ES is the default locale.
+        "x-default": esUrl,
       },
     },
 

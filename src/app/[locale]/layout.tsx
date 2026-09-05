@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { buildMetadata } from "@/lib/metadata";
-import Script from "next/script";
 
 import Navbar from "@/components/general/Navbar";
 import Footer from "@/components/general/Footer";
@@ -38,17 +37,20 @@ export async function generateMetadata({
 }: {
   params: tParams;
 }): Promise<Metadata> {
+  const { locale } = await params;
+  const isEs = locale === "es";
+
   const headersList = await headers();
   const host =
     headersList.get("x-forwarded-host")?.trim() ||
     headersList.get("host")?.trim() ||
     "artehechoamano.com";
 
-  const invokePath = headersList.get("x-invoke-pathname")?.trim() || "/";
+  const invokePath =
+    headersList.get("x-invoke-pathname")?.trim() ||
+    headersList.get("x-pathname")?.trim() ||
+    `/${locale}`;
   const pathname = invokePath.startsWith("/") ? invokePath : `/${invokePath}`;
-
-  const { locale } = await params;
-  const isEs = locale === "es";
 
   // Copy más atractivo para CTR (puedes tunearlo luego)
   const title = isEs
@@ -106,10 +108,9 @@ export default async function LocaleLayout({
       </NextIntlClientProvider>
 
         {/* Organization JSON-LD */}
-        <Script
+        <script
           id="structured-data-org"
           type="application/ld+json"
-          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -154,10 +155,9 @@ export default async function LocaleLayout({
         />
 
         {/* WebSite JSON-LD for Search Box */}
-        <Script
+        <script
           id="structured-data-website"
           type="application/ld+json"
-          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -178,10 +178,9 @@ export default async function LocaleLayout({
         />
 
         {/* LocalBusiness JSON-LD for local SEO */}
-        <Script
+        <script
           id="structured-data-localbusiness"
           type="application/ld+json"
-          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",

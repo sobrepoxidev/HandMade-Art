@@ -22,7 +22,15 @@ const LOCALIZED_ROUTES: Record<string, { es: string; en: string }> = {
   },
 };
 
-/** Static routes that are identical across both locales. */
+/**
+ * Static routes that are identical across both locales.
+ *
+ * `/feria-artesanias` is deliberately excluded: its page sets
+ * `robots: { index: false, follow: true }` (see
+ * src/app/[locale]/feria-artesanias/page.tsx), so listing it here would
+ * contradict that noindex directive. `/feria-artesanias-terminos` and
+ * `/fiestas-patronales-de-san-ramon` don't set index:false and stay listed.
+ */
 const STATIC_ROUTES: string[] = [
   "",
   "/about",
@@ -31,7 +39,6 @@ const STATIC_ROUTES: string[] = [
   "/contact",
   "/privacy-policies",
   "/conditions-service",
-  "/feria-artesanias",
   "/feria-artesanias-terminos",
   "/fiestas-patronales-de-san-ramon",
 ];
@@ -90,7 +97,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from("products")
       .select("name, modified_at, media")
       .eq("is_active", true)
-      .not("name", "is", null);
+      .not("name", "is", null)
+      .order("modified_at", { ascending: false })
+      .limit(5000);
 
     if (!error && products) {
       productPages = products.map((product) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
@@ -21,7 +21,20 @@ type MediaItem = { url: string; alt?: string; type?: string };
 
 const PRODUCTS_PER_PAGE = 12;
 
-export default function ProductsPageContent() {
+interface ProductsPageContentProps {
+  /** SSR-fetched first page of results (same query the effect below runs). */
+  initialProducts?: Product[];
+  /** Total matching rows for the SSR query above, used for pagination. */
+  initialTotal?: number;
+  /** SSR-fetched category list, avoids an extra client round trip on mount. */
+  initialCategories?: Category[];
+}
+
+export default function ProductsPageContent({
+  initialProducts,
+  initialTotal,
+  initialCategories,
+}: ProductsPageContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -31,13 +44,19 @@ export default function ProductsPageContent() {
   const totalItems = interestList.getTotalItems();
 
   // Estados
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
+  const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
+  const [loading, setLoading] = useState(initialProducts === undefined);
   const [error, setError] = useState<string | null>(null);
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(initialTotal ?? 0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [categoryName, setCategoryName] = useState<string>('');
+
+  // The server already ran the same first-page query with the same filters
+  // (see products/page.tsx) — skip the redundant client fetch on mount and
+  // only hit Supabase again once the user actually changes filters/page.
+  const skipInitialCategoriesFetch = useRef(initialCategories !== undefined);
+  const skipInitialProductsFetch = useRef(initialProducts !== undefined);
   
   // Valores de filtros y paginación
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
@@ -52,14 +71,26 @@ export default function ProductsPageContent() {
   
   // Cargar categorías al inicio
   useEffect(() => {
+    // First render after SSR: categories already came from the server with
+    // the same locale, just derive the active category label from them.
+    if (skipInitialCategoriesFetch.current) {
+      skipInitialCategoriesFetch.current = false;
+      setCategoryName(
+        locale === 'es'
+          ? categories.find(c => c.id === Number(categoryFilter))?.name_es || ''
+          : categories.find(c => c.id === Number(categoryFilter))?.name_en || ''
+      );
+      return;
+    }
+
     async function fetchData() {
       try {
        const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
           .select('id, name, name_es, name_en')
           .order(locale === 'es' ? 'name_es' : 'name_en', { ascending: true });
-        
-        setCategoryName(locale === 'es' ? (categoriesData?.find(c => c.id === Number(categoryFilter))?.name_es || '') : (categoriesData?.find(c => c.id === Number(categoryFilter))?.name_en || ''));  
+
+        setCategoryName(locale === 'es' ? (categoriesData?.find(c => c.id === Number(categoryFilter))?.name_es || '') : (categoriesData?.find(c => c.id === Number(categoryFilter))?.name_en || ''));
         if (categoriesError) {
              console.error('Error fetching categories:', categoriesError);
           throw categoriesError;
@@ -69,12 +100,21 @@ export default function ProductsPageContent() {
         console.error('Error al cargar datos de filtros:', err);
       }
     }
-    
+
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryFilter, locale]);
   
   // Cargar productos con filtros y paginación
   useEffect(() => {
+    // First render after SSR: products/totalCount already came from the
+    // server for these exact filters — nothing to fetch yet.
+    if (skipInitialProductsFetch.current) {
+      skipInitialProductsFetch.current = false;
+      setLoading(false);
+      return;
+    }
+
     async function fetchProducts() {
       setLoading(true);
       setError(null);

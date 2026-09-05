@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { buildMetadata } from "@/lib/metadata";
+import { buildMetadata, getLocaleSiteUrl } from "@/lib/metadata";
 import { supabase } from "@/lib/supabaseClient";
 import ProductDetail from '@/components/products/ProductDetail';
 import RelatedProducts from '@/components/products/RelatedProducts';
@@ -18,12 +18,11 @@ type Category = Database['public']['Tables']['categories']['Row'];
 
 type MediaItem = { url: string; alt?: string };
 
-/** Site URL for absolute links based on the current host. */
+/** Site URL for absolute links, locked to the locale's canonical domain. */
 async function getSiteUrl(): Promise<string> {
   const h = await headers();
-  const host = h.get('x-forwarded-host') || h.get('host') || 'handmadeart.store';
-  const proto = h.get('x-forwarded-proto') || 'https';
-  return `${proto}://${host}`;
+  const host = h.get('x-forwarded-host') || h.get('host') || '';
+  return getLocaleSiteUrl(host.includes('handmadeart') ? 'en' : 'es');
 }
 
 function pickName(product: Pick<Product, 'name_es' | 'name_en' | 'name'>, locale: string) {
