@@ -1,49 +1,42 @@
 import { createClient } from '@/utils/supabase/server';
-import OptimizedNew from '@/components/home/OptimizedNew';
 import HeroSection from '@/components/home/HeroSection';
+import Marquee from '@/components/home/Marquee';
+import CategoryTiles from '@/components/home/CategoryTiles';
+import FeaturedPieces from '@/components/home/FeaturedPieces';
+import ImpactSplit from '@/components/home/ImpactSplit';
+import ProcessSteps from '@/components/home/ProcessSteps';
+import QuoteCTA from '@/components/home/QuoteCTA';
 import { computeSections } from '@/lib/home/computeSections';
 import { HOME_CATEGORY_COLUMNS, HOME_PRODUCT_COLUMNS, type HomeProduct } from '@/lib/home/types';
 
 /**
- * Server Component que pre-carga datos para la página principal
- * Aprovecha la naturaleza de React Server Components para:
- * - Reducir las llamadas a Supabase
- * - Mejorar el tiempo de carga inicial
- * - Reducir la cantidad de JavaScript enviado al cliente
- * - Permitir streaming de contenido para una experiencia más rápida
+ * Server Component que pre-carga datos para la página principal.
+ * "Taller nocturno": hero + marquee + categorías + piezas destacadas +
+ * impacto social + proceso + CTA de cotización, todo renderizado en el
+ * servidor (sin fetch en cliente al montar).
  */
-export default async function HomePageData({ locale }: {locale: string}) {
-  // Crear cliente de Supabase para server component
+export default async function HomePageData({ locale }: { locale: string }) {
   const supabase = await createClient();
-  
-  // Definir categorías prioritarias (IDs que se mostrarán primero)
-  // Estos IDs se pueden cambiar según las necesidades del negocio
-  const priorityCategoryIds = [3, 1, 5, 2]; // Ejemplo: IDs de categorías prioritarias
-  
-  // Pre-cargar las categorías para un renderizado más rápido
+
+  const priorityCategoryIds = [3, 1, 5, 2];
+
   const { data: categories } = await supabase
     .from('categories')
     .select(HOME_CATEGORY_COLUMNS)
     .order('name');
-  
-  // Preparar la lista de IDs de categorías para la carga inicial
-  // Incluimos las categorías prioritarias y algunas adicionales
+
   const categoryIdsToLoad = [...priorityCategoryIds];
-  
-  // Añadir otras categorías que no estén en la lista de prioridad
   if (categories) {
-    categories.forEach(category => {
+    categories.forEach((category) => {
       if (!categoryIdsToLoad.includes(category.id) && categoryIdsToLoad.length < 10) {
         categoryIdsToLoad.push(category.id);
       }
     });
   }
-  
-  // Pre-cargar productos para snapshot SSR: aseguramos cobertura suficiente para 6 categorías
+
   let initialProducts: HomeProduct[] = [];
-  
+
   if (categoryIdsToLoad.length > 0) {
-    // Paralelizar: productos base + destacados son independientes
     const [baseRes, featuredRes] = await Promise.all([
       supabase
         .from('products')
@@ -64,7 +57,7 @@ export default async function HomePageData({ locale }: {locale: string}) {
     if (baseRes.data) initialProducts = baseRes.data;
 
     if (featuredRes.data) {
-      const seen = new Set(initialProducts.map(p => p.id));
+      const seen = new Set(initialProducts.map((p) => p.id));
       for (const product of featuredRes.data) {
         if (!seen.has(product.id)) {
           initialProducts.push(product);
@@ -73,32 +66,18 @@ export default async function HomePageData({ locale }: {locale: string}) {
       }
     }
   }
-  
-  // Calcular snapshot SSR determinista de secciones para evitar mismatch de hidratación
-  const initialSections = computeSections(
-    initialProducts,
-    categories || [],
-    priorityCategoryIds,
-    4,
-    12,
-    9
-  );
-  
-  // Pasar los datos pre-cargados y la configuración al componente cliente
+
+  const initialSections = computeSections(initialProducts, categories || [], priorityCategoryIds, 4, 12, 9);
+
   return (
     <>
-      <HeroSection
-        locale={locale}
-        featuredProducts={initialSections.featured}
-        categories={categories || []}
-      />
-      <OptimizedNew
-        initialCategories={categories || []}
-        initialProducts={initialProducts}
-        initialSections={initialSections}
-        priorityCategoryIds={priorityCategoryIds}
-        locale={locale}
-      />
+      <HeroSection locale={locale} featuredProducts={initialSections.featured} />
+      <Marquee locale={locale} />
+      <CategoryTiles locale={locale} />
+      <FeaturedPieces locale={locale} />
+      <ImpactSplit locale={locale} />
+      <ProcessSteps locale={locale} />
+      <QuoteCTA locale={locale} />
     </>
   );
 }

@@ -35,7 +35,7 @@ export default function CategoryCarousel({
   return (
     <nav
       aria-label={locale === "es" ? "Categorías" : "Categories"}
-      className={`w-full bg-[#FAF6EF] border-y border-[#E8E4E0] ${className}`}
+      className={`w-full bg-[#161210] border-y border-[#3A2E24] ${className}`}
     >
       <ul
         className="
@@ -58,10 +58,10 @@ export default function CategoryCarousel({
                   inline-flex items-center
                   min-h-[48px] px-3 sm:px-3.5 lg:px-3
                   text-[14px] tracking-[0.005em]
-                  text-[#2D2D2D] hover:text-[#A08848]
+                  text-[#F1E7D6] hover:text-[#F3C56B]
                   transition-colors duration-200
                   border-b-2 border-transparent
-                  hover:border-[#C9A962]/45
+                  hover:border-[#E0A83A]/45
                 "
               >
                 {name}

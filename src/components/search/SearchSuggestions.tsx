@@ -41,7 +41,7 @@ export default function SearchSuggestions({
     borderWidth: '1px',
     borderStyle: 'solid',
     borderColor: 'rgba(201, 169, 98, 0.2)',
-    backgroundColor: '#2D2D2D',
+    backgroundColor: '#1E1813',
     boxShadow: '0 10px 25px -3px rgba(0, 0, 0, 0.3)',
     borderRadius: '0 0 0.125rem 0.125rem',
     overflow: 'hidden',
@@ -58,9 +58,9 @@ export default function SearchSuggestions({
       role="region"
       aria-label={isEs ? 'Sugerencias de búsqueda' : 'Search suggestions'}
     >
-      <div className="flex items-center justify-between border-b border-[#C9A962]/15 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-[#E0A83A]/15 px-4 py-3">
         <p
-          className="text-sm font-medium text-[#F5F1EB]"
+          className="text-sm font-medium text-[#F1E7D6]"
           role="status"
           aria-live="polite"
           aria-atomic="true"
@@ -76,7 +76,7 @@ export default function SearchSuggestions({
         <button
           type="button"
           onClick={onClose}
-          className="grid place-items-center w-9 h-9 rounded-sm text-[#B5AC9D] hover:text-[#C9A962] hover:bg-[#3A3A3A] transition-colors"
+          className="grid place-items-center w-9 h-9 rounded-sm text-[#C9BBA5] hover:text-[#E0A83A] hover:bg-[#2A2119] transition-colors"
           aria-label={isEs ? 'Cerrar sugerencias' : 'Close suggestions'}
         >
           <X className="h-4 w-4" strokeWidth={2} aria-hidden />
@@ -86,38 +86,38 @@ export default function SearchSuggestions({
       <div className="max-h-[60vh] overflow-y-auto">
         {loading ? (
           <div className="flex justify-center items-center py-8" role="status" aria-busy="true">
-            <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#E8E4E0]/30 border-t-[#C9A962]" />
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#3A2E24]/30 border-t-[#E0A83A]" />
             <span className="sr-only">{isEs ? 'Cargando' : 'Loading'}</span>
           </div>
         ) : results.length > 0 ? (
           <>
             <ul role="listbox" aria-label={isEs ? 'Resultados' : 'Results'}>
               {results.slice(0, 5).map((product) => (
-                <li key={product.id} role="option" aria-selected="false" className="border-b border-[#C9A962]/15 last:border-b-0">
+                <li key={product.id} role="option" aria-selected="false" className="border-b border-[#E0A83A]/15 last:border-b-0">
                   <Link
                     href={`/product/${encodeURIComponent(product.name || String(product.id))}`}
-                    className="flex items-center p-3 hover:bg-[#3A3A3A] transition-colors"
+                    className="flex items-center p-3 hover:bg-[#2A2119] transition-colors"
                     onClick={onClose}
                   >
-                    <div className="w-12 h-12 bg-[#3A3A3A] rounded-sm flex-shrink-0 overflow-hidden mr-3 border border-[#C9A962]/10">
+                    <div className="w-12 h-12 bg-[#F1E7D6] rounded-sm flex-shrink-0 overflow-hidden mr-3 border border-[#E0A83A]/10">
                       <Image
                         src={product.media?.[0]?.url || '/product-placeholder.png'}
                         alt={product.name || ''}
                         width={48}
                         height={48}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-1"
                       />
                     </div>
                     <div className="flex-grow min-w-0">
-                      <h4 className="font-medium text-[#F5F1EB] truncate">{locale === 'es' ? product.name_es : product.name_en}</h4>
+                      <h4 className="font-medium text-[#F1E7D6] truncate">{locale === 'es' ? product.name_es : product.name_en}</h4>
                       <div className="flex items-center">
                         {product.category_name && (
-                          <span className="text-xs bg-[#C9A962]/10 text-[#C9A962] px-1.5 py-0.5 rounded-sm mr-2">
+                          <span className="text-xs bg-[#E0A83A]/10 text-[#E0A83A] px-1.5 py-0.5 rounded-sm mr-2">
                             {product.category_name}
                           </span>
                         )}
                         {product.highlight && (
-                          <p className="text-sm text-[#B5AC9D] truncate">{product.highlight}</p>
+                          <p className="text-sm text-[#C9BBA5] truncate">{product.highlight}</p>
                         )}
                       </div>
                     </div>
@@ -125,20 +125,20 @@ export default function SearchSuggestions({
                       {product.dolar_price ? (
                         product.discount_percentage && product.discount_percentage > 0 ? (
                           <div className="text-right">
-                            <p className="font-medium text-[#C9A962]">
+                            <p className="font-medium text-[#E0A83A]">
                               {formatUSD(product.dolar_price)}
                             </p>
-                            <p className="text-xs text-[#B5AC9D] line-through">
+                            <p className="text-xs text-[#C9BBA5] line-through">
                               {formatUSD(product.dolar_price)}
                             </p>
                           </div>
                         ) : (
-                          <p className="font-medium text-[#C9A962]">
+                          <p className="font-medium text-[#E0A83A]">
                             {formatUSD(product.dolar_price)}
                           </p>
                         )
                       ) : (
-                        <p className="font-medium text-[#B5AC9D]">
+                        <p className="font-medium text-[#C9BBA5]">
                           {locale === 'es' ? 'Consultar' : 'Consult'}
                         </p>
                       )}
@@ -148,10 +148,10 @@ export default function SearchSuggestions({
               ))}
             </ul>
 
-            <div className="bg-[#3A3A3A]/50 p-3 text-center border-t border-[#C9A962]/10">
+            <div className="bg-[#2A2119]/50 p-3 text-center border-t border-[#E0A83A]/10">
               <Link
                 href={`/search?q=${encodeURIComponent(query)}${(category && !['Todo','All','Todas'].includes(category)) ? `&category=${encodeURIComponent(category)}` : ''}`}
-                className="inline-flex items-center justify-center text-sm text-[#C9A962] hover:text-[#D4C4A8] font-medium transition-colors"
+                className="inline-flex items-center justify-center text-sm text-[#E0A83A] hover:text-[#F3C56B] font-medium transition-colors"
                 onClick={onClose}
               >
                 <Search className="h-4 w-4 mr-1" />
@@ -161,10 +161,10 @@ export default function SearchSuggestions({
           </>
         ) : (
           <div className="py-6 px-4 text-center">
-            <p className="text-[#B5AC9D] mb-3">{locale === 'es' ? 'No se encontraron productos que coincidan con tu búsqueda.' : 'No products found that match your search.'}</p>
+            <p className="text-[#C9BBA5] mb-3">{locale === 'es' ? 'No se encontraron productos que coincidan con tu búsqueda.' : 'No products found that match your search.'}</p>
             <Link
               href="/products"
-              className="text-sm text-[#C9A962] hover:text-[#D4C4A8] font-medium transition-colors"
+              className="text-sm text-[#E0A83A] hover:text-[#F3C56B] font-medium transition-colors"
               onClick={onClose}
             >
               {locale === 'es' ? 'Ver todos los productos' : 'View all products'}

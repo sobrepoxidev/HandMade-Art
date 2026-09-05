@@ -86,16 +86,16 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
           {[...Array(3)].map((_, i) => (
             <div key={i} className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="h-4 bg-[#E8E4E0] rounded w-1/3" />
-                <div className="h-3 bg-[#E8E4E0] rounded w-24" />
+                <div className="h-4 bg-[#3A2E24] rounded w-1/3" />
+                <div className="h-3 bg-[#3A2E24] rounded w-24" />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-3">
                 {[...Array(productsPerCategory)].map((_, j) => (
-                  <div key={j} className="bg-[#FAF8F5] rounded-md border border-[#E8E4E0] shadow-sm overflow-hidden h-full flex flex-col">
-                    <div className="relative bg-[#FAF6EF] aspect-square" />
+                  <div key={j} className="bg-[#1E1813] rounded-md border border-[#3A2E24] shadow-sm overflow-hidden h-full flex flex-col">
+                    <div className="relative bg-[#161210] aspect-square" />
                     <div className="px-2.5 py-2">
-                      <div className="h-3.5 bg-[#E8E4E0] rounded w-3/4 mb-1" />
-                      <div className="h-3.5 bg-[#E8E4E0] rounded w-1/2" />
+                      <div className="h-3.5 bg-[#3A2E24] rounded w-3/4 mb-1" />
+                      <div className="h-3.5 bg-[#3A2E24] rounded w-1/2" />
                     </div>
                   </div>
                 ))}
@@ -112,7 +112,7 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
   }
 
   return (
-    <section className="my-4 bg-[#FAF6EF]">
+    <section className="my-4 bg-[#161210]">
       <div className="w-full px-4 mx-auto">
         {/* Bloques por categoría con UI compacta */}
         {orderedCategories.map((categoryId) => {
@@ -124,12 +124,12 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
           return (
             <div key={categoryId} className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-display text-base lg:text-lg font-medium text-[#2D2D2D] tracking-[-0.005em] truncate max-w-[60%] lg:max-w-[65%]">
+                <h3 className="font-display text-base lg:text-lg font-medium text-[#F1E7D6] tracking-[-0.005em] truncate max-w-[60%] lg:max-w-[65%]">
                   {(locale === 'es' ? category.name_es : category.name_en) || category.name || 'Categoría'}
                 </h3>
                 <Link
                   href={`/products?category=${categoryId}`}
-                  className="inline-flex items-center min-h-[44px] px-2 py-2 text-[#A08848] hover:text-[#2D2D2D] text-xs lg:text-sm font-medium rounded transition-colors"
+                  className="inline-flex items-center min-h-[44px] px-2 py-2 text-[#F3C56B] hover:text-[#F3C56B] text-xs lg:text-sm font-medium rounded transition-colors"
                   aria-label={locale === 'es' ? `Ver más en ${category.name_es}` : `View more in ${category.name_en || category.name}`}
                   title={locale === 'es' ? `Ver más en ${category.name_es}` : `View more in ${category.name_en || category.name}`}
                 >
@@ -148,8 +148,8 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
                     className="group block rounded"
                     aria-label={(locale === 'es' ? product.name_es : product.name_en) || product.name || 'Producto'}
                   >
-                    <div className="bg-[#FAF6EF] rounded-sm border border-[#E8E4E0] hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 group-hover:-translate-y-0.5 overflow-hidden h-full flex flex-col">
-                      <div className="relative bg-[#FAF8F5] aspect-square">
+                    <div className="bg-[#161210] rounded-sm border border-[#3A2E24] hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#E0A83A]/45 transition-[box-shadow,border-color,transform] duration-300 group-hover:-translate-y-0.5 overflow-hidden h-full flex flex-col">
+                      <div className="relative bg-[#1E1813] aspect-square">
                         <Image
                           src={Array.isArray(product.media) && product.media.length > 0
                             ? (product.media[0] as { url: string }).url
@@ -161,13 +161,13 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
                           loading="lazy"
                         />
                         {product.dolar_price && (
-                          <div className="absolute bottom-2 right-2 bg-[#2D2D2D] text-[#C9A962] text-xs font-semibold tabular-nums px-2 py-0.5 rounded-sm">
+                          <div className="absolute bottom-2 right-2 bg-[#161210] text-[#E0A83A] text-xs font-semibold tabular-nums px-2 py-0.5 rounded-sm">
                             {formatUSD(product.dolar_price)}
                           </div>
                         )}
                       </div>
                       <div className="px-2.5 py-2">
-                        <div className="text-[11px] lg:text-xs leading-snug text-[#4A4A4A] line-clamp-2 group-hover:text-[#A08848] transition-colors min-h-[2.2rem] lg:min-h-[2.4rem]">
+                        <div className="text-[11px] lg:text-xs leading-snug text-[#C9BBA5] line-clamp-2 group-hover:text-[#F3C56B] transition-colors min-h-[2.2rem] lg:min-h-[2.4rem]">
                           {(locale === 'es' ? product.name_es : product.name_en) || product.name}
                         </div>
                       </div>
@@ -182,8 +182,8 @@ const ProgressiveCategorySection: React.FC<ProgressiveCategorySectionProps> = ({
         {/* Sentinel al final de la sección para carga progresiva */}
         <div ref={sentinelRef} className="flex justify-center mt-6">
           {loading && (
-            <div className="flex items-center text-[#9C9589] text-sm">
-              <svg className="animate-spin h-4 w-4 mr-2 text-[#C9A962]" viewBox="0 0 24 24">
+            <div className="flex items-center text-[#8C7F6E] text-sm">
+              <svg className="animate-spin h-4 w-4 mr-2 text-[#E0A83A]" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
               </svg>

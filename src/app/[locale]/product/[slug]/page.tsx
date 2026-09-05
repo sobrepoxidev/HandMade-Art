@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 
   const { data: product } = await supabase
     .from('products')
-    .select('name, name_es, name_en, description, description_en, dolar_price, discount_percentage, media, brand, weight_kg, length_cm, width_cm, height_cm, tags')
+    .select('name, name_es, name_en, description, description_en, dolar_price, discount_percentage, media, brand, weight_kg, length_cm, width_cm, height_cm, tags, category_id')
     .eq('name', slug)
     .single();
 
@@ -65,6 +65,19 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 
   const displayName = pickName(product, currentLocale) || slug;
   const baseDescription = pickDescription(product, currentLocale);
+
+  let categoryName: string | null = null;
+  if (product.category_id) {
+    const { data: cat } = await supabase
+      .from('categories')
+      .select('name, name_es, name_en')
+      .eq('id', product.category_id)
+      .maybeSingle();
+    if (cat) {
+      categoryName =
+        (currentLocale === 'es' ? cat.name_es : cat.name_en) || cat.name || null;
+    }
+  }
 
   const dims: string[] = [];
   if (product.length_cm) dims.push(`${product.length_cm}cm L`);
@@ -85,12 +98,25 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
   const priceSegment = finalPrice != null ? ` — $${finalPrice.toFixed(2)} USD` : '';
   const title = `${displayName}${priceSegment}`;
 
-  // Description: real product description + key specs to expose them to crawlers/LLMs
-  const trimmedDesc = baseDescription
-    ? baseDescription.replace(/\s+/g, ' ').trim().slice(0, 140)
-    : (currentLocale === 'es'
-        ? 'Pieza artesanal hecha a mano en Costa Rica.'
-        : 'Handmade artisanal piece from Costa Rica.');
+  // Description: real product description + key specs to expose them to
+  // crawlers/LLMs. Some products have an empty or very short DB description
+  // (Lighthouse flagged these as missing a meta description) — for those,
+  // generate a real sentence from name + category + price instead of a
+  // generic one-liner, so every product always ships a meaningful description.
+  const cleanedDesc = baseDescription.replace(/\s+/g, ' ').trim();
+  const priceLabel = finalPrice != null ? `$${finalPrice.toFixed(2)}` : null;
+  const generatedDescription =
+    currentLocale === 'es'
+      ? `${displayName}${categoryName ? `, ${categoryName.toLowerCase()}` : ''} hecho a mano en Costa Rica.${
+          priceLabel ? ` ${priceLabel} USD.` : ''
+        } Pieza artesanal única que apoya un programa de reinserción social.`
+      : `${displayName}${categoryName ? `, ${categoryName.toLowerCase()}` : ''} handmade in Costa Rica.${
+          priceLabel ? ` ${priceLabel} USD.` : ''
+        } A one-of-a-kind piece that supports a social reintegration program.`;
+
+  // Treat anything under ~25 characters as effectively missing.
+  const trimmedDesc =
+    cleanedDesc.length >= 25 ? cleanedDesc.slice(0, 140) : generatedDescription;
   const specSegment = specParts.length ? ` · ${specParts.join(' · ')}` : '';
   const description = `${trimmedDesc}${specSegment}`.slice(0, 320);
 

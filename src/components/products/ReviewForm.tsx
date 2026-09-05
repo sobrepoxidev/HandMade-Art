@@ -116,20 +116,20 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
   };
 
   return (
-    <section className="bg-[#FAF8F5] border border-[#E8E4E0] rounded-md p-5 mt-8">
-      <h3 className="font-display text-xl font-medium text-[#2D2D2D] mb-4 tracking-[-0.005em]">
+    <section className="bg-[#1E1813] border border-[#3A2E24] rounded-md p-5 mt-8">
+      <h3 className="font-display text-xl font-medium text-[#F1E7D6] mb-4 tracking-[-0.005em]">
         {locale === 'es' ? 'Deja tu opinión' : 'Leave your review'}
       </h3>
 
       <div aria-live="polite" aria-atomic="true">
         {error && (
-          <div className="flex items-start gap-2 bg-[#C44536]/8 border border-[#C44536]/30 text-[#9F2D24] px-3 py-2.5 rounded-sm mb-4 text-sm">
+          <div className="flex items-start gap-2 bg-[#D9563B]/12 border border-[#D9563B]/35 text-[#F2A38A] px-3 py-2.5 rounded-sm mb-4 text-sm">
             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2} aria-hidden />
             <span>{error}</span>
           </div>
         )}
         {successMessage && (
-          <div className="flex items-start gap-2 bg-[#4A7C59]/10 border border-[#4A7C59]/30 text-[#2F5F3E] px-3 py-2.5 rounded-sm mb-4 text-sm">
+          <div className="flex items-start gap-2 bg-[#3C9A70]/12 border border-[#3C9A70]/35 text-[#3C9A70] px-3 py-2.5 rounded-sm mb-4 text-sm">
             <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2} aria-hidden />
             <span>{successMessage}</span>
           </div>
@@ -139,7 +139,7 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
       <form onSubmit={handleSubmit} noValidate>
         {/* Rating */}
         <fieldset className="mb-5">
-          <legend className="block text-sm font-medium text-[#2D2D2D] mb-2">
+          <legend className="block text-sm font-medium text-[#F1E7D6] mb-2">
             {locale === 'es' ? 'Calificación' : 'Rating'}
           </legend>
           <div
@@ -168,13 +168,13 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
                   onMouseEnter={() => setHoveredStar(star)}
                   onMouseLeave={() => setHoveredStar(0)}
                   onKeyDown={(e) => handleStarKey(e, star)}
-                  className="grid place-items-center w-11 h-11 rounded-sm transition-colors hover:bg-[#C9A962]/10"
+                  className="grid place-items-center w-11 h-11 rounded-sm transition-colors hover:bg-[#E0A83A]/12"
                 >
                   <Star
                     className={`h-7 w-7 transition-colors ${
                       isFilled
-                        ? 'fill-[#C9A962] text-[#C9A962]'
-                        : 'fill-[#E8E4E0] text-[#E8E4E0]'
+                        ? 'fill-[#E0A83A] text-[#E0A83A]'
+                        : 'fill-[#3A2E24] text-[#3A2E24]'
                     }`}
                     strokeWidth={0}
                     aria-hidden
@@ -189,15 +189,15 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
         <div className="mb-5">
           <label
             htmlFor="review-comment"
-            className="block text-sm font-medium text-[#2D2D2D] mb-1.5"
+            className="block text-sm font-medium text-[#F1E7D6] mb-1.5"
           >
             {locale === 'es' ? 'Opinión' : 'Opinion'}{' '}
-            <span aria-hidden className="text-[#C44536]">*</span>
+            <span aria-hidden className="text-[#D9563B]">*</span>
             <span className="sr-only"> ({locale === 'es' ? 'requerido' : 'required'})</span>
           </label>
           <textarea
             id="review-comment"
-            className="w-full p-3 border border-[#E8E4E0] rounded-sm bg-[#FAF6EF] text-[#2D2D2D] placeholder:text-[#9C9589] resize-y min-h-[96px] focus:border-[#A08848] focus:outline-none focus:ring-2 focus:ring-[#A08848]/20"
+            className="w-full p-3 border border-[#3A2E24] rounded-sm bg-[#161210] text-[#F1E7D6] placeholder:text-[#8C7F6E] resize-y min-h-[96px] focus:border-[#F3C56B] focus:outline-none focus:ring-2 focus:ring-[#F3C56B]/20"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder={
@@ -215,8 +215,8 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
           type="submit"
           disabled={isSubmitting}
           className="inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-sm
-                     text-sm font-semibold tracking-wide text-[#1A1A1A] bg-[#C9A962]
-                     hover:bg-[#A08848] hover:text-[#F5F1EB]
+                     text-sm font-semibold tracking-wide text-[#161210] bg-[#E0A83A]
+                     hover:bg-[#F3C56B] hover:text-[#161210]
                      disabled:opacity-60 disabled:cursor-not-allowed
                      transition-colors duration-200"
         >

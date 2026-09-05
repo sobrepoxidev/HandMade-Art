@@ -59,12 +59,12 @@ export default function OrderConfirmationPage() {
 
   if (error) {
     return (
-      <main className="flex min-h-[60vh] items-center justify-center bg-[#FAF6EF] px-4 py-12">
-        <section className="max-w-md border border-[#E8E4E0] bg-[#F5F1EB] p-6 text-center shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
-          <h1 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+      <main className="flex min-h-[60vh] items-center justify-center bg-[#161210] px-4 py-12">
+        <section className="max-w-md border border-[#3A2E24] bg-[#1E1813] p-6 text-center shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]">
+          <h1 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
             {locale === "es" ? "No pudimos cargar la orden" : "We could not load the order"}
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-[#4A4A4A]">{error}</p>
+          <p className="mt-3 text-sm leading-relaxed text-[#C9BBA5]">{error}</p>
         </section>
       </main>
     );
@@ -72,8 +72,8 @@ export default function OrderConfirmationPage() {
 
   if (!orderDetails) {
     return (
-      <main className="flex min-h-[60vh] items-center justify-center bg-[#FAF6EF] px-4 py-12">
-        <h1 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+      <main className="flex min-h-[60vh] items-center justify-center bg-[#161210] px-4 py-12">
+        <h1 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
           {locale === "es" ? "Cargando detalles del pedido..." : "Loading order details..."}
         </h1>
       </main>
@@ -84,19 +84,19 @@ export default function OrderConfirmationPage() {
   const Icon = isManualReview ? Clock : CheckCircle2;
 
   return (
-    <main className="min-h-[60vh] bg-[#FAF6EF] px-4 py-12 sm:px-8 lg:px-12">
+    <main className="min-h-[60vh] bg-[#161210] px-4 py-12 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-3xl">
-        <section className="border border-[#E8E4E0] bg-[#F5F1EB] p-6 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] sm:p-8">
+        <section className="border border-[#3A2E24] bg-[#1E1813] p-6 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] sm:p-8">
           <div className="text-center mb-8">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#C9A962]/15">
-              <Icon className="h-6 w-6 text-[#C9A962]" strokeWidth={1.75} aria-hidden />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#E0A83A]/15">
+              <Icon className="h-6 w-6 text-[#E0A83A]" strokeWidth={1.75} aria-hidden />
             </div>
-            <h1 className="mt-4 font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+            <h1 className="mt-4 font-display text-3xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
               {isManualReview
                 ? locale === "es" ? "Referencia recibida" : "Reference received"
                 : locale === "es" ? "¡Gracias por tu compra!" : "Thank you for your purchase!"}
             </h1>
-            <p className="mt-2 text-base text-[#4A4A4A]">
+            <p className="mt-2 text-base text-[#C9BBA5]">
               {locale === "es" ? "Pedido" : "Order"} #{orderDetails.id} ·{" "}
               {isManualReview
                 ? locale === "es" ? "pendiente de revisión manual" : "pending manual review"
@@ -104,27 +104,27 @@ export default function OrderConfirmationPage() {
             </p>
           </div>
 
-          <dl className="divide-y divide-[#E8E4E0]">
+          <dl className="divide-y divide-[#3A2E24]">
             <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium text-[#4A4A4A]">{locale === "es" ? "Número de orden" : "Order number"}</dt>
-              <dd className="mt-1 text-sm text-[#2D2D2D] sm:col-span-2 sm:mt-0">#{orderDetails.id}</dd>
+              <dt className="text-sm font-medium text-[#C9BBA5]">{locale === "es" ? "Número de orden" : "Order number"}</dt>
+              <dd className="mt-1 text-sm text-[#F1E7D6] sm:col-span-2 sm:mt-0">#{orderDetails.id}</dd>
             </div>
 
             <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium text-[#4A4A4A]">{locale === "es" ? "Total" : "Total"}</dt>
-              <dd className="mt-1 text-sm text-[#2D2D2D] sm:col-span-2 sm:mt-0">{formatUSD(orderDetails.totalAmount)}</dd>
+              <dt className="text-sm font-medium text-[#C9BBA5]">{locale === "es" ? "Total" : "Total"}</dt>
+              <dd className="mt-1 text-sm text-[#F1E7D6] sm:col-span-2 sm:mt-0">{formatUSD(orderDetails.totalAmount)}</dd>
             </div>
 
             <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium text-[#4A4A4A]">{locale === "es" ? "Método de pago" : "Payment method"}</dt>
-              <dd className="mt-1 text-sm text-[#2D2D2D] sm:col-span-2 sm:mt-0">
+              <dt className="text-sm font-medium text-[#C9BBA5]">{locale === "es" ? "Método de pago" : "Payment method"}</dt>
+              <dd className="mt-1 text-sm text-[#F1E7D6] sm:col-span-2 sm:mt-0">
                 {orderDetails.paymentMethod === "paypal" ? "PayPal" : "SINPE Móvil"}
               </dd>
             </div>
 
             <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium text-[#4A4A4A]">{locale === "es" ? "Dirección de envío" : "Shipping address"}</dt>
-              <dd className="mt-1 text-sm text-[#2D2D2D] sm:col-span-2 sm:mt-0">
+              <dt className="text-sm font-medium text-[#C9BBA5]">{locale === "es" ? "Dirección de envío" : "Shipping address"}</dt>
+              <dd className="mt-1 text-sm text-[#F1E7D6] sm:col-span-2 sm:mt-0">
                 {orderDetails.shippingAddress.name}<br />
                 {orderDetails.shippingAddress.address}<br />
                 {orderDetails.shippingAddress.city}, {orderDetails.shippingAddress.state}
@@ -136,7 +136,7 @@ export default function OrderConfirmationPage() {
             <Link
               href="/products"
               locale={locale}
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-6 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#A08848]/30"
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-sm bg-[#E0A83A] px-6 py-3 text-sm font-bold tracking-wide text-[#161210] transition-colors hover:bg-[#F3C56B] focus:outline-none focus:ring-2 focus:ring-[#F3C56B]/30"
             >
               <ShoppingBag className="h-4 w-4" strokeWidth={1.75} aria-hidden />
               {locale === "es" ? "Continuar comprando" : "Continue shopping"}

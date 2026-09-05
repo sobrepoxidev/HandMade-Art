@@ -41,10 +41,11 @@ export default function CurrencyConverterRow({
   };
 
   return (
-    <div className="inline-flex flex-nowrap items-center gap-2 text-sm rounded-lg border border-[#E8E4E0] px-2 py-1.5 bg-white shadow-sm">
+    <div className="inline-flex flex-nowrap items-center gap-2 text-sm rounded-lg border border-[#3A2E24] px-2 py-1.5 bg-[#1E1813] shadow-sm">
       {/* Selector de divisas */}
       <select
-        className="border-none bg-transparent px-1 py-0.5 focus:outline-none focus:ring-0 text-[#2D2D2D] font-medium text-sm"
+        aria-label={locale === 'es' ? 'Moneda de conversión' : 'Conversion currency'}
+        className="border-none bg-transparent px-1 py-0.5 focus:outline-none focus:ring-0 text-[#F1E7D6] font-medium text-sm"
         value={currency}
         onChange={e => {
           setCurrency(e.target.value.toUpperCase());
@@ -69,30 +70,30 @@ export default function CurrencyConverterRow({
         onClick={onConvert}
         disabled={disabled}
         title={locale === 'es' ? 'Convertir' : 'Convert'}
-        className="p-1.5 rounded-md bg-[#2D2D2D] hover:bg-[#C9A962] transition-colors disabled:opacity-50"
+        className="p-1.5 rounded-md bg-[#E0A83A] hover:bg-[#F3C56B] transition-colors disabled:opacity-50"
       >
         {pending ? (
-          <Loader2 className="h-4 w-4 animate-spin text-white" />
+          <Loader2 className="h-4 w-4 animate-spin text-[#161210]" />
         ) : (
-          <RefreshCcw className="h-4 w-4 text-white" />
+          <RefreshCcw className="h-4 w-4 text-[#161210]" />
         )}
       </button>
 
       {/* Resultado */}
-      <div className="min-w-[5rem] font-semibold text-[#2D2D2D]">
+      <div className="min-w-[5rem] font-semibold text-[#F1E7D6]">
         {result ? (
           result.currency && result.converted ? (
-            <span className="text-[#C9A962]">
+            <span className="text-[#E0A83A]">
               {new Intl.NumberFormat('es-CR', {
                 style: 'currency',
                 currency: result.currency,
               }).format(result.converted)}
             </span>
           ) : (
-            <span className="text-[#C44536] text-xs">{locale === 'es' ? 'Error' : 'Error'}</span>
+            <span className="text-[#D9563B] text-xs">{locale === 'es' ? 'Error' : 'Error'}</span>
           )
         ) : (
-          <span className="flex items-center gap-1 text-[#9C9589] text-xs">
+          <span className="flex items-center gap-1 text-[#8C7F6E] text-xs">
             <ArrowLeft className="h-3 w-3" />
             {locale === 'es' ? 'Ver' : 'View'}
           </span>

@@ -80,7 +80,7 @@ export default function DraggableWhatsAppButton() {
       href="https://wa.me/50685850000"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed right-4 z-50 grid h-[60px] w-[60px] touch-none place-items-center rounded-full bg-[#25D366] text-white shadow-[0_8px_24px_-12px_rgba(45,45,45,0.45)] transition-[background-color,opacity,transform] duration-200 hover:bg-[#128C7E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF6EF]"
+      className="fixed right-4 z-50 grid h-[60px] w-[60px] touch-none place-items-center rounded-full bg-[#25D366] text-white shadow-[0_8px_24px_-12px_rgba(15,12,10,0.6)] transition-[background-color,opacity,transform] duration-200 hover:bg-[#128C7E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E0A83A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#161210]"
       style={{
         bottom: BOTTOM_OFFSET,
         transform: `translate3d(${position.x}px, ${position.y}px, 0)`,

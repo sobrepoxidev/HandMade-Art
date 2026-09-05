@@ -199,7 +199,7 @@ export default function SearchBar({
               e.preventDefault();
               e.stopPropagation();
             }}
-            className={`flex items-center justify-between w-full h-11 px-3 text-sm text-[#F5F1EB] bg-[#2D2D2D] border border-r-0 border-[#C9A962]/30 rounded-l-sm hover:bg-[#1A1A1A] transition-colors ${
+            className={`flex items-center justify-between w-full h-11 px-3 text-sm text-[#F1E7D6] bg-[#1E1813] border border-r-0 border-[#E0A83A]/30 rounded-l-sm hover:bg-[#0F0C0A] transition-colors ${
               isMobile ? 'w-24' : isNavbar ? 'w-32' : 'w-40'
             }`}
             aria-expanded={isCategoryMenuOpen}
@@ -209,7 +209,7 @@ export default function SearchBar({
           >
             <span className="max-w-[100px] truncate category-trigger">{selectedCategory}</span>
             <ChevronDown
-              className={`h-4 w-4 category-trigger text-[#C9A962] transition-transform ${isCategoryMenuOpen ? 'rotate-180' : ''}`}
+              className={`h-4 w-4 category-trigger text-[#E0A83A] transition-transform ${isCategoryMenuOpen ? 'rotate-180' : ''}`}
               strokeWidth={2}
               aria-hidden
             />
@@ -221,7 +221,7 @@ export default function SearchBar({
               id={listboxId}
               role="listbox"
               aria-label={isEs ? 'Categorías' : 'Categories'}
-              className="absolute left-0 top-full w-56 border border-[#C9A962]/25 bg-[#2D2D2D] shadow-xl rounded-sm overflow-hidden mt-1"
+              className="absolute left-0 top-full w-56 border border-[#E0A83A]/25 bg-[#1E1813] shadow-xl rounded-sm overflow-hidden mt-1"
               onClick={(e) => e.stopPropagation()}
               style={{ zIndex: 50, position: 'absolute' }}
             >
@@ -229,7 +229,7 @@ export default function SearchBar({
                 <li role="option" aria-selected={selectedCategory === 'Todas' || selectedCategory === 'All'}>
                   <button
                     type="button"
-                    className="block w-full px-4 py-2.5 text-left text-sm text-[#F5F1EB] hover:bg-[#3A3A3A] hover:text-[#C9A962] transition-colors"
+                    className="block w-full px-4 py-2.5 text-left text-sm text-[#F1E7D6] hover:bg-[#3A2E24] hover:text-[#E0A83A] transition-colors"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -252,8 +252,8 @@ export default function SearchBar({
                         type="button"
                         className={`block w-full px-4 py-2.5 text-left text-sm transition-colors ${
                           isSelected
-                            ? 'bg-[#3A3A3A] text-[#C9A962]'
-                            : 'text-[#F5F1EB] hover:bg-[#3A3A3A] hover:text-[#C9A962]'
+                            ? 'bg-[#3A2E24] text-[#E0A83A]'
+                            : 'text-[#F1E7D6] hover:bg-[#3A2E24] hover:text-[#E0A83A]'
                         }`}
                         onClick={(e) => {
                           e.preventDefault();
@@ -283,7 +283,7 @@ export default function SearchBar({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setShowSuggestions(true)}
-          className={`flex-1 h-11 px-4 py-2 text-sm text-[#2D2D2D] bg-[#FAF6EF] border border-[#E8E4E0] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 placeholder-[#6B6459] transition-colors ${
+          className={`flex-1 h-11 px-4 py-2 text-sm text-[#F1E7D6] bg-[#1E1813] border border-[#3A2E24] focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25 placeholder-[#8C7F6E] transition-colors ${
             isMobile ? 'w-full' : isNavbar ? 'w-full' : 'w-96'
           }`}
           ref={inputRef}
@@ -292,7 +292,7 @@ export default function SearchBar({
         {/* Search button */}
         <button
           type="submit"
-          className="grid place-items-center h-11 w-11 bg-[#C9A962] text-[#1A1A1A] hover:bg-[#A08848] hover:text-[#F5F1EB] border-0 rounded-r-sm transition-colors"
+          className="grid place-items-center h-11 w-11 bg-[#E0A83A] text-[#161210] hover:bg-[#F3C56B] border-0 rounded-r-sm transition-colors"
           aria-label={isEs ? 'Buscar' : 'Search'}
         >
           <Search className="h-5 w-5" strokeWidth={2} aria-hidden />

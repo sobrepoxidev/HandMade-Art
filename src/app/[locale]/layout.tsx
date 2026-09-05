@@ -18,10 +18,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FAF6EF" },
-    { media: "(prefers-color-scheme: dark)", color: "#2D2D2D" },
-  ],
+  themeColor: "#161210",
 };
 
 // Domain configuration for bi-domain SEO
@@ -129,8 +126,8 @@ export default async function LocaleLayout({
               },
               image: [
                 `${currentUrl}/web-image.jpg`,
-                `${currentUrl}/home/artesano.webp`,
-                `${currentUrl}/home/artisan-working.webp`,
+                `${currentUrl}/taller/taller-amplio.webp`,
+                `${currentUrl}/taller/manos-tallando.webp`,
               ],
               areaServed: {
                 "@type": "Country",

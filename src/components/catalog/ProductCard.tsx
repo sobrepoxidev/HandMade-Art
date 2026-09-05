@@ -174,7 +174,7 @@ export function ProductCard({ product, interestList, appliedDiscountCode, onCalc
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-[#1E1813] rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
       {/* Imagen con zoom */}
       <div className="aspect-square relative h-[190px] w-full bg-gray-100 overflow-hidden">
         {product.main_image_url && !imageError ? (
@@ -241,7 +241,7 @@ export function ProductCard({ product, interestList, appliedDiscountCode, onCalc
             {isZoomed && (
               <>
                 <motion.div
-                  className="absolute top-1 right-1 bg-white bg-opacity-80 rounded-full p-1 pointer-events-none z-10"
+                  className="absolute top-1 right-1 bg-[#1E1813] bg-opacity-80 rounded-full p-1 pointer-events-none z-10"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 }}

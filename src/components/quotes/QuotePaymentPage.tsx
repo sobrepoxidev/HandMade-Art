@@ -238,7 +238,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
   if (paymentCompleted) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 text-gray-800">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+        <div className="bg-[#1E1813] rounded-lg shadow-lg p-8 max-w-md w-full text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CreditCard className="w-8 h-8 text-green-600" />
           </div>
@@ -265,7 +265,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
     <div className="min-h-screen bg-gray-50 py-3 text-gray-800">
       <div className="max-w-6xl mx-auto px-2">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-3 mb-2">
+        <div className="bg-[#1E1813] rounded-lg shadow-sm p-3 mb-2">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-gray-900 flex items-center">
@@ -293,7 +293,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           {/* Información del cliente */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-3 mb-2">
+            <div className="bg-[#1E1813] rounded-lg shadow-sm p-3 mb-2">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <User className="w-5 h-5 mr-2 text-gray-800" />
                 {locale === 'es' ? 'Información del Cliente' : 'Customer Information'}
@@ -319,7 +319,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
             </div>
 
             {/* Productos */}
-            <div className="bg-white rounded-lg shadow-sm p-2">
+            <div className="bg-[#1E1813] rounded-lg shadow-sm p-2">
               <h2 className="text-lg font-semibold text-gray-900 mb-3">
                 {locale === 'es' ? 'Productos Incluidos' : 'Included Products'}
               </h2>
@@ -363,7 +363,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
 
           {/* Resumen y pago */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-3 sticky top-3">
+            <div className="bg-[#1E1813] rounded-lg shadow-sm p-3 sticky top-3">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <Calculator className="w-5 h-5 mr-2 text-gray-600" />
                 {locale === 'es' ? 'Resumen de Cotización' : 'Quote Summary'}
@@ -484,7 +484,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                           className={`min-h-[44px] rounded-md border text-sm font-medium transition-colors ${
                             paymentMethod === 'paypal'
                               ? 'bg-green-600 text-white border-green-600'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-green-600'
+                              : 'bg-[#1E1813] text-gray-700 border-gray-300 hover:border-green-600'
                           }`}
                         >
                           {locale === 'es' ? 'PayPal / Tarjeta' : 'PayPal / Card'}
@@ -496,7 +496,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                           className={`min-h-[44px] rounded-md border text-sm font-medium transition-colors ${
                             paymentMethod === 'sinpe'
                               ? 'bg-green-600 text-white border-green-600'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-green-600'
+                              : 'bg-[#1E1813] text-gray-700 border-gray-300 hover:border-green-600'
                           }`}
                         >
                           {locale === 'es' ? 'SINPE Móvil' : 'SINPE Mobile'}
@@ -572,7 +572,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                           />
                         </PayPalScriptProvider>
                       ) : (
-                        <div className="bg-[#FAF6EF] border border-[#E8E4E0] rounded-md p-4 space-y-3">
+                        <div className="bg-[#161210] border border-[#3A2E24] rounded-md p-4 space-y-3">
                           <p className="text-sm text-gray-700">
                             {locale === 'es'
                               ? 'Total a enviar vía SINPE:'
@@ -590,7 +590,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                             onChange={(e) =>
                               setBancoSeleccionado(bancos.find((b) => b.nombre === e.target.value) || null)
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800 bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800 bg-[#1E1813] focus:ring-2 focus:ring-green-500 focus:border-transparent"
                           >
                             <option value="">
                               -- {locale === 'es' ? 'Selecciona banco' : 'Select bank'} --
@@ -649,7 +649,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                             placeholder="1234"
                             value={ultimos4}
                             onChange={(e) => setUltimos4(e.target.value.replace(/\\D/g, '').slice(0, 4))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800 bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800 bg-[#1E1813] focus:ring-2 focus:ring-green-500 focus:border-transparent"
                           />
 
                           <button
@@ -657,7 +657,7 @@ export default function QuotePaymentPage({ quote, locale }: QuotePaymentPageProp
                             onClick={handleSinpePayment}
                             disabled={loading}
                             aria-busy={loading}
-                            className="w-full bg-[#2D2D2D] hover:bg-[#1A1A1A] text-white font-semibold py-3 px-4 rounded-md transition-colors disabled:opacity-60"
+                            className="w-full bg-[#161210] hover:bg-[#0F0C0A] text-white font-semibold py-3 px-4 rounded-md transition-colors disabled:opacity-60"
                           >
                             {loading
                               ? locale === 'es' ? 'Enviando…' : 'Sending…'

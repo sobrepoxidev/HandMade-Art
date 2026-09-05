@@ -33,9 +33,9 @@ const CarouselArrow: React.FC<CarouselArrowProps> = ({ direction, onClick, label
     onClick={onClick}
     aria-label={label}
     className={`absolute top-1/2 -translate-y-1/2 z-50 grid place-items-center w-11 h-11 rounded-full
-      bg-[#1A1A1A]/45 hover:bg-[#1A1A1A]/70 text-[#F5F1EB]
+      bg-[#0F0C0A]/45 hover:bg-[#0F0C0A]/70 text-[#F1E7D6]
       transition-colors duration-200 hidden md:grid
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF8F5]
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0A83A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1E1813]
       ${direction === 'left' ? 'left-3' : 'right-3'}`}
   >
     {direction === 'left' ? (
@@ -60,11 +60,11 @@ const CarouselIndicators: React.FC<CarouselIndicatorsProps> = ({ total, current,
         aria-label={label(index)}
         aria-selected={current === index}
         role="tab"
-        className="group grid place-items-center w-11 h-11 -m-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962] rounded-full"
+        className="group grid place-items-center w-11 h-11 -m-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0A83A] rounded-full"
       >
         <span
           className={`h-1.5 rounded-full transition-all duration-300 ${
-            current === index ? 'w-7 bg-[#C9A962]' : 'w-1.5 bg-[#F5F1EB]/55 group-hover:bg-[#F5F1EB]/80'
+            current === index ? 'w-7 bg-[#E0A83A]' : 'w-1.5 bg-[#1E1813]/55 group-hover:bg-[#1E1813]/80'
           }`}
         />
       </button>
@@ -166,9 +166,9 @@ const Carousel: React.FC<CarouselProps> = ({ children }) => {
         aria-label={pauseLabel}
         aria-pressed={!isAnimating}
         className="absolute bottom-2 left-2 z-50 grid place-items-center w-11 h-11 rounded-full
-                   bg-[#1A1A1A]/40 hover:bg-[#1A1A1A]/65 text-[#F5F1EB]
+                   bg-[#0F0C0A]/40 hover:bg-[#0F0C0A]/65 text-[#F1E7D6]
                    transition-colors duration-200
-                   focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962]"
+                   focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0A83A]"
       >
         {isAnimating ? (
           <Pause className="h-4 w-4" strokeWidth={2} />
@@ -207,7 +207,7 @@ const BannerTemplate: React.FC<BannerTemplateProps> = ({ children, linkHref = '#
     {children}
     <Link
       href={linkHref}
-      className="absolute inset-0 z-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C9A962]"
+      className="absolute inset-0 z-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#E0A83A]"
       aria-label="Open notice"
     />
   </div>

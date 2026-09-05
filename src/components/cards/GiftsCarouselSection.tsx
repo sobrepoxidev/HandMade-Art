@@ -53,7 +53,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
   
   // Función para obtener el color de la tarjeta basado en el índice
   const getCardColor = (index: number) => {
-    return index % 2 === 0 ? 'bg-[#2D2D2D]' : 'bg-[#3A3A3A]';
+    return index % 2 === 0 ? 'bg-[#161210]' : 'bg-[#3A3A3A]';
   };
   
   // Función para actualizar la información de scroll
@@ -134,16 +134,16 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
   }, [displayProducts]);
 
   return (
-    <section className="px-4 relative overflow-hidden bg-[#FAF6EF]">
+    <section className="px-4 relative overflow-hidden bg-[#161210]">
 
       {/* Encabezado con título y enlace Ver más */}
       <div className="flex justify-between items-center mb-1 z-10 relative">
         <div className="flex items-center">
-          <div className="w-1 h-6 bg-[#C9A962] mr-2"></div>
-          <h2 className="text-xl font-bold text-[#2D2D2D]">{title}</h2>
+          <div className="w-1 h-6 bg-[#E0A83A] mr-2"></div>
+          <h2 className="text-xl font-bold text-[#F1E7D6]">{title}</h2>
         </div>
 
-        <Link href="/products" className="inline-flex items-center px-2 py-2 min-h-[44px] text-sm text-[#A08848] font-medium hover:text-[#2D2D2D] transition-colors">
+        <Link href="/products" className="inline-flex items-center px-2 py-2 min-h-[44px] text-sm text-[#F3C56B] font-medium hover:text-[#F3C56B] transition-colors">
           {locale === 'es' ? 'Ver más' : 'View more'}
           <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 ml-1" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -157,7 +157,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
           <button
             onClick={scrollToPrev}
             disabled={scrollPosition <= 0}
-            className={`grid place-items-center w-11 h-11 rounded-full border transition-colors ${scrollPosition <= 0 ? 'text-[#E8E4E0] border-[#E8E4E0] cursor-not-allowed' : 'text-[#A08848] border-[#E8E4E0] hover:border-[#A08848] hover:bg-[#FAF8F5]'}`}
+            className={`grid place-items-center w-11 h-11 rounded-full border transition-colors ${scrollPosition <= 0 ? 'text-[#3A2E24] border-[#3A2E24] cursor-not-allowed' : 'text-[#F3C56B] border-[#3A2E24] hover:border-[#F3C56B] hover:bg-[#1E1813]'}`}
             aria-label={locale === 'es' ? 'Anterior' : 'Previous'}
           >
             <svg
@@ -175,7 +175,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
           <button
             onClick={scrollToNext}
             disabled={scrollPosition >= maxScrollPosition}
-            className={`grid place-items-center w-11 h-11 rounded-full border transition-colors ${scrollPosition >= maxScrollPosition ? 'text-[#E8E4E0] border-[#E8E4E0] cursor-not-allowed' : 'text-[#A08848] border-[#E8E4E0] hover:border-[#A08848] hover:bg-[#FAF8F5]'}`}
+            className={`grid place-items-center w-11 h-11 rounded-full border transition-colors ${scrollPosition >= maxScrollPosition ? 'text-[#3A2E24] border-[#3A2E24] cursor-not-allowed' : 'text-[#F3C56B] border-[#3A2E24] hover:border-[#F3C56B] hover:bg-[#1E1813]'}`}
             aria-label={locale === 'es' ? 'Siguiente' : 'Next'}
           >
             <svg
@@ -206,17 +206,17 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
             >
               <div className={`${getCardColor(groupIndex)} p-3 h-full flex flex-col rounded-t-sm`}>
                 <div className="flex items-center mb-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#C9A962] mr-1.5" viewBox="0 0 20 20" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#E0A83A] mr-1.5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clipRule="evenodd" />
                     <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z" />
                   </svg>
-                  <div className="h-0.5 w-10 bg-[#C9A962]/40 rounded mr-2"></div>
+                  <div className="h-0.5 w-10 bg-[#E0A83A]/40 rounded mr-2"></div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 w-full h-full">
                   {groupProducts.map((product, idx) => (
                     <Link key={`${product.id}-${idx}`} href={`/product/${encodeURIComponent(product.name || String(product.id))}`} className="block text-center">
-                      <div className="h-32 flex items-center justify-center bg-[#FAF6EF] rounded-sm shadow-sm p-1">
+                      <div className="h-32 flex items-center justify-center bg-[#161210] rounded-sm shadow-sm p-1">
                         <Image
                           src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
                           alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
@@ -227,7 +227,7 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
                           loading="lazy"
                         />
                       </div>
-                      <div className="mt-1 text-[#F5F1EB] text-xs font-medium line-clamp-1 tabular-nums">
+                      <div className="mt-1 text-[#F1E7D6] text-xs font-medium line-clamp-1 tabular-nums">
                         {product.dolar_price && (<>{formatUSD(product.dolar_price)}</>)}
                       </div>
                     </Link>
@@ -242,9 +242,9 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
         <div className="hidden lg:flex w-full space-x-4 px-4">
           {displayProducts.map((product, idx) => (
             <Link key={`desktop-product-${product.id}-${idx}`} href={`/product/${encodeURIComponent(product.name || String(product.id))}`} className="block h-full min-w-[200px] flex-shrink-0 snap-start group">
-              <div className="bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm p-3 hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#C9A962]/45 transition-[box-shadow,border-color,transform] duration-300 h-full flex flex-col group-hover:-translate-y-0.5">
+              <div className="bg-[#161210] border border-[#3A2E24] rounded-sm p-3 hover:shadow-[0_8px_24px_-12px_rgba(45,45,45,0.22)] hover:border-[#E0A83A]/45 transition-[box-shadow,border-color,transform] duration-300 h-full flex flex-col group-hover:-translate-y-0.5">
                 <div className="relative overflow-hidden rounded-md mb-3">
-                  <div className="aspect-square flex items-center justify-center p-2 bg-[#FAF8F5] rounded-md">
+                  <div className="aspect-square flex items-center justify-center p-2 bg-[#1E1813] rounded-md">
                     <Image
                       src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
                       alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}
@@ -257,20 +257,20 @@ const GiftsCarouselSection: React.FC<GiftsCarouselSectionProps> = ({
                     />
                   </div>
                   {product.is_featured && (
-                    <div className="absolute top-2 left-2 bg-[#C9A962] text-[#1A1A1A] text-[10px] font-semibold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-sm">
+                    <div className="absolute top-2 left-2 bg-[#E0A83A] text-[#161210] text-[10px] font-semibold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-sm">
                       {locale === 'es' ? 'Destacado' : 'Featured'}
                     </div>
                   )}
                 </div>
-                <h3 className="text-[#2D2D2D] text-sm font-medium leading-snug line-clamp-2 flex-grow group-hover:text-[#A08848] transition-colors">
+                <h3 className="text-[#F1E7D6] text-sm font-medium leading-snug line-clamp-2 flex-grow group-hover:text-[#F3C56B] transition-colors">
                   {locale === 'es' ? product.name_es : product.name_en || product.name}
                 </h3>
                 {product.dolar_price && (
                   <div className="mt-2 flex items-center justify-between">
-                    <div className="text-[#2D2D2D] font-semibold text-sm tabular-nums tracking-tight">
+                    <div className="text-[#F1E7D6] font-semibold text-sm tabular-nums tracking-tight">
                       {formatUSD(product.dolar_price)}
                     </div>
-                    <div className="text-xs text-[#A08848] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
+                    <div className="text-xs text-[#F3C56B] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
                       {locale === 'es' ? 'Ver' : 'View'}
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />

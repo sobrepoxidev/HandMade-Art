@@ -83,8 +83,8 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
   ];
 
   return (
-    <main className="bg-[#FAF6EF] text-[#2D2D2D]">
-      <section className="relative isolate min-h-[calc(100vh-112px)] overflow-hidden bg-[#1A1A1A]">
+    <main className="bg-[#161210] text-[#F1E7D6]">
+      <section className="relative isolate min-h-[calc(100vh-112px)] overflow-hidden bg-[#0F0C0A]">
         <Image
           src="/dmnts/banner.webp"
           alt={isEs ? "Handmade Art en DMNTS Edición 8" : "Handmade Art in DMNTS Edition 8"}
@@ -93,10 +93,10 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
           priority
           sizes="100vw"
         />
-        <div aria-hidden className="absolute inset-0 bg-[#1A1A1A]/68" />
+        <div aria-hidden className="absolute inset-0 bg-[#0F0C0A]/68" />
         <div className="relative z-10 mx-auto flex min-h-[calc(100vh-112px)] max-w-screen-xl items-end px-4 py-14 sm:px-8 md:py-20 lg:px-12">
-          <div className="max-w-3xl text-[#F5F1EB]">
-            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#C9A962]">
+          <div className="max-w-3xl text-[#F1E7D6]">
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#E0A83A]">
               {isEs ? "DMNTS Edición 8 · Teletica" : "DMNTS Edition 8 · Teletica"}
             </p>
             <h1 className="font-display text-[clamp(42px,7vw,72px)] font-medium leading-[0.95] tracking-[-0.01em]">
@@ -104,7 +104,7 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
                 ? "Una vitrina nacional para una segunda oportunidad."
                 : "A national stage for a second chance."}
             </h1>
-            <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-[#F5F1EB]/88 md:text-[17px]">
+            <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-[#F1E7D6]/88 md:text-[17px]">
               {isEs
                 ? "Handmade Art participa en DMNTS para impulsar el Proyecto de Ley 24870 y mostrar que la reinserción sociolaboral puede sostenerse con piezas artesanales vendidas en serio."
                 : "Handmade Art participates in DMNTS to promote Law Project 24870 and show that social reintegration can be sustained through serious commerce in handmade pieces."}
@@ -113,7 +113,7 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
               <Link
                 href="/products"
                 locale={locale}
-                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#C9A962] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#1A1A1A] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#A08848] hover:text-[#F5F1EB]"
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#E0A83A] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#161210] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F3C56B] hover:text-[#161210]"
               >
                 {isEs ? "Ver piezas" : "Browse pieces"}
                 <ArrowRight className="h-4 w-4" aria-hidden />
@@ -121,7 +121,7 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
               <Link
                 href={isEs ? "/reinsercion-sociolaboral" : "/social-reintegration"}
                 locale={locale}
-                className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#F5F1EB]/30 px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F5F1EB]/10"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#F1E7D6]/30 px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F1E7D6] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F1E7D6]/10"
               >
                 {isEs ? "Conocer el proyecto" : "Learn about the project"}
               </Link>
@@ -132,14 +132,14 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
 
       <section className="mx-auto grid max-w-screen-xl gap-10 px-4 py-16 sm:px-8 md:py-24 lg:grid-cols-[0.42fr_0.58fr] lg:px-12">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F3C56B]">
             {isEs ? "Por qué participamos" : "Why we participate"}
           </p>
-          <h2 className="mt-3 font-display text-[clamp(30px,4vw,46px)] font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D]">
+          <h2 className="mt-3 font-display text-[clamp(30px,4vw,46px)] font-medium leading-tight tracking-[-0.005em] text-[#F1E7D6]">
             {isEs ? "No vamos a contar una idea. Vamos a mostrar una tienda viva." : "We are not pitching an idea. We are showing a working store."}
           </h2>
         </div>
-        <div className="space-y-5 text-base leading-relaxed text-[#4A4A4A] md:text-[17px]">
+        <div className="space-y-5 text-base leading-relaxed text-[#C9BBA5] md:text-[17px]">
           <p>
             {isEs
               ? "Con más de 120 emprendimientos inscritos, DMNTS pone a Handmade Art frente a audiencias, mentores y aliados que pueden acelerar el trabajo que ya ocurre dentro de los talleres."
@@ -153,27 +153,27 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
         </div>
       </section>
 
-      <section className="border-y border-[#E8E4E0] bg-[#F5F1EB]">
+      <section className="border-y border-[#3A2E24] bg-[#1E1813]">
         <div className="mx-auto grid max-w-screen-xl gap-4 px-4 py-16 sm:px-8 md:grid-cols-3 md:py-20 lg:px-12">
           {pillars.map((item, index) => (
             <article
               key={item.title}
-              className="border border-[#E8E4E0] bg-[#FAF6EF] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]"
+              className="border border-[#3A2E24] bg-[#161210] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]"
             >
-              <span className="font-display text-3xl font-medium text-[#C9A962]">
+              <span className="font-display text-3xl font-medium text-[#E0A83A]">
                 {index + 1}
               </span>
-              <h3 className="mt-6 font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+              <h3 className="mt-6 font-display text-xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
                 {item.title}
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-[#4A4A4A]">{item.body}</p>
+              <p className="mt-3 text-sm leading-relaxed text-[#C9BBA5]">{item.body}</p>
             </article>
           ))}
         </div>
       </section>
 
       <section className="mx-auto grid max-w-screen-xl gap-10 px-4 py-16 sm:px-8 md:py-24 lg:grid-cols-[0.52fr_0.48fr] lg:px-12">
-        <div className="relative aspect-[4/3] overflow-hidden border border-[#E8E4E0] bg-[#F5F1EB]">
+        <div className="relative aspect-[4/3] overflow-hidden border border-[#3A2E24] bg-[#1E1813]">
           <Image
             src="/dmnts/proyecto.webp"
             alt={isEs ? "Proyecto Handmade Art presentado en DMNTS" : "Handmade Art project presented in DMNTS"}
@@ -183,15 +183,15 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
           />
         </div>
         <div className="flex flex-col justify-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F3C56B]">
             {isEs ? "Qué presentamos" : "What we present"}
           </p>
-          <h2 className="mt-3 font-display text-[clamp(30px,4vw,46px)] font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D]">
+          <h2 className="mt-3 font-display text-[clamp(30px,4vw,46px)] font-medium leading-tight tracking-[-0.005em] text-[#F1E7D6]">
             {isEs ? "Producto, impacto y escalabilidad en una misma mesa." : "Product, impact and scale at the same table."}
           </h2>
-          <ul className="mt-6 space-y-4 text-sm leading-relaxed text-[#4A4A4A] md:text-base">
+          <ul className="mt-6 space-y-4 text-sm leading-relaxed text-[#C9BBA5] md:text-base">
             <li>
-              <span className="font-medium text-[#2D2D2D]">
+              <span className="font-medium text-[#F1E7D6]">
                 {isEs ? "Modelo comercial:" : "Commercial model:"}
               </span>{" "}
               {isEs
@@ -199,7 +199,7 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
                 : "sale of high-quality handmade pieces with verifiable story and real stock."}
             </li>
             <li>
-              <span className="font-medium text-[#2D2D2D]">
+              <span className="font-medium text-[#F1E7D6]">
                 {isEs ? "Impacto social:" : "Social impact:"}
               </span>{" "}
               {isEs
@@ -207,7 +207,7 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
                 : "workshops that turn training into legitimate income for people rebuilding their path."}
             </li>
             <li>
-              <span className="font-medium text-[#2D2D2D]">
+              <span className="font-medium text-[#F1E7D6]">
                 {isEs ? "Crecimiento:" : "Growth:"}
               </span>{" "}
               {isEs
@@ -218,10 +218,10 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
         </div>
       </section>
 
-      <section className="bg-[#1A1A1A] text-[#F5F1EB]">
+      <section className="bg-[#0F0C0A] text-[#F1E7D6]">
         <div className="mx-auto grid max-w-screen-xl gap-10 px-4 py-16 sm:px-8 md:py-20 lg:grid-cols-[0.35fr_0.65fr] lg:px-12">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#C9A962]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#E0A83A]">
               {isEs ? "Cómo apoyar" : "How to support"}
             </p>
             <h2 className="mt-3 font-display text-3xl font-medium tracking-[-0.005em]">
@@ -233,12 +233,12 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
               const Icon = item.icon;
 
               return (
-                <article key={item.title} className="border border-[#F5F1EB]/12 p-5">
-                  <Icon className="h-5 w-5 text-[#C9A962]" strokeWidth={1.5} aria-hidden />
+                <article key={item.title} className="border border-[#3A2E24]/12 p-5">
+                  <Icon className="h-5 w-5 text-[#E0A83A]" strokeWidth={1.5} aria-hidden />
                   <h3 className="mt-5 font-display text-xl font-medium tracking-[-0.005em]">
                     {item.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[#B5AC9D]">{item.body}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-[#C9BBA5]">{item.body}</p>
                 </article>
               );
             })}
@@ -247,16 +247,16 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
       </section>
 
       <section className="px-4 py-16 sm:px-8 md:py-24 lg:px-12">
-        <div className="mx-auto flex max-w-screen-xl flex-col items-start justify-between gap-6 border border-[#E8E4E0] bg-[#F5F1EB] p-6 md:flex-row md:items-center md:p-8">
+        <div className="mx-auto flex max-w-screen-xl flex-col items-start justify-between gap-6 border border-[#3A2E24] bg-[#1E1813] p-6 md:flex-row md:items-center md:p-8">
           <div className="max-w-2xl">
-            <div className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            <div className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F3C56B]">
               <Users className="h-4 w-4" aria-hidden />
               {isEs ? "Reinserción sociolaboral" : "Social reintegration"}
             </div>
-            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
               {isEs ? "La mejor forma de apoyar es que la pieza encuentre casa." : "The best support is for the piece to find a home."}
             </h2>
-            <p className="mt-4 text-sm leading-relaxed text-[#4A4A4A] md:text-base">
+            <p className="mt-4 text-sm leading-relaxed text-[#C9BBA5] md:text-base">
               {isEs
                 ? "Comprar, compartir o abrir una alianza empuja el mismo objetivo: más horas de taller, más oficio y más rutas de regreso."
                 : "Buying, sharing or opening a partnership pushes the same goal: more workshop hours, more craft and more routes back."}
@@ -266,7 +266,7 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
             <Link
               href="/products"
               locale={locale}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#1A1A1A]"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#E0A83A] px-5 py-2.5 text-sm font-bold tracking-wide text-[#161210] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F3C56B]"
             >
               {isEs ? "Comprar piezas" : "Shop pieces"}
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -275,7 +275,7 @@ export default async function DMNTSPage({ params }: { params: tParams }) {
               href="https://www.instagram.com/handmadeart.store"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#E8E4E0] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#2D2D2D] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#A08848]"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#3A2E24] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F1E7D6] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#F3C56B]"
             >
               {isEs ? "Seguir en Instagram" : "Follow on Instagram"}
             </a>

@@ -1,58 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  /* HandMade Art — Rustic-Premium Design System
+  /* HandMade Art — "Taller nocturno" Design System (dark warm workshop)
    * Source of truth: ./DESIGN.md
    *
    * Tokens grouped by role:
-   *   Surface = backgrounds (paper / cream / walnut / charcoal)
+   *   Surface = backgrounds (bg / raised / deep)
    *   Ink     = text on surface
-   *   Accent  = gold (used sparingly)
-   *   Status  = success / error / warning (+ -dark variants for AA on cream)
-   *   Decor   = terracotta / jade (rare third accents)
+   *   Accent  = amber (used sparingly, brighter for hover)
+   *   Status  = seals (selva / barro / cobalto) + success/error/warning
+   *   Tile    = cream card that product cutout photos sit on
    */
-  --background: #FAF6EF;
-  --foreground: #2D2D2D;
+  --background: #161210;
+  --foreground: #F1E7D6;
 
-  /* Surface — backgrounds */
-  --hm-paper: #FAF6EF;        /* default page surface (warmer than ivory) */
-  --hm-ivory: #FAF8F5;        /* secondary cream */
-  --hm-cream: #F5F1EB;        /* tertiary, for cards on paper */
-  --hm-stone: #E8E4E0;        /* borders, dividers, skeletons */
-  --hm-walnut-light: #8B6B4A; /* earthy mid — decorative */
-  --hm-walnut: #5C4530;       /* deep warm brown — section bg, story */
-  --hm-charcoal: #2D2D2D;     /* primary dark surface */
-  --hm-dark: #3A3A3A;
-  --hm-darker: #1A1A1A;       /* hover/active for charcoal */
-  --hm-darkest: #0D0D0D;
+  /* Surface — backgrounds, darkest to raised */
+  --hm-deep: #0F0C0A;         /* footer, hero letterbox, deepest ground */
+  --hm-bg: #161210;           /* default page surface */
+  --hm-raised: #1E1813;       /* cards, secondary surfaces, section bands */
+  --hm-line: #3A2E24;         /* borders, dividers */
+  --hm-line-soft: #2A2119;    /* softer hairline (list rows, FAQ dividers) */
+  --hm-tile: #F1E7D6;         /* cream tile behind transparent product cutouts */
+
+  /* Legacy surface aliases kept for incremental migration — map onto the dark scale. */
+  --hm-paper: #161210;
+  --hm-ivory: #1E1813;
+  --hm-cream: #1E1813;
+  --hm-stone: #3A2E24;
+  --hm-walnut-light: #8C7F6E;
+  --hm-walnut: #1E1813;
+  --hm-charcoal: #161210;
+  --hm-dark: #1E1813;
+  --hm-darker: #0F0C0A;
+  --hm-darkest: #0F0C0A;
 
   /* Ink — text colors */
-  --hm-ink: #2D2D2D;          /* default body on light surfaces */
-  --hm-ink-soft: #4A4A4A;     /* secondary body */
-  --hm-ink-mute: #6B6459;     /* tertiary (PASSES AA on cream — use this, not #9C9589) */
-  --hm-paper-ink: #F5F1EB;    /* body on charcoal/walnut */
+  --hm-ink: #F1E7D6;          /* default body on dark surfaces */
+  --hm-ink-soft: #C9BBA5;     /* secondary body */
+  --hm-ink-mute: #8C7F6E;     /* tertiary — captions only, never body copy */
+  --hm-paper-ink: #161210;    /* text on amber / tile surfaces */
 
-  /* Accent — gold */
-  --hm-gold: #C9A962;         /* primary accent */
-  --hm-gold-dark: #A08848;    /* hover + small-text accent (passes AA on cream) */
-  --hm-gold-light: #D4C4A8;   /* subtle ornament, hover on dark */
+  /* Accent — amber */
+  --hm-amber: #E0A83A;        /* primary accent — CTAs, prices, active states */
+  --hm-amber-2: #F3C56B;      /* hover / lighter accent */
+  --hm-gold: #E0A83A;         /* legacy alias */
+  --hm-gold-dark: #F3C56B;    /* legacy alias (hover) */
+  --hm-gold-light: #F3C56B;   /* legacy alias */
 
-  /* Status — base + AA-safe -dark variant */
-  --hm-success: #4A7C59;
-  --hm-success-dark: #2F5F3E;
-  --hm-error: #C44536;
-  --hm-error-dark: #9F2D24;
-  --hm-warning: #D4A84B;
-  --hm-warning-dark: #7A5E18;
+  /* Status — category/availability seals */
+  --hm-selva: #3C9A70;        /* in stock / success */
+  --hm-barro: #D9563B;        /* one-of-a-kind / low-stock / error */
+  --hm-cobalto: #4C7BD1;      /* mirrors / info seal */
 
-  /* Decorative third accents — rare, editorial moments only */
-  --hm-terracotta: #A85E3F;   /* not for CTAs */
-  --hm-jade: #5C7459;         /* impact / nature narrative */
+  --hm-success: #3C9A70;
+  --hm-success-dark: #3C9A70;
+  --hm-error: #D9563B;
+  --hm-error-dark: #D9563B;
+  --hm-warning: #E0A83A;
+  --hm-warning-dark: #E0A83A;
+
+  /* Decorative third accents */
+  --hm-terracotta: #D9563B;
+  --hm-jade: #3C9A70;
 
   /* Legacy aliases retained for incremental migration. Do not use in new code. */
-  --hm-warm-gray: #9C9589;
-  --hm-accent: #B55327;
-  --hm-accent-light: #D4714E;
+  --hm-warm-gray: #8C7F6E;
+  --hm-accent: #E0A83A;
+  --hm-accent-light: #F3C56B;
 }
 
 @theme inline {
@@ -62,6 +76,12 @@
   --font-display: var(--font-display-family), 'Times New Roman', Georgia, serif;
 
   /* Surface */
+  --color-hm-bg: var(--hm-bg);
+  --color-hm-raised: var(--hm-raised);
+  --color-hm-deep: var(--hm-deep);
+  --color-hm-line: var(--hm-line);
+  --color-hm-line-soft: var(--hm-line-soft);
+  --color-hm-tile: var(--hm-tile);
   --color-hm-paper: var(--hm-paper);
   --color-hm-ivory: var(--hm-ivory);
   --color-hm-cream: var(--hm-cream);
@@ -80,11 +100,16 @@
   --color-hm-paper-ink: var(--hm-paper-ink);
 
   /* Accent */
+  --color-hm-amber: var(--hm-amber);
+  --color-hm-amber-2: var(--hm-amber-2);
   --color-hm-gold: var(--hm-gold);
   --color-hm-gold-dark: var(--hm-gold-dark);
   --color-hm-gold-light: var(--hm-gold-light);
 
-  /* Status */
+  /* Status / seals */
+  --color-hm-selva: var(--hm-selva);
+  --color-hm-barro: var(--hm-barro);
+  --color-hm-cobalto: var(--hm-cobalto);
   --color-hm-success: var(--hm-success);
   --color-hm-success-dark: var(--hm-success-dark);
   --color-hm-error: var(--hm-error);
@@ -102,11 +127,8 @@
   --color-hm-accent-light: var(--hm-accent-light);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1A1A1A;
-    --foreground: #F5F1EB;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
@@ -453,5 +475,22 @@ body {
 
   .link-elegant:hover::after {
     width: 100%;
+  }
+}
+
+/* Marquee strip — amber category ticker on the home page.
+   Pure CSS, duplicated content scrolls -50%; respects prefers-reduced-motion. */
+@keyframes hm-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.hm-marquee-track {
+  animation: hm-marquee 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-marquee-track {
+    animation: none;
   }
 }

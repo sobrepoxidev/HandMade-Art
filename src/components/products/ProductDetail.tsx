@@ -30,15 +30,15 @@ const ReviewsSection = dynamic(() => import('./ReviewsSection'), {
   ssr: false,
   loading: () => (
     <div
-      className="mt-16 border-t border-[#E8E4E0] pt-10"
+      className="mt-16 border-t border-[#3A2E24] pt-10"
       aria-busy="true"
       aria-live="polite"
     >
-      <div className="h-7 w-56 bg-[#E8E4E0] rounded animate-pulse mb-6" />
+      <div className="h-7 w-56 bg-[#3A2E24] rounded animate-pulse mb-6" />
       <div className="space-y-4">
-        <div className="h-5 w-1/3 bg-[#E8E4E0] rounded animate-pulse" />
-        <div className="h-4 w-2/3 bg-[#E8E4E0] rounded animate-pulse" />
-        <div className="h-4 w-1/2 bg-[#E8E4E0] rounded animate-pulse" />
+        <div className="h-5 w-1/3 bg-[#3A2E24] rounded animate-pulse" />
+        <div className="h-4 w-2/3 bg-[#3A2E24] rounded animate-pulse" />
+        <div className="h-4 w-1/2 bg-[#3A2E24] rounded animate-pulse" />
       </div>
     </div>
   ),
@@ -412,7 +412,7 @@ export default function ProductDetail({
         <span className="sr-only">
           {locale === 'es' ? 'Cargando producto…' : 'Loading product…'}
         </span>
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#E8E4E0] border-t-[#A08848]" />
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#3A2E24] border-t-[#E0A83A]" />
       </main>
     );
   }
@@ -420,18 +420,18 @@ export default function ProductDetail({
   if (error || !product) {
     return (
       <main className="container mx-auto px-4 py-12 text-center">
-        <div className="mx-auto max-w-md rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] p-8">
-          <h1 className="font-display text-xl font-medium text-[#2D2D2D] mb-2">
+        <div className="mx-auto max-w-md rounded-sm border border-[#3A2E24] bg-[#161210] p-8">
+          <h1 className="font-display text-xl font-medium text-[#F1E7D6] mb-2">
             {error || (locale === 'es' ? 'Producto no encontrado' : 'Product not found')}
           </h1>
-          <p className="text-[#6B6459] mb-5 text-sm leading-relaxed">
+          <p className="text-[#8C7F6E] mb-5 text-sm leading-relaxed">
             {locale === 'es'
               ? 'No pudimos encontrar el producto que estás buscando.'
               : "We couldn't find the product you're looking for."}
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 text-sm font-semibold text-[#F5F1EB] bg-[#2D2D2D] rounded-sm hover:bg-[#1A1A1A] transition-colors duration-200"
+            className="inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 text-sm font-bold text-[#161210] bg-[#E0A83A] rounded-sm hover:bg-[#F3C56B] transition-colors duration-200"
           >
             <ArrowLeft className="h-4 w-4 mr-2" aria-hidden />
             {locale === 'es' ? 'Volver a productos' : 'Back to products'}
@@ -446,7 +446,7 @@ export default function ProductDetail({
     : '/product-placeholder.png';
 
   return (
-    <main className="mx-auto max-w-screen-2xl bg-[#FAF6EF] px-4 py-4 sm:px-8 lg:px-12">
+    <main className="mx-auto max-w-screen-2xl bg-[#161210] px-4 py-4 sm:px-8 lg:px-12">
       {/* Accessible live region for cart / share announcements */}
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
@@ -455,17 +455,17 @@ export default function ProductDetail({
       {/* Breadcrumb */}
       <nav
         aria-label={locale === 'es' ? 'Migas de pan' : 'Breadcrumb'}
-        className="py-3 flex items-center text-[13px] text-[#6B6459]"
+        className="py-3 flex items-center text-[13px] text-[#8C7F6E]"
       >
-        <Link href="/" className="hover:text-[#A08848] transition-colors">
+        <Link href="/" className="hover:text-[#F3C56B] transition-colors">
           {locale === 'es' ? 'Inicio' : 'Home'}
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-[#9C9589]" aria-hidden />
-        <Link href="/products" className="hover:text-[#A08848] transition-colors">
+        <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-[#8C7F6E]" aria-hidden />
+        <Link href="/products" className="hover:text-[#F3C56B] transition-colors">
           {locale === 'es' ? 'Productos' : 'Products'}
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-[#9C9589]" aria-hidden />
-        <span className="font-medium text-[#2D2D2D] truncate max-w-[180px] sm:max-w-[320px]">
+        <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-[#8C7F6E]" aria-hidden />
+        <span className="font-medium text-[#F1E7D6] truncate max-w-[180px] sm:max-w-[320px]">
           {locale === 'es' ? product.name_es : product.name_en}
         </span>
       </nav>
@@ -475,7 +475,7 @@ export default function ProductDetail({
         <div className="w-full md:w-7/12">
           <div className="sticky top-12">
             {/* Main image with zoom */}
-            <div className="relative mb-4 aspect-square overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#F5F1EB] md:aspect-[4/5]">
+            <div id="product-main-image" className="relative mb-4 aspect-square overflow-hidden rounded-sm border border-[#3A2E24] bg-[#F1E7D6] md:aspect-[4/5]">
               <div
                 className={`relative w-full h-full ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
                 role="button"
@@ -519,7 +519,7 @@ export default function ProductDetail({
               {/* Single, sober zoom indicator */}
               <div
                 aria-hidden
-                className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-[#1A1A1A]/80 text-[#F5F1EB] text-[11px] font-medium px-2 py-1 rounded-sm pointer-events-none backdrop-blur-sm"
+                className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-[#0F0C0A]/80 text-[#F1E7D6] text-[11px] font-medium px-2 py-1 rounded-sm pointer-events-none backdrop-blur-sm"
               >
                 <ZoomIn className="h-3 w-3" strokeWidth={2} />
                 {isZoomed
@@ -557,8 +557,8 @@ export default function ProductDetail({
                       }
                       className={`relative aspect-square border rounded-sm overflow-hidden transition-[border-color,box-shadow] duration-200 ${
                         isActive
-                          ? 'border-[#A08848] shadow-[0_0_0_2px_rgba(160,136,72,0.18)]'
-                          : 'border-[#E8E4E0] hover:border-[#C9A962]/60'
+                          ? 'border-[#F3C56B] shadow-[0_0_0_2px_rgba(160,136,72,0.18)]'
+                          : 'border-[#3A2E24] hover:border-[#E0A83A]/60'
                       }`}
                     >
                       <Image
@@ -588,20 +588,20 @@ export default function ProductDetail({
               {category && (
                 <Link
                   href={`/products?category=${category.id}`}
-                  className="inline-flex items-center px-2.5 py-1 bg-[#2D2D2D] text-[#F5F1EB] text-[10px] uppercase tracking-[0.08em] font-medium rounded-sm hover:bg-[#1A1A1A] transition-colors"
+                  className="inline-flex items-center px-2.5 py-1 bg-[#161210] text-[#F1E7D6] text-[10px] uppercase tracking-[0.08em] font-medium rounded-sm hover:bg-[#0F0C0A] transition-colors"
                 >
                   {locale === 'es' ? category.name_es : category.name_en}
                 </Link>
               )}
               {product.brand && (
-                <span className="inline-flex items-center px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] font-medium text-[#A08848] border border-[#C9A962]/45 rounded-sm">
+                <span className="inline-flex items-center px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] font-medium text-[#F3C56B] border border-[#E0A83A]/45 rounded-sm">
                   {product.brand}
                 </span>
               )}
             </div>
           )}
 
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-[42px] leading-[1.1] font-medium text-[#2D2D2D] tracking-[-0.005em] mb-3">
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-[42px] leading-[1.1] font-medium text-[#F1E7D6] tracking-[-0.005em] mb-3">
             {locale === 'es' ? product.name_es : product.name_en}
           </h1>
 
@@ -610,7 +610,7 @@ export default function ProductDetail({
             {product.dolar_price ? (
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-4">
                 <div className="flex items-baseline gap-2">
-                  <p className="font-display text-[34px] sm:text-[40px] font-semibold text-[#2D2D2D] tracking-tight tabular-nums leading-none">
+                  <p className="font-display text-[34px] sm:text-[40px] font-semibold text-[#F1E7D6] tracking-tight tabular-nums leading-none">
                     {formatUSD(
                       (Number(product.dolar_price) || 0) *
                         (1 - (Number(product.discount_percentage) || 0) / 100)
@@ -618,10 +618,10 @@ export default function ProductDetail({
                   </p>
                   {Number(product.discount_percentage) > 0 && (
                     <>
-                      <p className="text-base text-[#9C9589] line-through tabular-nums">
+                      <p className="text-base text-[#8C7F6E] line-through tabular-nums">
                         {formatUSD(Number(product.dolar_price) || 0)}
                       </p>
-                      <span className="inline-flex items-center text-[11px] font-semibold uppercase tracking-[0.06em] bg-[#C44536] text-white px-2 py-0.5 rounded-sm">
+                      <span className="inline-flex items-center text-[11px] font-semibold uppercase tracking-[0.06em] bg-[#D9563B] text-white px-2 py-0.5 rounded-sm">
                         -{product.discount_percentage}%
                       </span>
                     </>
@@ -632,7 +632,7 @@ export default function ProductDetail({
                 />
               </div>
             ) : (
-              <p className="font-display text-2xl font-medium text-[#A08848]">
+              <p className="font-display text-2xl font-medium text-[#F3C56B]">
                 {locale === 'es' ? 'Precio a consultar' : 'Price on request'}
               </p>
             )}
@@ -640,67 +640,67 @@ export default function ProductDetail({
             {/* Availability + SKU row */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-sm">
               {inventory > 0 ? (
-                <span className="inline-flex items-center gap-1.5 text-[#2F5F3E]">
-                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[#4A7C59]" />
+                <span className="inline-flex items-center gap-1.5 text-[#3C9A70]">
+                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[#3C9A70]" />
                   <span className="font-medium">
                     {locale === 'es' ? 'En stock — listo para enviar' : 'In stock — ready to ship'}
                   </span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 text-[#A08848]">
-                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[#C9A962]" />
+                <span className="inline-flex items-center gap-1.5 text-[#F3C56B]">
+                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[#E0A83A]" />
                   <span className="font-medium">
                     {locale === 'es' ? 'Hecho por encargo' : 'Made to order'}
                   </span>
                 </span>
               )}
               {product.sku && (
-                <span className="text-xs text-[#6B6459] tabular-nums">
-                  SKU: <span className="font-medium text-[#4A4A4A]">{product.sku}</span>
+                <span className="text-xs text-[#8C7F6E] tabular-nums">
+                  SKU: <span className="font-medium text-[#C9BBA5]">{product.sku}</span>
                 </span>
               )}
             </div>
           </div>
 
           {/* Description */}
-          <div className="mb-5 pt-5 border-t border-[#E8E4E0]">
-            <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
+          <div className="mb-5 pt-5 border-t border-[#3A2E24]">
+            <h2 className="font-display text-base font-medium text-[#F1E7D6] tracking-[-0.005em] mb-2">
               {locale === 'es' ? 'Descripción' : 'Description'}
             </h2>
-            <p className="text-[14.5px] text-[#4A4A4A] leading-relaxed whitespace-pre-line">
+            <p className="text-[14.5px] text-[#C9BBA5] leading-relaxed whitespace-pre-line">
               {locale === 'es' ? product.description : product.description_en}
             </p>
           </div>
 
           {/* Technical specs as <dl> for semantic SEO + a11y */}
           {(product.weight_kg || product.length_cm || product.width_cm || product.height_cm) && (
-            <div className="mb-6 pt-5 border-t border-[#E8E4E0]">
-              <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-3">
+            <div className="mb-6 pt-5 border-t border-[#3A2E24]">
+              <h2 className="font-display text-base font-medium text-[#F1E7D6] tracking-[-0.005em] mb-3">
                 {locale === 'es' ? 'Especificaciones técnicas' : 'Technical specifications'}
               </h2>
               <dl className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
                 {product.weight_kg && (
-                  <div className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70">
-                    <dt className="text-[#6B6459]">{locale === 'es' ? 'Peso' : 'Weight'}</dt>
-                    <dd className="font-medium text-[#2D2D2D] tabular-nums">{product.weight_kg} kg</dd>
+                  <div className="flex justify-between items-baseline py-1 border-b border-[#3A2E24]/70">
+                    <dt className="text-[#8C7F6E]">{locale === 'es' ? 'Peso' : 'Weight'}</dt>
+                    <dd className="font-medium text-[#F1E7D6] tabular-nums">{product.weight_kg} kg</dd>
                   </div>
                 )}
                 {product.length_cm && (
-                  <div className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70">
-                    <dt className="text-[#6B6459]">{locale === 'es' ? 'Largo' : 'Length'}</dt>
-                    <dd className="font-medium text-[#2D2D2D] tabular-nums">{product.length_cm} cm</dd>
+                  <div className="flex justify-between items-baseline py-1 border-b border-[#3A2E24]/70">
+                    <dt className="text-[#8C7F6E]">{locale === 'es' ? 'Largo' : 'Length'}</dt>
+                    <dd className="font-medium text-[#F1E7D6] tabular-nums">{product.length_cm} cm</dd>
                   </div>
                 )}
                 {product.width_cm && (
-                  <div className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70">
-                    <dt className="text-[#6B6459]">{locale === 'es' ? 'Ancho' : 'Width'}</dt>
-                    <dd className="font-medium text-[#2D2D2D] tabular-nums">{product.width_cm} cm</dd>
+                  <div className="flex justify-between items-baseline py-1 border-b border-[#3A2E24]/70">
+                    <dt className="text-[#8C7F6E]">{locale === 'es' ? 'Ancho' : 'Width'}</dt>
+                    <dd className="font-medium text-[#F1E7D6] tabular-nums">{product.width_cm} cm</dd>
                   </div>
                 )}
                 {product.height_cm && (
-                  <div className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70">
-                    <dt className="text-[#6B6459]">{locale === 'es' ? 'Alto' : 'Height'}</dt>
-                    <dd className="font-medium text-[#2D2D2D] tabular-nums">{product.height_cm} cm</dd>
+                  <div className="flex justify-between items-baseline py-1 border-b border-[#3A2E24]/70">
+                    <dt className="text-[#8C7F6E]">{locale === 'es' ? 'Alto' : 'Height'}</dt>
+                    <dd className="font-medium text-[#F1E7D6] tabular-nums">{product.height_cm} cm</dd>
                   </div>
                 )}
               </dl>
@@ -708,21 +708,21 @@ export default function ProductDetail({
           )}
           
           {/* Actions */}
-          <div className="pt-5 pb-6 border-t border-[#E8E4E0] space-y-5">
+          <div className="pt-5 pb-6 border-t border-[#3A2E24] space-y-5">
             {/* Quantity selector */}
             <div>
               <label
                 htmlFor="qty-display"
-                className="block text-xs uppercase tracking-[0.08em] font-medium text-[#6B6459] mb-2"
+                className="block text-xs uppercase tracking-[0.08em] font-medium text-[#8C7F6E] mb-2"
               >
                 {locale === 'es' ? 'Cantidad' : 'Quantity'}
               </label>
-              <div className="inline-flex items-center border border-[#E8E4E0] rounded-sm overflow-hidden">
+              <div className="inline-flex items-center border border-[#3A2E24] rounded-sm overflow-hidden">
                 <button
                   type="button"
                   onClick={handleDecrement}
                   disabled={quantity <= 1}
-                  className="grid place-items-center w-11 h-11 text-[#2D2D2D] hover:bg-[#FAF8F5] disabled:text-[#E8E4E0] disabled:hover:bg-transparent transition-colors"
+                  className="grid place-items-center w-11 h-11 text-[#F1E7D6] hover:bg-[#1E1813] disabled:text-[#3A2E24] disabled:hover:bg-transparent transition-colors"
                   aria-label={locale === 'es' ? 'Disminuir cantidad' : 'Decrease quantity'}
                   aria-controls="qty-display"
                 >
@@ -733,7 +733,7 @@ export default function ProductDetail({
                   role="status"
                   aria-live="polite"
                   aria-atomic="true"
-                  className="min-w-[44px] text-center font-medium text-[#2D2D2D] tabular-nums select-none"
+                  className="min-w-[44px] text-center font-medium text-[#F1E7D6] tabular-nums select-none"
                 >
                   {quantity}
                 </span>
@@ -741,7 +741,7 @@ export default function ProductDetail({
                   type="button"
                   onClick={handleIncrement}
                   disabled={quantity >= 10}
-                  className="grid place-items-center w-11 h-11 text-[#2D2D2D] hover:bg-[#FAF8F5] disabled:text-[#E8E4E0] disabled:hover:bg-transparent transition-colors"
+                  className="grid place-items-center w-11 h-11 text-[#F1E7D6] hover:bg-[#1E1813] disabled:text-[#3A2E24] disabled:hover:bg-transparent transition-colors"
                   aria-label={locale === 'es' ? 'Aumentar cantidad' : 'Increase quantity'}
                   aria-controls="qty-display"
                 >
@@ -755,9 +755,9 @@ export default function ProductDetail({
               <button
                 type="button"
                 onClick={handleAddToList}
-                className="inline-flex items-center justify-center w-full min-h-[52px] px-5 py-3 bg-[#C9A962] text-[#1A1A1A]
+                className="inline-flex items-center justify-center w-full min-h-[52px] px-5 py-3 bg-[#E0A83A] text-[#161210]
                            text-sm font-semibold tracking-wide uppercase
-                           rounded-sm hover:bg-[#A08848] hover:text-[#F5F1EB]
+                           rounded-sm hover:bg-[#F3C56B] hover:text-[#161210]
                            transition-colors duration-200
                            shadow-[0_2px_8px_-4px_rgba(160,136,72,0.4)]"
               >
@@ -778,7 +778,7 @@ export default function ProductDetail({
                     ? 'Consultar por WhatsApp (abre en nueva ventana)'
                     : 'Ask on WhatsApp (opens in new window)'
                 }
-                className="inline-flex items-center justify-center w-full min-h-[48px] px-5 py-2.5 text-sm font-medium text-[#2F5F3E] bg-[#4A7C59]/10 border border-[#4A7C59]/40 rounded-sm hover:bg-[#4A7C59]/20 transition-colors"
+                className="inline-flex items-center justify-center w-full min-h-[48px] px-5 py-2.5 text-sm font-medium text-[#3C9A70] bg-[#3C9A70]/10 border border-[#3C9A70]/40 rounded-sm hover:bg-[#3C9A70]/20 transition-colors"
               >
                 {locale === 'es' ? 'Consultar por WhatsApp' : 'Ask on WhatsApp'}
                 <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -798,12 +798,12 @@ export default function ProductDetail({
                   }
                   className={`inline-flex items-center justify-center flex-1 min-h-[44px] px-4 py-2.5 text-sm font-medium rounded-sm border transition-colors ${
                     isFavorite
-                      ? 'bg-[#C44536]/10 text-[#9F2D24] border-[#C44536]/40'
-                      : 'text-[#2D2D2D] border-[#E8E4E0] hover:border-[#C9A962]/60 hover:bg-[#FAF8F5]'
+                      ? 'bg-[#D9563B]/10 text-[#D9563B] border-[#D9563B]/40'
+                      : 'text-[#F1E7D6] border-[#3A2E24] hover:border-[#E0A83A]/60 hover:bg-[#1E1813]'
                   }`}
                 >
                   <Heart
-                    className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-[#C44536]' : ''}`}
+                    className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-[#D9563B]' : ''}`}
                     strokeWidth={2}
                     aria-hidden
                   />
@@ -815,7 +815,7 @@ export default function ProductDetail({
                   type="button"
                   onClick={handleShare}
                   aria-label={locale === 'es' ? 'Compartir producto' : 'Share product'}
-                  className="inline-flex items-center justify-center flex-1 min-h-[44px] px-4 py-2.5 text-sm font-medium text-[#2D2D2D] border border-[#E8E4E0] rounded-sm hover:border-[#C9A962]/60 hover:bg-[#FAF8F5] transition-colors"
+                  className="inline-flex items-center justify-center flex-1 min-h-[44px] px-4 py-2.5 text-sm font-medium text-[#F1E7D6] border border-[#3A2E24] rounded-sm hover:border-[#E0A83A]/60 hover:bg-[#1E1813] transition-colors"
                 >
                   <Share2 className="h-4 w-4 mr-2" strokeWidth={2} aria-hidden />
                   {locale === 'es' ? 'Compartir' : 'Share'}
@@ -829,17 +829,17 @@ export default function ProductDetail({
             {/* Specifications JSON */}
             {product.specifications && Object.keys(product.specifications).length > 0 && (
               <div>
-                <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
+                <h2 className="font-display text-base font-medium text-[#F1E7D6] tracking-[-0.005em] mb-2">
                   {locale === 'es' ? 'Detalles' : 'Details'}
                 </h2>
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
                   {Object.entries(product.specifications).map(([key, value]) => (
                     <div
                       key={key}
-                      className="flex justify-between items-baseline py-1 border-b border-[#E8E4E0]/70"
+                      className="flex justify-between items-baseline py-1 border-b border-[#3A2E24]/70"
                     >
-                      <dt className="text-[#6B6459] capitalize">{key}</dt>
-                      <dd className="font-medium text-[#2D2D2D] text-right">{String(value)}</dd>
+                      <dt className="text-[#8C7F6E] capitalize">{key}</dt>
+                      <dd className="font-medium text-[#F1E7D6] text-right">{String(value)}</dd>
                     </div>
                   ))}
                 </dl>
@@ -849,7 +849,7 @@ export default function ProductDetail({
             {/* Tags */}
             {product.tags && product.tags.length > 0 && (
               <div>
-                <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
+                <h2 className="font-display text-base font-medium text-[#F1E7D6] tracking-[-0.005em] mb-2">
                   {locale === 'es' ? 'Etiquetas' : 'Tags'}
                 </h2>
                 <ul className="flex flex-wrap gap-2">
@@ -857,9 +857,9 @@ export default function ProductDetail({
                     <li key={index}>
                       <Link
                         href={`/products?tag=${encodeURIComponent(tag)}`}
-                        className="inline-flex items-center min-h-[32px] px-3 py-1 rounded-sm bg-[#2D2D2D] hover:bg-[#1A1A1A] text-[#F5F1EB] text-xs font-medium transition-colors"
+                        className="inline-flex items-center min-h-[32px] px-3 py-1 rounded-sm bg-[#E0A83A] hover:bg-[#F3C56B] text-[#161210] text-xs font-medium transition-colors"
                       >
-                        <Tag className="h-3 w-3 mr-1.5 text-[#C9A962]" strokeWidth={2} aria-hidden />
+                        <Tag className="h-3 w-3 mr-1.5 text-[#E0A83A]" strokeWidth={2} aria-hidden />
                         {tag}
                       </Link>
                     </li>
@@ -870,12 +870,12 @@ export default function ProductDetail({
 
             {/* Brand promise (always shown) */}
             <div>
-              <h2 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
+              <h2 className="font-display text-base font-medium text-[#F1E7D6] tracking-[-0.005em] mb-2">
                 {locale === 'es' ? 'Por qué importa' : 'Why it matters'}
               </h2>
-              <ul className="space-y-1.5 text-sm text-[#4A4A4A]">
+              <ul className="space-y-1.5 text-sm text-[#C9BBA5]">
                 <li className="flex items-start gap-2.5">
-                  <span aria-hidden className="text-[#A08848] mt-1 leading-none">·</span>
+                  <span aria-hidden className="text-[#F3C56B] mt-1 leading-none">·</span>
                   <span>
                     {locale === 'es'
                       ? 'Hecho a mano con materiales nobles, sin atajos industriales.'
@@ -883,7 +883,7 @@ export default function ProductDetail({
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <span aria-hidden className="text-[#A08848] mt-1 leading-none">·</span>
+                  <span aria-hidden className="text-[#F3C56B] mt-1 leading-none">·</span>
                   <span>
                     {locale === 'es'
                       ? 'Diseño único — no encontrarás dos piezas idénticas.'
@@ -891,7 +891,7 @@ export default function ProductDetail({
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <span aria-hidden className="text-[#A08848] mt-1 leading-none">·</span>
+                  <span aria-hidden className="text-[#F3C56B] mt-1 leading-none">·</span>
                   <span>
                     {locale === 'es'
                       ? 'Cada compra apoya la reinserción social y laboral en Costa Rica.'

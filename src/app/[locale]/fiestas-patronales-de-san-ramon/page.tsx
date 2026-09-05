@@ -54,7 +54,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
         {/* Programación completa por días */}
         <div className="space-y-3">
           {/* Jueves 21 de agosto */}
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <div className="bg-[#1E1813] rounded-lg shadow-md p-4 sm:p-6">
             <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-900 border-b pb-2">
               {locale === 'es' ? 'Jueves 21 de agosto (2025)' : 'Thursday, August 21 (2025)'}
             </h3>
@@ -91,7 +91,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
           </div>
 
           {/* Viernes 22 de agosto */}
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <div className="bg-[#1E1813] rounded-lg shadow-md p-4 sm:p-6">
             <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-900 border-b pb-2">
               {locale === 'es' ? 'Viernes 22 de agosto' : 'Friday, August 22'}
             </h3>
@@ -124,7 +124,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
           </div>
 
           {/* Sábado 23 de agosto */}
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <div className="bg-[#1E1813] rounded-lg shadow-md p-4 sm:p-6">
             <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-900 border-b pb-2">
               {locale === 'es' ? 'Sábado 23 de agosto' : 'Saturday, August 23'}
             </h3>
@@ -157,7 +157,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
           </div>
 
           {/* Domingo 24 de agosto */}
-           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+           <div className="bg-[#1E1813] rounded-lg shadow-md p-4 sm:p-6">
              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-900 border-b pb-2">
                {locale === 'es' ? 'Domingo 24 de agosto' : 'Sunday, August 24'}
              </h3>
@@ -186,7 +186,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
            </div>
 
            {/* Lunes 25 de agosto */}
-           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+           <div className="bg-[#1E1813] rounded-lg shadow-md p-4 sm:p-6">
              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-900 border-b pb-2">
                {locale === 'es' ? 'Lunes 25 de agosto' : 'Monday, August 25'}
              </h3>
@@ -223,7 +223,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
            </div>
 
            {/* Martes 26 de agosto */}
-           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+           <div className="bg-[#1E1813] rounded-lg shadow-md p-4 sm:p-6">
              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-900 border-b pb-2">
                {locale === 'es' ? 'Martes 26 de agosto' : 'Tuesday, August 26'}
              </h3>
@@ -252,7 +252,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
            </div>
 
            {/* Miércoles 27 de agosto */}
-           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+           <div className="bg-[#1E1813] rounded-lg shadow-md p-4 sm:p-6">
              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-900 border-b pb-2">
                {locale === 'es' ? 'Miércoles 27 de agosto' : 'Wednesday, August 27'}
              </h3>
@@ -289,7 +289,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
            </div>
 
            {/* Jueves 28 de agosto */}
-           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+           <div className="bg-[#1E1813] rounded-lg shadow-md p-4 sm:p-6">
              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-900 border-b pb-2">
                {locale === 'es' ? 'Jueves 28 de agosto' : 'Thursday, August 28'}
              </h3>
@@ -322,7 +322,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
            </div>
 
            {/* Viernes 29 de agosto */}
-           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+           <div className="bg-[#1E1813] rounded-lg shadow-md p-4 sm:p-6">
              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-900 border-b pb-2">
                {locale === 'es' ? 'Viernes 29 de agosto' : 'Friday, August 29'}
              </h3>
@@ -426,7 +426,7 @@ export default async function FiestasSanRamonPage({ params }: { params: tParams 
         </div>
 
         {/* Location and contact section */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+        <div className="bg-[#1E1813] border border-gray-200 rounded-lg p-6 shadow-sm">
           <h3 className="text-2xl font-semibold mb-4 text-blue-900">{locale === 'es' ? 'Ubicación y Contacto' : 'Location and Contact'}</h3>
           <p className="mb-4">
             {locale === 'es' ? 'Las Fiestas Patronales se realizan en el centro de San Ramón, Alajuela, Costa Rica. Nuestro stand de Handmade Art estará ubicado en la Plaza de Artesanías, frente al Parque Central.' : 'The Patronal Festivities take place in downtown San Ramón, Alajuela, Costa Rica. Our Handmade Art stand will be located at the Crafts Plaza, in front of Central Park.'}

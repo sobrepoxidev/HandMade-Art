@@ -33,8 +33,8 @@ interface EmptyStateProps {
 
 function CTAButton({ cta, primary = true }: { cta: CTA; primary?: boolean }) {
   const classes = primary
-    ? 'inline-flex items-center justify-center min-h-[48px] px-6 py-3 bg-[#C9A962] text-[#1A1A1A] text-sm font-semibold tracking-wide rounded-sm hover:bg-[#A08848] hover:text-[#F5F1EB] transition-colors'
-    : 'inline-flex items-center justify-center min-h-[48px] px-6 py-3 bg-transparent border border-[#E8E4E0] text-[#2D2D2D] text-sm font-medium rounded-sm hover:border-[#A08848] hover:bg-white transition-colors';
+    ? 'inline-flex items-center justify-center min-h-[48px] px-6 py-3 bg-[#E0A83A] text-[#161210] text-sm font-semibold tracking-wide rounded-sm hover:bg-[#F3C56B] hover:text-[#161210] transition-colors'
+    : 'inline-flex items-center justify-center min-h-[48px] px-6 py-3 bg-transparent border border-[#3A2E24] text-[#F1E7D6] text-sm font-medium rounded-sm hover:border-[#F3C56B] hover:bg-[#1E1813] transition-colors';
 
   if (cta.href) {
     return (
@@ -60,23 +60,23 @@ export default function EmptyState({
 }: EmptyStateProps) {
   return (
     <section
-      className={`text-center py-14 px-6 bg-[#FAF8F5] border border-[#E8E4E0] rounded-md ${className}`}
+      className={`text-center py-14 px-6 bg-[#1E1813] border border-[#3A2E24] rounded-md ${className}`}
     >
       {icon && (
         <div
           aria-hidden
-          className="inline-flex items-center justify-center w-14 h-14 mb-5 rounded-full bg-[#C9A962]/12 text-[#A08848]"
+          className="inline-flex items-center justify-center w-14 h-14 mb-5 rounded-full bg-[#E0A83A]/12 text-[#F3C56B]"
         >
           {icon}
         </div>
       )}
 
-      <h3 className="font-display text-xl sm:text-2xl font-medium text-[#2D2D2D] tracking-[-0.005em]">
+      <h3 className="font-display text-xl sm:text-2xl font-medium text-[#F1E7D6] tracking-[-0.005em]">
         {title}
       </h3>
 
       {description && (
-        <p className="mt-2 text-[#6B6459] max-w-md mx-auto leading-relaxed">
+        <p className="mt-2 text-[#8C7F6E] max-w-md mx-auto leading-relaxed">
           {description}
         </p>
       )}

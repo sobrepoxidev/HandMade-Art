@@ -87,7 +87,7 @@ export default function FeriaClient() {
         </div>
 
         {/* Contenedor principal con glassmorphism */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 px-6 py-3 sm:p-8">
+        <div className="bg-[#1E1813]/85 backdrop-blur-sm rounded-3xl shadow-xl border border-[#F1E7D6]/15 px-6 py-3 sm:p-8">
           {/* MENSAJE DE EVENTO FINALIZADO */}
           <div className="text-center space-y-6">
             <div className="text-6xl mb-4">🎊</div>

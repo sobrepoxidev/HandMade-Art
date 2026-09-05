@@ -90,11 +90,11 @@ export default async function RelatedProducts({
   });
 
   return (
-    <section className="mt-12 overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF]">
-      <header className="px-5 py-3 bg-[#2D2D2D] text-[#C9A962] text-sm font-semibold tracking-wide border-b border-[#C9A962]/20">
+    <section className="mt-12 overflow-hidden rounded-sm border border-[#3A2E24] bg-[#1E1813]">
+      <header className="px-5 py-3 bg-[#161210] text-[#E0A83A] text-sm font-semibold tracking-wide border-b border-[#E0A83A]/20">
         {title}
       </header>
-      <div className="grid grid-cols-2 gap-4 bg-[#FAF6EF] p-4 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 bg-[#1E1813] p-4 sm:grid-cols-3 lg:grid-cols-4">
         {cards.map((card) => (
           <RelatedProductCard key={card.product.id} {...card} locale={locale} />
         ))}

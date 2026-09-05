@@ -37,15 +37,15 @@ export default function PaginationControls({
         href={showPrev ? createPageURL(prevPage) : '#'}
         className={`inline-flex min-h-[44px] items-center rounded-sm border px-4 py-2 text-sm font-medium transition-colors ${
           showPrev
-            ? 'border-[#E8E4E0] bg-[#FAF6EF] text-[#2D2D2D] hover:border-[#A08848] hover:text-[#A08848]'
-            : 'pointer-events-none border-[#E8E4E0] bg-[#F5F1EB] text-[#6B6459]'
+            ? 'border-[#3A2E24] bg-[#161210] text-[#F1E7D6] hover:border-[#F3C56B] hover:text-[#F3C56B]'
+            : 'pointer-events-none border-[#3A2E24] bg-[#1E1813] text-[#8C7F6E]'
         }`}
         aria-disabled={!showPrev}
       >
         {locale === 'es' ? 'Anterior' : 'Previous'}
       </Link>
 
-      <span className="text-sm font-medium tabular-nums text-[#4A4A4A]">
+      <span className="text-sm font-medium tabular-nums text-[#C9BBA5]">
         {locale === 'es' ? 'Página' : 'Page'} {currentPage} {locale === 'es' ? 'de' : 'of'} {totalPages}
       </span>
 
@@ -53,8 +53,8 @@ export default function PaginationControls({
         href={showNext ? createPageURL(nextPage) : '#'}
         className={`inline-flex min-h-[44px] items-center rounded-sm border px-4 py-2 text-sm font-medium transition-colors ${
           showNext
-            ? 'border-[#E8E4E0] bg-[#FAF6EF] text-[#2D2D2D] hover:border-[#A08848] hover:text-[#A08848]'
-            : 'pointer-events-none border-[#E8E4E0] bg-[#F5F1EB] text-[#6B6459]'
+            ? 'border-[#3A2E24] bg-[#161210] text-[#F1E7D6] hover:border-[#F3C56B] hover:text-[#F3C56B]'
+            : 'pointer-events-none border-[#3A2E24] bg-[#1E1813] text-[#8C7F6E]'
         }`}
         aria-disabled={!showNext}
       >

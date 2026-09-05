@@ -103,9 +103,9 @@ export default function ReviewsList({ productId }: ReviewsListProps) {
     return (
       <div className="py-2" aria-busy="true" aria-live="polite">
         <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-[#E8E4E0] rounded w-1/4" />
-          <div className="h-4 bg-[#E8E4E0] rounded w-1/2" />
-          <div className="h-4 bg-[#E8E4E0] rounded w-3/4" />
+          <div className="h-4 bg-[#3A2E24] rounded w-1/4" />
+          <div className="h-4 bg-[#3A2E24] rounded w-1/2" />
+          <div className="h-4 bg-[#3A2E24] rounded w-3/4" />
         </div>
       </div>
     );
@@ -113,7 +113,7 @@ export default function ReviewsList({ productId }: ReviewsListProps) {
 
   if (reviews.length === 0) {
     return (
-      <p className="text-[#6B6459] py-2">
+      <p className="text-[#8C7F6E] py-2">
         {locale === 'es'
           ? 'Este producto aún no tiene reseñas. Sé el primero en compartir tu experiencia.'
           : 'No reviews yet. Be the first to share your experience.'}
@@ -131,18 +131,18 @@ export default function ReviewsList({ productId }: ReviewsListProps) {
                 key={star}
                 className={`h-5 w-5 ${
                   star <= Math.round(averageRating)
-                    ? 'fill-[#C9A962] text-[#C9A962]'
-                    : 'fill-[#E8E4E0] text-[#E8E4E0]'
+                    ? 'fill-[#E0A83A] text-[#E0A83A]'
+                    : 'fill-[#3A2E24] text-[#3A2E24]'
                 }`}
                 strokeWidth={0}
                 aria-hidden
               />
             ))}
           </div>
-          <span className="font-display text-2xl font-medium text-[#2D2D2D] tabular-nums">
+          <span className="font-display text-2xl font-medium text-[#F1E7D6] tabular-nums">
             {averageRating.toFixed(1)}
           </span>
-          <span className="text-sm text-[#6B6459]">
+          <span className="text-sm text-[#8C7F6E]">
             ({reviews.length}{' '}
             {locale === 'es'
               ? reviews.length === 1 ? 'reseña' : 'reseñas'
@@ -155,7 +155,7 @@ export default function ReviewsList({ productId }: ReviewsListProps) {
         {reviews.map((review) => (
           <li
             key={review.id}
-            className="border-b border-[#E8E4E0] pb-5 last:border-b-0"
+            className="border-b border-[#3A2E24] pb-5 last:border-b-0"
           >
             <div className="flex items-center gap-2 mb-1.5">
               <div className="flex" aria-label={`${review.rating} ${locale === 'es' ? 'de' : 'out of'} 5`}>
@@ -164,26 +164,26 @@ export default function ReviewsList({ productId }: ReviewsListProps) {
                     key={star}
                     className={`h-3.5 w-3.5 ${
                       star <= (review.rating || 0)
-                        ? 'fill-[#C9A962] text-[#C9A962]'
-                        : 'fill-[#E8E4E0] text-[#E8E4E0]'
+                        ? 'fill-[#E0A83A] text-[#E0A83A]'
+                        : 'fill-[#3A2E24] text-[#3A2E24]'
                     }`}
                     strokeWidth={0}
                     aria-hidden
                   />
                 ))}
               </div>
-              <span className="text-xs text-[#6B6459]">
+              <span className="text-xs text-[#8C7F6E]">
                 {review.created_at && formatRelativeTime(review.created_at, locale)}
               </span>
             </div>
 
-            <p className="text-sm font-semibold text-[#2D2D2D] mb-1">
+            <p className="text-sm font-semibold text-[#F1E7D6] mb-1">
               {users[review.user_id]?.full_name ||
                 (locale === 'es' ? 'Cliente verificado' : 'Verified customer')}
             </p>
 
             {review.comment && (
-              <p className="text-[#4A4A4A] leading-relaxed text-[14.5px]">
+              <p className="text-[#C9BBA5] leading-relaxed text-[14.5px]">
                 {review.comment}
               </p>
             )}

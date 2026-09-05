@@ -116,7 +116,7 @@ const OptimizedCarrucelSection: React.FC<OptimizedCarrucelSectionProps> = ({
           onClick={scrollLeft}
           disabled={!canScrollLeft}
           className={`p-1 rounded-full border border-gray-300 ${
-            canScrollLeft ? 'bg-white text-gray-700 hover:bg-gray-100' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            canScrollLeft ? 'bg-[#1E1813] text-gray-700 hover:bg-gray-100' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
           aria-label="Scroll left"
         >
@@ -128,7 +128,7 @@ const OptimizedCarrucelSection: React.FC<OptimizedCarrucelSectionProps> = ({
           onClick={scrollRight}
           disabled={!canScrollRight}
           className={`p-1 rounded-full border border-gray-300 ${
-            canScrollRight ? 'bg-white text-gray-700 hover:bg-gray-100' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            canScrollRight ? 'bg-[#1E1813] text-gray-700 hover:bg-gray-100' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
           aria-label="Scroll right"
         >
@@ -163,7 +163,7 @@ const OptimizedCarrucelSection: React.FC<OptimizedCarrucelSectionProps> = ({
                       <h3 className="text-white font-medium text-lg mb-2 line-clamp-1">
                         {locale === 'es' ? product.name_es : product.name_en || product.name}
                       </h3>
-                      <div className="bg-white rounded-lg flex-grow flex items-center justify-center p-3">
+                      <div className="bg-[#1E1813] rounded-lg flex-grow flex items-center justify-center p-3">
                         <Image
                           src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : '/placeholder-image.png'}
                           alt={(locale === 'es' ? product.name_es : product.name_en) || product.name || "Producto"}

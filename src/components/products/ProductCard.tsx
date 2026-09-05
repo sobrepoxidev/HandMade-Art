@@ -57,8 +57,8 @@ export default function ProductCard({
   };
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] transition-[border-color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-[#C9A962]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
-      <Link href={href} className="relative block aspect-square bg-[#F5F1EB]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-sm border border-[#3A2E24] bg-[#1E1813] transition-[border-color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-[#E0A83A]/45 hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)]">
+      <Link href={href} className="relative block aspect-square bg-[#F1E7D6]">
         <Image
           src={getProductImage(product)}
           alt={productName}
@@ -70,20 +70,20 @@ export default function ProductCard({
 
         <div className="absolute left-2 top-2 flex max-w-[calc(100%-1rem)] flex-wrap gap-1.5">
           {categoryName && (
-            <span className="rounded-sm bg-[#2D2D2D] px-2 py-1 text-[10px] font-medium uppercase tracking-[0.08em] text-[#F5F1EB]">
+            <span className="rounded-sm bg-[#161210] px-2 py-1 text-[10px] font-medium uppercase tracking-[0.08em] text-[#E0A83A]">
               {categoryName}
             </span>
           )}
           {product.is_featured && (
-            <span className="inline-flex items-center gap-1 rounded-sm border border-[#C9A962]/35 bg-[#FAF6EF] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#A08848]">
-              <Star className="h-3 w-3 fill-[#C9A962]" strokeWidth={1.5} aria-hidden />
+            <span className="inline-flex items-center gap-1 rounded-sm border border-[#E0A83A]/35 bg-[#161210] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#E0A83A]">
+              <Star className="h-3 w-3 fill-[#E0A83A]" strokeWidth={1.5} aria-hidden />
               {locale === 'es' ? 'Destacado' : 'Featured'}
             </span>
           )}
         </div>
 
         {Number(product.discount_percentage) > 0 && (
-          <span className="absolute bottom-2 right-2 rounded-sm bg-[#C44536] px-2 py-1 text-[11px] font-semibold text-[#F5F1EB]">
+          <span className="absolute bottom-2 right-2 rounded-sm bg-[#D9563B] px-2 py-1 text-[11px] font-semibold text-[#F1E7D6]">
             -{product.discount_percentage}%
           </span>
         )}
@@ -92,7 +92,7 @@ export default function ProductCard({
       <div className="flex flex-1 flex-col p-4">
         <Link
           href={href}
-          className="line-clamp-2 min-h-[2.7rem] text-[15px] font-medium leading-snug text-[#2D2D2D] transition-colors hover:text-[#A08848]"
+          className="line-clamp-2 min-h-[2.7rem] text-[15px] font-medium leading-snug text-[#F1E7D6] transition-colors hover:text-[#F3C56B]"
         >
           {productName}
         </Link>
@@ -101,23 +101,23 @@ export default function ProductCard({
           <div>
             {finalPrice ? (
               <>
-                <p className="font-display text-xl font-semibold tabular-nums text-[#2D2D2D]">
+                <p className="font-display text-xl font-semibold tabular-nums text-[#E0A83A]">
                   {formatUSD(finalPrice)}
                 </p>
                 {Number(product.discount_percentage) > 0 && (
-                  <p className="text-xs text-[#6B6459] line-through tabular-nums">
+                  <p className="text-xs text-[#8C7F6E] line-through tabular-nums">
                     {formatUSD(product.dolar_price || 0)}
                   </p>
                 )}
               </>
             ) : (
-              <p className="text-sm font-medium text-[#6B6459]">
+              <p className="text-sm font-medium text-[#C9BBA5]">
                 {locale === 'es' ? 'Precio a consultar' : 'Price on request'}
               </p>
             )}
           </div>
 
-          <span className="text-xs font-medium text-[#6B6459]">
+          <span className="text-xs font-medium text-[#8C7F6E]">
             {locale === 'es' ? 'Por encargo' : 'Made to order'}
           </span>
         </div>
@@ -125,7 +125,7 @@ export default function ProductCard({
         <div className="mt-4 grid grid-cols-[1fr_44px] gap-2">
           <Link
             href={href}
-            className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#E8E4E0] px-4 py-2.5 text-sm font-medium text-[#2D2D2D] transition-colors hover:border-[#A08848] hover:text-[#A08848]"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#3A2E24] px-4 py-2.5 text-sm font-medium text-[#F1E7D6] transition-colors hover:border-[#E0A83A] hover:text-[#E0A83A]"
           >
             {locale === 'es' ? 'Ver pieza' : 'View piece'}
           </Link>
@@ -135,8 +135,8 @@ export default function ProductCard({
             aria-pressed={inList}
             className={`grid h-11 w-11 place-items-center rounded-sm transition-colors ${
               inList
-                ? 'bg-[#2F5F3E] text-[#F5F1EB] hover:bg-[#26503A]'
-                : 'bg-[#2D2D2D] text-[#F5F1EB] hover:bg-[#1A1A1A]'
+                ? 'bg-[#3C9A70] text-[#161210] hover:bg-[#34875f]'
+                : 'bg-[#E0A83A] text-[#161210] hover:bg-[#F3C56B]'
             }`}
             aria-label={
               inList

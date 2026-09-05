@@ -25,8 +25,8 @@ export default function ScrollToTopButton() {
       aria-label={locale === 'es' ? 'Volver arriba' : 'Scroll to top'}
       className="hidden md:inline-flex items-center gap-1.5 fixed bottom-2 right-8 z-50
                  min-h-[44px] px-4 py-2 rounded-full text-sm font-medium
-                 bg-[#2D2D2D] text-[#F5F1EB] border border-[#F5F1EB]/15 shadow-lg
-                 hover:bg-[#1A1A1A] hover:border-[#C9A962]/50
+                 bg-[#1E1813] text-[#F1E7D6] border border-[#F1E7D6]/15 shadow-lg
+                 hover:bg-[#0F0C0A] hover:border-[#E0A83A]/50
                  transition-colors duration-200 animate-fade-in"
     >
       <ArrowUp className="h-4 w-4" strokeWidth={2} aria-hidden />

@@ -113,43 +113,43 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="bg-[#FAF6EF] px-4 py-6 sm:px-8 lg:px-12 lg:py-10">
+    <main className="bg-[#161210] px-4 py-6 sm:px-8 lg:px-12 lg:py-10">
       <div className="mx-auto grid min-h-[calc(100vh-12rem)] max-w-6xl items-start gap-8 py-4 lg:grid-cols-[0.82fr_1.18fr] lg:py-10">
-        <section className="hidden border border-[#E8E4E0] bg-[#2D2D2D] p-8 text-[#F5F1EB] lg:block">
+        <section className="hidden border border-[#3A2E24] bg-[#161210] p-8 text-[#F1E7D6] lg:block">
           <div className="relative mb-8 h-16 w-16">
             <Image src={LOGO_URL} alt="" fill className="object-contain" />
           </div>
-          <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-[#C9A962]">
+          <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-[#E0A83A]">
             {locale === 'es' ? 'Nueva cuenta' : 'New account'}
           </p>
           <h1 className="font-display text-4xl font-medium leading-tight tracking-[-0.005em]">
             {locale === 'es' ? 'Compra piezas únicas con checkout más rápido.' : 'Shop unique pieces with a faster checkout.'}
           </h1>
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#D4C4A8]">
+          <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#F3C56B]">
             {locale === 'es'
               ? 'Guarda tus datos básicos, recupera tu carrito y recibe novedades de piezas nuevas.'
               : 'Save basic details, recover your cart and get updates about new pieces.'}
           </p>
         </section>
 
-        <section className="mx-auto w-full max-w-2xl border border-[#E8E4E0] bg-[#FAF6EF] p-6 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)] sm:p-8">
+        <section className="mx-auto w-full max-w-2xl border border-[#3A2E24] bg-[#161210] p-6 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)] sm:p-8">
           <div className="mb-6">
             <div className="mb-5 flex items-center gap-3 lg:hidden">
-              <div className="relative h-11 w-11 bg-[#2D2D2D]">
+              <div className="relative h-11 w-11 bg-[#161210]">
                 <Image src={LOGO_URL} alt="" fill className="object-contain p-2" />
               </div>
-              <span className="font-display text-xl text-[#2D2D2D]">Handmade <span className="text-[#A08848]">Art</span></span>
+              <span className="font-display text-xl text-[#F1E7D6]">Handmade <span className="text-[#F3C56B]">Art</span></span>
             </div>
-            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
               {locale === 'es' ? 'Crear cuenta' : 'Create account'}
             </h2>
-            <p className="mt-2 text-sm text-[#4A4A4A]">
+            <p className="mt-2 text-sm text-[#C9BBA5]">
               {locale === 'es' ? 'Datos mínimos para comprar con menos fricción.' : 'Minimal details for a smoother purchase.'}
             </p>
           </div>
 
           {confirmationMsg && (
-            <div className="mb-5 rounded-sm border border-[#4A7C59]/30 bg-[#4A7C59]/10 p-3 text-sm font-medium text-[#2F5F3E]">
+            <div className="mb-5 rounded-sm border border-[#3C9A70]/30 bg-[#3C9A70]/10 p-3 text-sm font-medium text-[#3C9A70]">
               {confirmationMsg}
             </div>
           )}
@@ -209,38 +209,38 @@ export default function RegisterPage() {
               />
             </div>
 
-            <label className="flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-[#4A4A4A]">
+            <label className="flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-[#C9BBA5]">
               <input
                 type="checkbox"
                 checked={acceptTerms}
                 onChange={(event) => setAcceptTerms(event.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-[#A08848]"
+                className="mt-0.5 h-4 w-4 accent-[#F3C56B]"
                 required
               />
               <span>
                 {locale === 'es' ? 'Acepto los ' : 'I accept the '}
-                <Link href="/conditions-service" target="_blank" className="font-medium text-[#A08848] hover:text-[#2D2D2D]">
+                <Link href="/conditions-service" target="_blank" className="font-medium text-[#F3C56B] hover:text-[#F3C56B]">
                   {locale === 'es' ? 'términos y condiciones' : 'terms and conditions'}
                 </Link>
                 {locale === 'es' ? ' y la ' : ' and '}
-                <Link href="/privacy-policy" target="_blank" className="font-medium text-[#A08848] hover:text-[#2D2D2D]">
+                <Link href="/privacy-policy" target="_blank" className="font-medium text-[#F3C56B] hover:text-[#F3C56B]">
                   {locale === 'es' ? 'política de privacidad' : 'privacy policy'}
                 </Link>
               </span>
             </label>
 
-            <label className="flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-[#4A4A4A]">
+            <label className="flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-[#C9BBA5]">
               <input
                 type="checkbox"
                 checked={receivePromotions}
                 onChange={(event) => setReceivePromotions(event.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-[#A08848]"
+                className="mt-0.5 h-4 w-4 accent-[#F3C56B]"
               />
               {locale === 'es' ? 'Deseo recibir correos promocionales y novedades.' : 'I want to receive promotional emails and updates.'}
             </label>
 
             {errorMsg && (
-              <div className="rounded-sm border border-[#C44536]/30 bg-[#C44536]/10 p-3 text-sm text-[#9F2D24]">
+              <div className="rounded-sm border border-[#D9563B]/30 bg-[#D9563B]/10 p-3 text-sm text-[#D9563B]">
                 {errorMsg}
               </div>
             )}
@@ -248,32 +248,32 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex min-h-[48px] w-full items-center justify-center rounded-sm bg-[#2D2D2D] px-5 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-[48px] w-full items-center justify-center rounded-sm bg-[#E0A83A] px-5 py-3 text-sm font-bold tracking-wide text-[#161210] transition-colors hover:bg-[#F3C56B] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (locale === 'es' ? 'Creando cuenta...' : 'Creating account...') : (locale === 'es' ? 'Crear cuenta' : 'Create account')}
             </button>
           </form>
 
           <div className="my-6 flex items-center gap-3">
-            <span className="h-px flex-1 bg-[#E8E4E0]" />
-            <span className="text-xs text-[#6B6459]">{locale === 'es' ? 'o' : 'or'}</span>
-            <span className="h-px flex-1 bg-[#E8E4E0]" />
+            <span className="h-px flex-1 bg-[#3A2E24]" />
+            <span className="text-xs text-[#8C7F6E]">{locale === 'es' ? 'o' : 'or'}</span>
+            <span className="h-px flex-1 bg-[#3A2E24]" />
           </div>
 
           <button
             type="button"
             onClick={() => signInWithGoogle(returnUrl)}
-            className="inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-sm border border-[#E8E4E0] px-5 py-3 text-sm font-semibold text-[#2D2D2D] transition-colors hover:border-[#A08848] hover:bg-[#F5F1EB]"
+            className="inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-sm border border-[#3A2E24] px-5 py-3 text-sm font-semibold text-[#F1E7D6] transition-colors hover:border-[#F3C56B] hover:bg-[#1E1813]"
           >
             <GoogleIcon />
             {locale === 'es' ? 'Registrarme con Google' : 'Sign up with Google'}
           </button>
 
-          <p className="mt-6 border-t border-[#E8E4E0] pt-5 text-center text-sm text-[#4A4A4A]">
+          <p className="mt-6 border-t border-[#3A2E24] pt-5 text-center text-sm text-[#C9BBA5]">
             {locale === 'es' ? '¿Ya tienes cuenta?' : 'Already have an account?'}{' '}
             <Link
               href={`/login${returnUrl !== '/' ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`}
-              className="font-semibold text-[#A08848] hover:text-[#2D2D2D]"
+              className="font-semibold text-[#F3C56B] hover:text-[#F3C56B]"
             >
               {locale === 'es' ? 'Iniciar sesión' : 'Sign in'}
             </Link>
@@ -305,17 +305,17 @@ function TextField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-[#6B6459]">
+      <label htmlFor={id} className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-[#8C7F6E]">
         {label}
       </label>
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B6459]">{icon}</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8C7F6E]">{icon}</span>
         <input
           id={id}
           type={type}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="h-12 w-full rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] pl-10 pr-3 text-sm text-[#2D2D2D] placeholder:text-[#6B6459] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+          className="h-12 w-full rounded-sm border border-[#3A2E24] bg-[#161210] pl-10 pr-3 text-sm text-[#F1E7D6] placeholder:text-[#8C7F6E] focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25"
           placeholder={placeholder}
           required={required}
         />
@@ -343,23 +343,23 @@ function PasswordField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-[#6B6459]">
+      <label htmlFor={id} className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-[#8C7F6E]">
         {label}
       </label>
       <div className="relative">
-        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6459]" strokeWidth={1.75} aria-hidden />
+        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C7F6E]" strokeWidth={1.75} aria-hidden />
         <input
           id={id}
           type={show ? 'text' : 'password'}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="h-12 w-full rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] pl-10 pr-12 text-sm text-[#2D2D2D] placeholder:text-[#6B6459] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+          className="h-12 w-full rounded-sm border border-[#3A2E24] bg-[#161210] pl-10 pr-12 text-sm text-[#F1E7D6] placeholder:text-[#8C7F6E] focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25"
           placeholder="••••••••"
           required
         />
         <button
           type="button"
-          className="absolute right-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-sm text-[#6B6459] hover:text-[#A08848]"
+          className="absolute right-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-sm text-[#8C7F6E] hover:text-[#F3C56B]"
           onClick={() => setShow(!show)}
           aria-label={show ? locale === 'es' ? 'Ocultar contraseña' : 'Hide password' : locale === 'es' ? 'Mostrar contraseña' : 'Show password'}
         >

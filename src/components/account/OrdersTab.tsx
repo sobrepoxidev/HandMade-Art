@@ -31,13 +31,13 @@ type OrdersTabProps = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  delivered: 'bg-[#4A7C59]/12 text-[#2F5F3E] border-[#4A7C59]/30',
-  shipped: 'bg-[#4A7C59]/12 text-[#2F5F3E] border-[#4A7C59]/30',
-  paid: 'bg-[#4A7C59]/12 text-[#2F5F3E] border-[#4A7C59]/30',
-  processing: 'bg-[#D4A84B]/18 text-[#7A5E18] border-[#D4A84B]/45',
-  pending: 'bg-[#D4A84B]/18 text-[#7A5E18] border-[#D4A84B]/45',
-  cancelled: 'bg-[#C44536]/12 text-[#9F2D24] border-[#C44536]/30',
-  refunded: 'bg-[#C44536]/12 text-[#9F2D24] border-[#C44536]/30',
+  delivered: 'bg-[#3C9A70]/12 text-[#3C9A70] border-[#3C9A70]/30',
+  shipped: 'bg-[#3C9A70]/12 text-[#3C9A70] border-[#3C9A70]/30',
+  paid: 'bg-[#3C9A70]/12 text-[#3C9A70] border-[#3C9A70]/30',
+  processing: 'bg-[#E0A83A]/18 text-[#E0A83A] border-[#E0A83A]/45',
+  pending: 'bg-[#E0A83A]/18 text-[#E0A83A] border-[#E0A83A]/45',
+  cancelled: 'bg-[#D9563B]/12 text-[#D9563B] border-[#D9563B]/30',
+  refunded: 'bg-[#D9563B]/12 text-[#D9563B] border-[#D9563B]/30',
 };
 
 function statusStyle(status: string | null | undefined) {
@@ -96,23 +96,23 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
   };
 
   return (
-    <div className="text-[#2D2D2D]">
+    <div className="text-[#F1E7D6]">
       <h2 className="font-display text-xl font-medium tracking-[-0.005em] mb-5">
         {t('orderHistory')}
       </h2>
 
       {loading ? (
         <div
-          className="flex flex-col items-center justify-center py-12 gap-2 text-[#6B6459]"
+          className="flex flex-col items-center justify-center py-12 gap-2 text-[#8C7F6E]"
           role="status"
           aria-live="polite"
         >
-          <Loader2 className="h-6 w-6 animate-spin text-[#A08848]" strokeWidth={2} aria-hidden />
+          <Loader2 className="h-6 w-6 animate-spin text-[#F3C56B]" strokeWidth={2} aria-hidden />
           <span className="text-sm">{t('loading') || 'Cargando…'}</span>
         </div>
       ) : orders.length === 0 ? (
-        <div className="border border-[#E8E4E0] bg-[#FAF6EF] p-10 text-center">
-          <p className="text-[#6B6459] mb-1">{t('noOrders')}</p>
+        <div className="border border-[#3A2E24] bg-[#161210] p-10 text-center">
+          <p className="text-[#8C7F6E] mb-1">{t('noOrders')}</p>
         </div>
       ) : (
         <ul className="space-y-3">
@@ -122,23 +122,23 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
             return (
               <li
                 key={order.id}
-                className="overflow-hidden border border-[#E8E4E0] bg-[#FFFDF9]"
+                className="overflow-hidden border border-[#3A2E24] bg-[#1E1813]"
               >
                 <button
                   type="button"
                   onClick={() => toggleOrderExpansion(order.id)}
                   aria-expanded={isOpen}
                   aria-controls={`order-details-${order.id}`}
-                  className="w-full flex flex-col md:flex-row md:items-center justify-between p-4 bg-[#FAF6EF] hover:bg-[#F0EBE3] transition-colors text-left"
+                  className="w-full flex flex-col md:flex-row md:items-center justify-between p-4 bg-[#161210] hover:bg-[#1E1813] transition-colors text-left"
                 >
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 text-sm text-[#6B6459] mb-1">
+                    <div className="flex items-center gap-2 text-sm text-[#8C7F6E] mb-1">
                       <span>{t('orderNumber')}:</span>
-                      <span className="font-medium text-[#2D2D2D] tabular-nums">#{order.id}</span>
+                      <span className="font-medium text-[#F1E7D6] tabular-nums">#{order.id}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-[#6B6459]">
+                    <div className="flex items-center gap-2 text-sm text-[#8C7F6E]">
                       <span>{t('orderDate')}:</span>
-                      <span className="font-medium text-[#2D2D2D]">
+                      <span className="font-medium text-[#F1E7D6]">
                         {formatDate(order.created_at)}
                       </span>
                     </div>
@@ -146,15 +146,15 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
 
                   <div className="flex items-center gap-4 mt-3 md:mt-0">
                     <div className="text-right">
-                      <div className="text-xs uppercase tracking-[0.06em] text-[#6B6459]">
+                      <div className="text-xs uppercase tracking-[0.06em] text-[#8C7F6E]">
                         {t('total')}
                       </div>
-                      <div className="font-display text-lg font-semibold text-[#2D2D2D] tabular-nums">
+                      <div className="font-display text-lg font-semibold text-[#F1E7D6] tabular-nums">
                         {formatPrice(order.total_amount)}
                       </div>
                     </div>
 
-                    <span className="text-[#A08848]" aria-hidden>
+                    <span className="text-[#F3C56B]" aria-hidden>
                       {isOpen ? (
                         <ChevronUp className="h-5 w-5" strokeWidth={2} />
                       ) : (
@@ -167,10 +167,10 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
                 {isOpen && (
                   <div
                     id={`order-details-${order.id}`}
-                    className="p-4 border-t border-[#E8E4E0]"
+                    className="p-4 border-t border-[#3A2E24]"
                   >
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-xs uppercase tracking-[0.06em] text-[#6B6459]">
+                      <span className="text-xs uppercase tracking-[0.06em] text-[#8C7F6E]">
                         {t('status')}
                       </span>
                       <span
@@ -180,39 +180,39 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
                       </span>
                     </div>
 
-                    <div className="mb-4 overflow-hidden rounded-sm border border-[#E8E4E0]">
+                    <div className="mb-4 overflow-hidden rounded-sm border border-[#3A2E24]">
                       <table className="min-w-full">
-                        <thead className="bg-[#FAF6EF]">
+                        <thead className="bg-[#161210]">
                           <tr>
-                            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
+                            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-[#8C7F6E]">
                               {t('product')}
                             </th>
-                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
+                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#8C7F6E]">
                               {t('quantity')}
                             </th>
-                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
+                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#8C7F6E]">
                               {t('price')}
                             </th>
-                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B6459]">
+                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#8C7F6E]">
                               {t('subtotal')}
                             </th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#E8E4E0]/70 bg-[#FFFDF9]">
+                        <tbody className="divide-y divide-[#3A2E24]/70 bg-[#1E1813]">
                           {order.order_items.map((item) => (
                             <tr key={item.id} className="text-sm">
                               <td className="px-4 py-3 whitespace-nowrap">
-                                <span className="font-medium text-[#2D2D2D]">
+                                <span className="font-medium text-[#F1E7D6]">
                                   {item.product.name || t('product')}
                                 </span>
                               </td>
-                              <td className="px-4 py-3 text-right tabular-nums text-[#4A4A4A]">
+                              <td className="px-4 py-3 text-right tabular-nums text-[#C9BBA5]">
                                 {item.quantity}
                               </td>
-                              <td className="px-4 py-3 text-right tabular-nums text-[#4A4A4A]">
+                              <td className="px-4 py-3 text-right tabular-nums text-[#C9BBA5]">
                                 {formatPrice(item.price)}
                               </td>
-                              <td className="px-4 py-3 text-right tabular-nums font-semibold text-[#2D2D2D]">
+                              <td className="px-4 py-3 text-right tabular-nums font-semibold text-[#F1E7D6]">
                                 {formatPrice(item.price * item.quantity)}
                               </td>
                             </tr>
@@ -223,11 +223,11 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
 
                     {order.shipping_address && isShippingAddress(order.shipping_address) && (
                       <div className="mb-4">
-                        <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#6B6459] mb-2">
+                        <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#8C7F6E] mb-2">
                           {t('shippingAddress')}
                         </h3>
-                        <div className="rounded-sm border border-[#E8E4E0]/70 bg-[#FAF6EF] p-3 text-sm text-[#4A4A4A]">
-                          <p className="font-medium text-[#2D2D2D]">{order.shipping_address.name}</p>
+                        <div className="rounded-sm border border-[#3A2E24]/70 bg-[#161210] p-3 text-sm text-[#C9BBA5]">
+                          <p className="font-medium text-[#F1E7D6]">{order.shipping_address.name}</p>
                           <p>{order.shipping_address.address}</p>
                           <p>
                             {order.shipping_address.city}, {order.shipping_address.state}, {order.shipping_address.country}
@@ -240,15 +240,15 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#6B6459] mb-2">
+                        <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#8C7F6E] mb-2">
                           {t('paymentMethod')}
                         </h3>
-                        <div className="rounded-sm border border-[#E8E4E0]/70 bg-[#FAF6EF] p-3 text-sm text-[#4A4A4A]">
-                          <p className="capitalize font-medium text-[#2D2D2D]">
+                        <div className="rounded-sm border border-[#3A2E24]/70 bg-[#161210] p-3 text-sm text-[#C9BBA5]">
+                          <p className="capitalize font-medium text-[#F1E7D6]">
                             {order.payment_method === 'paypal' ? 'PayPal' : 'SINPE Móvil'}
                           </p>
                           {order.payment_reference && (
-                            <p className="text-[#6B6459] text-xs mt-0.5">
+                            <p className="text-[#8C7F6E] text-xs mt-0.5">
                               {t('reference')}: <span className="tabular-nums">{order.payment_reference}</span>
                             </p>
                           )}
@@ -257,10 +257,10 @@ export default function OrdersTab({ userId }: OrdersTabProps) {
 
                       {order.tracking_number && (
                         <div>
-                          <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#6B6459] mb-2">
+                          <h3 className="text-xs uppercase tracking-[0.06em] font-semibold text-[#8C7F6E] mb-2">
                             {t('trackingInfo')}
                           </h3>
-                          <div className="rounded-sm border border-[#E8E4E0]/70 bg-[#FAF6EF] p-3 text-sm text-[#4A4A4A]">
+                          <div className="rounded-sm border border-[#3A2E24]/70 bg-[#161210] p-3 text-sm text-[#C9BBA5]">
                             <p className="tabular-nums">{order.tracking_number}</p>
                           </div>
                         </div>

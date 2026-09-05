@@ -24,7 +24,7 @@ export async function generateMetadata({
         ? 'Hablá con Handmade Art: WhatsApp, teléfono o formulario. Te respondemos en 24 a 48 horas.'
         : "Reach Handmade Art via WhatsApp, phone or contact form. We reply within 24 to 48 hours.",
     image: {
-      url: '/home/artesano.webp',
+      url: '/taller/manos-tallando.webp',
       width: 1200,
       height: 800,
       alt:

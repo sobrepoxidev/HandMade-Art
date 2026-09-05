@@ -118,16 +118,16 @@ export default function ViewedProductsHistory() {
   if (loading) {
     return (
       <div className="px-4 py-6">
-        <h2 className="mb-4 flex items-center font-display text-xl font-medium text-[#2D2D2D]">
+        <h2 className="mb-4 flex items-center font-display text-xl font-medium text-[#F1E7D6]">
           <Clock className="mr-2 h-5 w-5" />
           {locale === 'es' ? 'Vistos recientemente' : 'Recently viewed'}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="mb-2 h-40 w-full rounded-sm bg-[#E8E4E0]"></div>
-              <div className="mb-1 h-4 w-2/3 rounded bg-[#E8E4E0]"></div>
-              <div className="h-4 w-1/2 rounded bg-[#E8E4E0]"></div>
+              <div className="mb-2 h-40 w-full rounded-sm bg-[#3A2E24]"></div>
+              <div className="mb-1 h-4 w-2/3 rounded bg-[#3A2E24]"></div>
+              <div className="h-4 w-1/2 rounded bg-[#3A2E24]"></div>
             </div>
           ))}
         </div>
@@ -138,7 +138,7 @@ export default function ViewedProductsHistory() {
   if (error) {
     return (
       <div className="px-4 py-6">
-        <div className="mb-2 flex items-center text-[#9F2D24]">
+        <div className="mb-2 flex items-center text-[#D9563B]">
           <AlertCircle className="h-5 w-5 mr-2" />
           <p>{error}</p>
         </div>
@@ -151,8 +151,8 @@ export default function ViewedProductsHistory() {
   }
   
   return (
-    <div className="rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-4 py-6">
-      <h2 className="mb-4 flex items-center font-display text-xl font-medium text-[#2D2D2D]">
+    <div className="rounded-sm border border-[#3A2E24] bg-[#161210] px-4 py-6">
+      <h2 className="mb-4 flex items-center font-display text-xl font-medium text-[#F1E7D6]">
         <Clock className="mr-2 h-5 w-5" />
         {locale === 'es' ? 'Vistos recientemente' : 'Recently viewed'}
       </h2>
@@ -164,7 +164,7 @@ export default function ViewedProductsHistory() {
             key={product.id}
             className="group"
           >
-            <div className="overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] transition-[border-color,box-shadow] hover:border-[#C9A962]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
+            <div className="overflow-hidden rounded-sm border border-[#3A2E24] bg-[#161210] transition-[border-color,box-shadow] hover:border-[#E0A83A]/45 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
               <div className="h-40 relative">
                 <Image
                   src={(product.media && isMediaArray(product.media) && product.media[0]?.url) || '/product-placeholder.png'}
@@ -175,10 +175,10 @@ export default function ViewedProductsHistory() {
                 />
               </div>
               <div className="p-2">
-                <h3 className="line-clamp-1 text-sm font-medium text-[#2D2D2D] group-hover:text-[#A08848]">
+                <h3 className="line-clamp-1 text-sm font-medium text-[#F1E7D6] group-hover:text-[#F3C56B]">
                   {(locale === 'es' ? product.name_es : product.name_en) || product.name}
                 </h3>
-                <p className="text-sm font-semibold text-[#2D2D2D]">
+                <p className="text-sm font-semibold text-[#F1E7D6]">
                   {product.dolar_price ? `${formatUSD(product.dolar_price)}` : locale === 'es' ? 'Precio a consultar' : 'Price on request'}
                 </p>
               </div>

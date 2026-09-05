@@ -34,7 +34,7 @@ const InfiniteProductsLoader: React.FC = () => {
         </div>
       )}
       {!hasMoreProducts && (
-        <div className="text-[#9C9589] text-xs">
+        <div className="text-[#8C7F6E] text-xs">
           {locale === 'es' ? 'No hay más productos' : 'No more products'}
         </div>
       )}

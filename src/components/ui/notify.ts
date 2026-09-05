@@ -12,9 +12,9 @@ import toast, { type ToastOptions } from 'react-hot-toast';
  */
 
 const baseStyle = {
-  background: '#2D2D2D',
-  color: '#F5F1EB',
-  border: '1px solid rgba(201,169,98,0.35)',
+  background: '#1E1813',
+  color: '#F1E7D6',
+  border: '1px solid rgba(224,168,58,0.35)',
   borderRadius: '4px',
   padding: '12px 16px',
   fontSize: '14px',
@@ -31,7 +31,7 @@ export const notify = {
   success(message: string, opts?: ToastOptions) {
     return toast.success(message, {
       ...baseOptions,
-      iconTheme: { primary: '#C9A962', secondary: '#1A1A1A' },
+      iconTheme: { primary: '#E0A83A', secondary: '#161210' },
       ...opts,
     });
   },
@@ -40,7 +40,7 @@ export const notify = {
     return toast.error(message, {
       ...baseOptions,
       duration: 4000,
-      iconTheme: { primary: '#C44536', secondary: '#FAF8F5' },
+      iconTheme: { primary: '#D9563B', secondary: '#1E1813' },
       ...opts,
     });
   },

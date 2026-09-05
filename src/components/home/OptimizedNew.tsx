@@ -10,17 +10,17 @@ import type { HomeCategory, HomeProduct } from '@/lib/home/types';
 
 const SecondaryBanners = dynamic(() => import('@/components/home/SecondaryBanners'), {
   ssr: false,
-  loading: () => <div className="mx-auto h-[280px] max-w-[1500px] bg-[#F5F1EB]" />,
+  loading: () => <div className="mx-auto h-[280px] max-w-[1500px] bg-[#1E1813]" />,
 });
 
 const GiftsCarouselSection = dynamic(() => import('@/components/cards/GiftsCarouselSection'), {
   ssr: false,
-  loading: () => <div className="h-48 bg-[#FAF6EF]" />,
+  loading: () => <div className="h-48 bg-[#161210]" />,
 });
 
 const ProgressiveCategorySection = dynamic(() => import('@/components/cards/ProgressiveCategorySection'), {
   ssr: false,
-  loading: () => <div className="h-48 bg-[#FAF6EF]" />,
+  loading: () => <div className="h-48 bg-[#161210]" />,
 });
 
 interface OptimizedNewHomeProps {
@@ -45,7 +45,7 @@ export default function OptimizedNewHome({
       initialSections={initialSections}
       priorityCategoryIds={priorityCategoryIds}
     >
-      <div className="relative z-0 bg-[#FAF6EF]">
+      <div className="relative z-0 bg-[#161210]">
         <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-8 lg:px-12">
           <FeaturedProductsSection />
           <OptimizedGridSection />

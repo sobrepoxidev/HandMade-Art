@@ -13,43 +13,45 @@ This document is referenced by:
 
 ---
 
-## 0. Concept — "Rustic-Premium"
+## 0. Concept — "Taller nocturno" (dark warm workshop)
 
 We are **not a generic e-commerce**. We are a boutique selling
-**handmade Costa Rican art** (carved wood mirrors, painted resin
-frames, coffee drippers, sculptures) where every piece supports a
-social reintegration program. The product is craft. The brand must
-read **craft**.
+**handmade Costa Rican art** (carved wood mirrors, painted frames,
+coffee drippers, sculptures) where every piece supports a social
+reintegration program. The product is craft, made after hours in a
+lamp-lit workshop. The brand reads like the **workshop itself at
+night**: warm timber tones, a single amber work-light, tools and
+cedar shavings in chiaroscuro.
 
 ### The two anchors
 
-1. **The hero image** — `public/home/hero.webp`: a still-life of carved
-   wooden artworks (jaguar, monkey, frog) on a workshop bench with
-   leather, chisels and shavings in chiaroscuro warm lighting. This is
-   the **material reference**.
-2. **The logo** — H/M monogram in white serif on charcoal. Clean,
-   editorial, atemporal. This is the **rigor reference**.
+1. **The workshop at night** — `public/taller/hero-taller.webp`: an
+   artisan carving a mirror frame lit by a single warm lamp against a
+   near-black room. This is the **atmosphere reference**.
+2. **The amber work-light** — one accent color (`#E0A83A`) used the
+   way a single bulb lights a bench: sparingly, for the thing that
+   matters (price, CTA, active state). Everything else stays in the
+   dark register.
 
-The whole site is the **bridge** between those two: warm, tactile,
-honest materials (from #1) framed with editorial discipline (from #2).
+The whole site is the **bridge** between those two: a dark, textural
+ground (cedar, char, iron) with one warm light source picking out
+what's for sale and what matters.
 
 ### Reference brands (study their sites)
 
-- **Aesop** — chiaroscuro photography, cream backgrounds, restrained
-  serif headlines, big breathing room
-- **Margaret Howell** — calm e-commerce, paper-cream surfaces,
-  unhurried pace, editorial product description style
-- **Toast** — handcraft aesthetics, warm tones, real photography
-- **Kinfolk magazine** — typographic rhythm, generous spacing, muted
-  tones with a single accent
-- **Hermès home** — premium without screaming, no gold-gradient CTAs
+- **Aesop (dark variant)** — chiaroscuro photography, deep neutral
+  grounds, restrained serif headlines
+- **Blackbird / dark editorial furniture sites** — timber tones on
+  near-black, generous breathing room
+- **Kinfolk magazine** — typographic rhythm, generous spacing, a
+  single accent
+- **Hermès home** — premium without screaming, no gradient CTAs
 
 ### Anti-references (DO NOT look like)
 
 - Shopify default themes — boxed chips, blue CTAs, gray everything
-- Tech-y dashboard look (Notion / Linear / Vercel marketing) — too
-  cold, too minimal-clinical
-- Dark mode "tech" — we are warm, not LED
+- Tech-y dashboard dark mode (Notion / Linear / Vercel marketing) —
+  too cold, too blue-black. We are warm brown-black, not slate.
 - "Luxury" tropes — gold gradients, glass effects, particles,
   embossed leather textures
 - Festive corporate (pink-purple-blue gradients) — we are not a
@@ -62,63 +64,64 @@ honest materials (from #1) framed with editorial discipline (from #2).
 All colors live as CSS variables in `src/app/globals.css` and are
 exposed to Tailwind via `@theme inline`. **Never** use a raw color
 class (`bg-gray-100`, `text-teal-600`, `from-indigo-50`). Always use
-the tokens below.
+the tokens below. `color-scheme: dark` is set on `<html>`; there is no
+`prefers-color-scheme` light fallback — the site is dark by design,
+not by OS preference.
 
-### Surface (backgrounds, from coldest to warmest)
+### Surface (backgrounds, darkest to raised)
 
 | Token | Hex | Use |
 |---|---|---|
-| `--hm-paper` | **#FAF6EF** | Default page surface (replaces ivory in most places) — warmer than #FAF8F5, has a paper-cream feel |
-| `--hm-ivory` | #FAF8F5 | Still used in subtle gradients with paper |
-| `--hm-cream` | #F5F1EB | Secondary surface (cards on paper) |
-| `--hm-stone` | #E8E4E0 | Borders, dividers, skeletons |
-| `--hm-walnut-light` | **#8B6B4A** | Earthy mid-tone — borders on dark, decorative |
-| `--hm-walnut` | **#5C4530** | Deep warm brown — section backgrounds, footer |
-| `--hm-charcoal` | #2D2D2D | Primary dark surface, body text on light |
-| `--hm-darker` | #1A1A1A | Hover/active state for charcoal |
+| `--hm-deep` | **#0F0C0A** | Footer, hero letterbox gradients, deepest ground |
+| `--hm-bg` | **#161210** | Default page background (`body`) |
+| `--hm-raised` | **#1E1813** | Cards, secondary surfaces, section bands (impact split, drawers) |
+| `--hm-line` | **#3A2E24** | Borders, dividers, input borders |
+| `--hm-line-soft` | **#2A2119** | Softer hairline — list rows, FAQ dividers |
+| `--hm-tile` | **#F1E7D6** | Cream tile behind every product photo (see §7 Product tiles) |
 
 ### Ink (text + foreground)
 
 | Token | Hex | Use |
 |---|---|---|
-| `--hm-ink` | #2D2D2D | Default body / heading color on light surfaces |
-| `--hm-ink-soft` | #4A4A4A | Secondary body text |
-| `--hm-ink-mute` | **#6B6459** | Tertiary text (passes AA on cream). Replaces #9C9589 in body. |
-| `--hm-paper-ink` | #F5F1EB | Body text on charcoal/walnut backgrounds |
+| `--hm-ink` | **#F1E7D6** | Default body / heading color on dark surfaces |
+| `--hm-ink-2` / `--hm-ink-soft` | **#C9BBA5** | Secondary body text |
+| `--hm-ink-mute` | **#8C7F6E** | Tertiary/caption text only — **never** body copy (fails AA at body sizes) |
+| `--hm-paper-ink` | **#161210** | Text on amber or tile (light) surfaces |
 
-### Accent (gold — used sparingly)
-
-| Token | Hex | Use |
-|---|---|---|
-| `--hm-gold` | #C9A962 | Primary accent — CTAs, active states, key icons |
-| `--hm-gold-dark` | #A08848 | Hover, small-text accent (passes AA on cream) |
-| `--hm-gold-light` | #D4C4A8 | Subtle ornament, hover-tone-on-dark |
-
-### Status
+### Accent (amber — used sparingly)
 
 | Token | Hex | Use |
 |---|---|---|
-| `--hm-success` | #4A7C59 | In-stock, success |
-| `--hm-success-dark` | **#2F5F3E** | Status text on light (passes AA) |
-| `--hm-error` | #C44536 | Errors |
-| `--hm-error-dark` | **#9F2D24** | Error text on light (passes AA) |
-| `--hm-warning` | #D4A84B | Low-stock |
-| `--hm-warning-dark` | **#7A5E18** | Warning text on light (passes AA) |
+| `--hm-amber` | **#E0A83A** | Primary accent — CTAs, prices, active states, eyebrows |
+| `--hm-amber-2` | **#F3C56B** | Hover / lighter accent (button hover, link hover) |
 
-### Decorative (new — earth tones)
+### Status seals (category & availability dots)
 
 | Token | Hex | Use |
 |---|---|---|
-| `--hm-terracotta` | **#A85E3F** | Rare third accent for editorial moments only — not CTAs |
-| `--hm-jade` | **#5C7459** | Subtle nature tone for the social-impact narrative section |
+| `--hm-selva` | **#3C9A70** | In stock / success / "available" seal |
+| `--hm-barro` | **#D9563B** | One-of-a-kind / low-stock / error |
+| `--hm-cobalto` | **#4C7BD1** | Mirrors / info seal |
 
 ### Rules
 
-- **Never use `bg-white` (#FFF) — it's too cold.** Always `bg-[--hm-paper]` or `bg-[#FAF6EF]`.
-- **Never use neutral grays from Tailwind** (`gray-X`, `slate-X`, `zinc-X`, `neutral-X`, `stone-X`).
-- **No off-brand accents**: zero `teal`, `indigo`, `blue`, `purple`, `rose`, `pink`, `cyan`, `emerald`, `amber-X`, `yellow-X`. Use the tokens above.
-- **Gradients**: only `linear-gradient(to bottom, --hm-paper, --hm-ivory)` style transitions of OWN paper colors. **No gradient text. No `from-X to-Y` accent gradients.** Especially no `from-[#C9A962] to-[#A08848]` (this looks like a casino).
-- **Contrast minimums** (WCAG AA): body 4.5:1, large/UI 3:1. The `*-dark` variants exist exactly so we never break this on cream surfaces.
+- **Never `bg-white`** — use `bg-[#1E1813]` (raised) for surfaces.
+- **Never neutral Tailwind grays** (`gray-X`, `slate-X`, `zinc-X`,
+  `neutral-X`, `stone-X`).
+- **No off-brand accents**: no `teal`, `indigo`, `blue`, `purple`,
+  `rose`, `pink`, `cyan`. Mirrors' info-seal blue is the one named
+  exception (`--hm-cobalto`), used only as a small status dot.
+- **Gradients**: only dark-to-darker letterbox gradients on photos
+  (`rgba(22,18,16,x)`) and the amber ticker's own flat fill. **No
+  gradient text. No amber-to-darker-amber CTA gradients** — flat
+  `#E0A83A` only, `#F3C56B` on hover.
+- **Product photos are transparent cutouts**: they must always sit on
+  a `bg-[#F1E7D6]` tile (never directly on the dark page bg — a
+  cutout without a tile disappears into the background).
+- **Contrast minimums** (WCAG AA): body 4.5:1 (`--hm-ink` /
+  `--hm-ink-2` on `--hm-bg`/`--hm-raised` both pass comfortably),
+  large/UI 3:1. `--hm-ink-mute` passes only at caption sizes — do not
+  use it for paragraphs.
 
 ---
 
@@ -126,81 +129,58 @@ the tokens below.
 
 ### Families
 
-- **Display**: `Frank Ruhl Libre` — `var(--font-display-family)`. Loaded via `next/font` in `src/app/[locale]/layout.tsx`.
-- **Sans (body)**: `Geist Sans` — `var(--font-sans-family)`. Same.
+- **Display**: `Libre Caslon Display` — `var(--font-display-family)`.
+  Loaded via `next/font/google` in `src/app/layout.tsx`. Single static
+  weight (400); rely on size and letter-spacing for hierarchy, not
+  weight.
+- **Sans (body)**: `Manrope` — `var(--font-sans-family)`. Weights
+  400/500/600/700 loaded.
 
-**Rule:** **all headings** (`<h1>`, `<h2>`, `<h3>` of sections, prices, big numbers) use `.font-display`. Body text, captions, labels, UI text use Geist.
+**Rule:** all headings (`<h1>`, `<h2>`, `<h3>` of sections, prices,
+big numbers, the eyebrow-adjacent number) use `.font-display` /
+`font-display`. Body text, captions, labels, UI text, buttons use
+Manrope (the default sans).
 
-We do **not** use `Playfair Display`, `Cormorant`, `Lora`, `Newsreader`, `Fraunces`, `Crimson`, `Inter`, `DM Sans`, `Outfit`, `Plus Jakarta`, or `Instrument Sans`. These are in the AI-monoculture banned list per impeccable skill.
+We do **not** use `Frank Ruhl Libre`, `Playfair Display`,
+`Cormorant`, `Lora`, `Newsreader`, `Fraunces`, `Crimson`, `Inter`,
+`DM Sans`, `Outfit`, `Plus Jakarta`, `Instrument Sans`, or `Geist`.
+These are retired from this project or in the AI-monoculture banned
+list per the impeccable skill.
 
 ### Scale (modular, fluid where it matters)
 
-| Token | Class | Size | Use |
-|---|---|---|---|
-| Display XL | `text-[clamp(40px,7vw,68px)]` | 40–68 | Hero h1 |
-| Display L | `text-[clamp(28px,4vw,42px)]` | 28–42 | Section h2 |
-| Display M | `text-2xl md:text-3xl` | 24–30 | Page title (non-hero) |
-| Display S | `text-xl md:text-2xl` | 20–24 | Sub-section h3, product name |
-| Body L | `text-base md:text-[17px]` | 16–17 | Long-form paragraphs |
-| Body | `text-[15px]` / `text-sm` | 14–15 | UI body |
-| Caption | `text-[13px]` | 13 | Captions, meta |
-| Eyebrow | `text-[11px] uppercase tracking-[0.18em]` | 11 | Eyebrows over h1/h2 (use sparingly — they signal "editorial") |
-| Micro | `text-[10px] uppercase tracking-[0.08em]` | 10 | Badges, tags, category pills |
+| Token | Size | Use |
+|---|---|---|
+| Hero H1 (desktop) | 64–96px, `leading-[0.96]` | Home hero only |
+| Hero H1 (mobile) | 42–50px, `leading-[0.98]` | Home hero, mobile |
+| Section H2 | `clamp(32px, 4vw, 52px)` | Section headings (categories, featured, process) |
+| Product title | 18–21px | Card / list product name |
+| Price | 17–42px, `.font-display tabular-nums` | Always amber (`text-[#E0A83A]`) |
+| Eyebrow | 10–11px uppercase, `tracking-[0.22em]` | Amber, above every section heading |
+| Micro | 10px uppercase, `tracking-[0.08–0.16em]` | Badges, seals, category labels |
 
 ### Tracking & line-height
 
-- Display: `tracking-[-0.005em]` (subtle tight) for sizes ≥28, `tracking-[-0.01em]` for ≥48
-- Body: default Tailwind
-- Eyebrow / Micro: `tracking-[0.08em]` minimum, `0.18em` for hero eyebrow
-- Long-form text: `leading-relaxed` (1.625) on paragraphs ≥body L
-- Line length: **max ~70ch** (`max-w-prose` or `max-w-[65ch]`). Beyond ~75ch eyes lose the line.
-
-### Weight
-
-- Display: `font-medium` (500) default; `font-semibold` (600) only when emphasis is needed
-- Body: `font-normal` (400) for paragraphs; `font-medium` (500) for UI labels and emphasis
-- **Never `font-bold` (700+)** unless it's truly an UI element that needs to scream (rarely — prefer color/size shift)
+- Display: `tracking-[-0.012em]` baseline (set globally on `.display`
+  utility / `font-display`)
+- Eyebrow: `tracking-[0.22em]` — this is the site's strongest
+  editorial signature, keep it consistent everywhere
+- Long-form text: `leading-relaxed` (1.6–1.7) on paragraphs
+- Line length: max ~65-70ch
 
 ### Numerals
 
-Always `tabular-nums` for prices, quantities, dimensions, dates. Stops jitter when values change.
+Always `tabular-nums` for prices, quantities, dimensions, dates.
 
 ---
 
 ## 3. Layout & space
 
-### Spacing scale (4pt-based, semantic)
-
-| Token | Tailwind class | px |
-|---|---|---|
-| xs | `space-1` / `gap-1` | 4 |
-| sm | `space-2` / `gap-2` | 8 |
-| md | `space-4` / `gap-4` | 16 |
-| lg | `space-6` / `gap-6` | 24 |
-| xl | `space-10` / `gap-10` | 40 |
-| 2xl | `space-16` / `gap-16` | 64 |
-| 3xl | `space-24` / `gap-24` | 96 |
-
-### Section vertical padding
-
-- Default section: `py-16 md:py-24` (was `py-8` — too tight for editorial)
-- Hero: `py-20 sm:py-28 lg:py-36`
-- Tight (e.g. category nav, footer mini): `py-6 md:py-8`
-
-### Container widths
-
-- Marketing/editorial sections: `max-w-screen-xl` (1280px) inside `mx-auto px-4 sm:px-8 lg:px-12`
-- Product grid pages: `max-w-screen-2xl` (1536px) — needs the width
-- Long-form prose (legal, about, story sections): `max-w-[65ch]` centered
-
-### Grid
-
-- Use CSS Grid for product grids: `grid-cols-2 sm:grid-cols-3 lg:grid-cols-4`
-- **Never** use plain `block` + `float` or table layouts
-
-### Gap, not margin
-
-For sibling spacing inside a container, use `gap-X` on the parent. Margins are for breaking out of the flow.
+Unchanged from the previous system — 4pt-based spacing scale,
+`py-16 md:py-24` default section padding (this redesign leans denser:
+hero/category/featured sections use `py-14/16` desktop, `py-24` for
+the two-column impact/process sections), `max-w-screen-2xl` for
+product grids, CSS Grid for all card grids.
 
 ---
 
@@ -208,94 +188,52 @@ For sibling spacing inside a container, use `gap-X` on the parent. Margins are f
 
 ### Border radius
 
-| Token | Class | Use |
-|---|---|---|
-| Sharp | `rounded-none` | Editorial blocks, full-bleed sections |
-| Default | `rounded-sm` (2px) | Cards, buttons, inputs — **this is our house default** |
-| Soft | `rounded-md` (6px) | **Avoid by default** — only for tags/chips/pills where soft reads warmer |
-| Pill | `rounded-full` | Avatars, small indicators, "back to top" |
-
-**No `rounded-lg`/`rounded-xl`/`rounded-2xl`** anywhere in the project. They read SaaS / dashboard.
+**2px everywhere** (`rounded-sm`). This redesign is sharper than the
+previous rustic-premium system — no soft pills except the quote-count
+badge and status dots, which are `rounded-full`.
 
 ### Border colors
 
-- Default: `border-[#E8E4E0]` (stone)
-- Subtle: `border-[#E8E4E0]/70`
-- Accent on hover: `border-[#C9A962]/45`
-- On dark surfaces: `border-[#F5F1EB]/12`
+- Default: `border-[#3A2E24]` (`--hm-line`)
+- Softer hairline: `border-[#2A2119]` (`--hm-line-soft`)
+- Accent on hover: `border-[#E0A83A]/45`
 - **Never** `border-gray-X` or `border-black`.
 
-### Shadows — tinted walnut, not neutral gray
+### Shadows
 
-Replace all generic `shadow-sm`, `shadow-md`, `shadow-lg`. Use these:
-
-| Class | Use |
-|---|---|
-| `shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]` | Resting card |
-| `shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]` | Card hover |
-| `shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]` | Modal / drawer |
-| `shadow-[0_2px_8px_-4px_rgba(160,136,72,0.40)]` | Gold-tinted CTA shadow (use only on primary CTAs) |
-
-Tailwind 4 lets us also define these as named utilities in `globals.css` if we get tired of writing them — to be added in implementation.
-
-### Texture — paper grain
-
-Optional SVG noise overlay at 5-8% opacity on `--hm-paper` and `--hm-ivory` backgrounds. Apply via:
-
-```css
-.paper-grain::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image: url("data:image/svg+xml,..."); /* noise svg */
-  opacity: 0.06;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-}
-```
-
-Use sparingly: hero background, footer, key story sections. Not on every card.
+Shadows read differently on dark: use them sparingly, mostly to lift
+a raised card off the page (`shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)]`)
+or for drawers/modals (`shadow-[0_12px_36px_-18px_rgba(0,0,0,0.5)]`).
+No gold-tinted shadows on dark surfaces — they don't read.
 
 ---
 
 ## 5. Iconography
 
-- **Library**: `lucide-react`, imported by name (tree-shakable).
-- **Default `strokeWidth={1.5}`** for all icons — `2` is too "dashboard". `1` reads delicate but works for editorial flourishes.
-- **Sizes**: `h-4 w-4` (16px) for UI inline, `h-5 w-5` (20px) for buttons, `h-6 w-6` for section heads only.
-- **Decorative icons**: always `aria-hidden`. Functional icons need `aria-label`.
-- **No emojis as decoration** (⚖️, 🏛️, ✨…). Replace with lucide or custom SVG. Emojis read childish on a premium boutique.
-- **Color**: `text-[#A08848]` for gold accents on light; `text-[#C9A962]` on dark.
+- **Library**: `lucide-react`, imported by name.
+- **`strokeWidth`**: 1.5–1.8 for all icons (never 2 — reads
+  "dashboard").
+- **Sizes**: `h-4 w-4` inline UI, `h-5 w-5` buttons, `h-6 w-6` section
+  heads.
+- **Decorative icons**: always `aria-hidden`.
+- **No emojis** as decoration.
+- **Color**: `text-[#E0A83A]` on dark surfaces; `text-[#161210]` on
+  amber surfaces.
 
 ---
 
 ## 6. Motion
 
-### Easing
-
-- Default: `cubic-bezier(0.22, 1, 0.36, 1)` (ease-out-quart) — natural deceleration
-- Slow / luxurious: `cubic-bezier(0.16, 1, 0.3, 1)` (ease-out-expo)
-- **Never** bounce, elastic, or spring with overshoot. They feel toy.
-
-### Duration
-
-- Micro (hover color, icon flip): 150–200ms
-- Standard (card lift, image scale): 300–500ms
-- Editorial (hero fade-in, section reveal): 600–800ms
-
-### Respect prefers-reduced-motion
-
-`globals.css` has the global query. **All custom motion must check `useReducedMotion()` (framer-motion) or `@media (prefers-reduced-motion: reduce)` when it would otherwise loop or animate continuously.**
-
-### Transforms only — not layout
-
-Animate `transform` and `opacity`. **Never** animate `width`, `height`, `padding`, `margin`. (Use `transform: scale()` if you need a size change.)
-
-### Default hover for product cards
-
-- `transform: translateY(-2px)` (lift)
-- `scale(1.02)` on image inside card
-- shadow shift from resting → hover (see Shape § shadows)
-- transition `300ms ease-out-quart`
+- Easing: `cubic-bezier(0.22, 1, 0.36, 1)` (ease-out-quart) default.
+- Duration: micro 150–200ms, standard 300–500ms, editorial 600–800ms.
+- **Marquee**: `.hm-marquee-track` in `globals.css` — pure CSS
+  `translateX` loop, `28s linear infinite`, disabled entirely under
+  `prefers-reduced-motion: reduce`.
+- Respect `prefers-reduced-motion` globally (already wired in
+  `globals.css`) — never build a component-local infinite animation
+  that skips this check.
+- Product card hover: `translateY(-2px)` lift + `scale(1.02–1.04)` on
+  the image, border shifts to `#E0A83A/45`.
 
 ---
 
@@ -303,145 +241,227 @@ Animate `transform` and `opacity`. **Never** animate `width`, `height`, `padding
 
 ### Buttons
 
-| Variant | Background | Text | Use |
-|---|---|---|---|
-| Primary | `bg-[#2D2D2D]` → hover `bg-[#1A1A1A]` | `text-[#F5F1EB]` | Main CTAs (Add to cart, Buy now, Submit form) |
-| Primary gold | `bg-[#C9A962]` → hover `bg-[#A08848] text-[#F5F1EB]` | `text-[#1A1A1A]` | Hero CTA, "Explore catalog" — use **once per view** |
-| Secondary | `bg-transparent` + `border border-[#E8E4E0]` → hover `border-[#A08848]` | `text-[#2D2D2D]` | Secondary actions, ghost CTAs |
-| On dark | `bg-transparent` + `border border-[#F5F1EB]/30` → hover `bg-[#F5F1EB]/10` | `text-[#F5F1EB]` | Buttons on charcoal/walnut sections |
-| Link-style | (no bg) + `underline decoration-2 decoration-[#C9A962] underline-offset-4` | `text-[#2D2D2D]` hover `text-[#A08848]` | Inline navigation, "View more" |
+| Variant | Background | Text | Radius / height | Use |
+|---|---|---|---|---|
+| Primary | `bg-[#E0A83A]` → hover `bg-[#F3C56B]` | `text-[#161210]` (always, base **and** hover) | `rounded-sm`, `min-h-[50px]` (54px for hero/primary CTAs) | Main CTAs |
+| Secondary (on dark) | transparent + `border border-[#F1E7D6]/45` → hover `border-[#F1E7D6]` | `text-[#F1E7D6]` | same | Secondary actions |
+| Secondary (on amber section) | transparent + `border border-[#161210]` | `text-[#161210]` | same | CTA blocks that sit on an amber background |
+| Outline accent | transparent + `border border-[#E0A83A]` → hover fills `bg-[#E0A83A]` | `text-[#E0A83A]` → hover `text-[#161210]` | same | "Leer la historia", secondary nav CTA |
+| Dark neutral | `bg-[#161210]` → hover `bg-[#0F0C0A]` | `text-[#F1E7D6]` | same | Utility buttons on a raised (`#1E1813`) card, where amber would be too loud |
+| Link-style | no bg, `underline decoration-2 decoration-[#E0A83A] underline-offset-[7px]` | `text-[#E0A83A]` hover `text-[#F3C56B]` | — | "Ver todas las categorías", inline nav |
+
+**Non-negotiable rule:** any button whose background is amber or
+amber-2 (base or hover) uses `#161210` text, never `#F1E7D6`. Mixing
+light text onto an amber hover state is the single most common bug in
+this system — check both the base **and** the `hover:` classes
+together, not in isolation.
 
 **Banned:**
-- `bg-gradient-to-r from-[#C9A962] to-[#A08848]` — casino gold gradient
-- `bg-teal-X`, `bg-blue-X`, `bg-green-X` — off brand
-- `rounded-lg` or larger on buttons
+- Any gradient background on a button
+- `bg-gray-X`, `bg-blue-X`, `bg-green-X`
+- `rounded-md`/`lg` on buttons
 
-All buttons: `min-h-[44px]`, `rounded-sm`, `text-sm font-semibold tracking-wide`, `px-5 py-2.5`.
+### Product tiles (critical pattern)
+
+Every product photo in this system is a transparent PNG cutout. It
+**always** renders inside a cream tile so it reads against the dark
+page:
+
+```
+bg-[#F1E7D6]                          ← the tile, never the dark page bg
+aspect-square | aspect-[4/5]
+overflow-hidden
+```
+
+`<Image>` inside: `object-contain`, with padding (`p-2`–`p-7`
+depending on tile size) so the cutout doesn't touch the tile edges.
+
+Small overlay controls that sit **on top of** the tile (favorite
+heart, add-to-list plus button) may keep light/cream styling
+(`bg-[#F1E7D6]/95`) since they're on the cream tile, not the dark
+page — check which surface a control sits on before choosing its
+color.
+
+### Category / seal dots
+
+Small `h-[7–10px] w-[7–10px] rounded-full` dots in `--hm-selva`,
+`--hm-barro`, `--hm-cobalto` or `--hm-amber` precede category labels
+and availability text. Pick the seal color per category/status, not
+arbitrarily.
 
 ### Cards
 
 ```
-bg-[#FAF6EF]                         ← paper, not white
-border border-[#E8E4E0]/70
-rounded-sm                            ← 2px
+bg-[#1E1813]                          ← raised, not the page bg
+border border-[#3A2E24]
+rounded-sm
 overflow-hidden
-transition-[box-shadow,border-color,transform] duration-300 ease-out-quart
-hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]
-hover:border-[#C9A962]/45
+transition-[border-color,box-shadow,transform] duration-300
 hover:-translate-y-0.5
+hover:border-[#E0A83A]/45
+hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)]
 ```
-
-Image inside: `aspect-square` on product cards; `aspect-[4/5]` on editorial cards.
 
 ### Inputs
 
 ```
-bg-white
-border border-[#E8E4E0]
+bg-[#1E1813]
+border border-[#3A2E24]
 rounded-sm
 px-3 py-2.5
-text-[#2D2D2D]
-placeholder:text-[#9C9589]
-focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25
+text-[#F1E7D6]
+placeholder:text-[#8C7F6E]
+focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25
 ```
 
-Labels: `text-xs uppercase tracking-[0.06em] font-medium text-[#6B6459] mb-1.5`.
+Labels: `text-xs uppercase tracking-[0.06em] font-medium text-[#8C7F6E] mb-1.5`.
+Always pair a `<select>` with a visible or `sr-only` `<label>` **and**
+`aria-label` — a bare `<select>` is a recurring a11y miss in this
+codebase, check for it whenever you touch a filter/sort control.
 
-Errors: `text-[#9F2D24]` + `border-[#C44536]` + AlertCircle icon. Wrap error message in `aria-describedby` linked region.
+Errors: `text-[#D9563B]` + `border-[#D9563B]/40` + `AlertCircle`
+icon, message wrapped in `aria-describedby`.
 
-### Category navigation (the one we discussed)
+### Marquee strip
 
-Editorial-functional hybrid:
-- Background: `bg-[#FAF6EF]` (paper cream)
-- Items: `text-sm tracking-[0.06em] text-[#2D2D2D] hover:text-[#A08848]`
-- Active item: `text-[#A08848] underline decoration-2 decoration-[#C9A962] underline-offset-[6px]`
-- Separators between items (desktop): `border-l border-[#E8E4E0]` with `px-4 py-3`
-- Mobile: scroll horizontal with snap-x, no separators
-- Min-height row: 56px (clean touch target)
-- **No background pills.** No `bg-[#2D2D2D]` boxes.
+Flat `bg-[#E0A83A]` band, `text-[#161210]`, `font-display`,
+category names separated by `◆`. Implemented with `.hm-marquee-track`
+(see §6 Motion) — duplicate the content string once so the
+`translateX(-50%)` loop is seamless, and never add a flex `gap`
+between the two copies (bake the separator into the string itself).
+
+### Category tiles
+
+Full-bleed photo (`object-cover`), bottom scrim
+(`linear-gradient(180deg, transparent 0%, rgba(22,18,16,0.92) 100%)`),
+`font-display` title + piece count + "desde $X" in `--hm-ink-2`, and
+a `40×40` outlined arrow badge (`border-[#E0A83A] text-[#E0A83A]`) in
+the bottom-right corner. Counts and starting prices are always **live
+Supabase data** — never hardcode a number here.
+
+### Mobile sticky bar
+
+Two-column `grid grid-cols-2` fixed to `bottom-0`: amber "Pedir
+cotización" + outline-selva "WhatsApp" (`border-[#3C9A70]`). Respects
+`env(safe-area-inset-bottom)`. Only rendered on the home page per the
+approved artboard; product/catalog pages keep their own
+quote-count sticky bar.
 
 ### Headers (page header / hero)
 
-- Hero: full-bleed image with dark gradient overlay LEFT (where text goes), eyebrow + display XL + body + 2 CTAs (1 primary gold, 1 secondary outline on dark). See `HeroSection.tsx` for the reference implementation.
-- Page headers (non-hero): `pt-12 md:pt-20 pb-8` with breadcrumb on top, then h1 display M, then short intro. Centered on long-form pages; left-aligned on listing pages.
+- Home hero: full-bleed photo, dark left-to-right gradient (desktop)
+  or bottom scrim (mobile), eyebrow + display H1 + body + 2 CTAs (1
+  amber primary, 1 outline secondary), trust row, and a small
+  "en el taller esta semana" 3-tile rail (desktop only — real
+  featured products, not placeholders).
+- Category/catalog header: breadcrumb, `h1` at 68px desktop, stat row
+  (piece count, starting price, "sale del taller en 48h" — all live
+  data), full-bleed category photo on the right.
 
 ### Footer
 
-`bg-[#1A1A1A]` (darker) for stronger ground; `text-[#B5AC9D]` for body text (passes AA contrast 4.7:1); `text-[#F5F1EB]` for titles; gold accent on micro details (HM monogram, social icons hover).
+`bg-[#0F0C0A]` (deepest ground), 4 columns (brand / Tienda / Taller /
+Ayuda), amber `w-12 h-[3px]` rule under the brand name, `text-[#C9BBA5]`
+body, `text-[#F1E7D6]` links on hover → `#E0A83A`. English/Spanish
+cross-domain link lives in the Ayuda column.
 
 ### Empty states
 
-Centered, generous whitespace. Lucide icon (24px, gold), display S headline, body paragraph (1 sentence), one CTA. No illustrations of cartoon characters — keep it editorial.
+Centered, generous whitespace, lucide icon in an amber-tinted circle
+(`bg-[#E0A83A]/18 text-[#F3C56B]`), display S headline, one CTA.
 
 ---
 
 ## 8. Accessibility (non-negotiable)
 
 - All interactive elements: `min-height: 44px` (mobile touch target).
-- **Visible `:focus-visible`** ring: `outline: 2px solid #A08848; outline-offset: 2px`. Already in `globals.css`.
-- Headings: one `<h1>` per page; nested `h2`/`h3` respect hierarchy.
-- Form inputs: `<label htmlFor>` (or `aria-label`), errors with `aria-describedby`, required marked with both visual `*` (`aria-hidden`) and screen reader text (`sr-only "(required)"`).
-- Toggle buttons: `aria-pressed`. Tabs: `role="tab" + aria-selected`. Modals: `role="dialog" aria-modal="true"` + focus trap + ESC to close.
-- Live regions: `aria-live="polite"` for cart additions, success messages, error appearances.
-- `prefers-reduced-motion: reduce` MUST kill any autoplay, looping animation, parallax.
-- Contrast: AA minimum, AAA preferred where copy is heavy (legal, about).
+- Visible `:focus-visible` ring: `outline: 2px solid #F3C56B;
+  outline-offset: 2px` (wired globally in `globals.css` via
+  `--hm-gold-dark`, which now resolves to amber-2).
+- One `<h1>` per page; nested `h2`/`h3` respect hierarchy.
+- Every `<select>` needs a label: a visible `<label htmlFor>` or, at
+  minimum, `aria-label` — check sort/filter controls specifically,
+  they are the recurring miss.
+- `aria-controls` must reference an id that actually exists in the
+  DOM — a stale reference (e.g. a thumbnail tablist pointing at a
+  gallery image that has no matching `id`) fails automated audits
+  even though it looks fine visually. Grep for `aria-controls="` and
+  confirm the target id exists whenever you touch gallery/tab code.
+- Toggle buttons: `aria-pressed`. Tabs: `role="tab"` +
+  `aria-selected`. Modals: `role="dialog" aria-modal="true"` + focus
+  trap + ESC to close.
+- Live regions: `aria-live="polite"` for quote-list additions,
+  success/error toasts.
+- `prefers-reduced-motion: reduce` kills the marquee, carousels, and
+  any looping animation.
+- Contrast: AA minimum. `--hm-ink-mute` (#8C7F6E) is caption-only —
+  never run body copy in it on `--hm-bg`/`--hm-raised`.
 
 ---
 
 ## 9. Performance
 
-- All images via `next/image` with explicit `sizes`. Above-the-fold (hero, first product image on detail) gets `priority`.
-- `next/font` for both display and sans families, `display: swap`, variable mode.
-- No `framer-motion` outside places that need it. For one-shot CSS transitions, plain Tailwind.
-- Long components below the fold: `next/dynamic({ ssr: false })` (we did this with ReviewsSection).
-- SEO: every page has `generateMetadata` with title, description, OG image specific to the page.
+- All images via `next/image` with explicit `sizes`. Hero image and
+  first product image get `priority`.
+- `next/font/google` for both families (`Libre_Caslon_Display`,
+  `Manrope`), `display: swap`, variable mode, loaded once in
+  `src/app/layout.tsx`.
+- Home page sections (`HomePageData.tsx` → `HeroSection`, `Marquee`,
+  `CategoryTiles`, `FeaturedPieces`, `ImpactSplit`, `ProcessSteps`,
+  `QuoteCTA`) are server components — no client fetch on mount.
+- Long components below the fold (reviews) stay `next/dynamic({ ssr:
+  false })`.
+- SEO: every page has `generateMetadata`.
 
 ---
 
 ## 10. Anti-patterns we have committed (do not repeat)
 
-Documented from the audit before this system existed:
-
-- `bg-teal-600` CTAs in checkout / drawer (purged in phase 1)
-- `bg-gradient-to-r from-[#C9A962] to-[#A08848]` on every CTA (purged in product detail + home)
-- `text-[#9C9589]` on cream surfaces (2.08:1, fails AA) → use `text-[#6B6459]`
-- `rounded-md` / `rounded-lg` everywhere — SaaS feel
-- `<div className="container">` with no semantic `<main>` (fixed)
-- Multiple `<h1>` per page (was happening in carousel banners) (fixed)
-- Emojis ⚖️ 🏛️ as decoration (replaced with lucide)
-- `bg-white` (#FFF) on product cards — too cold (now `bg-[#FAF6EF]`)
-- Spinners as loading state (replaced with skeletons in Reviews)
-- `Playfair Display`, `Cormorant Garamond`, `Inter` — banned by impeccable
-- `shadow-lg` / `shadow-md` generic gray — use walnut-tinted
+- Cream/paper tokens (`#FAF6EF`, `#F5F1EB`, `#E8E4E0`) left over from
+  the pre-"Taller nocturno" system — if you find one, it's a bug, not
+  an intentional light surface.
+- A dark button that keeps light/cream text on `hover:bg-[#F3C56B]`
+  (amber hover) — this was a real, repeated bug during the dark
+  migration. The rule in §7 exists because of it.
+- `bg-white` anywhere.
+- A product `<Image>` sitting directly on the dark page background
+  with no `bg-[#F1E7D6]` tile — the cutout disappears.
+- Gradient CTAs, `rounded-lg`/`xl`, `shadow-lg`/`md` generic gray.
+- Emojis as decoration.
+- Multiple `<h1>` per page.
+- A `<select>` with no label.
 
 ---
 
 ## 11. Implementation cheat-sheet (most-used decisions)
 
-When you need to write a Tailwind class quickly:
-
 | Need | Use |
 |---|---|
-| Page background | `bg-[#FAF6EF]` |
-| Body text | `text-[#2D2D2D]` (default) or `text-[#4A4A4A]` (soft) |
-| Tertiary / caption text | `text-[#6B6459]` (NOT `text-[#9C9589]` — fails contrast) |
-| Card background | `bg-[#FAF6EF]` or `bg-white` only if card is on a charcoal section |
-| Border | `border-[#E8E4E0]` |
-| Hover border / accent | `border-[#C9A962]/45` |
-| Heading | `.font-display tracking-[-0.005em]` |
-| Eyebrow above heading | `text-[11px] uppercase tracking-[0.18em] text-[#A08848]` |
-| Price | `.font-display font-semibold tabular-nums` |
-| Primary CTA | `bg-[#2D2D2D] text-[#F5F1EB] hover:bg-[#1A1A1A]` |
-| Hero gold CTA (rare) | `bg-[#C9A962] text-[#1A1A1A] hover:bg-[#A08848] hover:text-[#F5F1EB]` |
-| Card hover shadow | `shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]` |
-| Section padding | `py-16 md:py-24` |
-| Transition | `transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]` |
-| Border radius default | `rounded-sm` |
+| Page background | `bg-[#161210]` |
+| Card / raised surface | `bg-[#1E1813]` |
+| Deepest ground (footer, hero letterbox) | `bg-[#0F0C0A]` |
+| Product image tile | `bg-[#F1E7D6]` + `object-contain` |
+| Body text | `text-[#F1E7D6]` (default) or `text-[#C9BBA5]` (soft) |
+| Caption / tertiary text | `text-[#8C7F6E]` (never for body copy) |
+| Border | `border-[#3A2E24]` |
+| Hover border / accent | `border-[#E0A83A]/45` |
+| Heading | `.font-display` |
+| Eyebrow above heading | `text-[11px] uppercase tracking-[0.22em] text-[#E0A83A]` |
+| Price | `.font-display tabular-nums text-[#E0A83A]` |
+| Primary CTA | `bg-[#E0A83A] text-[#161210] hover:bg-[#F3C56B]` (text stays `#161210` on hover too) |
+| Secondary CTA (on dark) | `border border-[#F1E7D6]/45 text-[#F1E7D6]` |
+| Card hover shadow | `shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)]` |
+| Section padding | `py-14 md:py-24` |
+| Border radius | `rounded-sm` (2px) everywhere |
 
 ---
 
 ## 12. Living document
 
-This file evolves. When a new pattern emerges (a third accent color, a new component, a different heading scale), **update DESIGN.md in the same PR that introduces the pattern**. Don't let one-off variations rot the system.
+This file evolves. When a new pattern emerges (a new seal color, a
+new component, a different heading scale), **update DESIGN.md in the
+same PR that introduces the pattern**. Don't let one-off variations
+rot the system.
 
-When this document and the code disagree, the document wins. Refactor the code.
+When this document and the code disagree, the document wins. Refactor
+the code.

@@ -16,20 +16,20 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
 export default async function PoliticaPrivacidadPage({ params }: { params: tParams }) {
   const { locale } = await params;
   return (
-    <main className="min-h-screen bg-[#FAF6EF] px-4 py-12 sm:px-6 md:py-16 lg:px-8">
-      <div className="mx-auto max-w-5xl overflow-hidden border border-[#E8E4E0] bg-[#FAF6EF] shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
-        <div className="border-b border-[#F5F1EB]/12 bg-[#2D2D2D] px-6 py-8">
-          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-[-0.005em] text-[#F5F1EB] text-center mb-2">
+    <main className="min-h-screen bg-[#161210] px-4 py-12 sm:px-6 md:py-16 lg:px-8">
+      <div className="mx-auto max-w-5xl overflow-hidden border border-[#3A2E24] bg-[#161210] shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+        <div className="border-b border-[#3A2E24]/12 bg-[#161210] px-6 py-8">
+          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-[-0.005em] text-[#F1E7D6] text-center mb-2">
             {locale === "es" ? "Política de Privacidad" : "Privacy policy"}
           </h1>
-          <p className="text-[#B5AC9D] text-center text-sm">
+          <p className="text-[#C9BBA5] text-center text-sm">
             {locale === "es" ? "Última actualización: 9 de abril de 2025" : "Last updated: April 9, 2025"}
           </p>
         </div>
 
-        <div className="px-6 py-8 max-w-none text-[#4A4A4A] leading-relaxed sm:px-8 lg:px-10">
+        <div className="px-6 py-8 max-w-none text-[#C9BBA5] leading-relaxed sm:px-8 lg:px-10">
           <div className="mb-12">
-            <p className="text-lg text-[#2D2D2D]">
+            <p className="text-lg text-[#F1E7D6]">
               {locale === "es"
                 ? "En Handmade Art tratamos tus datos como tratamos cada pieza: con cuidado. Acá te contamos qué guardamos, por qué y qué control tenés sobre ello."
                 : "At Handmade Art we treat your data the way we treat each piece: with care. Here's what we keep, why, and what control you have over it."}
@@ -42,9 +42,9 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </div>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">1. {locale === "es" ? "Información que recopilamos" : "Information we collect"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">1. {locale === "es" ? "Información que recopilamos" : "Information we collect"}</h2>
             
-            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-6 mb-4">1.1 {locale === "es" ? "Datos proporcionados directamente" : "Directly provided data"}</h3>
+            <h3 className="text-xl font-semibold text-[#F1E7D6] mt-6 mb-4">1.1 {locale === "es" ? "Datos proporcionados directamente" : "Directly provided data"}</h3>
             <p>
               {locale === "es" ? "Recopilamos la siguiente información mínima necesaria para gestionar su cuenta y proporcionar nuestros servicios:" : "We collect the following minimum information necessary to manage your account and provide our services:"}
             </p>
@@ -54,7 +54,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
               <li><span className="font-medium">{locale === "es" ? "Imagen de perfil (opcional):" : "Profile picture (optional):"}</span> {locale === "es" ? "Si decide cargar una imagen para personalizar su cuenta." : "If you choose to upload an image to customize your account."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">1.2 {locale === "es" ? "Datos asociados a su actividad" : "Data associated with your activity"}</h3>
+            <h3 className="text-xl font-semibold text-[#F1E7D6] mt-8 mb-4">1.2 {locale === "es" ? "Datos asociados a su actividad" : "Data associated with your activity"}</h3>
             <p>
               {locale === "es" ? "Para proporcionar funcionalidad y mejorar la seguridad, también recopilamos:" : "To provide functionality and improve security, we also collect:"}
             </p>
@@ -64,7 +64,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
               <li><span className="font-medium">{locale === "es" ? "Información sobre preferencias:" : "Preference information:"}</span> {locale === "es" ? "Configuraciones y ajustes que usted establece en su cuenta." : "Settings and adjustments you make to your account."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">1.3 {locale === "es" ? "Datos recopilados automáticamente" : "Automatically collected data"}</h3>
+            <h3 className="text-xl font-semibold text-[#F1E7D6] mt-8 mb-4">1.3 {locale === "es" ? "Datos recopilados automáticamente" : "Automatically collected data"}</h3>
             <p>
               {locale === "es" ? "Recopilamos cierta información técnica cuando utiliza nuestros servicios:" : "We collect certain technical information when you use our services:"}
             </p>
@@ -77,12 +77,12 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">2. {locale === "es" ? "Cómo utilizamos su información" : "How we use your information"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">2. {locale === "es" ? "Cómo utilizamos su información" : "How we use your information"}</h2>
             <p>
               {locale === "es" ? "Utilizamos su información personal exclusivamente para los siguientes propósitos:" : "We use your personal information exclusively for the following purposes:"}
             </p>
             
-            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-6 mb-4">2.1 {locale === "es" ? "Propósitos esenciales" : "Essential purposes"}</h3>
+            <h3 className="text-xl font-semibold text-[#F1E7D6] mt-6 mb-4">2.1 {locale === "es" ? "Propósitos esenciales" : "Essential purposes"}</h3>
             <ul className="space-y-3 pl-5 list-disc mt-4">
               <li><span className="font-medium">{locale === "es" ? "Gestión de su cuenta:" : "Account management:"}</span> {locale === "es" ? "Crear y mantener su cuenta, permitir el inicio de sesión y verificar su identidad." : "Create and maintain your account, allow login and verify your identity."}</li>
               <li><span className="font-medium">{locale === "es" ? "Procesamiento de pedidos:" : "Order processing:"}</span> {locale === "es" ? "Asociar sus pedidos a su perfil y facilitar su seguimiento." : "Associate your orders with your profile and facilitate tracking."}</li>
@@ -90,14 +90,14 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
               <li><span className="font-medium">{locale === "es" ? "Seguridad:" : "Security:"}</span> {locale === "es" ? "Proteger su cuenta contra accesos no autorizados y detectar actividades sospechosas." : "Protect your account against unauthorized access and detect suspicious activities."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">2.2 {locale === "es" ? "Mejora del servicio" : "Improving the service"}</h3>
+            <h3 className="text-xl font-semibold text-[#F1E7D6] mt-8 mb-4">2.2 {locale === "es" ? "Mejora del servicio" : "Improving the service"}</h3>
             <ul className="space-y-3 pl-5 list-disc mt-4">
               <li><span className="font-medium">{locale === "es" ? "Personalización:" : "Personalization:"}</span> {locale === "es" ? "Adaptar y personalizar aspectos de nuestro servicio según sus preferencias." : "Adapt and personalize aspects of our service according to your preferences."}</li>
               <li><span className="font-medium">{locale === "es" ? "Análisis y estadísticas:" : "Analysis and statistics:"}</span> {locale === "es" ? "Realizar análisis internos para mejorar la funcionalidad y usabilidad de nuestra plataforma." : "Perform internal analysis to improve the functionality and usability of our platform."}</li>
               <li><span className="font-medium">{locale === "es" ? "Soporte técnico:" : "Technical support:"}</span> {locale === "es" ? "Ayudarle a resolver problemas técnicos o dudas sobre su cuenta." : "Help you resolve technical problems or questions about your account."}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">2.3 {locale === "es" ? "Cumplimiento legal" : "Legal compliance"}</h3>
+            <h3 className="text-xl font-semibold text-[#F1E7D6] mt-8 mb-4">2.3 {locale === "es" ? "Cumplimiento legal" : "Legal compliance"}</h3>
             <ul className="space-y-3 pl-5 list-disc mt-4">
               <li><span className="font-medium">{locale === "es" ? "Obligaciones legales:" : "Legal obligations:"}</span> {locale === "es" ? "Cumplir con nuestras obligaciones legales y normativas." : "Comply with our legal obligations and regulations."}</li>
               <li><span className="font-medium">{locale === "es" ? "Resolución de disputas:" : "Dispute resolution:"}</span> {locale === "es" ? "Resolver disputas y hacer cumplir nuestros acuerdos legales." : "Resolve disputes and enforce our legal agreements."}</li>
@@ -106,7 +106,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">3. {locale === "es" ? "Base legal para el procesamiento" : "Legal basis for processing"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">3. {locale === "es" ? "Base legal para el procesamiento" : "Legal basis for processing"}</h2>
             <p>
               {locale === "es" ? "Procesamos sus datos personales en base a las siguientes bases legales:" : "We process your personal data based on the following legal bases:"}
             </p>
@@ -119,12 +119,12 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">4. {locale === "es" ? "Compartición de información" : "Information sharing"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">4. {locale === "es" ? "Compartición de información" : "Information sharing"}</h2>
             <p>
               {locale === "es" ? "Nos comprometemos a no vender, alquilar o comercializar sus datos personales. Compartimos su información únicamente en las siguientes circunstancias:" : "We commit to not sell, rent, or commercialize your personal data. We share your information only in the following circumstances:"}
             </p>
             
-            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-6 mb-4">4.1 {locale === "es" ? "Proveedores de servicios" : "Service providers"}</h3>
+            <h3 className="text-xl font-semibold text-[#F1E7D6] mt-6 mb-4">4.1 {locale === "es" ? "Proveedores de servicios" : "Service providers"}</h3>
             <p>
               {locale === "es" ? "Podemos compartir su información con proveedores de servicios que nos ayudan a operar nuestra plataforma:" : "We may share your information with service providers that help us operate our platform:"}
             </p>
@@ -138,7 +138,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
               {locale === "es" ? "Todos estos proveedores están obligados contractualmente a proteger su información y utilizarla únicamente para los fines específicos acordados." : "All these providers are contractually obligated to protect your information and use it exclusively for the specific purposes agreed upon."}
             </p>
 
-            <h3 className="text-xl font-semibold text-[#2D2D2D] mt-8 mb-4">4.2 {locale === "es" ? "Requisitos legales" : "Legal requirements"}</h3>
+            <h3 className="text-xl font-semibold text-[#F1E7D6] mt-8 mb-4">4.2 {locale === "es" ? "Requisitos legales" : "Legal requirements"}</h3>
             <p>
               {locale === "es" ? "Podemos divulgar su información cuando sea requerido por ley:" : "We may disclose your information when required by law:"}
             </p>
@@ -151,7 +151,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">5. {locale === "es" ? "Seguridad de los datos" : "Data security"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">5. {locale === "es" ? "Seguridad de los datos" : "Data security"}</h2>
             <p>
               {locale === "es" ? "Implementamos medidas técnicas y organizativas apropiadas para proteger sus datos personales:" : "We implement appropriate technical and organizational measures to protect your personal data:"}
             </p>
@@ -168,7 +168,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">6. {locale === "es" ? "Retención de datos" : "Data retention"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">6. {locale === "es" ? "Retención de datos" : "Data retention"}</h2>
             <p>
               {locale === "es" ? "Conservamos su información personal únicamente durante el tiempo necesario para los fines establecidos en esta Política de Privacidad:" : "We keep your personal information only for as long as necessary for the purposes set forth in this Privacy Policy:"}
             </p>
@@ -181,7 +181,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">7. {locale === "es" ? "Sus derechos" : "Your rights"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">7. {locale === "es" ? "Sus derechos" : "Your rights"}</h2>
             <p>
               {locale === "es" ? "Dependiendo de su ubicación, puede tener diversos derechos con respecto a sus datos personales:" : "Depending on your location, you may have various rights regarding your personal data:"}
             </p>
@@ -200,7 +200,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">8. {locale === "es" ? "Cookies y tecnologías similares" : "Cookies and similar technologies"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">8. {locale === "es" ? "Cookies y tecnologías similares" : "Cookies and similar technologies"}</h2>
             <p>
               {locale === "es" ? "Utilizamos cookies y tecnologías similares para varios propósitos relacionados con la funcionalidad de nuestra plataforma:" : "We use cookies and similar technologies for various purposes related to the functionality of our platform:"}
             </p>
@@ -216,7 +216,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">9. {locale === "es" ? "Privacidad de menores" : "Children's privacy"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">9. {locale === "es" ? "Privacidad de menores" : "Children's privacy"}</h2>
             <p>
               {locale === "es" ? "Nuestros servicios no están dirigidos a personas menores de 18 años. No recopilamos conscientemente información personal de menores. Si descubrimos que hemos recopilado información personal de un menor sin verificación del consentimiento parental, tomaremos medidas para eliminar esa información lo antes posible." : "Our services are not directed to persons under the age of 18. We do not knowingly collect personal information from minors. If we discover that we have collected personal information from a minor without parental consent, we will take measures to delete that information as soon as possible."}
             </p>
@@ -226,7 +226,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">10. {locale === "es" ? "Transferencias internacionales de datos" : "International data transfers"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">10. {locale === "es" ? "Transferencias internacionales de datos" : "International data transfers"}</h2>
             <p>
               {locale === "es" ? "Sus datos personales pueden ser transferidos y procesados en países distintos a aquel en el que reside. Estos países pueden tener leyes de protección de datos diferentes a las de su país." : "Your personal data may be transferred and processed in countries different from the one in which you reside. These countries may have different data protection laws than those of your country."}
             </p>
@@ -241,7 +241,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">11. {locale === "es" ? "Cambios a esta política" : "Changes to this policy"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">11. {locale === "es" ? "Cambios a esta política" : "Changes to this policy"}</h2>
             <p>
               {locale === "es" ? "Podemos actualizar esta Política de Privacidad periódicamente para reflejar cambios en nuestras prácticas o por otros motivos operativos, legales o regulatorios." : "We may periodically update this Privacy Policy to reflect changes in our practices or for other operational, legal, or regulatory reasons."}
             </p>
@@ -253,7 +253,7 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
           </section>
 
           <section className="mb-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#2D2D2D] border-b border-[#E8E4E0] pb-2 mb-6">12. {locale === "es" ? "Contacto" : "Contact"}</h2>
+            <h2 className="font-display text-2xl font-medium tracking-[-0.005em] text-[#F1E7D6] border-b border-[#3A2E24] pb-2 mb-6">12. {locale === "es" ? "Contacto" : "Contact"}</h2>
             <p>
               {locale === "es" ? "Si tiene preguntas, inquietudes o solicitudes relacionadas con esta Política de Privacidad o el procesamiento de sus datos personales, puede contactarnos a través de:" : "If you have questions, concerns, or requests related to this Privacy Policy or the processing of your personal data, you can contact us through:"}
             </p>
@@ -267,11 +267,11 @@ export default async function PoliticaPrivacidadPage({ params }: { params: tPara
             </p>
           </section>
 
-          <div className="mt-12 border border-[#E8E4E0] bg-[#F5F1EB] p-6 text-center">
-            <p className="text-[#4A4A4A] font-medium">
+          <div className="mt-12 border border-[#3A2E24] bg-[#1E1813] p-6 text-center">
+            <p className="text-[#C9BBA5] font-medium">
               {locale === "es" ? "Al utilizar nuestros servicios, usted reconoce que ha leído y comprendido esta Política de Privacidad." : "By using our services, you acknowledge that you have read and understood this Privacy Policy."}
             </p>
-            <p className="text-[#6B6459] mt-2">
+            <p className="text-[#8C7F6E] mt-2">
               {locale === "es" ? "Esta política está específicamente diseñada para un sistema minimalista de inicio de sesión que asocia su perfil únicamente con información básica como pedidos y preferencias." : "This policy is specifically designed for a minimal login system that associates your profile uniquely with basic information such as orders and preferences."}
             </p>
           </div>

@@ -3,7 +3,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
 import { usePathname } from 'next/navigation';
 import { Menu, X, User, ChevronDown, Globe, Package } from 'lucide-react';
@@ -11,6 +10,8 @@ import { useSupabase } from '@/app/supabase-provider/provider';
 import UserDropdown from '@/components/user/UserDropdown';
 import SearchBar from '@/components/search/SearchBar';
 import CategoryCarousel from '@/components/search/CategoryCarousel';
+import { useInterestList } from '@/lib/hooks/useInterestList';
+import { getCategoryById, PRIMARY_NAV_CATEGORY_IDS } from '@/lib/content/categories';
 import type { HomeCategory } from '@/lib/home/types';
 
 type NavLink = {
@@ -29,6 +30,8 @@ export default function NavbarClient({
   const router = useRouter();
   const pathname = usePathname();
   const { supabase, session } = useSupabase();
+  const interestList = useInterestList();
+  const localeKey: 'es' | 'en' = locale === 'es' ? 'es' : 'en';
 
   const [currentSession, setCurrentSession] = useState(session);
 
@@ -52,6 +55,10 @@ export default function NavbarClient({
   const [categoryList] = useState<HomeCategory[]>(initialCategories);
   const [showStoreCategories, setShowStoreCategories] = useState(false);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
+
+  const primaryNav = PRIMARY_NAV_CATEGORY_IDS
+    .map((id) => getCategoryById(id))
+    .filter((c): c is NonNullable<typeof c> => Boolean(c));
 
   useEffect(() => {
     const handleResize = () => {
@@ -121,17 +128,19 @@ export default function NavbarClient({
     window.location.href = newUrl;
   };
 
+  const totalQuoteItems = interestList.getTotalItems();
+
   return (
     <>
       {/* Desktop Navigation */}
       <div className="hidden w-full flex-col lg:flex" style={{ position: 'static' }}>
         {/* Primary Header Row */}
-        <div className="flex w-full max-w-screen-2xl mx-auto items-center justify-between gap-5 px-4 py-2 sm:px-8 lg:px-12">
+        <div className="flex w-full max-w-screen-2xl mx-auto items-center justify-between gap-5 px-4 py-2.5 sm:px-8 lg:px-12">
           {/* Left */}
           <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex h-11 w-11 items-center justify-center rounded-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A962]"
+              className="flex h-11 w-11 items-center justify-center rounded-sm text-[#F1E7D6] transition-colors hover:bg-[#1E1813] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E0A83A]"
               aria-label={isMenuOpen ? (locale === 'es' ? 'Cerrar menú' : 'Close menu') : (locale === 'es' ? 'Abrir menú' : 'Open menu')}
               aria-expanded={isMenuOpen}
             >
@@ -139,26 +148,55 @@ export default function NavbarClient({
             </button>
             <Link
               href="/"
-              className="flex items-center gap-2.5 group"
+              className="flex items-center gap-3 group"
               aria-label="Handmade Art"
             >
-              <Image
-                src="https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/logo-LjcayV8P6SUxpAv0Hv61zn3t1XNhLw.svg"
-                alt=""
-                width={40}
-                height={40}
-                className="w-8 md:w-10 object-contain"
-                unoptimized
-              />
-              <span className="hidden sm:block font-display text-xl md:text-2xl tracking-[-0.005em] text-[#2D2D2D]">
-                Handmade <span className="text-[#A08848]">Art</span>
+              <span className="font-serif flex h-11 w-11 shrink-0 items-center justify-center bg-[#E0A83A] text-lg leading-none text-[#161210]">
+                HM
+              </span>
+              <span className="hidden sm:flex flex-col leading-none">
+                <span className="font-display text-xl md:text-2xl tracking-[-0.005em] text-[#F1E7D6]">
+                  Handmade Art
+                </span>
+                <span className="mt-1 text-[10px] uppercase tracking-[0.22em] text-[#8C7F6E]">
+                  {locale === 'es' ? 'Taller · San Ramón, Costa Rica' : 'Workshop · San Ramón, Costa Rica'}
+                </span>
               </span>
             </Link>
           </div>
 
+          {/* Primary nav — Chorreadores / Espejos / Esculturas / Pinturas / Guías / El taller */}
+          <nav
+            className="hidden shrink-0 items-center gap-7 text-[15px] font-medium text-[#F1E7D6] xl:flex"
+            aria-label={locale === 'es' ? 'Categorías principales' : 'Primary categories'}
+          >
+            {primaryNav.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/c/${cat.slugs[localeKey]}`}
+                className="transition-colors hover:text-[#F3C56B]"
+              >
+                {cat.dbName[localeKey]}
+              </Link>
+            ))}
+            <Link
+              href={locale === 'es' ? '/guias' : '/guides'}
+              className="transition-colors hover:text-[#F3C56B]"
+            >
+              {locale === 'es' ? 'Guías' : 'Guides'}
+            </Link>
+            <Link
+              href="/reinsercion-sociolaboral"
+              className="inline-flex items-center gap-2 text-[#E0A83A] transition-colors hover:text-[#F3C56B]"
+            >
+              <span aria-hidden className="h-[7px] w-[7px] rounded-full bg-[#E0A83A]" />
+              {locale === 'es' ? 'El taller' : 'The workshop'}
+            </Link>
+          </nav>
+
           {shouldShowSearchComponents && (
             <div
-              className="relative min-w-[360px] flex-1"
+              className="relative min-w-[240px] flex-1 xl:max-w-[280px]"
               style={{ zIndex: 40, position: 'relative' }}
             >
               <SearchBar
@@ -175,38 +213,25 @@ export default function NavbarClient({
             <UserDropdown session={currentSession} onLogout={handleLogout} />
             <button
               onClick={handleLanguageChange}
-              className="flex min-h-[44px] items-center space-x-1.5 rounded-sm px-2 py-1 text-sm text-[#2D2D2D] transition-colors hover:bg-[#F5F1EB] hover:text-[#C9A962] focus:outline-none"
+              className="flex min-h-[44px] items-center space-x-1.5 rounded-sm px-2 py-1 text-sm text-[#F1E7D6] transition-colors hover:bg-[#1E1813] hover:text-[#E0A83A] focus:outline-none"
             >
-              <Globe className="h-4 w-4" />
+              <Globe className="h-4 w-4" strokeWidth={1.8} />
               <span className="font-medium">{locale === 'es' ? 'ES' : 'EN'}</span>
             </button>
             {shouldShowSearchComponents && (
               <Link
                 href="/products"
-                className="inline-flex min-h-[40px] items-center gap-2 rounded-sm bg-[#C9A962] px-3.5 py-2 text-sm font-semibold text-[#1A1A1A] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-sm bg-[#E0A83A] px-3.5 py-2 text-sm font-bold text-[#161210] transition-colors hover:bg-[#F3C56B]"
               >
-                <Package className="h-4 w-4" strokeWidth={2} aria-hidden />
-                {locale === 'es' ? 'Cotizar' : 'Get a quote'}
+                <Package className="h-4 w-4" strokeWidth={1.8} aria-hidden />
+                {locale === 'es' ? 'Mi cotización' : 'My quote'}
+                <span className="grid h-5 min-w-[20px] place-items-center rounded-full bg-[#161210] px-1 text-[11px] font-bold text-[#E0A83A]">
+                  {totalQuoteItems}
+                </span>
               </Link>
             )}
           </div>
         </div>
-
-        {/* Search bar — aligned to header max-width */}
-        {false && shouldShowSearchComponents && (
-          <div className="w-full max-w-7xl mx-auto pt-3 pb-4 px-4">
-            <div
-              className="relative w-full flex items-center"
-              style={{ zIndex: 40, position: 'relative' }}
-            >
-              <SearchBar
-                variant="navbar"
-                initialCategory={locale === 'es' ? 'Todo' : 'All'}
-                locale={locale}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Category nav — editorial, no fixed height (lets the 48px min-h breathe) */}
         {shouldShowSearchComponents && (
@@ -217,7 +242,7 @@ export default function NavbarClient({
         <div className="hidden">
           <button
             onClick={handleLanguageChange}
-            className="flex items-center space-x-1 text-sm text-[#2D2D2D] hover:text-[#C9A962] focus:outline-none"
+            className="flex items-center space-x-1 text-sm text-[#F1E7D6] hover:text-[#E0A83A] focus:outline-none"
           >
             <Globe className="h-4 w-4" />
             <span>{locale === 'es' ? 'ES' : 'EN'}</span>
@@ -226,7 +251,7 @@ export default function NavbarClient({
           {shouldShowSearchComponents && (
             <Link
               href="/products"
-              className="relative flex items-center space-x-0.5 text-sm text-[#2D2D2D] hover:text-[#C9A962]"
+              className="relative flex items-center space-x-0.5 text-sm text-[#F1E7D6] hover:text-[#E0A83A]"
             >
               <Package className="h-5 w-5" />
               <span className="sr-only">{locale === 'es' ? 'Cotizar' : 'Get a quote'}</span>
@@ -235,7 +260,7 @@ export default function NavbarClient({
 
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="flex h-8 w-8 items-center justify-center text-[#2D2D2D] hover:bg-[#F5F1EB] rounded focus-visible:outline-none"
+            className="flex h-8 w-8 items-center justify-center text-[#F1E7D6] hover:bg-[#1E1813] rounded focus-visible:outline-none"
             aria-label={isMenuOpen ? (locale === 'es' ? 'Cerrar menú' : 'Close menu') : (locale === 'es' ? 'Abrir menú' : 'Open menu')}
             aria-expanded={isMenuOpen}
           >
@@ -249,7 +274,7 @@ export default function NavbarClient({
               <li key={link.path}>
                 <Link
                   href={link.path}
-                  className="block py-1 text-sm text-[#2D2D2D] transition hover:text-[#C9A962]"
+                  className="block py-1 text-sm text-[#F1E7D6] transition hover:text-[#E0A83A]"
                 >
                   {link.name}
                 </Link>
@@ -258,7 +283,7 @@ export default function NavbarClient({
             <li>
               <Link
                 href="/catalog"
-                className="block py-1 text-sm text-[#2D2D2D] transition hover:text-[#C9A962]"
+                className="block py-1 text-sm text-[#F1E7D6] transition hover:text-[#E0A83A]"
               >
                 {locale === 'es' ? 'Tienda' : 'Store'}
               </Link>
@@ -266,7 +291,7 @@ export default function NavbarClient({
             <li>
               <Link
                 href="/contact"
-                className="block py-1 text-sm text-[#2D2D2D] transition hover:text-[#C9A962]"
+                className="block py-1 text-sm text-[#F1E7D6] transition hover:text-[#E0A83A]"
               >
                 {locale === 'es' ? 'Contacto' : 'Contact'}
               </Link>
@@ -282,15 +307,15 @@ export default function NavbarClient({
           role="dialog"
           aria-modal="true"
           aria-label={locale === 'es' ? 'Menú de navegación' : 'Navigation menu'}
-          className="absolute left-0 right-0 top-full z-50 max-h-[calc(100vh-57px)] overflow-y-auto bg-[#FAF6EF] shadow-[0_18px_50px_rgba(92,69,48,0.18)] w-full lg:fixed lg:top-0 lg:left-0 lg:h-full lg:w-80 lg:max-h-none border-t border-[#E8E4E0]"
+          className="absolute left-0 right-0 top-full z-50 max-h-[calc(100vh-57px)] overflow-y-auto bg-[#161210] shadow-[0_18px_50px_rgba(15,12,10,0.55)] w-full lg:fixed lg:top-0 lg:left-0 lg:h-full lg:w-80 lg:max-h-none border-t border-[#3A2E24]"
         >
 
           <button
             onClick={() => setIsMenuOpen(false)}
-            className="absolute top-3 right-3 grid place-items-center w-11 h-11 text-[#2D2D2D] hover:bg-[#F5F1EB] rounded-sm lg:block hidden z-50 transition-colors"
+            className="absolute top-3 right-3 grid place-items-center w-11 h-11 text-[#F1E7D6] hover:bg-[#1E1813] rounded-sm lg:block hidden z-50 transition-colors"
             aria-label={locale === 'es' ? 'Cerrar menú' : 'Close menu'}
           >
-            <X className="h-5 w-5" strokeWidth={2} aria-hidden />
+            <X className="h-5 w-5" strokeWidth={1.8} aria-hidden />
           </button>
 
           <nav className="px-4 py-4" aria-label={locale === 'es' ? 'Menú principal' : 'Main menu'}>
@@ -299,10 +324,10 @@ export default function NavbarClient({
               <div className="mb-4">
                 <Link
                   href="/products"
-                  className="inline-flex items-center w-full min-h-[48px] gap-3 text-sm font-semibold bg-[#C9A962] hover:bg-[#A08848] hover:text-[#F5F1EB] text-[#1A1A1A] px-4 py-3 rounded-sm transition-colors"
+                  className="inline-flex items-center w-full min-h-[48px] gap-3 text-sm font-bold bg-[#E0A83A] hover:bg-[#F3C56B] text-[#161210] px-4 py-3 rounded-sm transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <Package className="h-5 w-5" strokeWidth={2} aria-hidden />
+                  <Package className="h-5 w-5" strokeWidth={1.8} aria-hidden />
                   <span>
                     {locale === 'es' ? 'Solicitar cotización' : 'Request a quote'}
                   </span>
@@ -311,13 +336,13 @@ export default function NavbarClient({
             )}
 
             {/* Auth Links */}
-            <div className="mb-4 border border-[#E8E4E0] bg-[#F5F1EB] p-3 rounded-sm">
+            <div className="mb-4 border border-[#3A2E24] bg-[#1E1813] p-3 rounded-sm">
               <div className="flex items-center justify-between">
                 {currentSession ? (
                   <>
                     <Link
                       href="/account"
-                      className="flex items-center space-x-2 text-sm font-medium text-[#2D2D2D] hover:text-[#C9A962] transition-colors"
+                      className="flex items-center space-x-2 text-sm font-medium text-[#F1E7D6] hover:text-[#E0A83A] transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <User className="h-5 w-5" />
@@ -325,7 +350,7 @@ export default function NavbarClient({
                     </Link>
                     <button
                       onClick={async () => await handleLogout(window.location.href)}
-                      className="text-sm text-[#9C9589] hover:text-[#C9A962] transition-colors"
+                      className="text-sm text-[#8C7F6E] hover:text-[#E0A83A] transition-colors"
                     >
                       {locale === 'es' ? 'Cerrar sesión' : 'Logout'}
                     </button>
@@ -338,7 +363,7 @@ export default function NavbarClient({
                         router.push(`/login?returnUrl=${encodeURIComponent(fullPath)}`);
                         setIsMenuOpen(false);
                       }}
-                      className="text-sm font-medium text-[#2D2D2D] hover:text-[#C9A962] transition-colors"
+                      className="text-sm font-medium text-[#F1E7D6] hover:text-[#E0A83A] transition-colors"
                     >
                       {locale === 'es' ? 'Iniciar sesión' : 'Login'}
                     </button>
@@ -348,7 +373,7 @@ export default function NavbarClient({
                         router.push(`/register?returnUrl=${encodeURIComponent(fullPath)}`);
                         setIsMenuOpen(false);
                       }}
-                      className="text-sm font-medium text-[#C9A962] hover:text-[#A08848] transition-colors"
+                      className="text-sm font-medium text-[#E0A83A] hover:text-[#F3C56B] transition-colors"
                     >
                       {locale === 'es' ? 'Registrarse' : 'Register'}
                     </button>
@@ -357,17 +382,46 @@ export default function NavbarClient({
               </div>
             </div>
 
-            <div className="my-4 h-px bg-[#C9A962]/30" />
+            <div className="my-4 h-px bg-[#E0A83A]/25" />
 
             {/* Navigation Links */}
             <div>
-              <p className="mb-3 font-medium text-sm text-[#9C9589] uppercase tracking-wider">{locale === 'es' ? 'Navegar' : 'Browse'}</p>
+              <p className="mb-3 font-medium text-sm text-[#8C7F6E] uppercase tracking-wider">{locale === 'es' ? 'Navegar' : 'Browse'}</p>
               <ul className="space-y-1">
+                {primaryNav.map((cat) => (
+                  <li key={cat.id}>
+                    <Link
+                      href={`/c/${cat.slugs[localeKey]}`}
+                      className="block text-sm text-[#F1E7D6] hover:text-[#F3C56B] hover:bg-[#1E1813] px-3 py-2.5 rounded-sm transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {cat.dbName[localeKey]}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link
+                    href={locale === 'es' ? '/guias' : '/guides'}
+                    className="block text-sm text-[#F1E7D6] hover:text-[#F3C56B] hover:bg-[#1E1813] px-3 py-2.5 rounded-sm transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {locale === 'es' ? 'Guías' : 'Guides'}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/reinsercion-sociolaboral"
+                    className="block text-sm text-[#E0A83A] hover:text-[#F3C56B] hover:bg-[#1E1813] px-3 py-2.5 rounded-sm transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {locale === 'es' ? 'El taller' : 'The workshop'}
+                  </Link>
+                </li>
                 {navigationLinks.map((link) => (
                   <li key={link.path}>
                     <Link
                       href={link.path}
-                      className="block text-sm text-[#2D2D2D] hover:text-[#C9A962] hover:bg-[#F5F1EB] px-3 py-2.5 rounded-sm transition-colors"
+                      className="block text-sm text-[#F1E7D6] hover:text-[#F3C56B] hover:bg-[#1E1813] px-3 py-2.5 rounded-sm transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {link.name}
@@ -377,7 +431,7 @@ export default function NavbarClient({
                 <li>
                   <Link
                     href="/contact"
-                    className="block text-sm text-[#2D2D2D] hover:text-[#C9A962] hover:bg-[#F5F1EB] px-3 py-2.5 rounded-sm transition-colors"
+                    className="block text-sm text-[#F1E7D6] hover:text-[#F3C56B] hover:bg-[#1E1813] px-3 py-2.5 rounded-sm transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {locale === 'es' ? 'Contacto' : 'Contact'}
@@ -388,26 +442,26 @@ export default function NavbarClient({
                 <li className="mt-3">
                   <div className="mb-1">
                     <button
-                      className="flex items-center justify-between w-full py-2.5 px-3 bg-[#2D2D2D] text-[#F5F1EB] rounded-sm font-medium text-sm hover:bg-[#3A3A3A] transition-colors"
+                      className="flex items-center justify-between w-full py-2.5 px-3 bg-[#1E1813] text-[#F1E7D6] rounded-sm font-medium text-sm hover:bg-[#2A2119] transition-colors"
                       onClick={() => setShowStoreCategories(!showStoreCategories)}
                       aria-expanded={showStoreCategories}
                     >
                       <div className="flex items-center">
-                        <Package className="h-4 w-4 mr-2 text-[#C9A962]" />
+                        <Package className="h-4 w-4 mr-2 text-[#E0A83A]" />
                         <span>{locale === 'es' ? 'Tienda' : 'Store'}</span>
                       </div>
                       <ChevronDown
-                        className={`h-4 w-4 text-[#C9A962] transition-transform ${showStoreCategories ? 'transform rotate-180' : ''}`}
+                        className={`h-4 w-4 text-[#E0A83A] transition-transform ${showStoreCategories ? 'transform rotate-180' : ''}`}
                       />
                     </button>
                   </div>
 
                   {showStoreCategories && (
-                    <ul className="ml-3 mt-2 space-y-1 border-l-2 border-[#C9A962]/30 pl-3">
+                    <ul className="ml-3 mt-2 space-y-1 border-l-2 border-[#E0A83A]/30 pl-3">
                       <li>
                         <Link
                           href="/products"
-                          className="block text-sm text-[#2D2D2D] hover:text-[#C9A962] py-2 transition-colors"
+                          className="block text-sm text-[#F1E7D6] hover:text-[#E0A83A] py-2 transition-colors"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           {locale === 'es' ? 'Todos los productos' : 'All products'}
@@ -417,7 +471,7 @@ export default function NavbarClient({
                         <li key={category.id}>
                           <Link
                             href={`/products?category=${category.id}`}
-                            className="block text-sm text-[#2D2D2D] hover:text-[#C9A962] py-2 transition-colors"
+                            className="block text-sm text-[#F1E7D6] hover:text-[#E0A83A] py-2 transition-colors"
                             onClick={() => setIsMenuOpen(false)}
                           >
                             {locale === 'es' ? category.name_es : category.name_en}

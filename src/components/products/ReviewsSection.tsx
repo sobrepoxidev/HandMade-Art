@@ -21,9 +21,9 @@ export default function ReviewsSection({ productId }: Props) {
   const [refreshKey, setRefreshKey] = useState(0);
 
   return (
-    <section className="mt-16 border-t border-[#E8E4E0] pt-10">
-      <h2 className="font-display text-2xl font-medium text-[#2D2D2D] tracking-[-0.005em] mb-6 flex items-center gap-2">
-        <MessageSquare className="h-5 w-5 text-[#A08848]" strokeWidth={1.75} aria-hidden />
+    <section className="mt-16 border-t border-[#3A2E24] pt-10">
+      <h2 className="font-display text-2xl font-medium text-[#F1E7D6] tracking-[-0.005em] mb-6 flex items-center gap-2">
+        <MessageSquare className="h-5 w-5 text-[#E0A83A]" strokeWidth={1.75} aria-hidden />
         {locale === 'es' ? 'Reseñas y opiniones' : 'Reviews and opinions'}
       </h2>
 

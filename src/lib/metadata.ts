@@ -85,12 +85,20 @@ interface BuildMetadataParams {
     alt?: string;
     type?: string;
   };
+  /**
+   * Override the cross-locale alternate paths (without domain/locale prefix,
+   * e.g. "/c/chorreadores-de-cafe"). Needed when the ES and EN routes use
+   * different localized slugs instead of sharing the same path — the default
+   * `basePath` derivation (stripping "/es" or "/en") only works when both
+   * locales share an identical path.
+   */
+  alternatePathname?: { es: string; en: string };
 }
 
 export async function buildMetadata(
   params: BuildMetadataParams
 ): Promise<Metadata> {
-  const { locale, title, description, pathname, image } = params;
+  const { locale, title, description, pathname, image, alternatePathname } = params;
   const t = seoConfig[locale];
 
   const siteUrl = getLocaleSiteUrl(locale);
@@ -119,15 +127,33 @@ export async function buildMetadata(
   // Canonical absoluto
   const canonicalUrl = `${siteUrl}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
 
-  // Cálculo de alternates idiomáticos con dominios separados
-  const basePath =
-    pathname.startsWith("/es") || pathname.startsWith("/en")
-      ? pathname.slice(3) || "/"
-      : pathname;
-
-  // URLs alternativas con dominios correctos para cada idioma
-  const esUrl = `https://${DOMAIN_CONFIG.es}/es${basePath === "/" ? "" : basePath}`;
-  const enUrl = `https://${DOMAIN_CONFIG.en}/en${basePath === "/" ? "" : basePath}`;
+  // URLs alternativas con dominios correctos para cada idioma. Cuando las
+  // rutas usan slugs localizados distintos por idioma (p. ej. categorías o
+  // guías), `alternatePathname` provee el path exacto de cada lado; si no,
+  // se deriva quitando el prefijo /es o /en del pathname actual (asume el
+  // mismo path en ambos idiomas).
+  let esUrl: string;
+  let enUrl: string;
+  if (alternatePathname) {
+    // Callers pass the route WITHOUT the locale segment (e.g.
+    // "/c/chorreadores-de-cafe"), so add it here. Emitting the locale-less URL
+    // would point hreflang at a 308 redirect, which Google treats as a broken
+    // alternate and drops the whole cluster.
+    const withLocale = (path: string, loc: "es" | "en") => {
+      const clean = path.startsWith("/") ? path : `/${path}`;
+      if (clean === `/${loc}` || clean.startsWith(`/${loc}/`)) return clean;
+      return `/${loc}${clean === "/" ? "" : clean}`;
+    };
+    esUrl = `https://${DOMAIN_CONFIG.es}${withLocale(alternatePathname.es, "es")}`;
+    enUrl = `https://${DOMAIN_CONFIG.en}${withLocale(alternatePathname.en, "en")}`;
+  } else {
+    const basePath =
+      pathname.startsWith("/es") || pathname.startsWith("/en")
+        ? pathname.slice(3) || "/"
+        : pathname;
+    esUrl = `https://${DOMAIN_CONFIG.es}/es${basePath === "/" ? "" : basePath}`;
+    enUrl = `https://${DOMAIN_CONFIG.en}/en${basePath === "/" ? "" : basePath}`;
+  }
 
   const metadata: Metadata = {
     metadataBase: new URL(siteUrl),

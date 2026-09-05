@@ -99,60 +99,60 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="bg-[#FAF6EF] px-4 py-6 sm:px-8 lg:px-12 lg:py-10">
+    <main className="bg-[#161210] px-4 py-6 sm:px-8 lg:px-12 lg:py-10">
       <div className="mx-auto grid min-h-[calc(100vh-12rem)] max-w-5xl items-start gap-8 py-4 lg:grid-cols-[0.9fr_1.1fr] lg:py-10">
-        <section className="hidden border border-[#E8E4E0] bg-[#2D2D2D] p-8 text-[#F5F1EB] lg:block">
+        <section className="hidden border border-[#3A2E24] bg-[#161210] p-8 text-[#F1E7D6] lg:block">
           <div className="relative mb-8 h-16 w-16">
             <Image src={LOGO_URL} alt="" fill className="object-contain" />
           </div>
-          <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-[#C9A962]">
+          <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-[#E0A83A]">
             {locale === 'es' ? 'Cuenta Handmade Art' : 'Handmade Art account'}
           </p>
           <h1 className="font-display text-4xl font-medium leading-tight tracking-[-0.005em]">
             {locale === 'es' ? 'Vuelve a tu carrito, favoritos y pedidos.' : 'Return to your cart, favorites and orders.'}
           </h1>
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#D4C4A8]">
+          <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#F3C56B]">
             {locale === 'es'
               ? 'Compra piezas únicas con una cuenta que conserva tu flujo y acelera el checkout.'
               : 'Shop one-of-a-kind pieces with an account that keeps your flow and speeds up checkout.'}
           </p>
         </section>
 
-        <section className="mx-auto w-full max-w-md border border-[#E8E4E0] bg-[#FAF6EF] p-6 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)] sm:p-8">
+        <section className="mx-auto w-full max-w-md border border-[#3A2E24] bg-[#161210] p-6 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)] sm:p-8">
           <div className="mb-7">
             <div className="mb-5 flex items-center gap-3 lg:hidden">
-              <div className="relative h-11 w-11 bg-[#2D2D2D]">
+              <div className="relative h-11 w-11 bg-[#161210]">
                 <Image src={LOGO_URL} alt="" fill className="object-contain p-2" />
               </div>
-              <span className="font-display text-xl text-[#2D2D2D]">Handmade <span className="text-[#A08848]">Art</span></span>
+              <span className="font-display text-xl text-[#F1E7D6]">Handmade <span className="text-[#F3C56B]">Art</span></span>
             </div>
-            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+            <h2 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
               {locale === 'es' ? 'Iniciar sesión' : 'Sign in'}
             </h2>
-            <p className="mt-2 text-sm text-[#4A4A4A]">
+            <p className="mt-2 text-sm text-[#C9BBA5]">
               {locale === 'es' ? 'Accede para continuar tu compra.' : 'Access your account to continue shopping.'}
             </p>
           </div>
 
           {confirmationMsg && (
-            <div className="mb-5 rounded-sm border border-[#4A7C59]/30 bg-[#4A7C59]/10 p-3 text-sm font-medium text-[#2F5F3E]">
+            <div className="mb-5 rounded-sm border border-[#3C9A70]/30 bg-[#3C9A70]/10 p-3 text-sm font-medium text-[#3C9A70]">
               {confirmationMsg}
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-[#6B6459]">
+              <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-[#8C7F6E]">
                 {locale === 'es' ? 'Correo electrónico' : 'Email'}
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6459]" strokeWidth={1.75} aria-hidden />
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C7F6E]" strokeWidth={1.75} aria-hidden />
                 <input
                   type="email"
                   id="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="h-12 w-full rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] pl-10 pr-3 text-sm text-[#2D2D2D] placeholder:text-[#6B6459] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+                  className="h-12 w-full rounded-sm border border-[#3A2E24] bg-[#161210] pl-10 pr-3 text-sm text-[#F1E7D6] placeholder:text-[#8C7F6E] focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25"
                   placeholder={locale === 'es' ? 'tu@email.com' : 'your@email.com'}
                   required
                 />
@@ -161,27 +161,27 @@ export default function LoginPage() {
 
             <div>
               <div className="mb-1.5 flex items-center justify-between gap-3">
-                <label htmlFor="password" className="text-xs font-medium uppercase tracking-[0.06em] text-[#6B6459]">
+                <label htmlFor="password" className="text-xs font-medium uppercase tracking-[0.06em] text-[#8C7F6E]">
                   {locale === 'es' ? 'Contraseña' : 'Password'}
                 </label>
-                <Link href="/forgot-password" className="text-xs font-medium text-[#A08848] hover:text-[#2D2D2D]">
+                <Link href="/forgot-password" className="text-xs font-medium text-[#F3C56B] hover:text-[#F3C56B]">
                   {locale === 'es' ? '¿Olvidaste tu contraseña?' : 'Forgot password?'}
                 </Link>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6459]" strokeWidth={1.75} aria-hidden />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C7F6E]" strokeWidth={1.75} aria-hidden />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="h-12 w-full rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] pl-10 pr-12 text-sm text-[#2D2D2D] placeholder:text-[#6B6459] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+                  className="h-12 w-full rounded-sm border border-[#3A2E24] bg-[#161210] pl-10 pr-12 text-sm text-[#F1E7D6] placeholder:text-[#8C7F6E] focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
-                  className="absolute right-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-sm text-[#6B6459] hover:text-[#A08848]"
+                  className="absolute right-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-sm text-[#8C7F6E] hover:text-[#F3C56B]"
                   onClick={() => setShowPassword((value) => !value)}
                   aria-label={showPassword ? locale === 'es' ? 'Ocultar contraseña' : 'Hide password' : locale === 'es' ? 'Mostrar contraseña' : 'Show password'}
                 >
@@ -191,7 +191,7 @@ export default function LoginPage() {
             </div>
 
             {errorMsg && (
-              <div className="rounded-sm border border-[#C44536]/30 bg-[#C44536]/10 p-3 text-sm text-[#9F2D24]">
+              <div className="rounded-sm border border-[#D9563B]/30 bg-[#D9563B]/10 p-3 text-sm text-[#D9563B]">
                 {errorMsg}
               </div>
             )}
@@ -199,32 +199,32 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex min-h-[48px] w-full items-center justify-center rounded-sm bg-[#2D2D2D] px-5 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-[48px] w-full items-center justify-center rounded-sm bg-[#E0A83A] px-5 py-3 text-sm font-bold tracking-wide text-[#161210] transition-colors hover:bg-[#F3C56B] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (locale === 'es' ? 'Iniciando...' : 'Signing in...') : (locale === 'es' ? 'Iniciar sesión' : 'Sign in')}
             </button>
           </form>
 
           <div className="my-6 flex items-center gap-3">
-            <span className="h-px flex-1 bg-[#E8E4E0]" />
-            <span className="text-xs text-[#6B6459]">{locale === 'es' ? 'o' : 'or'}</span>
-            <span className="h-px flex-1 bg-[#E8E4E0]" />
+            <span className="h-px flex-1 bg-[#3A2E24]" />
+            <span className="text-xs text-[#8C7F6E]">{locale === 'es' ? 'o' : 'or'}</span>
+            <span className="h-px flex-1 bg-[#3A2E24]" />
           </div>
 
           <button
             type="button"
             onClick={() => signInWithGoogle(returnUrl)}
-            className="inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-sm border border-[#E8E4E0] px-5 py-3 text-sm font-semibold text-[#2D2D2D] transition-colors hover:border-[#A08848] hover:bg-[#F5F1EB]"
+            className="inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-sm border border-[#3A2E24] px-5 py-3 text-sm font-semibold text-[#F1E7D6] transition-colors hover:border-[#F3C56B] hover:bg-[#1E1813]"
           >
             <GoogleIcon />
             {locale === 'es' ? 'Continuar con Google' : 'Continue with Google'}
           </button>
 
-          <p className="mt-6 border-t border-[#E8E4E0] pt-5 text-center text-sm text-[#4A4A4A]">
+          <p className="mt-6 border-t border-[#3A2E24] pt-5 text-center text-sm text-[#C9BBA5]">
             {locale === 'es' ? '¿No tienes cuenta?' : "Don't have an account?"}{' '}
             <Link
               href={`/register${returnUrl !== '/' ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`}
-              className="font-semibold text-[#A08848] hover:text-[#2D2D2D]"
+              className="font-semibold text-[#F3C56B] hover:text-[#F3C56B]"
             >
               {locale === 'es' ? 'Crear cuenta' : 'Create account'}
             </Link>

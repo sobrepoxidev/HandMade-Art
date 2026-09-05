@@ -53,10 +53,10 @@ export default function ProductFilters({
   const filterContent = useMemo(() => (
     <div className="space-y-2">
       {/* Categories Section */}
-      <div className="border-b border-[#E8E4E0] pb-3">
+      <div className="border-b border-[#3A2E24] pb-3">
         <button 
           type="button"
-          className="mb-2 flex min-h-[44px] w-full items-center justify-between text-sm font-semibold text-[#2D2D2D]"
+          className="mb-2 flex min-h-[44px] w-full items-center justify-between text-sm font-semibold text-[#F1E7D6]"
           onClick={() => setCategoryOpen(!categoryOpen)}
           aria-expanded={categoryOpen}
         >
@@ -70,7 +70,7 @@ export default function ProductFilters({
               type="button"
               onClick={() => updateFilters({ category: null })}
               className={`flex min-h-[40px] w-full items-center rounded-sm px-2 py-1.5 text-sm ${
-                !selectedCategory ? 'bg-[#F5F1EB] text-[#A08848] font-medium' : 'text-[#4A4A4A] hover:bg-[#F5F1EB]'
+                !selectedCategory ? 'bg-[#1E1813] text-[#F3C56B] font-medium' : 'text-[#C9BBA5] hover:bg-[#1E1813]'
               }`}
             >
               <span className="flex-1 text-left">{locale === 'es' ? 'Todas las categorías' : 'All categories'}</span>
@@ -83,7 +83,7 @@ export default function ProductFilters({
                 key={category.id}
                 onClick={() => updateFilters({ category: String(category.id) })}
                 className={`flex min-h-[40px] w-full items-center rounded-sm px-2 py-1.5 text-sm ${
-                  selectedCategory === String(category.id) ? 'bg-[#F5F1EB] text-[#A08848] font-medium' : 'text-[#4A4A4A] hover:bg-[#F5F1EB]'
+                  selectedCategory === String(category.id) ? 'bg-[#1E1813] text-[#F3C56B] font-medium' : 'text-[#C9BBA5] hover:bg-[#1E1813]'
                 }`}
               >
                 <span className="flex-1 text-left">{locale === 'es' ? category.name_es : category.name_en}</span>
@@ -103,21 +103,21 @@ export default function ProductFilters({
         <button
           type="button"
           onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-          className="flex min-h-[44px] w-full items-center justify-center rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-4 py-2 text-sm font-medium text-[#2D2D2D]"
+          className="flex min-h-[44px] w-full items-center justify-center rounded-sm border border-[#3A2E24] bg-[#161210] px-4 py-2 text-sm font-medium text-[#F1E7D6]"
         >
           <Sliders className="h-4 w-4 mr-2" />
           {locale === 'es' ? 'Filtrar productos' : 'Filter products'}
         </button>
         
         {mobileFiltersOpen && (
-          <div className="fixed inset-0 z-40 overflow-y-auto bg-[#1A1A1A]/40">
-            <div className="relative mx-auto mt-10 w-full max-w-lg border border-[#E8E4E0] bg-[#FAF6EF] p-4 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+          <div className="fixed inset-0 z-40 overflow-y-auto bg-[#0F0C0A]/70">
+            <div className="relative mx-auto mt-10 w-full max-w-lg border border-[#3A2E24] bg-[#161210] p-4 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-display text-xl font-medium text-[#2D2D2D]">{locale === 'es' ? 'Filtros' : 'Filters'}</h2>
+                <h2 className="font-display text-xl font-medium text-[#F1E7D6]">{locale === 'es' ? 'Filtros' : 'Filters'}</h2>
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(false)}
-                  className="grid h-11 w-11 place-items-center rounded-sm text-[#2D2D2D] hover:bg-[#F5F1EB]"
+                  className="grid h-11 w-11 place-items-center rounded-sm text-[#F1E7D6] hover:bg-[#1E1813]"
                 >
                   <span className="sr-only">{locale === 'es' ? 'Cerrar panel' : 'Close panel'}</span>
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

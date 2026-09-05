@@ -13,7 +13,8 @@ const withNextIntl = createNextIntlPlugin();
  */
 const nextConfig: NextConfig = {
   // 1️⃣  Crawler control – disable streaming for these user-agents
-  htmlLimitedBots: /Googlebot|bingbot|Baiduspider|YandexBot|DuckDuckBot|facebookexternalhit|Twitterbot|MyBot|OtherBot|SimpleCrawler/,
+  htmlLimitedBots:
+    /Googlebot|bingbot|Baiduspider|YandexBot|DuckDuckBot|facebookexternalhit|Twitterbot|MyBot|OtherBot|SimpleCrawler|GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-Web|anthropic-ai|PerplexityBot|Google-Extended|Applebot|Amazonbot|meta-externalagent|Bytespider|CCBot/,
 
   // 2️⃣  Compress responses for better performance
   compress: true,

@@ -17,7 +17,7 @@ interface BaseProps {
 }
 
 const baseClasses = (animated: boolean) =>
-  `bg-[#E8E4E0] rounded-sm ${animated ? 'animate-pulse' : ''}`;
+  `bg-[#3A2E24] rounded-sm ${animated ? 'animate-pulse' : ''}`;
 
 function Line({ className = '', animated = true }: BaseProps) {
   return (
@@ -41,7 +41,7 @@ function Image({ className = '', animated = true }: BaseProps) {
   return (
     <div
       aria-hidden
-      className={`bg-[#FAF8F5] border border-[#E8E4E0]/70 rounded-sm ${animated ? 'animate-pulse' : ''} ${className}`}
+      className={`bg-[#1E1813] border border-[#3A2E24]/70 rounded-sm ${animated ? 'animate-pulse' : ''} ${className}`}
     />
   );
 }

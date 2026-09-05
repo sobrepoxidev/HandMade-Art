@@ -5,7 +5,7 @@ import React from "react";
 
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-[#FAF6EF] p-4">
+    <div className="min-h-screen bg-[#161210] p-4">
       <div className="grid w-full max-w-7xl mx-auto grid-cols-2 gap-2 pt-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
           <SkeletonCard key={i} />
@@ -17,24 +17,24 @@ export default function Loading() {
 
 function SkeletonCard() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#FAF6EF]">
-      <div className="relative h-48 w-full overflow-hidden bg-[#F5F1EB]" style={{ aspectRatio: '4/3' }}>
-        <div className="absolute inset-0 animate-pulse bg-[#E8E4E0]"></div>
+    <div className="flex h-full flex-col overflow-hidden rounded-sm border border-[#3A2E24] bg-[#161210]">
+      <div className="relative h-48 w-full overflow-hidden bg-[#F1E7D6]" style={{ aspectRatio: '4/3' }}>
+        <div className="absolute inset-0 animate-pulse bg-[#3A2E24]"></div>
       </div>
 
       <div className="flex flex-grow animate-pulse flex-col p-3">
-        <div className="mx-auto mb-2 h-3 w-2/3 rounded bg-[#E8E4E0]"></div>
-        <div className="mx-auto mb-2 h-3 w-2/5 rounded bg-[#F5F1EB]"></div>
+        <div className="mx-auto mb-2 h-3 w-2/3 rounded bg-[#3A2E24]"></div>
+        <div className="mx-auto mb-2 h-3 w-2/5 rounded bg-[#2A2119]"></div>
 
         <div className="flex justify-center items-center mt-2">
-          <div className="mx-auto mb-2 flex h-10 w-3/6 flex-row items-center overflow-hidden rounded-sm border border-[#E8E4E0]">
-            <div className="px-3 py-2 w-1/3 text-[#E8E4E0] h-10">−</div>
+          <div className="mx-auto mb-2 flex h-10 w-3/6 flex-row items-center overflow-hidden rounded-sm border border-[#3A2E24]">
+            <div className="px-3 py-2 w-1/3 text-[#2A2119] h-10">−</div>
             <div className="px-3 h-10 w-1/3"></div>
-            <div className="px-3 py-2 w-1/3 text-[#E8E4E0] h-10">+</div>
+            <div className="px-3 py-2 w-1/3 text-[#2A2119] h-10">+</div>
           </div>
         </div>
 
-        <div className="mx-auto mt-auto h-10 w-3/6 rounded-sm bg-[#D4C4A8]"></div>
+        <div className="mx-auto mt-auto h-10 w-3/6 rounded-sm bg-[#F3C56B]"></div>
       </div>
     </div>
   );

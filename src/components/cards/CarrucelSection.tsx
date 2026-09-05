@@ -189,7 +189,7 @@ const isMediaArray = (media: Json): media is Array<{ url: string; type?: string;
       return (
         <div key={product.id} className="min-w-[180px] mx-2 flex-shrink-0">
           <Link href={`/product/${product.name}`} className="block">
-            <div className="bg-white h-full relative">
+            <div className="bg-[#1E1813] h-full relative">
               <div className="h-40 flex items-center justify-center">
                 <Image
                   src={imageUrl}
@@ -285,7 +285,7 @@ const isMediaArray = (media: Json): media is Array<{ url: string; type?: string;
   // Renderizado de carga
   if (loading && !products.length) {
     return (
-      <section className="py-6 bg-white">
+      <section className="py-6 bg-[#1E1813]">
         <div className="container mx-auto px-4">
           <div className="flex justify-between mb-4">
             <div className="bg-gray-200 h-7 w-48 rounded animate-pulse"></div>
@@ -296,7 +296,7 @@ const isMediaArray = (media: Json): media is Array<{ url: string; type?: string;
           </div>
           <div className="flex space-x-4 overflow-x-hidden">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="min-w-[180px] w-[180px] flex-none bg-white rounded-lg shadow-sm p-4">
+              <div key={i} className="min-w-[180px] w-[180px] flex-none bg-[#1E1813] rounded-lg shadow-sm p-4">
                 <div className="animate-pulse">
                   <div className="bg-gray-200 h-32 w-full rounded mb-3"></div>
                   <div className="bg-gray-200 h-4 w-3/4 rounded mb-2"></div>
@@ -364,7 +364,7 @@ const isMediaArray = (media: Json): media is Array<{ url: string; type?: string;
             <Link href="/products" className="text-sm text-teal-600 hover:underline hover:text-teal-800">{locale === 'es' ? 'Ver más' : 'See more'}</Link>
           </div>
 
-          <div className="relative carousel-wrapper bg-white">
+          <div className="relative carousel-wrapper bg-[#1E1813]">
             {/* Botones de navegación dentro del carrusel */}
             {firstGroupCanScrollLeft && (
               <button

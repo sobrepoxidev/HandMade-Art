@@ -1,5 +1,5 @@
 // app/page.tsx
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 import { headers } from 'next/headers';
 
 export default async function RootPage() {
@@ -8,14 +8,16 @@ export default async function RootPage() {
   const host = h.get('x-forwarded-host')?.trim().toString() // definido si hay proxy
             ?? h.get('host')?.trim().toString()
             ?? 'localhost';           // fallback con valor por defecto
-  
-  // Redireccionar según el dominio
+
+  // Redireccionar según el dominio (308 permanente: la raíz siempre resuelve
+  // al mismo locale para un dominio dado, así que el equity de crawl/SEO
+  // debe consolidarse ahí en vez de tratarse como un redirect temporal).
   if (host === 'artehechoamano.com' || host.includes('artehechoamano')) {
-    redirect('/es');
+    permanentRedirect('/es');
   } else if (host === 'handmadeart.store' || host.includes('handmadeart')) {
-    redirect('/en');
+    permanentRedirect('/en');
   } else {
     // Comportamiento por defecto para otros dominios o desarrollo local
-    redirect('/es'); // Podemos usar español como idioma por defecto
+    permanentRedirect('/es'); // Podemos usar español como idioma por defecto
   }
 }

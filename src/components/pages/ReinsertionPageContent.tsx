@@ -255,9 +255,9 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
   const t = COPY[locale];
 
   return (
-    <main className="bg-[#FAF6EF] text-[#2D2D2D]">
+    <main className="bg-[#161210] text-[#F1E7D6]">
       {/* HERO */}
-      <section className="relative isolate overflow-hidden bg-[#1A1A1A]">
+      <section className="relative isolate overflow-hidden bg-[#0F0C0A]">
         <div className="absolute inset-0 -z-10">
           <Image
             src="/reinsercion-sociolaboral/banner-lg.webp"
@@ -267,30 +267,30 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
             sizes="100vw"
             className="object-cover object-[center_40%]"
           />
-          <div aria-hidden className="absolute inset-0 bg-[#1A1A1A]/72" />
+          <div aria-hidden className="absolute inset-0 bg-[#0F0C0A]/72" />
         </div>
 
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12 pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-40 lg:pb-28">
           <div className="max-w-2xl">
-            <p className="font-sans text-[11px] uppercase tracking-[0.22em] text-[#C9A962] mb-5">
+            <p className="font-sans text-[11px] uppercase tracking-[0.22em] text-[#E0A83A] mb-5">
               {t.eyebrow}
             </p>
-            <h1 className="font-display text-[#F5F1EB] text-[34px] leading-[1.06] sm:text-5xl lg:text-[58px] font-medium tracking-[-0.01em]">
+            <h1 className="font-display text-[#F1E7D6] text-[34px] leading-[1.06] sm:text-5xl lg:text-[58px] font-medium tracking-[-0.01em]">
               {t.h1}
             </h1>
-            <p className="mt-6 sm:mt-7 text-[#E8E4E0] text-[15px] sm:text-base lg:text-lg leading-relaxed max-w-xl">
+            <p className="mt-6 sm:mt-7 text-[#C9BBA5] text-[15px] sm:text-base lg:text-lg leading-relaxed max-w-xl">
               {t.sub}
             </p>
             <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <Link
                 href="/products"
-                className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-semibold tracking-wide text-[#1A1A1A] bg-[#C9A962] rounded-sm hover:bg-[#A08848] hover:text-[#F5F1EB] transition-colors duration-200 shadow-[0_2px_8px_-4px_rgba(160,136,72,0.45)]"
+                className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-semibold tracking-wide text-[#161210] bg-[#E0A83A] rounded-sm hover:bg-[#F3C56B] hover:text-[#161210] transition-colors duration-200 shadow-[0_2px_8px_-4px_rgba(160,136,72,0.45)]"
               >
                 {t.ctaPrimary}
               </Link>
               <a
                 href={`mailto:${t.contactEmail}`}
-                className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-medium text-[#F5F1EB] bg-transparent border border-[#F5F1EB]/30 rounded-sm hover:bg-[#F5F1EB]/10 hover:border-[#F5F1EB]/60 transition-colors duration-200"
+                className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-medium text-[#F1E7D6] bg-transparent border border-[#F1E7D6]/30 rounded-sm hover:bg-[#F1E7D6]/10 hover:border-[#F1E7D6]/60 transition-colors duration-200"
               >
                 {t.ctaSecondary}
               </a>
@@ -300,21 +300,21 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
       </section>
 
       {/* PILLARS */}
-      <section className="py-16 md:py-24 lg:py-28 bg-[#FAF6EF]">
+      <section className="py-16 md:py-24 lg:py-28 bg-[#161210]">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
-          <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-medium tracking-[-0.005em] text-[#2D2D2D] max-w-2xl mb-12 md:mb-16">
+          <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-medium tracking-[-0.005em] text-[#F1E7D6] max-w-2xl mb-12 md:mb-16">
             {t.pillarsTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
             {t.pillars.map((p, i) => (
               <article key={i} className="relative">
-                <span aria-hidden className="block font-display text-[#C9A962] text-[42px] leading-none mb-4 tabular-nums">
+                <span aria-hidden className="block font-display text-[#E0A83A] text-[42px] leading-none mb-4 tabular-nums">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <h3 className="font-display text-xl md:text-[22px] font-medium tracking-[-0.005em] text-[#2D2D2D] mb-3">
+                <h3 className="font-display text-xl md:text-[22px] font-medium tracking-[-0.005em] text-[#F1E7D6] mb-3">
                   {p.title}
                 </h3>
-                <p className="text-[15px] leading-relaxed text-[#4A4A4A]">{p.body}</p>
+                <p className="text-[15px] leading-relaxed text-[#C9BBA5]">{p.body}</p>
               </article>
             ))}
           </div>
@@ -322,43 +322,43 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
       </section>
 
       {/* LAW PROJECT 24870 */}
-      <section className="py-16 md:py-24 lg:py-28 bg-[#F5F1EB] border-y border-[#E8E4E0]">
+      <section className="py-16 md:py-24 lg:py-28 bg-[#1E1813] border-y border-[#3A2E24]">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
             <div className="lg:col-span-5">
-              <p className="font-sans text-[11px] uppercase tracking-[0.18em] text-[#A08848] mb-4">
+              <p className="font-sans text-[11px] uppercase tracking-[0.18em] text-[#F3C56B] mb-4">
                 {t.legalFramework}
               </p>
-              <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#2D2D2D] mb-6">
+              <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#F1E7D6] mb-6">
                 {t.lawTitle}
               </h2>
-              <p className="text-[15px] md:text-base leading-relaxed text-[#4A4A4A]">
+              <p className="text-[15px] md:text-base leading-relaxed text-[#C9BBA5]">
                 {t.lawBody}
               </p>
             </div>
 
             <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-8 lg:gap-10">
               <div>
-                <h3 className="font-display text-base font-medium text-[#2D2D2D] mb-4 tracking-[-0.005em]">
+                <h3 className="font-display text-base font-medium text-[#F1E7D6] mb-4 tracking-[-0.005em]">
                   {t.populations.title}
                 </h3>
                 <ul className="space-y-3">
                   {t.populations.items.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-[14.5px] text-[#4A4A4A] leading-relaxed">
-                      <span aria-hidden className="text-[#A08848] mt-1.5 leading-none">·</span>
+                    <li key={i} className="flex items-start gap-3 text-[14.5px] text-[#C9BBA5] leading-relaxed">
+                      <span aria-hidden className="text-[#F3C56B] mt-1.5 leading-none">·</span>
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <h3 className="font-display text-base font-medium text-[#2D2D2D] mb-4 tracking-[-0.005em]">
+                <h3 className="font-display text-base font-medium text-[#F1E7D6] mb-4 tracking-[-0.005em]">
                   {t.benefits.title}
                 </h3>
                 <ul className="space-y-3">
                   {t.benefits.items.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-[14.5px] text-[#4A4A4A] leading-relaxed">
-                      <span aria-hidden className="text-[#A08848] mt-1.5 leading-none">·</span>
+                    <li key={i} className="flex items-start gap-3 text-[14.5px] text-[#C9BBA5] leading-relaxed">
+                      <span aria-hidden className="text-[#F3C56B] mt-1.5 leading-none">·</span>
                       <span>{item}</span>
                     </li>
                   ))}
@@ -370,16 +370,16 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
       </section>
 
       {/* ARTISANS */}
-      <section className="py-16 md:py-24 lg:py-28 bg-[#FAF6EF]">
+      <section className="py-16 md:py-24 lg:py-28 bg-[#161210]">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
           <div className="max-w-2xl mb-12 md:mb-16">
-            <p className="font-sans text-[11px] uppercase tracking-[0.18em] text-[#A08848] mb-4">
+            <p className="font-sans text-[11px] uppercase tracking-[0.18em] text-[#F3C56B] mb-4">
               {t.behindBrand}
             </p>
-            <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#2D2D2D] mb-5">
+            <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#F1E7D6] mb-5">
               {t.artisansTitle}
             </h2>
-            <p className="text-[15px] md:text-base leading-relaxed text-[#4A4A4A]">
+            <p className="text-[15px] md:text-base leading-relaxed text-[#C9BBA5]">
               {t.artisansLead}
             </p>
           </div>
@@ -387,7 +387,7 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
             {t.artisans.map((a) => (
               <article key={a.name} className="group">
-                <div className="relative aspect-[4/5] mb-5 overflow-hidden bg-[#2D2D2D] rounded-sm">
+                <div className="relative aspect-[4/5] mb-5 overflow-hidden bg-[#161210] rounded-sm">
                   <Image
                     src={a.img}
                     alt={t.artisanPortrait(a.name)}
@@ -396,13 +396,13 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
                     className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
                   />
                 </div>
-                <h3 className="font-display text-xl font-medium text-[#2D2D2D] tracking-[-0.005em]">
+                <h3 className="font-display text-xl font-medium text-[#F1E7D6] tracking-[-0.005em]">
                   {a.name}
                 </h3>
-                <p className="text-[12px] uppercase tracking-[0.12em] text-[#A08848] mt-1 mb-3">
+                <p className="text-[12px] uppercase tracking-[0.12em] text-[#F3C56B] mt-1 mb-3">
                   {a.role}
                 </p>
-                <p className="text-[14.5px] leading-relaxed text-[#4A4A4A]">{a.body}</p>
+                <p className="text-[14.5px] leading-relaxed text-[#C9BBA5]">{a.body}</p>
               </article>
             ))}
           </div>
@@ -410,15 +410,15 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
       </section>
 
       {/* WORKSHOPS */}
-      <section className="py-16 md:py-24 lg:py-28 bg-[#F5F1EB] border-y border-[#E8E4E0]">
+      <section className="py-16 md:py-24 lg:py-28 bg-[#1E1813] border-y border-[#3A2E24]">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
-          <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#2D2D2D] max-w-2xl mb-12 md:mb-16">
+          <h2 className="font-display text-2xl md:text-3xl lg:text-[36px] leading-[1.15] font-medium tracking-[-0.005em] text-[#F1E7D6] max-w-2xl mb-12 md:mb-16">
             {t.workshopsTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {t.workshops.map((w) => (
-              <article key={w.title} className="bg-[#FAF6EF] border border-[#E8E4E0]/70 rounded-sm overflow-hidden">
-                <div className="relative aspect-[4/3] bg-[#E8E4E0]">
+              <article key={w.title} className="bg-[#161210] border border-[#3A2E24]/70 rounded-sm overflow-hidden">
+                <div className="relative aspect-[4/3] bg-[#3A2E24]">
                   <Image
                     src={w.img}
                     alt={w.title}
@@ -428,10 +428,10 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
                   />
                 </div>
                 <div className="p-5 md:p-6">
-                  <h3 className="font-display text-lg md:text-xl font-medium tracking-[-0.005em] text-[#2D2D2D] mb-2">
+                  <h3 className="font-display text-lg md:text-xl font-medium tracking-[-0.005em] text-[#F1E7D6] mb-2">
                     {w.title}
                   </h3>
-                  <p className="text-[14.5px] leading-relaxed text-[#4A4A4A]">{w.body}</p>
+                  <p className="text-[14.5px] leading-relaxed text-[#C9BBA5]">{w.body}</p>
                 </div>
               </article>
             ))}
@@ -440,22 +440,22 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
       </section>
 
       {/* PARTNERS */}
-      <section className="py-16 md:py-20 bg-[#FAF6EF]">
+      <section className="py-16 md:py-20 bg-[#161210]">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-7">
-              <p className="font-sans text-[11px] uppercase tracking-[0.18em] text-[#A08848] mb-4">
+              <p className="font-sans text-[11px] uppercase tracking-[0.18em] text-[#F3C56B] mb-4">
                 {t.inPartnership}
               </p>
-              <h2 className="font-display text-2xl md:text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D] mb-5">
+              <h2 className="font-display text-2xl md:text-3xl font-medium tracking-[-0.005em] text-[#F1E7D6] mb-5">
                 {t.partnersTitle}
               </h2>
-              <p className="text-[15px] md:text-base leading-relaxed text-[#4A4A4A] max-w-xl">
+              <p className="text-[15px] md:text-base leading-relaxed text-[#C9BBA5] max-w-xl">
                 {t.partnersBody}
               </p>
             </div>
             <div className="lg:col-span-5 grid grid-cols-2 gap-4">
-              <div className="relative aspect-square bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm overflow-hidden grid place-items-center p-6">
+              <div className="relative aspect-square bg-[#161210] border border-[#3A2E24] rounded-sm overflow-hidden grid place-items-center p-6">
                 <Image
                   src="/reinsercion-sociolaboral/Ministerio-de-Justicia y-Paz.webp"
                   alt={t.ministryAlt}
@@ -465,7 +465,7 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div className="relative aspect-square bg-[#FAF6EF] border border-[#E8E4E0] rounded-sm overflow-hidden grid place-items-center p-6">
+              <div className="relative aspect-square bg-[#161210] border border-[#3A2E24] rounded-sm overflow-hidden grid place-items-center p-6">
                 <Image
                   src="/reinsercion-sociolaboral/ina-logo.webp"
                   alt={t.inaAlt}
@@ -481,48 +481,48 @@ export default function ReinsertionPageContent({ locale }: { locale: "es" | "en"
       </section>
 
       {/* CLOSING / CTA */}
-      <section className="py-20 md:py-28 bg-[#2D2D2D] text-[#F5F1EB]">
+      <section className="py-20 md:py-28 bg-[#161210] text-[#F1E7D6]">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
           <div className="max-w-2xl">
             <h2 className="font-display text-3xl md:text-4xl lg:text-[44px] leading-[1.1] font-medium tracking-[-0.01em] mb-6">
               {t.closingTitle}
             </h2>
-            <p className="text-[#E8E4E0] text-base md:text-lg leading-relaxed mb-10">
+            <p className="text-[#C9BBA5] text-base md:text-lg leading-relaxed mb-10">
               {t.closingBody}
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-10">
               <Link
                 href="/products"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[48px] text-[14px] font-semibold tracking-wide text-[#1A1A1A] bg-[#C9A962] rounded-sm hover:bg-[#D4C4A8] transition-colors duration-200"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[48px] text-[14px] font-semibold tracking-wide text-[#161210] bg-[#E0A83A] rounded-sm hover:bg-[#F3C56B] transition-colors duration-200"
               >
                 {t.ctaShop}
                 <ArrowRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
               </Link>
               <a
                 href={`mailto:${t.contactEmail}`}
-                className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-medium text-[#F5F1EB] bg-transparent border border-[#F5F1EB]/30 rounded-sm hover:bg-[#F5F1EB]/10 hover:border-[#F5F1EB]/60 transition-colors duration-200"
+                className="inline-flex items-center justify-center px-6 py-3 min-h-[48px] text-[14px] font-medium text-[#F1E7D6] bg-transparent border border-[#F1E7D6]/30 rounded-sm hover:bg-[#F1E7D6]/10 hover:border-[#F1E7D6]/60 transition-colors duration-200"
               >
                 {t.ctaContact}
               </a>
             </div>
 
-            <ul className="flex flex-col sm:flex-row gap-x-8 gap-y-3 text-[14px] text-[#B5AC9D]">
+            <ul className="flex flex-col sm:flex-row gap-x-8 gap-y-3 text-[14px] text-[#C9BBA5]">
               <li>
                 <a
                   href={`mailto:${t.contactEmail}`}
-                  className="inline-flex items-center gap-2 hover:text-[#C9A962] transition-colors"
+                  className="inline-flex items-center gap-2 hover:text-[#E0A83A] transition-colors"
                 >
-                  <Mail className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  <Mail className="h-4 w-4 text-[#F3C56B]" strokeWidth={1.5} aria-hidden />
                   {t.contactEmail}
                 </a>
               </li>
               <li>
                 <a
                   href={`tel:${t.contactPhone.replace(/\s/g, "")}`}
-                  className="inline-flex items-center gap-2 hover:text-[#C9A962] transition-colors tabular-nums"
+                  className="inline-flex items-center gap-2 hover:text-[#E0A83A] transition-colors tabular-nums"
                 >
-                  <Phone className="h-4 w-4 text-[#A08848]" strokeWidth={1.5} aria-hidden />
+                  <Phone className="h-4 w-4 text-[#F3C56B]" strokeWidth={1.5} aria-hidden />
                   {t.contactPhone}
                 </a>
               </li>

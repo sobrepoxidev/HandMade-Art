@@ -45,10 +45,10 @@ export default function AddToListButton({ product }: Props) {
     'grid place-items-center w-10 h-9 rounded-sm transition-[background-color,color,border-color] duration-200 border';
 
   const variant = inList
-    ? 'bg-[#2F5F3E] text-white border-[#2F5F3E]'
+    ? 'bg-[#3C9A70] text-white border-[#3C9A70]'
     : justAdded
-    ? 'bg-[#4A7C59] text-white border-[#4A7C59]'
-    : 'bg-transparent text-[#A08848] border-[#C9A962] hover:bg-[#C9A962] hover:text-[#1A1A1A] hover:border-[#A08848]';
+    ? 'bg-[#3C9A70] text-white border-[#3C9A70]'
+    : 'bg-transparent text-[#F3C56B] border-[#E0A83A] hover:bg-[#E0A83A] hover:text-[#161210] hover:border-[#F3C56B]';
 
   return (
     <button

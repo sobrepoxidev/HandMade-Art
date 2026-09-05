@@ -182,23 +182,23 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
         : locale === 'es' ? 'Buscar productos' : 'Search products';
 
   return (
-    <main className="min-h-screen bg-[#FAF6EF]">
+    <main className="min-h-screen bg-[#161210]">
       <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-8 lg:px-12">
-        <nav className="mb-3 flex items-center text-sm text-[#6B6459]" aria-label={locale === 'es' ? 'Migas de pan' : 'Breadcrumb'}>
-          <Link href="/" className="transition-colors hover:text-[#A08848]">
+        <nav className="mb-3 flex items-center text-sm text-[#8C7F6E]" aria-label={locale === 'es' ? 'Migas de pan' : 'Breadcrumb'}>
+          <Link href="/" className="transition-colors hover:text-[#F3C56B]">
             {locale === 'es' ? 'Inicio' : 'Home'}
           </Link>
           <ChevronRight className="mx-1 h-4 w-4" strokeWidth={1.75} aria-hidden />
-          <span className="font-medium text-[#2D2D2D]">
+          <span className="font-medium text-[#F1E7D6]">
             {locale === 'es' ? 'Búsqueda' : 'Search'}
           </span>
         </nav>
 
         <header className="mb-6 max-w-3xl">
-          <h1 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+          <h1 className="font-display text-3xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
             {title}
           </h1>
-          <p className="mt-2 text-sm leading-relaxed text-[#4A4A4A]">
+          <p className="mt-2 text-sm leading-relaxed text-[#C9BBA5]">
             {loading
               ? locale === 'es'
                 ? 'Preparando piezas y filtros disponibles.'
@@ -225,7 +225,7 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
           <div className="lg:hidden">
             <button
               type="button"
-              className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-4 py-2 text-sm font-medium text-[#2D2D2D]"
+              className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-sm border border-[#3A2E24] bg-[#161210] px-4 py-2 text-sm font-medium text-[#F1E7D6]"
               onClick={() => setShowFilters(true)}
             >
               <SlidersHorizontal className="h-4 w-4" strokeWidth={1.75} aria-hidden />
@@ -233,15 +233,15 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
             </button>
 
             {showFilters && (
-              <div className="fixed inset-0 z-50 bg-[#1A1A1A]/40">
-                <div className="absolute inset-x-0 bottom-0 border border-[#E8E4E0] bg-[#FAF6EF] p-4 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+              <div className="fixed inset-0 z-50 bg-[#0F0C0A]/40">
+                <div className="absolute inset-x-0 bottom-0 border border-[#3A2E24] bg-[#161210] p-4 shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
                   <div className="mb-3 flex items-center justify-between">
-                    <h2 className="font-display text-xl font-medium text-[#2D2D2D]">
+                    <h2 className="font-display text-xl font-medium text-[#F1E7D6]">
                       {locale === 'es' ? 'Filtros' : 'Filters'}
                     </h2>
                     <button
                       type="button"
-                      className="grid h-11 w-11 place-items-center rounded-sm text-[#2D2D2D] hover:bg-[#F5F1EB]"
+                      className="grid h-11 w-11 place-items-center rounded-sm text-[#F1E7D6] hover:bg-[#1E1813]"
                       onClick={() => setShowFilters(false)}
                       aria-label={locale === 'es' ? 'Cerrar filtros' : 'Close filters'}
                     >
@@ -267,12 +267,12 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
             {loading ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={index} className="animate-pulse rounded-sm border border-[#E8E4E0] bg-[#FAF6EF]">
-                    <div className="aspect-square bg-[#F5F1EB]" />
+                  <div key={index} className="animate-pulse rounded-sm border border-[#3A2E24] bg-[#161210]">
+                    <div className="aspect-square bg-[#1E1813]" />
                     <div className="space-y-3 p-4">
-                      <div className="h-4 w-3/4 rounded bg-[#E8E4E0]" />
-                      <div className="h-6 w-1/3 rounded bg-[#E8E4E0]" />
-                      <div className="h-11 rounded bg-[#F5F1EB]" />
+                      <div className="h-4 w-3/4 rounded bg-[#3A2E24]" />
+                      <div className="h-6 w-1/3 rounded bg-[#3A2E24]" />
+                      <div className="h-11 rounded bg-[#1E1813]" />
                     </div>
                   </div>
                 ))}
@@ -299,18 +299,18 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
                 )}
               </>
             ) : (
-              <div className="rounded-sm border border-[#E8E4E0] bg-[#F5F1EB] p-8 text-center">
-                <h2 className="font-display text-xl font-medium text-[#2D2D2D]">
+              <div className="rounded-sm border border-[#3A2E24] bg-[#1E1813] p-8 text-center">
+                <h2 className="font-display text-xl font-medium text-[#F1E7D6]">
                   {locale === 'es' ? 'No encontramos piezas' : 'No pieces found'}
                 </h2>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#4A4A4A]">
+                <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#C9BBA5]">
                   {locale === 'es'
                     ? 'Prueba con otra categoría o revisa el catálogo completo.'
                     : 'Try another category or browse the full catalog.'}
                 </p>
                 <Link
                   href="/products"
-                  className="mt-5 inline-flex min-h-[44px] items-center justify-center rounded-sm bg-[#2D2D2D] px-5 py-2.5 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+                  className="mt-5 inline-flex min-h-[44px] items-center justify-center rounded-sm bg-[#E0A83A] px-5 py-2.5 text-sm font-bold text-[#161210] transition-colors hover:bg-[#F3C56B]"
                 >
                   {locale === 'es' ? 'Ver catálogo' : 'Browse catalog'}
                 </Link>
@@ -322,15 +322,15 @@ export default function SearchResultsPage({ locale }: { locale: string }) {
 
       {/* Sticky quote-request bar */}
       {totalItems > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E8E4E0] bg-[#FAF6EF]/96 px-4 py-3 shadow-[0_-12px_36px_-18px_rgba(61,46,32,0.30)] backdrop-blur-sm">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#3A2E24] bg-[#161210]/96 px-4 py-3 shadow-[0_-12px_36px_-18px_rgba(61,46,32,0.30)] backdrop-blur-sm">
           <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3">
-            <p className="text-sm font-medium text-[#2D2D2D]">
+            <p className="text-sm font-medium text-[#F1E7D6]">
               {totalItems} {totalItems === 1 ? (locale === 'es' ? 'pieza seleccionada' : 'piece selected') : (locale === 'es' ? 'piezas seleccionadas' : 'pieces selected')}
             </p>
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-4 py-2 text-sm font-semibold text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#E0A83A] px-4 py-2 text-sm font-bold text-[#161210] transition-colors hover:bg-[#F3C56B]"
             >
               <Send className="h-4 w-4" strokeWidth={1.75} aria-hidden />
               {locale === 'es' ? 'Solicitar cotización' : 'Request quote'}
@@ -363,24 +363,24 @@ function SearchFilters({
   onChange: (updates: Record<string, string | null>) => void;
 }) {
   return (
-    <div className="border border-[#E8E4E0] bg-[#FAF6EF] p-4 lg:sticky lg:top-24">
-      <h2 className="font-display text-xl font-medium text-[#2D2D2D]">
+    <div className="border border-[#3A2E24] bg-[#161210] p-4 lg:sticky lg:top-24">
+      <h2 className="font-display text-xl font-medium text-[#F1E7D6]">
         {locale === 'es' ? 'Refinar' : 'Refine'}
       </h2>
 
-      <fieldset className="mt-4 border-t border-[#E8E4E0] pt-4">
-        <legend className="text-xs font-medium uppercase tracking-[0.08em] text-[#6B6459]">
+      <fieldset className="mt-4 border-t border-[#3A2E24] pt-4">
+        <legend className="text-xs font-medium uppercase tracking-[0.08em] text-[#8C7F6E]">
           {locale === 'es' ? 'Categoría' : 'Category'}
         </legend>
         <div className="mt-3 space-y-1">
-          <label className="flex min-h-[40px] cursor-pointer items-center gap-2 rounded-sm px-2 text-sm text-[#4A4A4A] hover:bg-[#F5F1EB]">
+          <label className="flex min-h-[40px] cursor-pointer items-center gap-2 rounded-sm px-2 text-sm text-[#C9BBA5] hover:bg-[#1E1813]">
             <input
               type="radio"
               name="category"
               value="Todas"
               checked={isAllCategory(category)}
               onChange={() => onChange({ category: null })}
-              className="h-4 w-4 accent-[#A08848]"
+              className="h-4 w-4 accent-[#F3C56B]"
             />
             {locale === 'es' ? 'Todas las categorías' : 'All categories'}
           </label>
@@ -388,7 +388,7 @@ function SearchFilters({
           {categories.map((cat) => (
             <label
               key={cat.id}
-              className="flex min-h-[40px] cursor-pointer items-center gap-2 rounded-sm px-2 text-sm text-[#4A4A4A] hover:bg-[#F5F1EB]"
+              className="flex min-h-[40px] cursor-pointer items-center gap-2 rounded-sm px-2 text-sm text-[#C9BBA5] hover:bg-[#1E1813]"
             >
               <input
                 type="radio"
@@ -396,7 +396,7 @@ function SearchFilters({
                 value={cat.id}
                 checked={category === String(cat.id)}
                 onChange={() => onChange({ category: String(cat.id) })}
-                className="h-4 w-4 accent-[#A08848]"
+                className="h-4 w-4 accent-[#F3C56B]"
               />
               {(locale === 'es' ? cat.name_es : cat.name_en) || cat.name}
             </label>
@@ -404,10 +404,10 @@ function SearchFilters({
         </div>
       </fieldset>
 
-      <label className="mt-5 block border-t border-[#E8E4E0] pt-4 text-xs font-medium uppercase tracking-[0.08em] text-[#6B6459]">
+      <label className="mt-5 block border-t border-[#3A2E24] pt-4 text-xs font-medium uppercase tracking-[0.08em] text-[#8C7F6E]">
         {locale === 'es' ? 'Ordenar por' : 'Sort by'}
         <select
-          className="mt-2 h-11 w-full rounded-sm border border-[#E8E4E0] bg-[#FAF6EF] px-3 text-sm normal-case tracking-normal text-[#2D2D2D] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25"
+          className="mt-2 h-11 w-full rounded-sm border border-[#3A2E24] bg-[#161210] px-3 text-sm normal-case tracking-normal text-[#F1E7D6] focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25"
           value={sortBy}
           onChange={(event) => onChange({ sort: event.target.value })}
         >

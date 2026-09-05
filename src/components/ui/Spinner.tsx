@@ -33,8 +33,8 @@ export default function Spinner({
   const sizeClasses = SIZE_MAP[size];
   const toneClasses =
     tone === 'gold'
-      ? 'border-[#E8E4E0]/40 border-t-[#A08848]'
-      : 'border-[#F5F1EB]/30 border-t-[#F5F1EB]';
+      ? 'border-[#3A2E24]/40 border-t-[#F3C56B]'
+      : 'border-[#F1E7D6]/30 border-t-[#F1E7D6]';
 
   return (
     <span

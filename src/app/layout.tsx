@@ -2,19 +2,20 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Frank_Ruhl_Libre, Geist } from "next/font/google";
+import { Libre_Caslon_Display, Manrope } from "next/font/google";
 import { headers } from "next/headers";
 
-const fontDisplay = Frank_Ruhl_Libre({
+const fontDisplay = Libre_Caslon_Display({
   subsets: ["latin"],
   variable: "--font-display-family",
-  weight: ["400", "500", "700", "900"],
+  weight: ["400"],
   display: "swap",
 });
 
-const fontSans = Geist({
+const fontSans = Manrope({
   subsets: ["latin"],
   variable: "--font-sans-family",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -56,7 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = pathname.startsWith("/en") || host.includes("handmadeart.store") ? "en" : "es";
 
   return (
-    <html lang={locale} className={`bg-[#FAF6EF] ${fontDisplay.variable} ${fontSans.variable}`}>
+    <html lang={locale} className={`bg-[#161210] ${fontDisplay.variable} ${fontSans.variable}`}>
       <head>
         <link rel="preconnect" href="https://mzeixepwwyowiqgwkopw.supabase.co" />
         <link rel="preconnect" href="https://r5457gldorgj6mug.public.blob.vercel-storage.com" />
@@ -69,7 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           type="image/svg+xml"
         />
       </head>
-      <body className="antialiased bg-[#FAF6EF]">
+      <body className="antialiased bg-[#161210]">
         <Suspense>{children}</Suspense>
       </body>
     </html>

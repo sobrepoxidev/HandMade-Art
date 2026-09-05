@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: tParams }): Promise
     title: pageTitle,
     description: pageDescription,
     image: {
-      url: "/impact/Taller-de-creacion-de-chorreadores-de-cafe.webp",
+      url: "/taller/cat-chorreadores.webp",
       width: 1200,
       height: 630,
       alt: currentLocale === 'es'
@@ -119,28 +119,28 @@ export default async function About({ params }: { params: tParams }) {
 
   const gallery = [
     {
-      src: '/impact/Taller-de-creacion-de-chorreadores-de-cafe.webp',
+      src: '/taller/cat-chorreadores.webp',
       alt: isEs ? 'Taller de creación de chorreadores de café' : 'Coffee dripper workshop',
     },
     {
-      src: '/impact/Taller-de-detalle-de-madera.webp',
+      src: '/taller/manos-tallando.webp',
       alt: isEs ? 'Detalle de talla en madera' : 'Wood carving detail',
     },
     {
-      src: '/impact/Taller-de-marcos-y-espejos.webp',
+      src: '/taller/cat-espejos.webp',
       alt: isEs ? 'Taller de marcos y espejos' : 'Frames and mirrors workshop',
     },
     {
-      src: '/impact/Taller-de-exhibicion.webp',
+      src: '/taller/taller-amplio.webp',
       alt: isEs ? 'Exhibición de piezas terminadas' : 'Finished pieces exhibition',
     },
   ];
 
   return (
-    <main className="bg-[#FAF6EF] text-[#2D2D2D]">
+    <main className="bg-[#161210] text-[#F1E7D6]">
       <JsonLd locale={locale} />
 
-      <section className="relative isolate min-h-[620px] overflow-hidden bg-[#1A1A1A]">
+      <section className="relative isolate min-h-[620px] overflow-hidden bg-[#0F0C0A]">
         <Image
           src="/impact/banner-lg.webp"
           alt=""
@@ -149,30 +149,30 @@ export default async function About({ params }: { params: tParams }) {
           sizes="100vw"
           className="object-cover object-[center_38%] opacity-55"
         />
-        <div aria-hidden className="absolute inset-0 bg-[#1A1A1A]/52" />
+        <div aria-hidden className="absolute inset-0 bg-[#0F0C0A]/52" />
         <div className="relative mx-auto flex min-h-[620px] max-w-screen-xl items-end px-4 pb-16 pt-28 sm:px-8 lg:px-12 lg:pb-20">
           <div className="max-w-3xl">
-            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#C9A962]">
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E0A83A]">
               {copy.eyebrow}
             </p>
-            <h1 className="font-display text-[40px] font-medium leading-[1.04] tracking-[-0.005em] text-[#F5F1EB] sm:text-5xl lg:text-[64px]">
+            <h1 className="font-display text-[40px] font-medium leading-[1.04] tracking-[-0.005em] text-[#F1E7D6] sm:text-5xl lg:text-[64px]">
               {copy.title}
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#E8E4E0] sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#C9BBA5] sm:text-lg">
               {copy.lead}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/products"
                 locale={locale}
-                className="inline-flex min-h-[48px] items-center justify-center rounded-sm bg-[#C9A962] px-6 py-3 text-sm font-semibold tracking-wide text-[#1A1A1A] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-sm bg-[#E0A83A] px-6 py-3 text-sm font-semibold tracking-wide text-[#161210] transition-colors hover:bg-[#F3C56B] hover:text-[#161210]"
               >
                 {copy.shopCta}
               </Link>
               <Link
                 href="/reinsercion-sociolaboral"
                 locale={locale}
-                className="inline-flex min-h-[48px] items-center justify-center rounded-sm border border-[#F5F1EB]/35 px-6 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:border-[#F5F1EB] hover:bg-[#F5F1EB]/10"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-sm border border-[#F1E7D6]/35 px-6 py-3 text-sm font-semibold tracking-wide text-[#F1E7D6] transition-colors hover:border-[#F1E7D6] hover:bg-[#F1E7D6]/10"
               >
                 {copy.impactCta}
               </Link>
@@ -181,30 +181,30 @@ export default async function About({ params }: { params: tParams }) {
         </div>
       </section>
 
-      <section className="border-b border-[#E8E4E0] bg-[#FAF6EF] py-14 sm:py-18 lg:py-20">
+      <section className="border-b border-[#3A2E24] bg-[#161210] py-14 sm:py-18 lg:py-20">
         <div className="mx-auto grid max-w-screen-xl gap-10 px-4 sm:px-8 lg:grid-cols-12 lg:px-12">
           <div className="lg:col-span-5">
-            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F3C56B]">
               {copy.storeLabel}
             </p>
-            <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.005em] text-[#2D2D2D] sm:text-4xl">
+            <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.005em] text-[#F1E7D6] sm:text-4xl">
               {copy.storeTitle}
             </h2>
           </div>
           <div className="lg:col-span-7">
-            <p className="max-w-3xl text-base leading-relaxed text-[#4A4A4A] sm:text-lg">
+            <p className="max-w-3xl text-base leading-relaxed text-[#C9BBA5] sm:text-lg">
               {copy.storeText}
             </p>
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
               {qualities.map((quality, index) => (
-                <article key={quality.title} className="border-t border-[#C9A962]/45 pt-5">
-                  <span className="font-display text-3xl text-[#C9A962]">
+                <article key={quality.title} className="border-t border-[#E0A83A]/45 pt-5">
+                  <span className="font-display text-3xl text-[#E0A83A]">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <h3 className="mt-4 font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+                  <h3 className="mt-4 font-display text-xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
                     {quality.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[#4A4A4A]">
+                  <p className="mt-3 text-sm leading-relaxed text-[#C9BBA5]">
                     {quality.text}
                   </p>
                 </article>
@@ -214,12 +214,12 @@ export default async function About({ params }: { params: tParams }) {
         </div>
       </section>
 
-      <section className="bg-[#F5F1EB] py-16 sm:py-20 lg:py-24">
+      <section className="bg-[#1E1813] py-16 sm:py-20 lg:py-24">
         <div className="mx-auto grid max-w-screen-xl items-center gap-10 px-4 sm:px-8 lg:grid-cols-12 lg:px-12">
           <div className="lg:col-span-6">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#2D2D2D]">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-sm border border-[#3A2E24] bg-[#161210]">
               <Image
-                src="/impact/Taller-de-tallado-animales.webp"
+                src="/taller/cat-esculturas.webp"
                 alt={isEs ? 'Taller de tallado de animales en madera' : 'Wood animal carving workshop'}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -228,16 +228,16 @@ export default async function About({ params }: { params: tParams }) {
             </div>
           </div>
           <div className="lg:col-span-5 lg:col-start-8">
-            <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.005em] text-[#2D2D2D] sm:text-4xl">
+            <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.005em] text-[#F1E7D6] sm:text-4xl">
               {copy.workshopTitle}
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-[#4A4A4A] sm:text-lg">
+            <p className="mt-5 text-base leading-relaxed text-[#C9BBA5] sm:text-lg">
               {copy.workshopText}
             </p>
             <Link
               href="/catalog"
               locale={locale}
-              className="mt-8 inline-flex min-h-[48px] items-center justify-center rounded-sm bg-[#2D2D2D] px-6 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:bg-[#1A1A1A]"
+              className="mt-8 inline-flex min-h-[48px] items-center justify-center rounded-sm bg-[#E0A83A] px-6 py-3 text-sm font-bold tracking-wide text-[#161210] transition-colors hover:bg-[#F3C56B]"
             >
               {isEs ? 'Explorar catálogo' : 'Browse catalog'}
             </Link>
@@ -245,19 +245,19 @@ export default async function About({ params }: { params: tParams }) {
         </div>
       </section>
 
-      <section className="bg-[#FAF6EF] py-16 sm:py-20 lg:py-24">
+      <section className="bg-[#161210] py-16 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-8 lg:px-12">
           <div className="max-w-2xl">
-            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F3C56B]">
               {copy.galleryTitle}
             </p>
-            <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.005em] text-[#2D2D2D] sm:text-4xl">
+            <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.005em] text-[#F1E7D6] sm:text-4xl">
               {copy.qualityTitle}
             </h2>
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {gallery.map((image) => (
-              <div key={image.src} className="relative aspect-[4/5] overflow-hidden rounded-sm border border-[#E8E4E0] bg-[#2D2D2D]">
+              <div key={image.src} className="relative aspect-[4/5] overflow-hidden rounded-sm border border-[#3A2E24] bg-[#161210]">
                 <Image
                   src={image.src}
                   alt={image.alt}
@@ -271,22 +271,22 @@ export default async function About({ params }: { params: tParams }) {
         </div>
       </section>
 
-      <section className="border-y border-[#E8E4E0] bg-[#F5F1EB] py-16 sm:py-20 lg:py-24">
+      <section className="border-y border-[#3A2E24] bg-[#1E1813] py-16 sm:py-20 lg:py-24">
         <div className="mx-auto grid max-w-screen-xl gap-10 px-4 sm:px-8 lg:grid-cols-12 lg:px-12">
           <div className="lg:col-span-5">
-            <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.005em] text-[#2D2D2D] sm:text-4xl">
+            <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.005em] text-[#F1E7D6] sm:text-4xl">
               {copy.sponsorTitle}
             </h2>
           </div>
           <div className="lg:col-span-7">
-            <p className="max-w-3xl text-base leading-relaxed text-[#4A4A4A] sm:text-lg">
+            <p className="max-w-3xl text-base leading-relaxed text-[#C9BBA5] sm:text-lg">
               {copy.sponsorText}
             </p>
             <a
               href="https://sobrepoxi.com/es"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-8 inline-flex min-h-[48px] items-center justify-center rounded-sm border border-[#A08848] px-6 py-3 text-sm font-semibold tracking-wide text-[#A08848] transition-colors hover:bg-[#A08848] hover:text-[#F5F1EB]"
+              className="mt-8 inline-flex min-h-[48px] items-center justify-center rounded-sm border border-[#F3C56B] px-6 py-3 text-sm font-semibold tracking-wide text-[#F3C56B] transition-colors hover:bg-[#F3C56B] hover:text-[#161210]"
             >
               {copy.sponsorCta}
             </a>
@@ -294,13 +294,13 @@ export default async function About({ params }: { params: tParams }) {
         </div>
       </section>
 
-      <section className="bg-[#2D2D2D] py-16 text-[#F5F1EB] sm:py-20">
+      <section className="bg-[#161210] py-16 text-[#F1E7D6] sm:py-20">
         <div className="mx-auto flex max-w-screen-xl flex-col gap-8 px-4 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12">
           <div className="max-w-2xl">
             <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.005em] sm:text-4xl">
               {copy.finalTitle}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-[#E8E4E0]">
+            <p className="mt-4 text-base leading-relaxed text-[#C9BBA5]">
               {copy.finalText}
             </p>
           </div>
@@ -308,14 +308,14 @@ export default async function About({ params }: { params: tParams }) {
             <Link
               href="/products"
               locale={locale}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-sm bg-[#C9A962] px-6 py-3 text-sm font-semibold tracking-wide text-[#1A1A1A] transition-colors hover:bg-[#D4C4A8]"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-sm bg-[#E0A83A] px-6 py-3 text-sm font-semibold tracking-wide text-[#161210] transition-colors hover:bg-[#F3C56B]"
             >
               {copy.shopCta}
             </Link>
             <Link
               href="/contact"
               locale={locale}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-sm border border-[#F5F1EB]/35 px-6 py-3 text-sm font-semibold tracking-wide text-[#F5F1EB] transition-colors hover:border-[#F5F1EB] hover:bg-[#F5F1EB]/10"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-sm border border-[#F1E7D6]/35 px-6 py-3 text-sm font-semibold tracking-wide text-[#F1E7D6] transition-colors hover:border-[#F1E7D6] hover:bg-[#F1E7D6]/10"
             >
               {isEs ? 'Contactar' : 'Contact us'}
             </Link>

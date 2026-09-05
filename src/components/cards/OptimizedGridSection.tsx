@@ -45,10 +45,10 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
           <div className="p-3">
             {displayProducts.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 gap-3 bg-[#2D2D2D]">
+                <div className="grid grid-cols-2 gap-3 bg-[#161210]">
                   {displayProducts.map((product, idx) => (
                     <Link key={`${product.id}-${idx}`} href={`/product/${product.name}`} target="_self" className="block group">
-                      <div className="flex flex-col items-center bg-[#FAF6EF] rounded-sm p-2 transition-[box-shadow,border-color,transform] duration-300 border border-[#E8E4E0] hover:border-[#C9A962]/30 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
+                      <div className="flex flex-col items-center bg-[#161210] rounded-sm p-2 transition-[box-shadow,border-color,transform] duration-300 border border-[#3A2E24] hover:border-[#E0A83A]/30 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]">
                         <div className="h-44 flex items-center justify-center mb-1">
                           <Image
                             src={product.media && Array.isArray(product.media) && product.media.length > 0 ?
@@ -63,11 +63,11 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
 
                           />
                         </div>
-                        <span className="text-[10px] text-center line-clamp-1 font-medium text-[#2D2D2D]">
+                        <span className="text-[10px] text-center line-clamp-1 font-medium text-[#F1E7D6]">
                           {locale === 'es' ? product.name_es : product.name_en}
                         </span>
                         {product.dolar_price && (
-                          <span className="text-[10px] font-semibold text-[#2D2D2D] mt-0.5 tabular-nums">
+                          <span className="text-[10px] font-semibold text-[#F1E7D6] mt-0.5 tabular-nums">
                             {formatUSD(product.dolar_price)}
                           </span>
                         )}
@@ -75,7 +75,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                     </Link>
                   ))}
                 </div>
-                <div className="mt-3 text-sm font-medium text-[#F5F1EB] hover:text-[#C9A962] text-center transition-colors">
+                <div className="mt-3 text-sm font-medium text-[#F1E7D6] hover:text-[#E0A83A] text-center transition-colors">
                   <Link href={`/products?category=${category!.id}`} target="_self" className="inline-flex items-center min-h-[44px] px-2 py-2">
                     <span>{locale === 'es' ? 'Ver todo en '+ category!.name_es: 'View all in '+ category!.name_en}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
@@ -97,7 +97,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
 
                   />
                 </div>
-                <div className="mt-3 text-sm font-medium text-[#F5F1EB] hover:text-[#C9A962] text-center transition-colors">
+                <div className="mt-3 text-sm font-medium text-[#F1E7D6] hover:text-[#E0A83A] text-center transition-colors">
                   <Link href={`/products?category=${category!.id}`} target="_self" className="inline-flex items-center min-h-[44px] px-2 py-2">
                     <span>{locale === 'es' ? 'Ver todo en '+ category!.name_es: 'View all in '+ category!.name_en}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
@@ -121,14 +121,14 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
         {/* Desktop Skeleton */}
         <div className="max-lg:hidden grid grid-cols-3 gap-5 mt-4 mb-4 mx-4 pb-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-[#F5F1EB] animate-pulse h-64 rounded-sm"></div>
+            <div key={i} className="bg-[#1E1813] animate-pulse h-64 rounded-sm"></div>
           ))}
         </div>
 
         {/* Mobile Skeleton */}
         <div className="lg:hidden grid grid-rows-3 gap-4 mt-4 mb-4 mx-4 pb-6">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-[#F5F1EB] animate-pulse h-64 rounded-sm"></div>
+            <div key={i} className="bg-[#1E1813] animate-pulse h-64 rounded-sm"></div>
           ))}
         </div>
       </>
@@ -137,7 +137,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
 
   if (error) {
     return (
-      <div className="text-[#C44536] text-center p-4 bg-[#C44536]/10 rounded-sm mx-4 my-4 border border-[#C44536]/25">
+      <div className="text-[#D9563B] text-center p-4 bg-[#D9563B]/10 rounded-sm mx-4 my-4 border border-[#D9563B]/25">
         <p>{locale === 'es' ? 'Error al cargar categorías': 'Error loading categories'}</p>
         <p className="text-sm opacity-70">{error}</p>
       </div>
@@ -168,9 +168,9 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                   const categoryProducts = sections.grid.products[category!.id] || [];
 
                   const cardColors = [
-                    'bg-[#2D2D2D]',
+                    'bg-[#161210]',
                     'bg-[#3A3A3A]',
-                    'bg-[#2D2D2D]',
+                    'bg-[#161210]',
                     'bg-[#3A3A3A]'
                   ];
 
@@ -183,7 +183,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                       <div className="grid grid-cols-2 gap-2 w-full h-full px-1 pt-2.5">
                         {categoryProducts.slice(0, 4).map((product, idx) => (
                           <Link key={idx} href={`/product/${product.name}`} className="block text-center">
-                            <div className="h-44 flex items-center justify-center bg-[#FAF6EF] rounded-sm shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] border border-[#E8E4E0]">
+                            <div className="h-44 flex items-center justify-center bg-[#161210] rounded-sm shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] border border-[#3A2E24]">
                               <Image
                                 src={product.media && Array.isArray(product.media) && product.media.length > 0 ? (product.media[0] as { url: string }).url : 'https://r5457gldorgj6mug.public.blob.vercel-storage.com/public/placeholder-Td0lfdJbjHebhgL5vOIH3UC8U6qIIB.webp'}
                                 alt={product.name || ''}
@@ -194,7 +194,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                               />
                             </div>
                             {product.dolar_price && (
-                              <div className="mt-1 text-[#F5F1EB] text-xs font-semibold tabular-nums">
+                              <div className="mt-1 text-[#F1E7D6] text-xs font-semibold tabular-nums">
                                 {formatUSD(product.dolar_price)}
                               </div>
                             )}
@@ -203,7 +203,7 @@ const OptimizedGridSection: React.FC<GridSectionProps> = ({
                       </div>
                     ),
                     link: `/products?category=${category!.id}`,
-                    className: `${cardColor} rounded-sm px-3 pt-2 pb-3 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] border border-[#C9A962]/10`,
+                    className: `${cardColor} rounded-sm px-3 pt-2 pb-3 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)] border border-[#E0A83A]/10`,
                     start: isFirst,
                     end: isLast
                   };

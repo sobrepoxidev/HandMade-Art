@@ -46,25 +46,25 @@ export default function RelatedProductCard({
 
   return (
     <article
-      className="group relative flex flex-col h-full bg-[#FAF6EF] border border-[#E8E4E0]/70 rounded-sm overflow-hidden
+      className="group relative flex flex-col h-full bg-[#1E1813] border border-[#3A2E24]/70 rounded-sm overflow-hidden
                  transition-[box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-                 hover:border-[#C9A962]/45
-                 hover:shadow-[0_8px_24px_-12px_rgba(61,46,32,0.22)]"
+                 hover:border-[#E0A83A]/45
+                 hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)]"
     >
       <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start max-w-[70%]">
         {category && (
-          <span className="bg-[#2D2D2D] text-[#F5F1EB] text-[10px] uppercase tracking-[0.08em] font-medium px-2 py-0.5 rounded-sm truncate">
+          <span className="bg-[#161210] text-[#F1E7D6] text-[10px] uppercase tracking-[0.08em] font-medium px-2 py-0.5 rounded-sm truncate">
             {locale === 'es' ? category.name_es : category.name_en}
           </span>
         )}
         {hasDiscount && (
-          <span className="bg-[#C44536] text-white text-[10px] font-semibold px-2 py-0.5 rounded-sm tabular-nums">
+          <span className="bg-[#D9563B] text-white text-[10px] font-semibold px-2 py-0.5 rounded-sm tabular-nums">
             -{Math.round(discount)}%
           </span>
         )}
         {product.is_featured && (
           <span
-            className="grid place-items-center w-5 h-5 rounded-sm bg-[#C9A962] text-[#1A1A1A]"
+            className="grid place-items-center w-5 h-5 rounded-sm bg-[#E0A83A] text-[#161210]"
             aria-label={locale === 'es' ? 'Destacado' : 'Featured'}
             title={locale === 'es' ? 'Destacado' : 'Featured'}
           >
@@ -80,7 +80,7 @@ export default function RelatedProductCard({
       <Link
         href={href}
         prefetch={false}
-        className="block relative aspect-square bg-[#F5F1EB] overflow-hidden ring-1 ring-inset ring-[#E8E4E0]/40"
+        className="block relative aspect-square bg-[#F1E7D6] overflow-hidden ring-1 ring-inset ring-[#3A2E24]/40"
         aria-label={displayName ?? slug}
       >
         <Image
@@ -98,13 +98,13 @@ export default function RelatedProductCard({
         <Link
           href={href}
           prefetch={false}
-          className="text-[#2D2D2D] text-[13.5px] font-medium leading-[1.35] line-clamp-2 min-h-[38px] hover:text-[#A08848] transition-colors duration-200"
+          className="text-[#F1E7D6] text-[13.5px] font-medium leading-[1.35] line-clamp-2 min-h-[38px] hover:text-[#F3C56B] transition-colors duration-200"
         >
           {displayName ?? slug}
         </Link>
 
-        <div className="flex items-center gap-1 text-[#9C9589]">
-          <Star className="h-3 w-3 fill-[#C9A962] text-[#C9A962]" strokeWidth={0} />
+        <div className="flex items-center gap-1 text-[#8C7F6E]">
+          <Star className="h-3 w-3 fill-[#E0A83A] text-[#E0A83A]" strokeWidth={0} />
           <span className="text-[11px] font-medium tabular-nums tracking-tight">4.0</span>
         </div>
 
@@ -113,25 +113,25 @@ export default function RelatedProductCard({
             <div className="flex flex-col gap-0.5 mb-2">
               <span
                 className={`text-[17px] font-semibold tracking-tight tabular-nums ${
-                  hasDiscount ? 'text-[#A08848]' : 'text-[#2D2D2D]'
+                  hasDiscount ? 'text-[#E0A83A]' : 'text-[#F1E7D6]'
                 }`}
               >
                 {formatUSD(finalPrice ?? 0)}
               </span>
               {hasDiscount && (
-                <span className="text-[11px] text-[#9C9589] line-through tabular-nums">
+                <span className="text-[11px] text-[#8C7F6E] line-through tabular-nums">
                   {formatUSD(basePrice)}
                 </span>
               )}
             </div>
           ) : (
-            <p className="text-[13px] font-medium text-[#4A4A4A] mb-2">
+            <p className="text-[13px] font-medium text-[#C9BBA5] mb-2">
               {locale === 'es' ? 'Precio a consultar' : 'Price on request'}
             </p>
           )}
 
           <div className="inline-flex items-center gap-1.5 mb-3">
-            <span className="text-[11px] text-[#9C9589] font-medium">
+            <span className="text-[11px] text-[#8C7F6E] font-medium">
               {locale === 'es' ? 'Por encargo' : 'Made to order'}
             </span>
           </div>
@@ -140,7 +140,7 @@ export default function RelatedProductCard({
             <Link
               href={href}
               prefetch={false}
-                className="flex-1 inline-flex min-h-[40px] items-center justify-center px-3 py-2 text-[12px] font-medium text-[#F5F1EB] bg-[#2D2D2D] rounded-sm hover:bg-[#1A1A1A] transition-colors duration-200 tracking-wide"
+                className="flex-1 inline-flex min-h-[40px] items-center justify-center px-3 py-2 text-[12px] font-medium text-[#161210] bg-[#E0A83A] rounded-sm hover:bg-[#F3C56B] transition-colors duration-200 tracking-wide"
             >
               {locale === 'es' ? 'Ver detalles' : 'View details'}
             </Link>

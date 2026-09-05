@@ -108,18 +108,18 @@ export default function ShippingClient() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#FAF6EF] text-[#2D2D2D]">
-      <section className="border-b border-[#E8E4E0]">
+    <main className="min-h-screen bg-[#161210] text-[#F1E7D6]">
+      <section className="border-b border-[#3A2E24]">
         <div className="mx-auto grid max-w-screen-xl gap-10 px-4 py-12 sm:px-8 md:py-16 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.58fr)] lg:px-12">
           <div className="flex flex-col justify-center">
-            <div className="mb-5 inline-flex w-fit items-center gap-2 border border-[#E8E4E0] bg-[#F5F1EB] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            <div className="mb-5 inline-flex w-fit items-center gap-2 border border-[#3A2E24] bg-[#1E1813] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F3C56B]">
               <Truck className="h-4 w-4" aria-hidden />
               {isEs ? 'Envíos nacionales' : 'National shipping'}
             </div>
-            <h1 className="max-w-[12ch] font-display text-[clamp(40px,7vw,68px)] font-medium leading-[0.96] tracking-[-0.01em] text-[#2D2D2D]">
+            <h1 className="max-w-[12ch] font-display text-[clamp(40px,7vw,68px)] font-medium leading-[0.96] tracking-[-0.01em] text-[#F1E7D6]">
               {isEs ? 'Calculá tu envío.' : 'Calculate shipping.'}
             </h1>
-            <p className="mt-6 max-w-[58ch] text-base leading-relaxed text-[#4A4A4A] md:text-[17px]">
+            <p className="mt-6 max-w-[58ch] text-base leading-relaxed text-[#C9BBA5] md:text-[17px]">
               {isEs
                 ? 'Enviamos piezas únicas a todo Costa Rica con Correos de Costa Rica EMS. El costo final se confirma en checkout según peso, dirección y método de entrega.'
                 : 'We ship one-of-a-kind pieces across Costa Rica with Correos de Costa Rica EMS. The final cost is confirmed at checkout based on weight, address and delivery method.'}
@@ -128,7 +128,7 @@ export default function ShippingClient() {
               <Link
                 href="/products"
                 locale={locale}
-                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#2D2D2D] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#1A1A1A]"
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#E0A83A] px-5 py-2.5 text-sm font-bold tracking-wide text-[#161210] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F3C56B]"
               >
                 {isEs ? 'Comprar piezas' : 'Shop pieces'}
                 <ArrowRight className="h-4 w-4" aria-hidden />
@@ -136,30 +136,30 @@ export default function ShippingClient() {
               <Link
                 href="/contact"
                 locale={locale}
-                className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#E8E4E0] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#2D2D2D] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#A08848]"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#3A2E24] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F1E7D6] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#F3C56B]"
               >
                 {isEs ? 'Consultar envío' : 'Ask about shipping'}
               </Link>
             </div>
           </div>
 
-          <aside className="border border-[#E8E4E0] bg-[#F5F1EB] shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
-            <div className="border-b border-[#E8E4E0] bg-[#2D2D2D] px-5 py-4 text-[#F5F1EB]">
+          <aside className="border border-[#3A2E24] bg-[#1E1813] shadow-[0_12px_36px_-18px_rgba(61,46,32,0.30)]">
+            <div className="border-b border-[#3A2E24] bg-[#161210] px-5 py-4 text-[#F1E7D6]">
               <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.08em]">
-                <PackageCheck className="h-5 w-5 text-[#C9A962]" aria-hidden />
+                <PackageCheck className="h-5 w-5 text-[#E0A83A]" aria-hidden />
                 {isEs ? 'Estimador rápido' : 'Quick estimate'}
               </h2>
             </div>
             <div className="space-y-6 p-5">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#8C7F6E]">
                   {isEs ? 'Origen' : 'Origin'}
                 </p>
-                <div className="mt-2 flex items-start gap-3 border border-[#E8E4E0] bg-[#FAF6EF] p-4">
-                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#A08848]" aria-hidden />
+                <div className="mt-2 flex items-start gap-3 border border-[#3A2E24] bg-[#161210] p-4">
+                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#F3C56B]" aria-hidden />
                   <div>
-                    <p className="font-medium text-[#2D2D2D]">San José, GAM</p>
-                    <p className="text-sm leading-relaxed text-[#6B6459]">
+                    <p className="font-medium text-[#F1E7D6]">San José, GAM</p>
+                    <p className="text-sm leading-relaxed text-[#8C7F6E]">
                       {isEs ? 'Taller Handmade Art.' : 'Handmade Art workshop.'}
                     </p>
                   </div>
@@ -167,7 +167,7 @@ export default function ShippingClient() {
               </div>
 
               <fieldset>
-                <legend className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+                <legend className="text-xs font-semibold uppercase tracking-[0.08em] text-[#8C7F6E]">
                   {isEs ? 'Destino' : 'Destination'}
                 </legend>
                 <div className="mt-2 grid gap-3">
@@ -179,8 +179,8 @@ export default function ShippingClient() {
                         key={item}
                         className={`flex cursor-pointer items-start gap-3 border p-4 transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                           selected
-                            ? 'border-[#A08848] bg-[#FAF6EF]'
-                            : 'border-[#E8E4E0] bg-[#F5F1EB] hover:border-[#C9A962]/45'
+                            ? 'border-[#F3C56B] bg-[#161210]'
+                            : 'border-[#3A2E24] bg-[#1E1813] hover:border-[#E0A83A]/45'
                         }`}
                       >
                         <input
@@ -189,13 +189,13 @@ export default function ShippingClient() {
                           value={item}
                           checked={selected}
                           onChange={() => setDestination(item)}
-                          className="mt-1 h-4 w-4 accent-[#A08848]"
+                          className="mt-1 h-4 w-4 accent-[#F3C56B]"
                         />
                         <span>
-                          <span className="block font-medium text-[#2D2D2D]">
+                          <span className="block font-medium text-[#F1E7D6]">
                             {destinations[item].name}
                           </span>
-                          <span className="mt-1 block text-sm leading-relaxed text-[#6B6459]">
+                          <span className="mt-1 block text-sm leading-relaxed text-[#8C7F6E]">
                             {destinations[item].description}
                           </span>
                         </span>
@@ -205,27 +205,27 @@ export default function ShippingClient() {
                 </div>
               </fieldset>
 
-              <div className="border border-[#E8E4E0] bg-[#FAF6EF] p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+              <div className="border border-[#3A2E24] bg-[#161210] p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#8C7F6E]">
                   {isEs ? 'Primer kilogramo' : 'First kilogram'}
                 </p>
                 <div className="mt-2 flex flex-wrap items-end gap-x-3 gap-y-1">
-                  <span className="font-display text-4xl font-semibold tabular-nums text-[#A08848]">
+                  <span className="font-display text-4xl font-semibold tabular-nums text-[#F3C56B]">
                     CRC {formatCRC(firstKgWithTax)}
                   </span>
-                  <span className="pb-1 text-sm text-[#6B6459]">
+                  <span className="pb-1 text-sm text-[#8C7F6E]">
                     USD {toUSD(firstKgWithTax)}
                   </span>
                 </div>
-                <div className="mt-5 grid gap-3 border-t border-[#E8E4E0] pt-4 sm:grid-cols-2">
-                  <div className="flex items-center gap-2 text-sm text-[#4A4A4A]">
-                    <Clock className="h-4 w-4 text-[#2F5F3E]" aria-hidden />
+                <div className="mt-5 grid gap-3 border-t border-[#3A2E24] pt-4 sm:grid-cols-2">
+                  <div className="flex items-center gap-2 text-sm text-[#C9BBA5]">
+                    <Clock className="h-4 w-4 text-[#3C9A70]" aria-hidden />
                     <span>
                       {currentRate.days} {isEs ? 'días hábiles' : 'business days'}
                     </span>
                   </div>
-                  <p className="text-sm text-[#4A4A4A]">
-                    <span className="font-medium text-[#2D2D2D]">
+                  <p className="text-sm text-[#C9BBA5]">
+                    <span className="font-medium text-[#F1E7D6]">
                       {isEs ? 'Kg adicional:' : 'Additional kg:'}
                     </span>{' '}
                     CRC {formatCRC(additionalKgWithTax)}
@@ -233,7 +233,7 @@ export default function ShippingClient() {
                 </div>
               </div>
 
-              <p className="border border-[#4A7C59]/25 bg-[#4A7C59]/10 p-4 text-sm leading-relaxed text-[#2D2D2D]">
+              <p className="border border-[#3C9A70]/25 bg-[#3C9A70]/10 p-4 text-sm leading-relaxed text-[#F1E7D6]">
                 {isEs
                   ? 'La mayoría de piezas pesa menos de 1 kg. Si comprás varias obras, el checkout agrupa el peso para calcular el envío correcto.'
                   : 'Most pieces weigh under 1 kg. If you buy several works, checkout groups the weight to calculate the correct shipping.'}
@@ -245,10 +245,10 @@ export default function ShippingClient() {
 
       <section className="mx-auto grid max-w-screen-xl gap-10 px-4 py-16 sm:px-8 lg:grid-cols-[0.45fr_0.55fr] lg:px-12">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F3C56B]">
             {isEs ? 'Proceso de entrega' : 'Delivery process'}
           </p>
-          <h2 className="mt-3 max-w-[12ch] font-display text-[clamp(28px,4vw,42px)] font-medium leading-tight tracking-[-0.005em] text-[#2D2D2D]">
+          <h2 className="mt-3 max-w-[12ch] font-display text-[clamp(28px,4vw,42px)] font-medium leading-tight tracking-[-0.005em] text-[#F1E7D6]">
             {isEs ? 'Listo para llegar bien.' : 'Packed to arrive well.'}
           </h2>
         </div>
@@ -259,41 +259,41 @@ export default function ShippingClient() {
             return (
               <article
                 key={step.title}
-                className="border border-[#E8E4E0] bg-[#FAF6EF] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]"
+                className="border border-[#3A2E24] bg-[#161210] p-5 shadow-[0_2px_8px_-4px_rgba(61,46,32,0.12)]"
               >
                 <div className="mb-5 flex items-center justify-between">
-                  <Icon className="h-5 w-5 text-[#A08848]" aria-hidden />
-                  <span className="font-display text-2xl font-medium text-[#C9A962]">
+                  <Icon className="h-5 w-5 text-[#F3C56B]" aria-hidden />
+                  <span className="font-display text-2xl font-medium text-[#E0A83A]">
                     {index + 1}
                   </span>
                 </div>
-                <h3 className="font-display text-xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+                <h3 className="font-display text-xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
                   {step.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-[#4A4A4A]">{step.body}</p>
+                <p className="mt-3 text-sm leading-relaxed text-[#C9BBA5]">{step.body}</p>
               </article>
             );
           })}
         </div>
       </section>
 
-      <section className="border-y border-[#E8E4E0] bg-[#F5F1EB]">
+      <section className="border-y border-[#3A2E24] bg-[#1E1813]">
         <div className="mx-auto grid max-w-screen-xl gap-8 px-4 py-16 sm:px-8 lg:grid-cols-[0.38fr_0.62fr] lg:px-12">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A08848]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F3C56B]">
               {isEs ? 'Tarifas EMS' : 'EMS rates'}
             </p>
-            <h2 className="mt-3 font-display text-3xl font-medium tracking-[-0.005em] text-[#2D2D2D]">
+            <h2 className="mt-3 font-display text-3xl font-medium tracking-[-0.005em] text-[#F1E7D6]">
               {isEs ? 'Referencia rapida' : 'Quick reference'}
             </h2>
-            <p className="mt-4 max-w-[44ch] text-sm leading-relaxed text-[#4A4A4A]">
+            <p className="mt-4 max-w-[44ch] text-sm leading-relaxed text-[#C9BBA5]">
               {isEs
                 ? 'Precios con IVA incluido para el primer kilogramo. El checkout confirma la tarifa exacta antes de pagar.'
                 : 'Prices include tax for the first kilogram. Checkout confirms the exact rate before payment.'}
             </p>
           </div>
-          <div className="overflow-hidden border border-[#E8E4E0] bg-[#FAF6EF]">
-            <div className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-[#E8E4E0] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#6B6459]">
+          <div className="overflow-hidden border border-[#3A2E24] bg-[#161210]">
+            <div className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-[#3A2E24] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#8C7F6E]">
               <span>{isEs ? 'Ruta' : 'Route'}</span>
               <span>{isEs ? 'Costo' : 'Cost'}</span>
               <span>{isEs ? 'Tiempo' : 'Time'}</span>
@@ -301,13 +301,13 @@ export default function ShippingClient() {
             {rateRows.map((row) => (
               <div
                 key={row.label}
-                className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-[#E8E4E0] px-4 py-4 text-sm last:border-b-0"
+                className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-[#3A2E24] px-4 py-4 text-sm last:border-b-0"
               >
-                <span className="font-medium text-[#2D2D2D]">{row.label}</span>
-                <span className="font-display font-semibold tabular-nums text-[#A08848]">
+                <span className="font-medium text-[#F1E7D6]">{row.label}</span>
+                <span className="font-display font-semibold tabular-nums text-[#F3C56B]">
                   CRC {formatCRC(withTax(row.rate.firstKg))}
                 </span>
-                <span className="text-[#6B6459]">
+                <span className="text-[#8C7F6E]">
                   {row.rate.days} {isEs ? 'días' : 'days'}
                 </span>
               </div>
@@ -317,12 +317,12 @@ export default function ShippingClient() {
       </section>
 
       <section className="px-4 py-16 sm:px-8 lg:px-12">
-        <div className="mx-auto flex max-w-screen-xl flex-col items-start justify-between gap-6 border border-[#F5F1EB]/12 bg-[#1A1A1A] p-6 text-[#F5F1EB] md:flex-row md:items-center md:p-8">
+        <div className="mx-auto flex max-w-screen-xl flex-col items-start justify-between gap-6 border border-[#F1E7D6]/12 bg-[#0F0C0A] p-6 text-[#F1E7D6] md:flex-row md:items-center md:p-8">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#C9A962]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#E0A83A]">
               EMS Correos de Costa Rica
             </p>
-            <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-[#B5AC9D]">
+            <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-[#C9BBA5]">
               {isEs
                 ? 'Usamos un operador nacional conocido para cuidar la entrega y dar seguimiento cuando la pieza sale del taller.'
                 : 'We use a known national carrier to protect delivery and provide tracking once the piece leaves the workshop.'}
@@ -333,7 +333,7 @@ export default function ShippingClient() {
               href="https://correos.go.cr/servicio-ems/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#C9A962] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#1A1A1A] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#A08848] hover:text-[#F5F1EB]"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-sm bg-[#E0A83A] px-5 py-2.5 text-sm font-semibold tracking-wide text-[#161210] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F3C56B] hover:text-[#161210]"
             >
               {isEs ? 'Ver Correos EMS' : 'View Correos EMS'}
               <ExternalLink className="h-4 w-4" aria-hidden />
@@ -341,7 +341,7 @@ export default function ShippingClient() {
             <Link
               href="/contact"
               locale={locale}
-              className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#F5F1EB]/30 px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F5F1EB] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F5F1EB]/10"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-sm border border-[#F1E7D6]/30 px-5 py-2.5 text-sm font-semibold tracking-wide text-[#F1E7D6] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#F1E7D6]/10"
             >
               {isEs ? 'Hablar con nosotros' : 'Talk to us'}
             </Link>

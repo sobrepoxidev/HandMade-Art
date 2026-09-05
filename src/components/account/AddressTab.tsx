@@ -29,13 +29,13 @@ type AddressTabProps = {
   loading: boolean;
 };
 
-const labelClass = 'block text-xs uppercase tracking-[0.06em] font-medium text-[#6B6459] mb-1.5';
+const labelClass = 'block text-xs uppercase tracking-[0.06em] font-medium text-[#8C7F6E] mb-1.5';
 
 function inputClass(hasError: boolean) {
-  return `w-full p-3 border rounded-sm bg-[#FFFDF9] text-[#2D2D2D] placeholder:text-[#9C9589]
-          focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25
+  return `w-full p-3 border rounded-sm bg-[#1E1813] text-[#F1E7D6] placeholder:text-[#8C7F6E]
+          focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25
           transition-colors disabled:opacity-60 ${
-    hasError ? 'border-[#C44536]/50' : 'border-[#E8E4E0]'
+    hasError ? 'border-[#D9563B]/50' : 'border-[#3A2E24]'
   }`;
 }
 
@@ -99,7 +99,7 @@ export default function AddressTab({
       <p
         id={`${field}-error`}
         role="alert"
-        className="flex items-center gap-1 text-sm text-[#9F2D24] mt-1"
+        className="flex items-center gap-1 text-sm text-[#D9563B] mt-1"
       >
         <AlertCircle className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
         {errors[field]}
@@ -107,7 +107,7 @@ export default function AddressTab({
     ) : null;
 
   return (
-    <div className="text-[#2D2D2D]">
+    <div className="text-[#F1E7D6]">
       <h2 className="font-display text-xl font-medium tracking-[-0.005em] mb-5">
         {t('shippingAddress')}
       </h2>
@@ -115,7 +115,7 @@ export default function AddressTab({
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <div>
           <label htmlFor="name" className={labelClass}>
-            {t('fullName')} <span aria-hidden className="text-[#C44536]">*</span>
+            {t('fullName')} <span aria-hidden className="text-[#D9563B]">*</span>
             <span className="sr-only"> (requerido)</span>
           </label>
           <input
@@ -134,7 +134,7 @@ export default function AddressTab({
 
         <div>
           <label htmlFor="address" className={labelClass}>
-            {t('address')} <span aria-hidden className="text-[#C44536]">*</span>
+            {t('address')} <span aria-hidden className="text-[#D9563B]">*</span>
             <span className="sr-only"> (requerido)</span>
           </label>
           <input
@@ -154,7 +154,7 @@ export default function AddressTab({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="city" className={labelClass}>
-              {t('city')} <span aria-hidden className="text-[#C44536]">*</span>
+              {t('city')} <span aria-hidden className="text-[#D9563B]">*</span>
               <span className="sr-only"> (requerido)</span>
             </label>
             <input
@@ -172,7 +172,7 @@ export default function AddressTab({
           </div>
           <div>
             <label htmlFor="state" className={labelClass}>
-              {t('province')} <span aria-hidden className="text-[#C44536]">*</span>
+              {t('province')} <span aria-hidden className="text-[#D9563B]">*</span>
               <span className="sr-only"> (requerido)</span>
             </label>
             <input
@@ -223,7 +223,7 @@ export default function AddressTab({
 
         <div>
           <label htmlFor="phone" className={labelClass}>
-            {t('phone')} <span aria-hidden className="text-[#C44536]">*</span>
+            {t('phone')} <span aria-hidden className="text-[#D9563B]">*</span>
             <span className="sr-only"> (requerido)</span>
           </label>
           <input
@@ -246,7 +246,7 @@ export default function AddressTab({
             type="submit"
             disabled={loading}
             aria-busy={loading}
-            className="inline-flex items-center justify-center min-h-[48px] px-6 py-2.5 bg-[#C9A962] text-[#1A1A1A] font-semibold text-sm tracking-wide rounded-sm hover:bg-[#A08848] hover:text-[#F5F1EB] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center justify-center min-h-[48px] px-6 py-2.5 bg-[#E0A83A] text-[#161210] font-semibold text-sm tracking-wide rounded-sm hover:bg-[#F3C56B] hover:text-[#161210] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
             {loading && (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" strokeWidth={2} aria-hidden />
@@ -255,8 +255,8 @@ export default function AddressTab({
           </button>
         </div>
 
-        <div className="text-xs text-[#6B6459] mt-2">
-          <span aria-hidden className="text-[#C44536]">*</span> {t('requiredFields')}
+        <div className="text-xs text-[#8C7F6E] mt-2">
+          <span aria-hidden className="text-[#D9563B]">*</span> {t('requiredFields')}
         </div>
       </form>
     </div>

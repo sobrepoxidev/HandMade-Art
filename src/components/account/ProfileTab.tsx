@@ -43,11 +43,11 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
   );
 
   const readonlyField =
-    'bg-[#FAF6EF] border border-[#E8E4E0] p-3 text-[#2D2D2D] rounded-sm';
-  const labelClass = 'block text-xs uppercase tracking-[0.06em] font-medium text-[#6B6459] mb-1.5';
+    'bg-[#161210] border border-[#3A2E24] p-3 text-[#F1E7D6] rounded-sm';
+  const labelClass = 'block text-xs uppercase tracking-[0.06em] font-medium text-[#8C7F6E] mb-1.5';
 
   return (
-    <div className="text-[#2D2D2D]">
+    <div className="text-[#F1E7D6]">
       <h2 className="font-display text-xl font-medium tracking-[-0.005em] mb-5">
         {t('personalInfo')}
       </h2>
@@ -76,7 +76,7 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
                 id="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="flex-grow p-3 border border-[#E8E4E0] rounded-sm bg-[#FFFDF9] text-[#2D2D2D] focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 transition-colors disabled:opacity-60"
+                className="flex-grow p-3 border border-[#3A2E24] rounded-sm bg-[#1E1813] text-[#F1E7D6] focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25 transition-colors disabled:opacity-60"
                 disabled={loading}
                 autoFocus
               />
@@ -85,7 +85,7 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
                   type="submit"
                   disabled={loading}
                   aria-busy={loading}
-                  className="inline-flex items-center justify-center min-h-[44px] px-5 py-2 bg-[#C9A962] text-[#1A1A1A] font-semibold text-sm rounded-sm hover:bg-[#A08848] hover:text-[#F5F1EB] transition-colors disabled:opacity-60"
+                  className="inline-flex items-center justify-center min-h-[44px] px-5 py-2 bg-[#E0A83A] text-[#161210] font-semibold text-sm rounded-sm hover:bg-[#F3C56B] hover:text-[#161210] transition-colors disabled:opacity-60"
                 >
                   {loading && (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" strokeWidth={2} aria-hidden />
@@ -98,7 +98,7 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
                     setIsEditing(false);
                     setFullName(profile?.full_name || user.user_metadata?.full_name || '');
                   }}
-                  className="inline-flex items-center justify-center min-h-[44px] px-5 py-2 bg-[#FFFDF9] border border-[#E8E4E0] text-[#2D2D2D] font-medium text-sm rounded-sm hover:border-[#A08848] hover:bg-[#FAF6EF] transition-colors disabled:opacity-60"
+                  className="inline-flex items-center justify-center min-h-[44px] px-5 py-2 bg-[#1E1813] border border-[#3A2E24] text-[#F1E7D6] font-medium text-sm rounded-sm hover:border-[#F3C56B] hover:bg-[#161210] transition-colors disabled:opacity-60"
                   disabled={loading}
                 >
                   {t('cancel')}
@@ -108,12 +108,12 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
           ) : (
             <div className="flex items-center justify-between gap-3">
               <div className={`${readonlyField} flex-grow`}>
-                {fullName || <span className="text-[#9C9589]">{t('notProvided')}</span>}
+                {fullName || <span className="text-[#8C7F6E]">{t('notProvided')}</span>}
               </div>
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
-                className="inline-flex items-center min-h-[44px] px-3 text-sm font-medium text-[#A08848] hover:text-[#2D2D2D] transition-colors"
+                className="inline-flex items-center min-h-[44px] px-3 text-sm font-medium text-[#F3C56B] hover:text-[#F3C56B] transition-colors"
                 disabled={loading}
               >
                 {t('edit')}
@@ -124,22 +124,22 @@ export default function ProfileTab({ user, profile, updateFullName, loading }: P
 
         {/* Información de la cuenta */}
         <div>
-          <h3 className="font-display text-base font-medium text-[#2D2D2D] tracking-[-0.005em] mb-2">
+          <h3 className="font-display text-base font-medium text-[#F1E7D6] tracking-[-0.005em] mb-2">
             {t('accountInfo')}
           </h3>
-          <div className="bg-[#FAF6EF] border border-[#E8E4E0] p-4 rounded-sm">
+          <div className="bg-[#161210] border border-[#3A2E24] p-4 rounded-sm">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.06em] text-[#6B6459] mb-0.5">
+                <p className="text-xs uppercase tracking-[0.06em] text-[#8C7F6E] mb-0.5">
                   {t('accountCreated')}
                 </p>
-                <p className="font-medium text-[#2D2D2D]">{createdAt || 'N/A'}</p>
+                <p className="font-medium text-[#F1E7D6]">{createdAt || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.06em] text-[#6B6459] mb-0.5">
+                <p className="text-xs uppercase tracking-[0.06em] text-[#8C7F6E] mb-0.5">
                   {t('accountId')}
                 </p>
-                <p className="font-medium text-[#4A4A4A] text-sm truncate tabular-nums">{user.id}</p>
+                <p className="font-medium text-[#C9BBA5] text-sm truncate tabular-nums">{user.id}</p>
               </div>
             </div>
           </div>

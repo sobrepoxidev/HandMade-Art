@@ -9,8 +9,8 @@ export default function FormMail() {
   const locale = useLocale();
 
   const inputClass =
-    'w-full p-3 border border-[#E8E4E0] rounded-sm bg-[#FFFDF9] text-[#2D2D2D] placeholder:text-[#9C9589] ' +
-    'focus:outline-none focus:border-[#A08848] focus:ring-2 focus:ring-[#A08848]/25 ' +
+    'w-full p-3 border border-[#3A2E24] rounded-sm bg-[#1E1813] text-[#F1E7D6] placeholder:text-[#8C7F6E] ' +
+    'focus:outline-none focus:border-[#F3C56B] focus:ring-2 focus:ring-[#F3C56B]/25 ' +
     'transition-colors text-sm md:text-base disabled:opacity-60';
 
   return (
@@ -21,7 +21,7 @@ export default function FormMail() {
       >
         <div className="space-y-4 text-start">
           <div>
-            <label htmlFor="contact-name" className="block mb-1.5 text-sm font-medium text-[#2D2D2D]">
+            <label htmlFor="contact-name" className="block mb-1.5 text-sm font-medium text-[#F1E7D6]">
               {locale === "es" ? "Nombre" : "Name"}
             </label>
             <input
@@ -36,7 +36,7 @@ export default function FormMail() {
           </div>
 
           <div>
-            <label htmlFor="contact-email" className="block mb-1.5 text-sm font-medium text-[#2D2D2D]">
+            <label htmlFor="contact-email" className="block mb-1.5 text-sm font-medium text-[#F1E7D6]">
               {locale === "es" ? "Correo electrónico" : "Email"}
             </label>
             <input
@@ -51,7 +51,7 @@ export default function FormMail() {
           </div>
 
           <div>
-            <label htmlFor="contact-phone" className="block mb-1.5 text-sm font-medium text-[#2D2D2D]">
+            <label htmlFor="contact-phone" className="block mb-1.5 text-sm font-medium text-[#F1E7D6]">
               {locale === "es" ? "Teléfono" : "Phone"}
             </label>
             <input
@@ -65,7 +65,7 @@ export default function FormMail() {
           </div>
 
           <div>
-            <label htmlFor="contact-message" className="block mb-1.5 text-sm font-medium text-[#2D2D2D]">
+            <label htmlFor="contact-message" className="block mb-1.5 text-sm font-medium text-[#F1E7D6]">
               {locale === "es" ? "Mensaje" : "Message"}
             </label>
             <textarea
@@ -86,11 +86,11 @@ export default function FormMail() {
             disabled={isPending}
             aria-busy={isPending}
             className={`inline-flex items-center justify-center w-full min-h-[48px] px-5 py-3 rounded-sm
-                       text-sm md:text-base font-semibold tracking-wide
+                       text-sm md:text-base font-bold tracking-wide
                        transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed
                        ${state?.success
-                         ? 'bg-[#4A7C59] hover:bg-[#3F6A4C] text-[#F5F1EB]'
-                         : 'bg-[#2D2D2D] hover:bg-[#1A1A1A] text-[#F5F1EB]'}`}
+                         ? 'bg-[#3C9A70] hover:bg-[#3F6A4C] text-[#161210]'
+                         : 'bg-[#E0A83A] hover:bg-[#F3C56B] text-[#161210]'}`}
           >
             {isPending ? (
               <>
@@ -110,7 +110,7 @@ export default function FormMail() {
           {state && !state?.success && (
             <div
               role="alert"
-              className="flex items-start gap-2 bg-[#C44536]/8 border border-[#C44536]/30 text-[#9F2D24] px-3 py-2.5 rounded-sm text-sm"
+              className="flex items-start gap-2 bg-[#D9563B]/8 border border-[#D9563B]/30 text-[#D9563B] px-3 py-2.5 rounded-sm text-sm"
             >
               <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2} aria-hidden />
               <span>{state?.message}</span>

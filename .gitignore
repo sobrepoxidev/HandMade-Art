@@ -41,3 +41,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Herramientas y exports locales, no son fuente del proyecto
+.zcode/
+qr-output/
+SEO */
